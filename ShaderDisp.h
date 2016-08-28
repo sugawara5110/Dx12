@@ -8,8 +8,8 @@ char *ShaderDisp =
 
 "cbuffer global  : register(b0)\n"
 "{\n"
-"    matrix g_World; \n"
-"    matrix g_WVP;\n"
+"    matrix g_World[150]; \n"
+"    matrix g_WVP[150];\n"
 //現在位置
 "    float4 g_C_Pos;\n"
 //オブジェクト追加カラー
@@ -34,44 +34,50 @@ char *ShaderDisp =
 "    float4 g_FogColor;\n"
 //ディスプ起伏量x
 "    float4 g_DispAmount;\n"
+//UV座標移動用
+"    float4 g_pXpYmXmY;\n"
 "};\n"
 
 "struct VS_OUTPUT_TCL\n"
 "{\n"
-"    float3 Pos : POSITION;\n"
-"    float3 Nor : NORMAL;\n"
-"    float4 Col : COLOR;\n"
-"    float2 Tex : TEXCOORD;\n"
+"    float3 Pos        : POSITION;\n"
+"    float3 Nor        : NORMAL;\n"
+"    float4 Col        : COLOR;\n"
+"    float2 Tex        : TEXCOORD;\n"
+"    uint   instanceID : SV_InstanceID;\n"
 "};\n"
 
 "struct VS_OUTPUT_TC\n"
 "{\n"
-"    float3 Pos : POSITION;\n"
-"    float3 Nor : NORMAL;\n"
-"    float4 Col : COLOR;\n"
-"    float2 Tex : TEXCOORD;\n"
+"    float3 Pos        : POSITION;\n"
+"    float3 Nor        : NORMAL;\n"
+"    float4 Col        : COLOR;\n"
+"    float2 Tex        : TEXCOORD;\n"
+"    uint   instanceID : SV_InstanceID;\n"
 "};\n"
 
 "struct HS_CONSTANT_OUTPUT\n"
 "{\n"
-"	 float factor[4]  : SV_TessFactor;\n"
+"	 float factor[4]       : SV_TessFactor;\n"
 "	 float inner_factor[2] : SV_InsideTessFactor;\n"
 "};\n"
 
 "struct HS_OUTPUT_TCL\n"
 "{\n"
-"    float3 Pos : POSITION;\n"
-"    float3 Nor : NORMAL;\n"
-"    float4 Col : COLOR;\n"
-"    float2 Tex : TEXCOORD;\n"
+"    float3 Pos        : POSITION;\n"
+"    float3 Nor        : NORMAL;\n"
+"    float4 Col        : COLOR;\n"
+"    float2 Tex        : TEXCOORD;\n"
+"    uint   instanceID : SV_InstanceID;\n"
 "};\n"
 
 "struct HS_OUTPUT_TC\n"
 "{\n"
-"	 float3 Pos : POSITION;\n"
-"    float3 Nor : NORMAL;\n"
-"    float4 Col : COLOR;\n"
-"    float2 Tex : TEXCOORD;\n"
+"	 float3 Pos        : POSITION;\n"
+"    float3 Nor        : NORMAL;\n"
+"    float4 Col        : COLOR;\n"
+"    float2 Tex        : TEXCOORD;\n"
+"    uint   instanceID : SV_InstanceID;\n"
 "};\n"
 
 "struct DS_OUTPUT_TCL\n"
@@ -94,26 +100,26 @@ char *ShaderDisp =
 
 //*********************************************頂点シェーダー*******************************************************************//
 //ライト有
-"VS_OUTPUT_TCL VSDispL(float3 Pos : POSITION, float3 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD)\n"
+"VS_OUTPUT_TCL VSDispL(float3 Pos : POSITION, float3 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TCL output = (VS_OUTPUT_TCL)0;\n"
 "    output.Pos = Pos;\n"
 "    output.Nor = Nor;\n"
 "    output.Col = Col;\n"
 "    output.Tex = Tex;\n"
-
+"    output.instanceID = instanceID;\n"
 "    return output;\n"
 "}\n"
 
 //ライト無
-"VS_OUTPUT_TC VSDisp(float3 Pos : POSITION, float3 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD)\n"
+"VS_OUTPUT_TC VSDisp(float3 Pos : POSITION, float3 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TC output = (VS_OUTPUT_TC)0;\n"
 "    output.Pos = Pos;\n"
 "    output.Nor = Nor;\n"
 "    output.Col = Col;\n"
 "    output.Tex = Tex;\n"
-
+"    output.instanceID = instanceID;\n"
 "    return output;\n"
 "}\n"
 //*********************************************頂点シェーダー*******************************************************************//
@@ -126,7 +132,7 @@ char *ShaderDisp =
 
 //ワールド変換(float3 から float4の変換忘れ無い事)
 "   float4 pos = float4(ipL[0].Pos, 1.0f);\n"
-"   float4 wPos = mul(pos, g_World);\n"
+"   float4 wPos = mul(pos, g_World[ipL[0].instanceID]);\n"
 //頂点から現在地までの距離を計算
 "   float distance = length(g_C_Pos.xyz - wPos.xyz);\n"
 
@@ -155,7 +161,7 @@ char *ShaderDisp =
 
 //ワールド変換
 "   float4 pos = float4(ip[0].Pos, 1.0f);\n"
-"   float4 wPos = mul(pos, g_World);\n"
+"   float4 wPos = mul(pos, g_World[ip[0].instanceID]);\n"
 
 //頂点から現在地までの距離を計算
 "   float distance = length(g_C_Pos.xyz - wPos.xyz);\n"
@@ -193,6 +199,7 @@ char *ShaderDisp =
 "	output.Nor = ipL[cpidL].Nor;\n"
 "	output.Col = ipL[cpidL].Col;\n"
 "	output.Tex = ipL[cpidL].Tex;\n"
+"   output.instanceID = ipL[cpidL].instanceID;\n"
 "	return output;\n"
 "}\n"
 
@@ -209,6 +216,7 @@ char *ShaderDisp =
 "	output.Nor = ip[cpid].Nor;\n"
 "	output.Col = ip[cpid].Col;\n"
 "	output.Tex = ip[cpid].Tex;\n"
+"   output.instanceID = ip[cpid].instanceID;\n"
 "	return output;\n"
 "}\n"
 //***************************************ハルシェーダー*************************************************************************//
@@ -281,14 +289,14 @@ char *ShaderDisp =
 "        nor1.z =  nor.y;\n"
 "     }\n"
 "   }\n"
-"   output.wPos = mul(output.Pos, g_World);\n"
-"   output.Pos = mul(output.Pos, g_WVP);\n"
+"   output.wPos = mul(output.Pos, g_World[patchL[0].instanceID]);\n"
+"   output.Pos = mul(output.Pos, g_WVP[patchL[0].instanceID]);\n"
 
 //法線正規化
 "   float3 Normal = normalize(nor1);\n"
 
 //出力する法線の作成
-"   output.Nor = mul(Normal, (float3x3)g_World);\n"
+"   output.Nor = mul(Normal, (float3x3)g_World[patchL[0].instanceID]);\n"
 
 "	return output;\n"
 "}\n"
@@ -332,8 +340,8 @@ char *ShaderDisp =
 "   if (patch[0].Nor.z ==  1.0f){\n"
 "       output.Pos.z += hei;\n"
 "   }\n"
-"   output.wPos = mul(output.Pos, g_World);\n"
-"   output.Pos = mul(output.Pos, g_WVP);\n"
+"   output.wPos = mul(output.Pos, g_World[patch[0].instanceID]);\n"
+"   output.Pos = mul(output.Pos, g_WVP[patch[0].instanceID]);\n"
 
 "	return output;\n"
 "}\n"

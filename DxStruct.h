@@ -11,21 +11,34 @@
 
 #define LIGHT_PCS 150
 #define LIGHT_PCS_init 7
+#define INSTANCE_PCS_3D 150
+#define INSTANCE_PCS_2D 80
 
 //頂点
-struct Vertex
-{
-	VECTOR3 Pos;     //位置
-	VECTOR3 normal;  //法線
+struct Vertex {
+	VECTOR3 Pos;       //位置
+	VECTOR3 normal;   //法線
 	VECTOR4 color;   //色
 	VECTOR2 tex;    //テクスチャ座標
 };
 
-//シェーダー受け渡し用バッファ
-struct CONSTANT_BUFFER
-{
-	MATRIX World;
-	MATRIX WVP;
+struct MY_VERTEX_MESH {
+	VECTOR3 Pos;
+	VECTOR3 normal;
+	VECTOR2 tex;
+};
+
+struct MY_VERTEX2 {
+	VECTOR3 Pos;       
+	VECTOR4 color;
+	VECTOR2 tex;    
+};
+
+//シェーダー受け渡し用バッファ3D
+struct CONSTANT_BUFFER {
+
+	MATRIX World[INSTANCE_PCS_3D];
+	MATRIX WVP[INSTANCE_PCS_3D];
 	VECTOR4 C_Pos;       //視点位置
 	VECTOR4 AddObjColor;//オブジェクトの色変化用
 
@@ -44,8 +57,22 @@ struct CONSTANT_BUFFER
 	VECTOR4  FogAmo_Density; //フォグ量x, フォグの密度y, onoffz
 	VECTOR4  FogColor;   //フォグの色
 
-    //ディスプレイトメントマッピングの起伏量x(0入力の場合デフォルト値3になる)
+	//ディスプレイトメントマッピングの起伏量x(0入力の場合デフォルト値3になる)
 	VECTOR4  DispAmount;
+
+	//UV座標移動用
+	VECTOR4 pXpYmXmY;
+};
+
+struct CONSTANT_BUFFER_MESH {
+	VECTOR4 vDiffuse;//ディフューズ色
+	VECTOR4 tex_f;   //テクスチャ有り無し
+};
+
+struct CONSTANT_BUFFER2D {
+	VECTOR4 Pos[INSTANCE_PCS_2D];
+	VECTOR4 Color[INSTANCE_PCS_2D];
+	VECTOR4 sizeXY[INSTANCE_PCS_2D];
 };
 
 //ポイントライト

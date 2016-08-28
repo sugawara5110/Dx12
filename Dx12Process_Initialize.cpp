@@ -7,6 +7,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Dx12Process.h"
 #include <WindowsX.h>
+#include "Shader2D.h"
+#include "Shader3D.h"
+#include "ShaderDisp.h"
+#include "ShaderMesh.h"
+#include "ShaderMesh_D.h"
+#include "ShaderParticle.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -66,29 +72,89 @@ void Dx12Process::FlushCommandQueue() {
 	}
 }
 
+void Dx12Process::CreateShaderByteCode() {
+
+	//メッシュレイアウト
+	pVertexLayout_MESH =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	//メッシュ
+	pVertexShader_MESH = dx->CompileShader(ShaderMesh, strlen(ShaderMesh), "VSMesh", "vs_5_0");
+	pPixelShader_MESH = dx->CompileShader(ShaderMesh, strlen(ShaderMesh), "PSMesh", "ps_5_0");
+	//テセレーター有メッシュ
+	pVertexShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "VSMesh", "vs_5_0");
+	pPixelShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "PSMesh", "ps_5_0");
+	pHullShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "HSMesh", "hs_5_0");
+	pDomainShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "DSMesh", "ds_5_0");
+
+	//3Dレイアウト
+	pVertexLayout_3D =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 * 2 + 4 * 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	//テクスチャ3Dライト無
+	pVertexShader_TC = dx->CompileShader(Shader3D, strlen(Shader3D), "VSTextureColor", "vs_5_0");
+	pPixelShader_TC = dx->CompileShader(Shader3D, strlen(Shader3D), "PSTextureColor", "ps_5_0");
+	//テクスチャ3Dライト有
+	pVertexShader_TCL = dx->CompileShader(Shader3D, strlen(Shader3D), "VSTextureColorL", "vs_5_0");
+	pPixelShader_TCL = dx->CompileShader(Shader3D, strlen(Shader3D), "PSTextureColorL", "ps_5_0");
+	//基本色3D
+	pVertexShader_BC = dx->CompileShader(Shader3D, strlen(Shader3D), "VSBaseColor", "vs_5_0");
+	pPixelShader_BC = dx->CompileShader(Shader3D, strlen(Shader3D), "PSBaseColor", "ps_5_0");
+	//テセレータライト無
+	pVertexShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "VSDisp", "vs_5_0");
+	pPixelShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "PSDisp", "ps_5_0");
+	pHullShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "HSDisp", "hs_5_0");
+	pDomainShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "DSDisp", "ds_5_0");
+	//テセレータライト有
+	pVertexShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "VSDispL", "vs_5_0");
+	pPixelShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "PSDispL", "ps_5_0");
+	pHullShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "HSDispL", "hs_5_0");
+	pDomainShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "DSDispL", "ds_5_0");
+
+	//2Dレイアウト
+	pVertexLayout_2D =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 + 4 * 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	//テクスチャ2D
+	pVertexShader_2DTC = dx->CompileShader(Shader2D, strlen(Shader2D), "VSTextureColor", "vs_5_0");
+	pPixelShader_2DTC = dx->CompileShader(Shader2D, strlen(Shader2D), "PSTextureColor", "ps_5_0");
+	//2D
+	pVertexShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "VSBaseColor", "vs_5_0");
+	pPixelShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "PSBaseColor", "ps_5_0");
+}
+
 void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
 	Bdecode(Bpass, &binary_ch[i], &binary_size[i]);
 }
 
 void Dx12Process::TextureBinaryDecodeAll() {
 
-	//test中
+	//テスト中後で書き換える
 	//マップ0
-	TextureBinaryDecode("wall1.da", 0);
+	TextureBinaryDecode("./../../dat/texture/map/wall1.da", 0);
+	TextureBinaryDecode("./../../dat/texture/map/leaf.da", 9);
+	TextureBinaryDecode("./../../dat/texture/map/wood.da", 10);
+	TextureBinaryDecode("./../../dat/texture/effect/h_att.da", 81);
 }
 
-void Dx12Process::GetTexture(ID3D12GraphicsCommandList *mCommandList, ID3D12Resource **texture, int TexNo) {
+void Dx12Process::GetTexture(ID3D12GraphicsCommandList *mCommandList, ID3D12Resource **texture, ID3D12Resource **textureUp, int *TexNo) {
 
-	if (TexNo >= TEX_PCS || binary_size[TexNo] == 0)return;
-	ID3D12Resource *up;
+	if (*TexNo >= TEX_PCS || *TexNo < 0 || binary_size[*TexNo] == 0) { (*TexNo) = -1; return; }
 	char str[50];
-	for (int i = 0; i < TEX_PCS; i++) {
-		if (binary_size[i] == 0)continue;
-		if (FAILED(DirectX::CreateWICTextureFromMemory(md3dDevice.Get(), mCommandList,
-			(uint8_t*)binary_ch[i], binary_size[i], texture, &up, NULL, NULL))) {
-			sprintf(str, "テクスチャ№%d読み込みエラー", i);
-			throw str;
-		}
+	if (FAILED(DirectX::CreateWICTextureFromMemory(md3dDevice.Get(), mCommandList,
+		(uint8_t*)binary_ch[*TexNo], binary_size[*TexNo], texture, textureUp, NULL, NULL))) {
+		sprintf(str, "テクスチャ№%d読み込みエラー", (*TexNo));
+		throw str;
 	}
 }
 
@@ -157,23 +223,24 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	//コマンド待ち行列生成
 	if (FAILED(md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue))))FALSE;
 
-	//コマンドアロケータ生成(コマンドリストに積むバッファを確保するObj)
-	if (FAILED(md3dDevice->CreateCommandAllocator(
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf()))))FALSE;
+	for (int i = 0; i < COM_NO; i++) {
+		//コマンドアロケータ生成(コマンドリストに積むバッファを確保するObj)
+		if (FAILED(md3dDevice->CreateCommandAllocator(
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			IID_PPV_ARGS(mDirectCmdListAlloc[i].GetAddressOf()))))FALSE;
 
-	//コマンドリスト生成
-	if (FAILED(md3dDevice->CreateCommandList(
-		0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		mDirectCmdListAlloc.Get(),
-		nullptr,
-		IID_PPV_ARGS(mCommandList.GetAddressOf()))))FALSE;
+		//コマンドリスト生成
+		if (FAILED(md3dDevice->CreateCommandList(
+			0,
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			mDirectCmdListAlloc[i].Get(),
+			nullptr,
+			IID_PPV_ARGS(mCommandList[i].GetAddressOf()))))FALSE;
 
-	//最初は閉じた方が良い
-	mCommandList->Close();
-	mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr);
-
+		//最初は閉じた方が良い
+		mCommandList[i]->Close();
+		mCommandList[i]->Reset(mDirectCmdListAlloc[i].Get(), nullptr);
+	}
 	//初期化
 	mSwapChain.Reset();
 
@@ -210,7 +277,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	if (FAILED(md3dDevice->CreateDescriptorHeap(
 		&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf()))))FALSE;
 
-	//スワップチェインを深度ステンシルビュ-として使用するためのDescriptorHeapを作成
+	//深度ステンシルビュ-DescriptorHeapを作成
 	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
@@ -264,7 +331,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	md3dDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDsvHeapHeapHandle);
 
 	//深度ステンシルバッファ,リソースバリア共有→深度書き込み
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	mCommandList[0]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 	//ビューポート
@@ -289,12 +356,16 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	FarPlane = 10000.0f;
 	MatrixPerspectiveFovLH(&mProj, ViewY_theta, aspect, NearPlane, FarPlane);
 
-	//クローズ後してからキューに積む
-	mCommandList->Close();
-	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	FlushCommandQueue();
+	//ビューポート行列作成(3D座標→2D座標変換に使用)
+	MatrixViewPort(&Vp);
 
+	//クローズしてからキューに積む(コマンドリストは全部積む、そうしないとエラーが出る)
+	for (int i = 0; i < COM_NO; i++) {
+		mCommandList[i]->Close();
+		ID3D12CommandList* cmdsLists[] = { mCommandList[i].Get() };
+		mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	}
+	FlushCommandQueue();
 	//ポイントライト構造体初期化
 	ResetPointLight();
 
@@ -317,42 +388,47 @@ bool Dx12Process::Initialize(HWND hWnd) {
 		binary_size[i] = 0;
 	}
 
+	CreateShaderByteCode();
+
 	TextureBinaryDecodeAll();
 
 	return TRUE;
 }
 
-void Dx12Process::Sclear() {
-	
-	mDirectCmdListAlloc->Reset();
-	mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr);
-	
-	//mSwapChainBuffer PRESENT→RENDER_TARGET
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+void Dx12Process::Sclear(int com_no) {
 
-	//Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
+	if (SclearF == true || com_no != 0)return;
+
+	//0番のみ実行
+	mCommandList[0]->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
 		mRtvDescriptorSize), DirectX::Colors::LightSteelBlue, 0, nullptr);
-	mCommandList->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
+	mCommandList[0]->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	//mSwapChainBuffer RENDER_TARGET→PRESENT
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	mCommandList->Close();
-	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	SclearF = true;
 }
 
-void Dx12Process::Drawscreen() {
-	FlushCommandQueue();
+void Dx12Process::Bigin(int com_no, ID3D12PipelineState *pso) {
+	mDirectCmdListAlloc[com_no]->Reset();
+	mCommandList[com_no]->Reset(mDirectCmdListAlloc[com_no].Get(), pso);
+}
+
+void Dx12Process::End(int com_no) {
+	//コマンドクローズ
+	mCommandList[com_no]->Close();
+	//クローズ後リストに加える
+	ID3D12CommandList* cmdsLists[] = { mCommandList[com_no].Get() };
+	dx->mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+}
+
+void Dx12Process::DrawScreen() {
 	// swap the back and front buffers
 	mSwapChain->Present(0, 0);
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
+	FlushCommandQueue();
+	SclearF = false;
 }
 
 void Dx12Process::Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2) {
@@ -487,8 +563,42 @@ ComPtr<ID3DBlob> Dx12Process::CompileShader(LPSTR szFileName, size_t size, LPSTR
 	return byteCode;
 }
 
+void  Dx12Process::InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size) {
+
+	ins_no++;
+
+	if (ins_no > INSTANCE_PCS_3D - 1) {
+		ins_no--; return;
+	}
+	MATRIX mov;
+	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
+	MATRIX scale;
+	MATRIX scro;
+	MATRIX world;
+	MATRIX WV;
+
+	//拡大縮小
+	MatrixScaling(&scale, size, size, size);
+	//表示位置
+	MatrixRotationZ(&rotZ, thetaZ);
+	MatrixRotationY(&rotY, thetaY);
+	MatrixRotationX(&rotX, thetaX);
+	MatrixMultiply(&rotZY, &rotZ, &rotY);
+	MatrixMultiply(&rotZYX, &rotZY, &rotX);
+	MatrixTranslation(&mov, x, y, z);
+	MatrixMultiply(&scro, &rotZYX, &scale);
+	MatrixMultiply(&world, &scro, &mov);
+
+	//ワールド、カメラ、射影行列、等
+	cb.World[ins_no] = world;
+	MatrixMultiply(&WV, &world, &mView);
+	MatrixMultiply(&cb.WVP[ins_no], &WV, &mProj);
+	MatrixTranspose(&cb.World[ins_no]);
+	MatrixTranspose(&cb.WVP[ins_no]);
+}
+
 void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
-	float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
+	float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my) {
 
 	MATRIX mov;
 	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
@@ -510,10 +620,9 @@ void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, f
 	MatrixMultiply(&world, &scro, &mov);
 
 	//ワールド、カメラ、射影行列、等
-	CONSTANT_BUFFER cb;
-	cb.World = world;
+	cb.World[0] = world;
 	MatrixMultiply(&WV, &world, &mView);
-	MatrixMultiply(&cb.WVP, &WV, &mProj);
+	MatrixMultiply(&cb.WVP[0], &WV, &mProj);
 	cb.C_Pos.as(posX, posY, posZ, 0.0f);
 	cb.AddObjColor.as(r, g, b, 0.0f);
 	cb.pShadowLow_Lpcs.as(plight.ShadowLow_val, (float)plight.LightPcs, 0.0f, 0.0f);
@@ -527,8 +636,9 @@ void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, f
 	cb.FogColor = fog.FogColor;
 	if (disp == 0.0f)disp = 3.0f;
 	cb.DispAmount.as(disp, 0.0f, 0.0f, 0.0f);
-	MatrixTranspose(&cb.World);
-	MatrixTranspose(&cb.WVP);
+	MatrixTranspose(&cb.World[0]);
+	MatrixTranspose(&cb.WVP[0]);
+	cb.pXpYmXmY.as(px, py, mx, my);
 	mObjectCB->CopyData(0, cb);
 }
 

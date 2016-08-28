@@ -8,8 +8,8 @@ char *Shader3D =
 
 "cbuffer global  : register(b0)\n"
 "{\n"
-"    matrix g_World;\n"
-"    matrix g_WVP;\n"
+"    matrix g_World[150];\n"
+"    matrix g_WVP[150];\n"
 //現在位置
 "    float4 g_C_Pos;\n"
 //オブジェクト追加カラー
@@ -34,53 +34,57 @@ char *Shader3D =
 "    float4 g_FogColor;\n"
 //ディスプ起伏量x
 "    float4 g_DispAmount;\n"
+//UV座標移動用
+"    float4 g_pXpYmXmY;\n"
 "};\n"
 
 "struct VS_OUTPUT_TCL\n"
 "{\n"
-"    float4 Pos : SV_POSITION;\n"
-"    float4 wPos: POSITION;\n"
-"    float3 Nor : NORMAL;\n"
-"    float4 Col : COLOR;\n"
-"    float2 Tex : TEXCOORD;\n"
+"    float4 Pos        : SV_POSITION;\n"
+"    float4 wPos       : POSITION;\n"
+"    float3 Nor        : NORMAL;\n"
+"    float4 Col        : COLOR;\n"
+"    float2 Tex        : TEXCOORD;\n"
 "};\n"
 
 "struct VS_OUTPUT_TC\n"
 "{\n"
-"    float4 Pos : SV_POSITION;\n"
-"    float4 wPos: POSITION;\n"
-"    float4 Col : COLOR;\n"
-"    float2 Tex : TEXCOORD;\n"
+"    float4 Pos        : SV_POSITION;\n"
+"    float4 wPos       : POSITION;\n"
+"    float4 Col        : COLOR;\n"
+"    float2 Tex        : TEXCOORD;\n"
 "};\n"
 
 "struct VS_OUTPUT_BC\n"
 "{\n"
-"    float4 Pos : SV_POSITION;\n"
-"    float4 Col : COLOR;\n"
+"    float4 Pos        : SV_POSITION;\n"
+"    float4 Col        : COLOR;\n"
 "};\n"
 
 //****************************************テクスチャ頂点**************************************************************//
 //ライト有
-"VS_OUTPUT_TCL VSTextureColorL(float4 Pos : POSITION, float4 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD)\n"
+"VS_OUTPUT_TCL VSTextureColorL(float4 Pos : POSITION, float4 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TCL output = (VS_OUTPUT_TCL)0;\n"
-"    output.Pos = mul(Pos, g_WVP);\n"
-"    output.wPos = mul(Pos, g_World);\n"
-"    output.Nor = mul(Nor, (float3x3)g_World);\n"
+"    output.Pos = mul(Pos, g_WVP[instanceID]);\n"
+"    output.wPos = mul(Pos, g_World[instanceID]);\n"
+"    output.Nor = mul(Nor, (float3x3)g_World[instanceID]);\n"
 "    output.Col = Col;\n"
-"    output.Tex = Tex;\n"
+"    output.Tex.x = Tex.x * g_pXpYmXmY.x + g_pXpYmXmY.x * g_pXpYmXmY.z;\n"
+"    output.Tex.y = Tex.y * g_pXpYmXmY.y + g_pXpYmXmY.y * g_pXpYmXmY.w;\n"
 
 "    return output;\n"
 "}\n"
 
 //ライト無
-"VS_OUTPUT_TC VSTextureColor(float4 Pos : POSITION, float4 Col : COLOR, float2 Tex : TEXCOORD)\n"
+"VS_OUTPUT_TC VSTextureColor(float4 Pos : POSITION, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TC output = (VS_OUTPUT_TC)0;\n"
-"    output.Pos = mul(Pos, g_WVP);\n"
-"    output.wPos = mul(Pos, g_World);\n"
+"    output.Pos = mul(Pos, g_WVP[instanceID]);\n"
+"    output.wPos = mul(Pos, g_World[instanceID]);\n"
 "    output.Col = Col;\n"
-"    output.Tex = Tex;\n"
+"    output.Tex.x = Tex.x * g_pXpYmXmY.x + g_pXpYmXmY.x * g_pXpYmXmY.z;\n"
+"    output.Tex.y = Tex.y * g_pXpYmXmY.y + g_pXpYmXmY.y * g_pXpYmXmY.w;\n"
 
 "    return output;\n"
 "}\n"
@@ -173,10 +177,10 @@ char *Shader3D =
 //****************************************テクスチャピクセル**********************************************************//
 
 //****************************************基本色頂点******************************************************************//
-"VS_OUTPUT_BC VSBaseColor(float4 Pos : POSITION, float4 Col : COLOR)\n"
+"VS_OUTPUT_BC VSBaseColor(float4 Pos : POSITION, float4 Col : COLOR, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_BC output = (VS_OUTPUT_BC)0;\n"
-"    output.Pos = mul(Pos, g_WVP);\n"
+"    output.Pos = mul(Pos, g_WVP[instanceID]);\n"
 
 "    output.Col = Col;\n"
 
