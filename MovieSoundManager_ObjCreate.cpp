@@ -28,7 +28,7 @@ MovieSoundManager::MovieSoundManager(){}
 void MovieSoundManager::ObjInit(){
 
 	mo = new Movie(0);
-	f_wall = new Movie(1);
+	/*f_wall = new Movie(1);
 	for (int i = 0; i < 5; i++)dungeon_so[i] = NULL;
 	rain_so = NULL;
 	enemy_so[0] = new Sound_(31);//ŽG‹›“G‚Í‚¸‚Á‚Æ•ÛŽ‚µ‚Á‚Ï‚È‚µ
@@ -43,7 +43,7 @@ void MovieSoundManager::ObjInit(){
 	magic_so = new Sound_(3);
 	select_so = new Sound_(4);
 	enter_so = new Sound_(5);
-	map_n = 0;
+	map_n = 0;*/
 }
 
 void MovieSoundManager::ObjCreate_title(){

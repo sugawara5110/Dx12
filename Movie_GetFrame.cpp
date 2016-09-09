@@ -44,11 +44,11 @@ MovieSoundManager::Movie::Movie(int no){
 
 	switch (no){
 	case 0:
-		fname = BinaryDecode("./dat/movie/torch.da");//松明
+		fname = BinaryDecode("./../../dat/movie/torch.da");//松明
 		break;
 
 	case 1:
-		fname = BinaryDecode("./dat/movie/f_wall.da");//炎壁
+		fname = BinaryDecode("./../../dat/movie/f_wall.da");//炎壁
 		break;
 	}
 
@@ -77,7 +77,7 @@ MovieSoundManager::Movie::Movie(int no){
 
 	// バッファを用意
 	nBufferSize = am_media_type.lSampleSize;// データサイズ
-	pBuffer = new BYTE[nBufferSize];
+	pBuffer = new BYTE[nBufferSize]();
 
 	//pBuffe x方向1ラインサイズ計算
 	linesize = pVideoInfoHeader->bmiHeader.biWidth * 3;

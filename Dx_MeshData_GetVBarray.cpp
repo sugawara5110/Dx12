@@ -338,6 +338,8 @@ void MeshData::GetVBarray(LPSTR FileName) {
 
 	GetShaderByteCode(disp);
 
+	dx->Bigin(com_no, mPSO.Get());
+
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
@@ -377,7 +379,7 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	int VCount = 0;//読み込みカウンター
 	int VNCount = 0;//読み込みカウンター
 	int VTCount = 0;//読み込みカウンター
-	FaceCount = 0;//ポリゴン数カウンター
+	int FaceCount = 0;//ポリゴン数カウンター
 
 	char line[200] = { 0 };
 	char key[200] = { 0 };
@@ -419,6 +421,10 @@ void MeshData::GetVBarray(LPSTR FileName) {
 		}
 	}
 
+	//テクスチャ取得
+	for (int i = 0; i < MaterialCount; i++)
+		dx->GetTexture(dx->mCommandList[com_no].Get(), &pMaterial[i].texture, &pMaterial[i].textureUp, &pMaterial[i].tex_no);
+
 	//一時的なメモリ確保
 	VECTOR3* pvCoord = new VECTOR3[VCount]();
 	VECTOR3* pvNormal = new VECTOR3[VNCount]();
@@ -429,7 +435,7 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	VCount = 0;
 	VNCount = 0;
 	VTCount = 0;
-
+	
 	while (!feof(fp))
 	{
 		//キーワード 読み込み
@@ -488,13 +494,27 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
+	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	for (int i = 0; i < MaterialCount; i++) {
+		srvDesc.Format = pMaterial[i].texture->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = pMaterial[i].texture->GetDesc().MipLevels;
+		dx->md3dDevice->CreateShaderResourceView(pMaterial[i].texture, &srvDesc, hDescriptor);
+		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
+	}
+
 	Vview = std::make_unique<VertexView>();
 	Iview = std::make_unique<IndexView[]>(MaterialCount);
 
 	//フェイス　読み込み　バラバラに収録されている可能性があるので、マテリアル名を頼りにつなぎ合わせる
 	bool boFlag = false;
-	piFaceBuffer = new int[MaterialCount * FaceCount * 3]();//3頂点なので3インデックス * Material個数
-	pvVertexBuffer = new MY_VERTEX_MESH[FaceCount * 3]();
+	int* piFaceBuffer = new int[FaceCount * 3]();//3頂点なので3インデックス
+	MY_VERTEX_MESH* pvVertexBuffer = new MY_VERTEX_MESH[FaceCount * 3]();
 	int FCount = 0;
 	int dwPartFCount = 0;
 	for (int i = 0; i < MaterialCount; i++)
@@ -535,9 +555,9 @@ void MeshData::GetVBarray(LPSTR FileName) {
 				}
 
 				//インデックスバッファー
-				piFaceBuffer[FaceCount * 3 * i + dwPartFCount * 3] = FCount * 3;
-				piFaceBuffer[FaceCount * 3 * i + dwPartFCount * 3 + 1] = FCount * 3 + 1;
-				piFaceBuffer[FaceCount * 3 * i + dwPartFCount * 3 + 2] = FCount * 3 + 2;
+				piFaceBuffer[dwPartFCount * 3] = FCount * 3;
+				piFaceBuffer[dwPartFCount * 3 + 1] = FCount * 3 + 1;
+				piFaceBuffer[dwPartFCount * 3 + 2] = FCount * 3 + 2;
 				//頂点構造体に代入
 				pvVertexBuffer[FCount * 3].Pos = pvCoord[v1 - 1];
 				pvVertexBuffer[FCount * 3].normal = pvNormal[vn1 - 1];
@@ -564,13 +584,16 @@ void MeshData::GetVBarray(LPSTR FileName) {
 		const UINT ibByteSize = (UINT)dwPartFCount * 3 * sizeof(UINT);
 
 		D3DCreateBlob(ibByteSize, &Iview[i].IndexBufferCPU);
-		CopyMemory(Iview[i].IndexBufferCPU->GetBufferPointer(), &piFaceBuffer[FaceCount * 3 * i], ibByteSize);
+		CopyMemory(Iview[i].IndexBufferCPU->GetBufferPointer(), piFaceBuffer, ibByteSize);
+
+		Iview[i].IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
+			mCommandList, piFaceBuffer, ibByteSize, Iview[i].IndexBufferUploader);
 
 		Iview[i].IndexFormat = DXGI_FORMAT_R32_UINT;//これ間違うと全然変わる注意
 		Iview[i].IndexBufferByteSize = ibByteSize;
 		Iview[i].IndexCount = dwPartFCount * 3;
 	}
-	
+	ARR_DELETE(piFaceBuffer);
 	fclose(fp);
 
 	const UINT vbByteSize = (UINT)FCount * 3 * sizeof(MY_VERTEX_MESH);
@@ -578,10 +601,14 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), pvVertexBuffer, vbByteSize);
 
+	Vview->VertexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
+		mCommandList, pvVertexBuffer, vbByteSize, Vview->VertexBufferUploader);
+
 	Vview->VertexByteStride = sizeof(MY_VERTEX_MESH);
 	Vview->VertexBufferByteSize = vbByteSize;
 
 	//一時的変数解放
+	ARR_DELETE(pvVertexBuffer);
 	ARR_DELETE(pvCoord);
 	ARR_DELETE(pvNormal);
 	ARR_DELETE(pvTexture);
@@ -633,31 +660,11 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
 	psoDesc.DSVFormat = dx->mDepthStencilFormat;
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
-}
 
-void MeshData::GetTexture() {
-	//頂点読み込みの都合上CommandListの処理を隔離
+	dx->End(com_no);
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	for (int i = 0; i < MaterialCount; i++) {
-		srvDesc.Format = dx->texture[pMaterial[i].tex_no]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[pMaterial[i].tex_no]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[pMaterial[i].tex_no], &srvDesc, hDescriptor);
-		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
-
-		Iview[i].IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
-			mCommandList, &piFaceBuffer[FaceCount * 3 * i], Iview[i].IndexBufferByteSize, Iview[i].IndexBufferUploader);
-	}
-	ARR_DELETE(piFaceBuffer);
-
-	Vview->VertexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
-		mCommandList, pvVertexBuffer, Vview->VertexBufferByteSize, Vview->VertexBufferUploader);
-	ARR_DELETE(pvVertexBuffer);
+	//コマンド完了待ち
+	dx->FlushCommandQueue();
 }
 
 void MeshData::InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size) {
@@ -665,8 +672,6 @@ void MeshData::InstancedMap(float x, float y, float z, float thetaZ, float theta
 }
 
 void MeshData::Draw(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
-
-	mCommandList->SetPipelineState(mPSO.Get());
 
 	//シェーダーのコンスタントバッファーに各種データを渡す
 	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -676,6 +681,8 @@ void MeshData::Draw(float x, float y, float z, float r, float g, float b, float 
 
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	dx->Sclear(com_no);
 
 	//レンダーターゲットのセット
 	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(

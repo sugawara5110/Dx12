@@ -4,6 +4,7 @@
 //**                                   DsProcessä÷êî                                     **//
 //*****************************************************************************************//
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "DsProcess.h"
 
 DsProcess::DsProcess(){

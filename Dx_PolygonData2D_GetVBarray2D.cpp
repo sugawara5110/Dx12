@@ -41,23 +41,19 @@ PolygonData2D::~PolygonData2D(){
 }
 
 void PolygonData2D::InstancedSetConstBf(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
-	InstancedSetConstBf(x, y, 0.0f, r, g, b, a, sizeX, sizeY);
-}
-
-void PolygonData2D::InstancedSetConstBf(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
 
 	ins_no++;
 	if (ins_no > INSTANCE_PCS_2D - 1) {
 		ins_no--; return;
 	}
-	cb.Pos[ins_no].as(x, y, z, 0.0f);
+	cb.Pos[ins_no].as(x, y, 0.0f, 0.0f);
 	cb.Color[ins_no].as(r, g, b, a);
 	cb.sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
 }
 
-void PolygonData2D::SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
+void PolygonData2D::SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
 
-	cb.Pos[0].as(x, y, z, 0.0f);
+	cb.Pos[0].as(x, y, 0.0f, 0.0f);
 	cb.Color[0].as(r, g, b, a);
 	cb.sizeXY[0].as(sizeX, sizeY, 0.0f, 0.0f);
 	mObjectCB->CopyData(0, cb);
@@ -67,6 +63,8 @@ void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **T
 
 	RELEASE(texture);
 	RELEASE(textureUp);
+
+	dx->Bigin(com_no, mPSO.Get());
 
 	D3D12_RESOURCE_DESC texDesc = {};
 	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -200,6 +198,11 @@ void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **T
 	srvDesc.Format = texture->GetDesc().Format;
 	srvDesc.Texture2D.MipLevels = texture->GetDesc().MipLevels;
 	dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
+
+	dx->End(com_no);
+
+	//コマンド完了待ち
+	dx->FlushCommandQueue();
 }
 
 ID3D12PipelineState *PolygonData2D::GetPipelineState() {
@@ -256,12 +259,14 @@ void PolygonData2D::CreateBox(float x, float y, float z, float sizex, float size
 	d2varrayI[4] = 3;
 	d2varrayI[5] = 2;
 
-	Create(blend, alpha);
+	Create(x, y, r, g, b, a, blend, alpha);
 }
 
-void PolygonData2D::Create(bool blend, bool alpha) {
+void PolygonData2D::Create(float x, float y, float r, float g, float b, float a, bool blend, bool alpha) {
 
 	GetShaderByteCode();
+
+	dx->Bigin(com_no, mPSO.Get());
 
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER2D>(dx->md3dDevice.Get(), 1, true);
 
@@ -361,17 +366,17 @@ void PolygonData2D::Create(bool blend, bool alpha) {
 	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
 	psoDesc.DSVFormat = dx->mDepthStencilFormat;
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
+
+	dx->End(com_no);
+
+	//コマンド完了待ち
+	dx->FlushCommandQueue();
 }
+
 
 void PolygonData2D::Draw(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
-	Draw(x, y, 0.0f, r, g, b, a, sizeX, sizeY);
-}
 
-void PolygonData2D::Draw(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
-
-	mCommandList->SetPipelineState(mPSO.Get());
-
-	SetConstBf(mObjectCB, x, y, z, r, g, b, a, sizeX, sizeY);
+	SetConstBf(mObjectCB, x, y, r, g, b, a, sizeX, sizeY);
 
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
@@ -379,6 +384,8 @@ void PolygonData2D::Draw(float x, float y, float z, float r, float g, float b, f
 	//mSwapChainBuffer PRESENT→RENDER_TARGET
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	dx->Sclear(com_no);
 
 	//レンダーターゲットのセット
 	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(

@@ -252,6 +252,8 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 
 	GetShaderByteCode(light, tNo);
 
+	dx->Bigin(com_no, mPSO.Get());
+
 	//BuildConstantBuffers
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
 
@@ -304,17 +306,14 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 	//
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
 
+	if (!m_on)dx->GetTexture(dx->mCommandList[com_no].Get(), &texture, &textureUp, &tNo);
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	if (!m_on && tNo != -1) {
-		srvDesc.Format = dx->texture[tNo]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[tNo]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[tNo], &srvDesc, hDescriptor);
-	}
-	if (m_on) {
+	if (m_on || tNo != -1) {
 		srvDesc.Format = texture->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = texture->GetDesc().MipLevels;
 		dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
@@ -391,29 +390,24 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
 	psoDesc.DSVFormat = dx->mDepthStencilFormat;
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
+
+	dx->End(com_no);
+
+	//コマンド完了待ち
+	dx->FlushCommandQueue();
 }
 
 void PolygonData::InstancedMap(float x, float y, float z, float theta) {
-	dx->InstancedMap(x, y, z, theta, 0, 0, 1.0f);
-}
-
-void PolygonData::InstancedMap(float x, float y, float z, float theta, float size) {
-	dx->InstancedMap(x, y, z, theta, 0, 0, size);
+	dx->InstancedMap(x, y, z, theta, 0, 0, 1.0);
 }
 
 void PolygonData::Draw(float x, float y, float z, float r, float g, float b, float theta, float disp) {
-	Draw(x, y, z, r, g, b, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	Draw(x, y, z, r, g, b, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void  PolygonData::Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size) {
-	Draw(x, y, z, r, g, b, theta, disp, size, 1.0f, 1.0f, 1.0f, 1.0f);
-}
+void PolygonData::Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float px, float py, float mx, float my) {
 
-void PolygonData::Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my) {
-
-	mCommandList->SetPipelineState(mPSO.Get());
-
-	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
+	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, theta, 0, 0, 1.0f, disp, px, py, mx, my);
 
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
@@ -421,6 +415,8 @@ void PolygonData::Draw(float x, float y, float z, float r, float g, float b, flo
 	//mSwapChainBuffer PRESENT→RENDER_TARGET
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	dx->Sclear(com_no);
 
 	//レンダーターゲットのセット
 	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(

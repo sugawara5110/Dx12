@@ -45,8 +45,6 @@ Dx12Process::~Dx12Process() {
 		if (binary_ch[i] == NULL)continue;
 		free(binary_ch[i]);
 		binary_ch[i] = NULL;
-		RELEASE(texture[i]);
-		RELEASE(textureUp[i]);
 	}
 	free(binary_ch);
 	free(binary_size);
@@ -75,31 +73,6 @@ void Dx12Process::FlushCommandQueue() {
 }
 
 void Dx12Process::CreateShaderByteCode() {
-
-	//ストリーム出力データ定義(パーティクル用)
-	pDeclaration_PSO =
-	{
-		{ 0, "POSITION", 0, 0, 3, 0 }, //「x,y,z」をスロット「0」の「POSITION」に出力
-		{ 0, "POSITION", 1, 0, 3, 0 },
-		{ 0, "POSITION", 2, 0, 3, 0 },
-		{ 0, "COLOR", 0, 0, 4, 0 }
-	};
-	//ストリーム出力
-	pVertexShader_PSO = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "VS_SO", "vs_5_0");
-	pGeometryShader_PSO = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point_SO", "gs_5_0");
-
-	//パーティクル頂点インプットレイアウトを定義
-	pVertexLayout_P = 
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "POSITION", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "POSITION", 2, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-	};
-	//パーティクル
-	pVertexShader_P = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "VS", "vs_5_0");
-	pGeometryShader_P = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point", "gs_5_0");
-	pPixelShader_P = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "PS", "ps_5_0");
 
 	//メッシュレイアウト
 	pVertexLayout_MESH =
@@ -166,114 +139,23 @@ void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
 
 void Dx12Process::TextureBinaryDecodeAll() {
 
+	//テスト中後で書き換える
 	//マップ0
-	TextureBinaryDecode("./dat/texture/map/wall1.da", 0);
-	TextureBinaryDecode("./dat/texture/map/ground1.da", 1);
-	TextureBinaryDecode("./dat/texture/map/ceiling1.da", 2);
-	//マップ1
-	TextureBinaryDecode("./dat/texture/map/wall2.da", 4);
-	TextureBinaryDecode("./dat/texture/map/ground2.da", 5);
-	TextureBinaryDecode("./dat/texture/map/ceiling2.da", 6);
-	TextureBinaryDecode("./dat/texture/map/wall2-1.da", 8);
-	TextureBinaryDecode("./dat/texture/map/leaf.da", 9);
-	TextureBinaryDecode("./dat/texture/map/wood.da", 10);
-	//マップ2
-	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3.da", 11);
-	TextureBinaryDecode("./dat/texture/map/ground3.da", 12);
-	//マップ3
-	TextureBinaryDecode("./dat/texture/map/ceiling4_ground4.da", 15);
-	//マップ4
-	TextureBinaryDecode("./dat/texture/map/wall5.da", 26);
-	TextureBinaryDecode("./dat/texture/map/ground5.da", 27);
-	TextureBinaryDecode("./dat/texture/map/ceiling5.da", 28);
-	//通常敵
-	TextureBinaryDecode("./dat/texture/enemy/enemy1.da", 30);
-	TextureBinaryDecode("./dat/texture/enemy/enemy2.da", 31);
-	TextureBinaryDecode("./dat/texture/enemy/enemy3.da", 32);
-	TextureBinaryDecode("./dat/texture/enemy/enemy4.da", 33);
-	TextureBinaryDecode("./dat/texture/enemy/enemy5.da", 34);
-	TextureBinaryDecode("./dat/texture/enemy/enemy6.da", 35);
-	TextureBinaryDecode("./dat/texture/enemy/enemy7.da", 36);
-	TextureBinaryDecode("./dat/texture/enemy/enemy8.da", 37);
-	TextureBinaryDecode("./dat/texture/enemy/enemy9.da", 38);
-	TextureBinaryDecode("./dat/texture/enemy/enemy10.da", 39);
-	TextureBinaryDecode("./dat/texture/enemy/enemy11.da", 40);
-	TextureBinaryDecode("./dat/texture/enemy/enemy12.da", 41);
-	TextureBinaryDecode("./dat/texture/enemy/enemy13.da", 42);
-	TextureBinaryDecode("./dat/texture/enemy/enemy14.da", 43);
-	TextureBinaryDecode("./dat/texture/enemy/enemy15.da", 44);
-	TextureBinaryDecode("./dat/texture/enemy/enemy16.da", 45);
-	TextureBinaryDecode("./dat/texture/enemy/enemy17.da", 46);
-	TextureBinaryDecode("./dat/texture/enemy/enemy18.da", 47);
-	TextureBinaryDecode("./dat/texture/enemy/enemy19.da", 48);
-	TextureBinaryDecode("./dat/texture/enemy/enemy20.da", 49);
-	//ボス
-	TextureBinaryDecode("./dat/texture/enemy/boss1.da", 50);
-	TextureBinaryDecode("./dat/texture/enemy/boss2.da", 51);
-	TextureBinaryDecode("./dat/texture/enemy/boss3.da", 52);
-	TextureBinaryDecode("./dat/texture/enemy/boss4.da", 53);
-	//ラストボス
-	TextureBinaryDecode("./dat/texture/enemy/lastboss.da", 59);
-	//魔方陣通常
-	TextureBinaryDecode("./dat/texture/magic/side_magic.da", 60);
-	//魔方陣ボス
-	TextureBinaryDecode("./dat/texture/magic/boss_magic.da", 61);
-	//回復ポイント
-	TextureBinaryDecode("./dat/texture/magic/recover.da", 70);
-	//エフェクト
-	TextureBinaryDecode("./dat/texture/effect/e_att.da", 80);
-	TextureBinaryDecode("./dat/texture/effect/h_att.da", 81);
-	TextureBinaryDecode("./dat/texture/effect/flame.da", 82);
-	TextureBinaryDecode("./dat/texture/effect/healing.da", 83);
-	TextureBinaryDecode("./dat/texture/effect/recov.da", 84);
-	//プレイヤー1テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p1/brown_eye.da", 90);
-	TextureBinaryDecode("./dat/texture/player/p1/classicshoes_texture_diffuse.da", 91);
-	TextureBinaryDecode("./dat/texture/player/p1/eyebrow001.da", 92);
-	TextureBinaryDecode("./dat/texture/player/p1/jacket01_diffuse.da", 93);
-	TextureBinaryDecode("./dat/texture/player/p1/jeans01_black_diffuse.da", 94);
-	TextureBinaryDecode("./dat/texture/player/p1/male01_diffuse_black.da", 95);
-	TextureBinaryDecode("./dat/texture/player/p1/young_lightskinned_male_diffuse.da", 96);
-	//プレイヤー2テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p2/brown_eye.da", 100);
-	TextureBinaryDecode("./dat/texture/player/p2/diffuse_black.da", 101);
-	TextureBinaryDecode("./dat/texture/player/p2/eyebrow006.da", 102);
-	TextureBinaryDecode("./dat/texture/player/p2/eyelashes03.da", 103);
-	TextureBinaryDecode("./dat/texture/player/p2/shoes02_default.da", 104);
-	TextureBinaryDecode("./dat/texture/player/p2/short01_black_diffuse.da", 105);
-	TextureBinaryDecode("./dat/texture/player/p2/tshirt02_texture.da", 106);
-	TextureBinaryDecode("./dat/texture/player/p2/young_lightskinned_female_diffuse.da", 107);
-	//プレイヤー3テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p3/brown_eye.da", 110);
-	TextureBinaryDecode("./dat/texture/player/p3/classicshoes_texture_diffuse.da", 111);
-	TextureBinaryDecode("./dat/texture/player/p3/jeans_basic_diffuse.da", 112);
-	TextureBinaryDecode("./dat/texture/player/p3/young_darkskinned_male_diffuse.da", 113);
-	//プレイヤー4テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p4/afro.da", 120);
-	TextureBinaryDecode("./dat/texture/player/p4/brown_eye.da", 121);
-	TextureBinaryDecode("./dat/texture/player/p4/eyebrow007.da", 122);
-	TextureBinaryDecode("./dat/texture/player/p4/eyelashes03.da", 123);
-	TextureBinaryDecode("./dat/texture/player/p4/shoes02_default.da", 124);
-	TextureBinaryDecode("./dat/texture/player/p4/short01_black_diffuse.da", 125);
-	TextureBinaryDecode("./dat/texture/player/p4/tshirt_texture_blue.da", 126);
-	TextureBinaryDecode("./dat/texture/player/p4/young_darkskinned_female_diffuse.da", 127);
+	TextureBinaryDecode("./../../dat/texture/map/wall1.da", 0);
+	TextureBinaryDecode("./../../dat/texture/map/leaf.da", 9);
+	TextureBinaryDecode("./../../dat/texture/map/wood.da", 10);
+	TextureBinaryDecode("./../../dat/texture/effect/h_att.da", 81);
 }
 
-void Dx12Process::GetTexture() {
+void Dx12Process::GetTexture(ID3D12GraphicsCommandList *mCommandList, ID3D12Resource **texture, ID3D12Resource **textureUp, int *TexNo) {
 
+	if (*TexNo >= TEX_PCS || *TexNo < 0 || binary_size[*TexNo] == 0) { (*TexNo) = -1; return; }
 	char str[50];
-	dx->Bigin(0, nullptr);
-	for (int i = 0; i < TEX_PCS; i++) {
-		if (binary_size[i] == 0)continue;
-
-		if (FAILED(DirectX::CreateWICTextureFromMemory(md3dDevice.Get(), mCommandList[0].Get(),
-			(uint8_t*)binary_ch[i], binary_size[i], &texture[i], &textureUp[i], NULL, NULL))) {
-			sprintf(str, "テクスチャ№%d読み込みエラー", (i));
-			throw str;
-		}
+	if (FAILED(DirectX::CreateWICTextureFromMemory(md3dDevice.Get(), mCommandList,
+		(uint8_t*)binary_ch[*TexNo], binary_size[*TexNo], texture, textureUp, NULL, NULL))) {
+		sprintf(str, "テクスチャ№%d読み込みエラー", (*TexNo));
+		throw str;
 	}
-	dx->End(0);
-	dx->FlushCommandQueue();
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {
@@ -434,7 +316,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	optClear.Format = mDepthStencilFormat;
 	optClear.DepthStencil.Depth = 1.0f;
 	optClear.DepthStencil.Stencil = 0;
-	//深度ステンシルバッファ領域確保
+	//深度ステンシルバッファ領域確保?
 	if (FAILED(md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -508,20 +390,16 @@ bool Dx12Process::Initialize(HWND hWnd) {
 
 	CreateShaderByteCode();
 
+	TextureBinaryDecodeAll();
+
 	return TRUE;
 }
 
-void Dx12Process::Sclear() {
+void Dx12Process::Sclear(int com_no) {
 
-	mDirectCmdListAlloc[0]->Reset();
-	mCommandList[0]->Reset(mDirectCmdListAlloc[0].Get(), nullptr);
+	if (SclearF == true || com_no != 0)return;
 
-	mCommandList[0]->RSSetViewports(1, &mScreenViewport);
-	mCommandList[0]->RSSetScissorRects(1, &mScissorRect);
-
-	mCommandList[0]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
+	//0番のみ実行
 	mCommandList[0]->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
@@ -529,18 +407,7 @@ void Dx12Process::Sclear() {
 	mCommandList[0]->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	mCommandList[0]->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		mCurrBackBuffer,
-		mRtvDescriptorSize), true, &mDsvHeap->GetCPUDescriptorHandleForHeapStart());
-
-	mCommandList[0]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	mCommandList[0]->Close();
-
-	ID3D12CommandList* cmdsLists[] = { mCommandList[0].Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	SclearF = true;
 }
 
 void Dx12Process::Bigin(int com_no, ID3D12PipelineState *pso) {
@@ -561,6 +428,7 @@ void Dx12Process::DrawScreen() {
 	mSwapChain->Present(0, 0);
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 	FlushCommandQueue();
+	SclearF = false;
 }
 
 void Dx12Process::Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2) {
@@ -677,22 +545,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Dx12Process::CreateDefaultBuffer(
 
 	//コマンドリストが作成されない場合でもコピーは実行される
 	//コピーが実行された後uploadBufferはリリースされる
-
-	return defaultBuffer;
-}
-
-Microsoft::WRL::ComPtr<ID3D12Resource> Dx12Process::CreateStreamBuffer(ID3D12Device* device, UINT64 byteSize)
-{
-	ComPtr<ID3D12Resource> defaultBuffer;
-
-	//ストリームバッファ生成
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(byteSize),
-		D3D12_RESOURCE_STATE_STREAM_OUT,
-		nullptr,
-		IID_PPV_ARGS(defaultBuffer.GetAddressOf()));
 
 	return defaultBuffer;
 }
@@ -892,9 +744,4 @@ float T_float::Add(float f) {
 	float r = ((float)time * f) / 2.0f;
 	if (r <= 0.0f)return 0.01f;
 	return r;
-}
-
-//エラーメッセージ
-void ErrorMessage(char *E_mes) {
-	MessageBoxA(0, E_mes, 0, MB_OK);
 }
