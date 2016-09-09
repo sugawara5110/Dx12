@@ -11,8 +11,7 @@
 
 DxText *DxText::textobj = NULL;
 
-void DxText::InstanceCreate(){
-
+void DxText::InstanceCreate() {
 	if (textobj == NULL)textobj = new DxText();
 }
 
@@ -37,9 +36,10 @@ DxText::DxText() {
 
 	dx = Dx12Process::GetInstance();
 
+	dx->Bigin(TEXT_COM, nullptr);
 	//文字列用バッファ初期化
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
-		text[i].SetCommandList(3);
+		text[i].SetCommandList(TEXT_COM);
 		text[i].GetVBarray2D(1);
 		text[i].TexOn();
 		text[i].CreateBox(0, 0, 0.0f, 0.1f, 0.1f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
@@ -49,14 +49,15 @@ DxText::DxText() {
 
 	//可変用
 	for (int i = 0; i < VAL_PCS; i++) {
-		value[i].SetCommandList(3);
+		value[i].SetCommandList(TEXT_COM);
 		value[i].GetVBarray2D(1);
 		value[i].TexOn();
 		value[i].CreateBox(0, 0, 0.0f, 0.1f, 0.1f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
 		TCHAR *va = CreateTextValue(i);
 		CreateText(value, &va, i, 15.0f);
 	}
-
+	dx->End(TEXT_COM);
+	dx->FlushCommandQueue();
 	CreateTextNo = 0;
 }
 
@@ -294,10 +295,14 @@ void DxText::UpDateValue(int val, float x, float y, float fontsize, int pcs, VEC
 	}
 }
 
-void DxText::Draw() {
+void DxText::BiginDraw() {
+	dx->Bigin(TEXT_COM, nullptr);
+}
 
-	dx->Bigin(3, value[0].GetPipelineState());
+void DxText::EndDraw() {
+
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
+		if (textInsData[i].pcs == 0) continue;
 		int i1;
 		for (i1 = 0; i1 < textInsData[i].pcs - 1; i1++) {
 			text[i].InstancedSetConstBf(
@@ -324,6 +329,7 @@ void DxText::Draw() {
 	}
 
 	for (int i = 0; i < VAL_PCS; i++) {
+		if (valueInsData[i].pcs == 0)continue;
 		int i1;
 		for (i1 = 0; i1 < valueInsData[i].pcs - 1; i1++) {
 			value[i].InstancedSetConstBf(
@@ -348,8 +354,7 @@ void DxText::Draw() {
 			valueInsData[i].s[i1].sizeY
 		);
 	}
-	dx->End(3);
-
+	dx->End(TEXT_COM);
 	//描画終了したら描画個数リセット
 	for (int i = 0; i < STRTEX_MAX_PCS; i++)textInsData[i].pcs = 0;
 	for (int i = 0; i < VAL_PCS; i++)valueInsData[i].pcs = 0;

@@ -26,6 +26,7 @@
 #include <DirectXCollision.h>
 #include "WICTextureLoader.h"
 #include <memory>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 #include <array>
@@ -37,7 +38,7 @@
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-#define COM_NO        5
+#define COM_NO        7
 #define RELEASE(p)    if(p){p->Release();  p=NULL;}
 #define S_DELETE(p)   if(p){delete p;      p=NULL;}
 #define ARR_DELETE(p) if(p){delete[] p;    p=NULL;}
@@ -50,6 +51,7 @@ class MeshData;
 class PolygonData;
 class PolygonData2D;
 class DxText;
+class ParticleData;
 //前方宣言
 
 class Dx12Process {
@@ -59,6 +61,7 @@ private:
 	friend PolygonData;
 	friend PolygonData2D;
 	friend DxText;
+	friend ParticleData;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
 	Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
@@ -81,7 +84,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
-	bool SclearF = false;
 
 	//シェーダーバイトコード
 	Microsoft::WRL::ComPtr<ID3DBlob> pGeometryShader_PSO = nullptr;
@@ -95,6 +97,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISP = nullptr;
 
+	std::vector<D3D12_SO_DECLARATION_ENTRY> pDeclaration_PSO;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_P;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_MESH;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_3D;
@@ -141,6 +144,9 @@ private:
 	//テクスチャ
 	char  **binary_ch;                   //デコード後バイナリ
 	int   *binary_size;                 //バイナリサイズ
+	//テクスチャ保持
+	ID3D12Resource *texture[TEX_PCS];
+	ID3D12Resource *textureUp[TEX_PCS];
 
 	static Dx12Process *dx;//クラス内でオブジェクト生成し使いまわす
 
@@ -170,19 +176,19 @@ private:
 	void operator=(const Dx12Process& obj) {};// 代入演算子禁止
 	~Dx12Process();
 	
-	void FlushCommandQueue();
 	void CreateShaderByteCode();
 	void TextureBinaryDecode(char *Bpass, int i);//暗号化済み画像バイナリデコード
-	void GetTexture(ID3D12GraphicsCommandList *mCommandList, ID3D12Resource **texture, ID3D12Resource **textureUp, int *TexNo); //TextureBinaryDecodeAll();の後にやる事
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
 		const void* initData, UINT64 byteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateStreamBuffer(ID3D12Device* device, UINT64 byteSize);
+
 	Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(LPSTR szFileName, size_t size, LPSTR szFuncName, LPSTR szProfileName);
 
 	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
 	void MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my);
-	void Sclear(int com_no);
 
 public:
 	static void InstanceCreate();
@@ -190,8 +196,11 @@ public:
 	static void DeleteInstance();
 	bool Initialize(HWND hWnd);
 	void TextureBinaryDecodeAll();
+	void GetTexture();
+	void Sclear();
 	void Bigin(int com_no, ID3D12PipelineState *pso);
 	void End(int com_no);
+	void FlushCommandQueue();
 	void DrawScreen();
 	void Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2);
 	void ResetPointLight();
@@ -267,6 +276,25 @@ struct IndexView {
 	}
 };
 
+struct StreamView {
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> StreamBufferGPU = nullptr;
+
+	//バッファのサイズ等
+	UINT StreamByteStride = 0;
+	UINT StreamBufferByteSize = 0;
+	D3D12_GPU_VIRTUAL_ADDRESS BufferFilledSizeLocation;
+
+	//ストリームバッファビュー
+	D3D12_STREAM_OUTPUT_BUFFER_VIEW StreamBufferView()const
+	{
+		D3D12_STREAM_OUTPUT_BUFFER_VIEW sbv;
+		sbv.BufferLocation = StreamBufferGPU->GetGPUVirtualAddress();
+		sbv.SizeInBytes = StreamBufferByteSize;
+		sbv.BufferFilledSizeLocation = BufferFilledSizeLocation;//分からないとりあえずこれで動いているVertexにおくるとhungする
+		return sbv;
+	}
+};
 
 template<typename T>
 class UploadBuffer {
@@ -354,26 +382,23 @@ private:
 			
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;//パイプラインOBJ
 
-	int                        MaterialCount = 0;//マテリアル数
+	int              MaterialCount = 0;//マテリアル数
+	int              *piFaceBuffer;
+	MY_VERTEX_MESH   *pvVertexBuffer;
+	int              FaceCount;  //ポリゴン数カウンター
 
 	struct MY_MATERIAL {
 		CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
 		VECTOR4 Kd;           //ディフューズ
 		CHAR TextureName[110];//マテリアルファイル内のテクスチャ№の文字列が入る
 		int tex_no;
-		//テクスチャ保持
-		ID3D12Resource *texture = NULL;
-		ID3D12Resource *textureUp = NULL;
+
 		MY_MATERIAL()
 		{
 			ZeroMemory(this, sizeof(MY_MATERIAL));
 			tex_no = -1;
 		}
-		~MY_MATERIAL()
-		{
-			RELEASE(texture);
-			RELEASE(textureUp);
-		}
+		~MY_MATERIAL(){}
 	};
 	MY_MATERIAL* pMaterial;
 
@@ -398,6 +423,7 @@ public:
 	void SetCommandList(int no);
 	void SetState(bool alpha, bool blend, bool disp);
 	void GetVBarray(LPSTR FileName);
+	void GetTexture();
 	ID3D12PipelineState *GetPipelineState();
 	//木./dat/mesh/tree.obj
 	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
@@ -466,7 +492,7 @@ private:
 	std::unique_ptr<VertexView> Vview = nullptr;
 	std::unique_ptr<IndexView> Iview = nullptr;
 
-	//テクスチャ保持
+	//テクスチャ保持(directshow用)
 	ID3D12Resource *texture = NULL;
 	ID3D12Resource *textureUp = NULL;
 	//テクスチャ番号
@@ -509,8 +535,10 @@ public:
 		float r, float g, float b, float a,
 		float u, float v);
 	void InstancedMap(float x, float y, float z, float theta);
+	void InstancedMap(float x, float y, float z, float theta, float size);
 	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp);
-	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float px, float py, float mx, float my);
+	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
+	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
 };
 
 //*********************************PolygonData2Dクラス*************************************//
@@ -550,7 +578,7 @@ private:
 	int               ins_no = 0;
 
 	void GetShaderByteCode();
-	void SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
+	void SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
 	void SetText(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize);//DxText classでしか使わない
 
 public:
@@ -566,9 +594,11 @@ public:
 	void GetVBarray2D(int pcs);
 	void TexOn();
 	void CreateBox(float x, float y, float z, float sizex, float sizey, float r, float g, float b, float a, bool blend, bool alpha);
-	void Create(float x, float y, float r, float g, float b, float a, bool blend, bool alpha);
+	void Create(bool blend, bool alpha);
 	void InstancedSetConstBf(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
+	void InstancedSetConstBf(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
 	void Draw(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
+	void Draw(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
 };
 
 class T_float {
@@ -583,5 +613,64 @@ public:
 	static void GetTime(HWND hWnd);//常に実行
 	float Add(float f);
 };
+
+//*********************************ParticleDataクラス*************************************//
+
+class ParticleData {
+
+private:
+	Dx12Process                *dx;
+	ID3D12CommandAllocator     *mDirectCmdListAlloc;
+	ID3D12GraphicsCommandList  *mCommandList;
+	int                        com_no = 0;
+	ID3DBlob                   *gsSO;
+	ID3DBlob                   *vsSO;
+	ID3DBlob                   *gs;
+	ID3DBlob                   *vs;
+	ID3DBlob                   *ps;
+	int                        ver;//頂点数
+
+	struct CONSTANT_BUFFER_P {
+		MATRIX  WV;
+		MATRIX  Proj;
+		VECTOR4 size;//xパーティクル大きさ, yパーティクル初期化フラグ, zスピード
+	};
+	struct PartPos {
+		VECTOR3 CurrentPos; //描画に使う
+		VECTOR3 PosSt;     //開始位置
+		VECTOR3 PosEnd;   //終了位置
+		VECTOR4 Col;
+	};
+	PartPos *P_pos;//パーティクルデータ配列
+	bool Drawfirst;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature_com = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature_draw = nullptr;
+
+	//コンスタントバッファOBJ
+	UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB = nullptr;
+
+	//頂点バッファOBJ
+	std::unique_ptr<VertexView> Vview = nullptr;
+	//ストリームバッファOBJ
+	std::unique_ptr<StreamView> Sview1 = nullptr;
+	std::unique_ptr<StreamView> Sview2 = nullptr;//BufferFilledSizeLocationの送り先
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_com = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_draw = nullptr;
+
+	void GetShaderByteCode();
+	void MatrixMap(UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB, float x, float y, float z, float theta, float size, bool init, float speed);
+
+public:
+	ParticleData();
+	~ParticleData();
+	void SetCommandList(int no);
+	void CreateParticle(int texture_no, float size, float density);//テクスチャを元にパーティクルデータ生成, 全体サイズ倍率, 密度
+	void Draw(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
+};
+
+//エラーメッセージ
+void ErrorMessage(char *E_mes);
 
 #endif

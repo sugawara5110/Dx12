@@ -31,6 +31,7 @@ char *Shader2D =
 "   if(output.Pos.y > 0)output.Pos.y += g_sizeXY[instanceID].y;\n"
 "	output.Pos.x = -1.0f + (output.Pos.x + g_pos[instanceID].x) * 2.0f / 800.0f;\n"
 "	output.Pos.y = 1.0f - (output.Pos.y + g_pos[instanceID].y) * 2.0f / 600.0f;\n"
+"   output.Pos.z = output.Pos.z + g_pos[instanceID].z;\n"
 
 "	output.Col = Col + g_ObjCol[instanceID];\n"
 
@@ -56,6 +57,7 @@ char *Shader2D =
 "   if(output.Pos.y > 0)output.Pos.y += g_sizeXY[instanceID].y;\n"
 "	output.Pos.x = -1.0f + (output.Pos.x + g_pos[instanceID].x) * 2.0f / 800.0f;\n"
 "	output.Pos.y = 1.0f - (output.Pos.y + g_pos[instanceID].y) * 2.0f / 600.0f;\n"
+"   output.Pos.z = output.Pos.z + g_pos[instanceID].z;\n"
 
 "	output.Col = Col + g_ObjCol[instanceID];\n"
 "	output.Tex = Tex;\n"
