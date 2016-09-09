@@ -7,6 +7,7 @@
 #ifndef Class_DsProcess_Header
 #define Class_DsProcess_Header
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "Dx12Process.h"
 #include <dshow.h>
 #include <qedit.h>
