@@ -401,6 +401,19 @@ void PolygonData::InstancedMap(float x, float y, float z, float theta, float siz
 	dx->InstancedMap(x, y, z, theta, 0, 0, size);
 }
 
+void PolygonData::InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ) {
+	dx->InstancedMapSize3(x, y, z, theta, 0, 0, sizeX, sizeY, sizeZ);
+}
+
+void PolygonData::InstanceDraw(float r, float g, float b, float disp) {
+	InstanceDraw(r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void PolygonData::InstanceDraw(float r, float g, float b, float disp, float px, float py, float mx, float my) {
+	dx->MatrixMap2(mObjectCB, r, g, b, disp, px, py, mx, my);
+	DrawParts();
+}
+
 void PolygonData::Draw(float x, float y, float z, float r, float g, float b, float theta, float disp) {
 	Draw(x, y, z, r, g, b, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -410,11 +423,12 @@ void  PolygonData::Draw(float x, float y, float z, float r, float g, float b, fl
 }
 
 void PolygonData::Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my) {
-
-	mCommandList->SetPipelineState(mPSO.Get());
-
 	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
+	DrawParts();
+}
 
+void PolygonData::DrawParts() {
+	mCommandList->SetPipelineState(mPSO.Get());
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
 
@@ -440,9 +454,7 @@ void PolygonData::Draw(float x, float y, float z, float r, float g, float b, flo
 	mCommandList->SetGraphicsRootDescriptorTable(0, mSrvHeap->GetGPUDescriptorHandleForHeapStart());
 	mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
 
-	mCommandList->DrawIndexedInstanced(
-		Iview->IndexCount,
-		1 + dx->ins_no, 0, 0, 0);
+	mCommandList->DrawIndexedInstanced(Iview->IndexCount, dx->ins_no, 0, 0, 0);
 
 	//mSwapChainBuffer RENDER_TARGET¨PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),

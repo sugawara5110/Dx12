@@ -30,7 +30,7 @@ void PolygonData2D::SetCommandList(int no) {
 	mCommandList = dx->mCommandList[com_no].Get();
 }
 
-PolygonData2D::~PolygonData2D(){
+PolygonData2D::~PolygonData2D() {
 	free(d2varray);
 	d2varray = NULL;
 	free(d2varrayI);
@@ -46,21 +46,19 @@ void PolygonData2D::InstancedSetConstBf(float x, float y, float r, float g, floa
 
 void PolygonData2D::InstancedSetConstBf(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
 
-	ins_no++;
-	if (ins_no > INSTANCE_PCS_2D - 1) {
-		ins_no--; return;
-	}
 	cb.Pos[ins_no].as(x, y, z, 0.0f);
 	cb.Color[ins_no].as(r, g, b, a);
 	cb.sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
+	ins_no++;
 }
 
 void PolygonData2D::SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
 
-	cb.Pos[0].as(x, y, z, 0.0f);
-	cb.Color[0].as(r, g, b, a);
-	cb.sizeXY[0].as(sizeX, sizeY, 0.0f, 0.0f);
+	cb.Pos[ins_no].as(x, y, z, 0.0f);
+	cb.Color[ins_no].as(r, g, b, a);
+	cb.sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
 	mObjectCB->CopyData(0, cb);
+	ins_no++;
 }
 
 void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize) {
@@ -219,7 +217,7 @@ void PolygonData2D::TexOn() {
 
 void PolygonData2D::GetShaderByteCode() {
 
-	if (tex_on == NULL) {
+	if (!tex_on) {
 		vs = dx->pVertexShader_2D.Get();
 		ps = dx->pPixelShader_2D.Get();
 	}
@@ -363,15 +361,23 @@ void PolygonData2D::Create(bool blend, bool alpha) {
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
 }
 
+void PolygonData2D::InstanceDraw() {
+	mObjectCB->CopyData(0, cb);
+	DrawParts();
+}
+
 void PolygonData2D::Draw(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
 	Draw(x, y, 0.0f, r, g, b, a, sizeX, sizeY);
 }
 
 void PolygonData2D::Draw(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
+	SetConstBf(mObjectCB, x, y, z, r, g, b, a, sizeX, sizeY);
+	DrawParts();
+}
+
+void PolygonData2D::DrawParts() {
 
 	mCommandList->SetPipelineState(mPSO.Get());
-
-	SetConstBf(mObjectCB, x, y, z, r, g, b, a, sizeX, sizeY);
 
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
@@ -398,14 +404,13 @@ void PolygonData2D::Draw(float x, float y, float z, float r, float g, float b, f
 	mCommandList->SetGraphicsRootDescriptorTable(0, mSrvHeap->GetGPUDescriptorHandleForHeapStart());
 	mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
 
-	mCommandList->DrawIndexedInstanced(
-		Iview->IndexCount,
-		1 + ins_no, 0, 0, 0);
+	mCommandList->DrawIndexedInstanced(Iview->IndexCount, ins_no, 0, 0, 0);
 
 	//mSwapChainBuffer RENDER_TARGET¨PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
 	ins_no = 0;
 }
+
+
 

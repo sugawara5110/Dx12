@@ -59,7 +59,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Recover_LV = 0;
 				savedata.p_data[i].Rpoint = 10;*/
 
-				
+				/*
 				savedata.p_data[i].Attack = 10;
 				savedata.p_data[i].Magic = 10;
 				savedata.p_data[i].Agility = 10;
@@ -75,8 +75,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Hpoint = 100;
 				savedata.p_data[i].Recover_LV = 10;
 				savedata.p_data[i].Rpoint = 100;
+				*/
 				
-				/*
 				savedata.p_data[i].Attack = 100;
 				savedata.p_data[i].Magic = 100;
 				savedata.p_data[i].Agility = 100;
@@ -92,7 +92,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Hpoint = 1000;
 				savedata.p_data[i].Recover_LV = 100;
 				savedata.p_data[i].Rpoint = 1000;
-				*/
+				
 			}
 
 			savedata.h_pos.cx1 = 450.0f;//ƒ{ƒX‘O

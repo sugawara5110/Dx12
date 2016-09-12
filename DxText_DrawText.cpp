@@ -42,7 +42,7 @@ DxText::DxText() {
 		text[i].SetCommandList(TEXT_COM);
 		text[i].GetVBarray2D(1);
 		text[i].TexOn();
-		text[i].CreateBox(0, 0, 0.0f, 0.1f, 0.1f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
+		text[i].CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 		_tcscpy_s(str[i], STR_MAX_LENGTH * sizeof(TCHAR), _T("***************************************"));//直接代入
 		f_size[i] = 0;
 	}
@@ -52,7 +52,7 @@ DxText::DxText() {
 		value[i].SetCommandList(TEXT_COM);
 		value[i].GetVBarray2D(1);
 		value[i].TexOn();
-		value[i].CreateBox(0, 0, 0.0f, 0.1f, 0.1f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
+		value[i].CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 		TCHAR *va = CreateTextValue(i);
 		CreateText(value, &va, i, 15.0f);
 	}
@@ -263,6 +263,7 @@ void DxText::UpDateText(TCHAR **c, float x, float y, float fontsize, VECTOR4 cl)
 	textInsData[texNo].s[textInsData[texNo].pcs].sizeX = f_size[texNo] * strcnt[texNo];
 	textInsData[texNo].s[textInsData[texNo].pcs].sizeY = f_size[texNo];
 	textInsData[texNo].pcs++;
+	draw_f = TRUE;
 }
 
 void DxText::UpDateValue(int val, float x, float y, float fontsize, int pcs, VECTOR4 cl) {
@@ -293,6 +294,7 @@ void DxText::UpDateValue(int val, float x, float y, float fontsize, int pcs, VEC
 		val = val - (int)pow(10.0, i) * s;
 		xx += fontsize;
 	}
+	draw_f = TRUE;
 }
 
 void DxText::BiginDraw() {
@@ -301,10 +303,12 @@ void DxText::BiginDraw() {
 
 void DxText::EndDraw() {
 
+	if (!draw_f)return;
+
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
 		if (textInsData[i].pcs == 0) continue;
 		int i1;
-		for (i1 = 0; i1 < textInsData[i].pcs - 1; i1++) {
+		for (i1 = 0; i1 < textInsData[i].pcs; i1++) {
 			text[i].InstancedSetConstBf(
 				textInsData[i].s[i1].x,
 				textInsData[i].s[i1].y,
@@ -316,22 +320,13 @@ void DxText::EndDraw() {
 				textInsData[i].s[i1].sizeY
 			);
 		}
-		text[i].Draw(
-			textInsData[i].s[i1].x,
-			textInsData[i].s[i1].y,
-			textInsData[i].s[i1].r,
-			textInsData[i].s[i1].g,
-			textInsData[i].s[i1].b,
-			textInsData[i].s[i1].a,
-			textInsData[i].s[i1].sizeX,
-			textInsData[i].s[i1].sizeY
-		);
+		text[i].InstanceDraw();
 	}
 
 	for (int i = 0; i < VAL_PCS; i++) {
 		if (valueInsData[i].pcs == 0)continue;
 		int i1;
-		for (i1 = 0; i1 < valueInsData[i].pcs - 1; i1++) {
+		for (i1 = 0; i1 < valueInsData[i].pcs; i1++) {
 			value[i].InstancedSetConstBf(
 				valueInsData[i].s[i1].x,
 				valueInsData[i].s[i1].y,
@@ -343,16 +338,7 @@ void DxText::EndDraw() {
 				valueInsData[i].s[i1].sizeY
 			);
 		}
-		value[i].Draw(
-			valueInsData[i].s[i1].x,
-			valueInsData[i].s[i1].y,
-			valueInsData[i].s[i1].r,
-			valueInsData[i].s[i1].g,
-			valueInsData[i].s[i1].b,
-			valueInsData[i].s[i1].a,
-			valueInsData[i].s[i1].sizeX,
-			valueInsData[i].s[i1].sizeY
-		);
+		value[i].InstanceDraw();
 	}
 	dx->End(TEXT_COM);
 	//描画終了したら描画個数リセット

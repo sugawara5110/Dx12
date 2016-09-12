@@ -87,12 +87,9 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 
 	float m;
 	TCHAR *str = L"ƒtƒŒƒCƒ€‚k‚u";
-	TCHAR *str1 = text->CreateTextValue(GetFlameATT_LV());
-	TCHAR *str2 = L"ƒq[ƒŠƒ“ƒO‚k‚u";
-	TCHAR *str3 = text->CreateTextValue(GetHealing_LV());
-	TCHAR *str4 = L"ƒŠƒJƒoƒŠ‚k‚u";
-	TCHAR *str5 = text->CreateTextValue(GetRecover_LV());
-	TCHAR *str6 = L"MP‚ª‘«‚è‚È‚¢";
+	TCHAR *str1 = L"ƒq[ƒŠƒ“ƒO‚k‚u";
+	TCHAR *str2 = L"ƒŠƒJƒoƒŠ‚k‚u";
+	TCHAR *str3 = L"MP‚ª‘«‚è‚È‚¢";
 	switch (act_f) {
 	case ATTACK:
 		m = tfloat.Add(0.15f);
@@ -130,21 +127,21 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		switch (H_Magrun) {
 		case FLAME:
 			text->UpDateText(&str, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
-			text->UpDateText(&str1, mx + 180.0f, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateValue(GetFlameATT_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 1;
 			break;
 		case HEAL:
-			text->UpDateText(&str2, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
-			text->UpDateText(&str3, mx + 210.0f, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(&str1, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateValue(GetHealing_LV(), mx + 210.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 2;
 			break;
 		case RECOV:
-			text->UpDateText(&str4, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
-			text->UpDateText(&str5, mx + 180.0f, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(&str2, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateValue(GetRecover_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 3;
 			break;
 		case NOSEL:
-			text->UpDateText(&str6, mx, my, 30.0f, { 1.0f, 0.5f, 0.5f, 1.0f });
+			text->UpDateText(&str3, mx, my, 30.0f, { 1.0f, 0.5f, 0.5f, 1.0f });
 			break;
 		}
 		if (effect_f == FALSE && (count += m) > 200.0f) {
@@ -241,7 +238,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		else {
 			if ((r += m) >= 1.0f)clr_f = TRUE;
 		}
-		TCHAR *str11 = L"í“¬•s”\";
+		TCHAR *str11 = L"—Õí‘Ô¨";
 		text->UpDateText(&str11, x, 525.0f, 25.0f, { 1.0f, 1.0f, 1.0f, r });
 		return NOT_FIN;
 	}

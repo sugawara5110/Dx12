@@ -130,7 +130,9 @@ CommandSelect Battle::Menu_AT(int i, Directionkey direction){
 		}
 	}
 
-	Cursor_e(h_draw[i].A_select);
+	float r, b;
+	Cursor_e(h_draw[i].A_select, &r, &b);
+	E_select.InstanceDraw(r, b, 0.0f, 0.0f);
 
 	switch (direction){
 	case LEFT:
@@ -169,14 +171,15 @@ CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction){
 			h_draw[i].MA_select = i1; break;
 		}
 	}
-
-	if (h_draw[i].MA_select != 4)Cursor_e(h_draw[i].MA_select);//単体選択
+	float r, b;
+	if (h_draw[i].MA_select != 4)Cursor_e(h_draw[i].MA_select, &r, &b);//単体選択
 	else{
 		for (int i1 = 0; i1 < e_num; i1++){
 			if (enemy[i1].Dieflg() == TRUE)continue;
-			Cursor_e(i1);//全体選択(h_draw[i].A_select == 4)
+			Cursor_e(i1, &r, &b);//全体選択(h_draw[i].A_select == 4)
 		}
 	}
+	E_select.InstanceDraw(r, b, 0.0f, 0.0f);
 
 	switch (direction){
 	case LEFT:
@@ -232,6 +235,7 @@ CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction){
 		}
 	}
 	else Cursor_h(h_draw[i].MA_select);
+	h_select.InstanceDraw();
 
 	switch (direction){
 	case LEFT:

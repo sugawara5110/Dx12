@@ -151,7 +151,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 }
 
 void Battle::Menucreate() {
-	command.CreateBox(5.0f, 0.0f, 0.9f, 135.0f, 200.0f, 0.6f, 0.6f, 0.6f, 0.5f, TRUE, TRUE);
+	command.CreateBox(5.0f, 0.0f, 0.9f, 135.0f, 200.0f, 0.6f, 0.6f, 0.6f, 0.7f, TRUE, TRUE);
 }
 	
 void Battle::Cursor_h(int no) {
@@ -174,19 +174,19 @@ void Battle::Cursor_h(int no) {
 	if (no == 3)x = 530.0f;
 
 	//回復対象カーソル左
-	h_select.InstancedSetConstBf(x - 10.0f, 440.0f, r, r, 0.7f, 1.0f, 5.0f, 12.0f);
+	h_select.InstancedSetConstBf(x - 10.0f, 440.0f, r, r, 0.7f, 1.0f, 5.0f, 120.0f);
 
 	//回復対象カーソル右
-	h_select.InstancedSetConstBf(x + 125.0f, 440.0f, r, r, 0.7f, 1.0f, 5.0f, 12.0f);
+	h_select.InstancedSetConstBf(x + 125.0f, 440.0f, r, r, 0.7f, 1.0f, 5.0f, 120.0f);
 
 	//回復対象カーソル上
 	h_select.InstancedSetConstBf(x - 5.0f, 440.0f, r, r, 0.7f, 1.0f, 130.0f, 5.0f);
 
 	//回復対象カーソル下
-	h_select.Draw(x - 5.0f, 550.0f, r, r, 0.7f, 1.0f, 130.0f, 5.0f);
+	h_select.InstancedSetConstBf(x - 5.0f, 555.0f, r, r, 0.7f, 1.0f, 130.0f, 5.0f);
 }
 
-void Battle::Cursor_e(int select) {
+void Battle::Cursor_e(int select, float *pr, float *pb) {
 
 	static float theta = 0.0f;
 	static float r = 1.0f;
@@ -204,7 +204,9 @@ void Battle::Cursor_e(int select) {
 
 	m = tfloat.Add(0.2f);
 	if ((theta += m) > 360.0f)theta = 0.0f;
-	E_select.Draw(e_pos[select].x, e_pos[select].y, e_pos[select].z, r, b, 0, theta, 0);
+	*pr = r;
+	*pb = b;
+	E_select.InstancedMap(e_pos[select].x, e_pos[select].y, e_pos[select].z, theta);
 }
 
 void Battle::SelectPermissionMove(Hero *hero){
@@ -248,7 +250,7 @@ void Battle::SelectPermissionMove(Hero *hero){
 }
 
 Battle::~Battle(){
-
+	dx->FlushCommandQueue();
 	MovieSoundManager::ObjDelete_battle();
 	ARR_DELETE(enemy);
 	ARR_DELETE(e_draw);

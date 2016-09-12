@@ -712,12 +712,12 @@ ComPtr<ID3DBlob> Dx12Process::CompileShader(LPSTR szFileName, size_t size, LPSTR
 }
 
 void  Dx12Process::InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size) {
+	InstancedMapSize3(x, y, z, thetaZ, thetaY, thetaX, size, size, size);
+}
 
-	ins_no++;
+void Dx12Process::InstancedMapSize3(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ) {
 
-	if (ins_no > INSTANCE_PCS_3D - 1) {
-		ins_no--; return;
-	}
+	if (ins_no > INSTANCE_PCS_3D - 1)ins_no--;
 	MATRIX mov;
 	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
 	MATRIX scale;
@@ -726,7 +726,7 @@ void  Dx12Process::InstancedMap(float x, float y, float z, float thetaZ, float t
 	MATRIX WV;
 
 	//ägëÂèkè¨
-	MatrixScaling(&scale, size, size, size);
+	MatrixScaling(&scale, sizeX, sizeY, sizeZ);
 	//ï\é¶à íu
 	MatrixRotationZ(&rotZ, thetaZ);
 	MatrixRotationY(&rotY, thetaY);
@@ -743,34 +743,11 @@ void  Dx12Process::InstancedMap(float x, float y, float z, float thetaZ, float t
 	MatrixMultiply(&cb.WVP[ins_no], &WV, &mProj);
 	MatrixTranspose(&cb.World[ins_no]);
 	MatrixTranspose(&cb.WVP[ins_no]);
+	ins_no++;
 }
 
-void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
-	float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my) {
+void Dx12Process::MatrixMap2(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float r, float g, float b, float disp, float px, float py, float mx, float my) {
 
-	MATRIX mov;
-	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
-	MATRIX scale;
-	MATRIX scro;
-	MATRIX world;
-	MATRIX WV;
-
-	//ägëÂèkè¨
-	MatrixScaling(&scale, size, size, size);
-	//ï\é¶à íu
-	MatrixRotationZ(&rotZ, thetaZ);
-	MatrixRotationY(&rotY, thetaY);
-	MatrixRotationX(&rotX, thetaX);
-	MatrixMultiply(&rotZY, &rotZ, &rotY);
-	MatrixMultiply(&rotZYX, &rotZY, &rotX);
-	MatrixTranslation(&mov, x, y, z);
-	MatrixMultiply(&scro, &rotZYX, &scale);
-	MatrixMultiply(&world, &scro, &mov);
-
-	//ÉèÅ[ÉãÉhÅAÉJÉÅÉâÅAéÀâeçsóÒÅAìô
-	cb.World[0] = world;
-	MatrixMultiply(&WV, &world, &mView);
-	MatrixMultiply(&cb.WVP[0], &WV, &mProj);
 	cb.C_Pos.as(posX, posY, posZ, 0.0f);
 	cb.AddObjColor.as(r, g, b, 0.0f);
 	cb.pShadowLow_Lpcs.as(plight.ShadowLow_val, (float)plight.LightPcs, 0.0f, 0.0f);
@@ -784,10 +761,48 @@ void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, f
 	cb.FogColor = fog.FogColor;
 	if (disp == 0.0f)disp = 3.0f;
 	cb.DispAmount.as(disp, 0.0f, 0.0f, 0.0f);
-	MatrixTranspose(&cb.World[0]);
-	MatrixTranspose(&cb.WVP[0]);
 	cb.pXpYmXmY.as(px, py, mx, my);
 	mObjectCB->CopyData(0, cb);
+}
+
+void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+	float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my) {
+
+	MatrixMapSize3(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX,
+		size, size, size, disp, px, py, mx, my);
+}
+
+void Dx12Process::MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+	float r, float g, float b, float thetaZ, float thetaY, float thetaX,
+	float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my) {
+
+	if (ins_no > INSTANCE_PCS_3D - 1)ins_no--;
+	MATRIX mov;
+	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
+	MATRIX scale;
+	MATRIX scro;
+	MATRIX world;
+	MATRIX WV;
+
+	//ägëÂèkè¨
+	MatrixScaling(&scale, sizeX, sizeY, sizeZ);
+	//ï\é¶à íu
+	MatrixRotationZ(&rotZ, thetaZ);
+	MatrixRotationY(&rotY, thetaY);
+	MatrixRotationX(&rotX, thetaX);
+	MatrixMultiply(&rotZY, &rotZ, &rotY);
+	MatrixMultiply(&rotZYX, &rotZY, &rotX);
+	MatrixTranslation(&mov, x, y, z);
+	MatrixMultiply(&scro, &rotZYX, &scale);
+	MatrixMultiply(&world, &scro, &mov);
+
+	cb.World[ins_no] = world;
+	MatrixMultiply(&WV, &world, &mView);
+	MatrixMultiply(&cb.WVP[ins_no], &WV, &mProj);
+	MatrixTranspose(&cb.World[ins_no]);
+	MatrixTranspose(&cb.WVP[ins_no]);
+	MatrixMap2(mObjectCB, r, g, b, disp, px, py, mx, my);
+	ins_no++;
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Dx12Process::GetStaticSamplers()

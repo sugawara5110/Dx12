@@ -171,7 +171,7 @@ void Hero::Statecreate(bool command_run) {
 	if (o_no == 3)x = 530.0f;
 
 	//ステータスウインドウ
-	state.Draw(x, 450.0f, 0.2f, r, r, r, 0.5f, 120.0f, 100.0f);
+	state.Draw(x, 450.0f, 0.2f, r, r, r, 0.7f, 120.0f, 100.0f);
 }
 
 void Hero::Metercreate(float me) {
@@ -289,9 +289,10 @@ bool Hero::Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, P
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_DM(i) == FALSE)continue;
-				effect[effect_no].Draw(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, 0, 0, 0, e_pos[i].theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
+				effect[effect_no].InstancedMap(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, e_pos[i].theta);
 				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
 			}
+			effect[effect_no].InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 
@@ -308,9 +309,10 @@ bool Hero::Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, P
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_RCV(i) == FALSE)continue;
-				effect[effect_no].Draw(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, h_pos->theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
+				effect[effect_no].InstancedMap(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, h_pos->theta);
 				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
 			}
+			effect[effect_no].InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 	return TRUE;

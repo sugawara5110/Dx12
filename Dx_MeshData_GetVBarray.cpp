@@ -664,13 +664,19 @@ void MeshData::InstancedMap(float x, float y, float z, float thetaZ, float theta
 	dx->InstancedMap(x, y, z, thetaZ, thetaY, thetaX, size);
 }
 
+void MeshData::InstanceDraw(float r, float g, float b, float disp) {
+	dx->MatrixMap2(mObjectCB, r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+	DrawParts();
+}
+
 void MeshData::Draw(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
+	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+	DrawParts();
+}
+
+void MeshData::DrawParts() {
 
 	mCommandList->SetPipelineState(mPSO.Get());
-
-	//シェーダーのコンスタントバッファーに各種データを渡す
-	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
-
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
 
@@ -702,9 +708,7 @@ void MeshData::Draw(float x, float y, float z, float r, float g, float b, float 
 		mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
 		mCommandList->SetGraphicsRootConstantBufferView(2, mObject_MESHCB->Resource()->GetGPUVirtualAddress() + 256 * i);
 
-		mCommandList->DrawIndexedInstanced(
-			Iview[i].IndexCount,
-			1 + dx->ins_no, 0, 0, 0);
+		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, dx->ins_no, 0, 0, 0);
 	}
 
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),

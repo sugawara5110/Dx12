@@ -102,12 +102,13 @@ private:
 	MeshData mWood, mountain;
 	PolygonData poWallA, poWallB, poWallC, poWallD, poWallE, poWall1[3], poF_Wall,
 		poGroundF, poCeilingF, poGroundM, poCeilingM, poGroundE, poCeilingE,
-		poBackground, poRain, poRecover, poRecoverLine[10], poMo, poBoss, poElevator, poEXIT;
+		poBackground, poRain, poRecover, poRecoverLine[12], poMo, poBoss, poElevator, poEXIT;
 	Position::E_Pos e_pos[4];
 	Position::H_Pos h_pos;
 	Hero *he;//ˆÚ“®—p
 	int walkI;//ˆÚ“®—p
 
+	void Debug();
 	Map(){};
 	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int *cnt);
 	void Mapfilter(Position::H_Pos *h_p);

@@ -80,7 +80,7 @@ private:
 	Battle(){};                //à¯êîñ≥Çµê∂ê¨ã÷é~
 	void Menucreate();
 	void Cursor_h(int no);
-	void Cursor_e(int select);
+	void Cursor_e(int select, float *r, float *b);
 	void SelectPermissionMove(Hero *hero);
 	CommandSelect E_AT_select(Hero *hero);
 	CommandSelect Menu_main(Hero *hero, int i, Directionkey direction);

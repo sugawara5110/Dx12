@@ -28,7 +28,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 
 	dx->Bigin(ENEMY_COM, nullptr);
 
-	Debug(enemy);
+	//Debug(enemy);
 
 	//í“¬ŠJn’¼Œã‹“_
 	if (!battlefirst) {

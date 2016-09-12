@@ -255,29 +255,18 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		poWallE.Create(TRUE, 26, TRUE, FALSE);
 	}
 
-	//リカバーポイント(複数表示の場合Lineobj動的確保に変更)
+	//リカバーポイント
 	if (r_point_count >= 1) {
 		poRecover.SetCommandList(Map_Com);
 		poRecover.GetVBarray(SQUARE, r_point_count);
+		for (int i = 0; i < 12; i++) {
+			poRecoverLine[i].SetCommandList(Map_Com);
+			poRecoverLine[i].GetVBarray(LINE_L, r_point_count);
+		}
 		Mapcreate_Recover();
 		poRecover.Create(FALSE, 70, TRUE, TRUE);
-
-		for (int i = 0; i < 10; i++) {
-			poRecoverLine[i].SetCommandList(Map_Com);
-			poRecoverLine[i].GetVBarray(LINE_L, 1);
-			poRecoverLine[i].SetVertex(0, 0,
-				0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f, 1.0f,
-				0.0f, 0.0f);
-
-			poRecoverLine[i].SetVertex(1, 1,
-				0.0f, 0.0f, 1.0f,
-				0.0f, 0.0f, 0.0f,
-				0.0f, 0.4f, 1.0f, 1.0f,
-				0.0f, 0.0f);
+		for (int i = 0; i < 12; i++)
 			poRecoverLine[i].Create(FALSE, -1, FALSE, FALSE);
-		}
 	}
 
 	//動画テクスチャ松明
@@ -323,12 +312,12 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	dx->ResetPointLight();
 }
 
-void Map::Mapdraw_Wood(){
+void Map::Mapdraw_Wood() {
 
 	int p = 0;
-	for (int k3 = 0; k3 < mxy.z; k3++){
-		for (int j = 0; j < mxy.y; j++){
-			for (int i = 0; i < mxy.x; i++){
+	for (int k3 = 0; k3 < mxy.z; k3++) {
+		for (int j = 0; j < mxy.y; j++) {
+			for (int i = 0; i < mxy.x; i++) {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 87)continue;
 				float x = (float)i * 100.0f + 50.0f + wood[p].x;
 				float y = (float)j * 100.0f + 50.0f + wood[p++].y;
@@ -337,14 +326,15 @@ void Map::Mapdraw_Wood(){
 				float yy = cay1 - y;
 				float zz = (float)posz * 100.0f - z;
 				if (sqrt(xx * xx + yy * yy + zz * zz) > 600.0f)continue;
-				mWood.Draw(x, y, z, 0, 0, 0, 0, 0, 0, 10.0f, 0.3f);
+				mWood.InstancedMap(x, y, z, 0, 0, 0, 10.0f);
 			}
 		}
 	}
+	mWood.InstanceDraw(0, 0, 0, 0.3f);
 }
 
-void Map::Mapdraw_Mountain(){
-	mountain.Draw(-1500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0.3f);
+void Map::Mapdraw_Mountain() {
+	mountain.InstancedMap(-1500.0f, 2000.0f, 0, 0, 0, 0, 500.0f);
 	mountain.Draw(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0.3f);
 }
 
@@ -392,7 +382,7 @@ void Map::Mapdraw_Wall1() {
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i].Draw(0, 0, 0, 0, 0, 0, src_theta, 0);
+	for (int i = 0; i < 3; i++)poWall1[i].InstanceDraw(0, 0, 0, 0);
 }
 
 void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2){
@@ -847,16 +837,17 @@ void Map::Mapdraw_Rain() {
 		y = rand() % 500;
 		poRain.InstancedMap(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f, 0.0f, (float)(rand() % 300));
 	}
-	poRain.Draw(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, (float)(rand() % 300));
+	poRain.InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-void Map::Mapcreate_Recover(){
+void Map::Mapcreate_Recover() {
 
 	int k = 0;
 	int k1 = 0;
-	for (int k3 = 0; k3 < mxy.z; k3++){
-		for (int j = 0; j < mxy.y; j++){
-			for (int i = 0; i < mxy.x; i++){
+	int l1 = 0;
+	for (int k3 = 0; k3 < mxy.z; k3++) {
+		for (int j = 0; j < mxy.y; j++) {
+			for (int i = 0; i < mxy.x; i++) {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 50)continue;//2のアスキーコード50
 				//回復ポイント左上
 				poRecover.SetVertex(k1, k,
@@ -886,8 +877,23 @@ void Map::Mapcreate_Recover(){
 					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 1.0f);
 
+				//line
+				for (int l = 0; l < 12; l++) {
+					poRecoverLine[l].SetVertex(l1, l1,
+						(float)i * 100.0f + 50.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 1.0f,
+						0.0f, 0.0f, 0.0f,
+						0.0f, 1.0f, 0.0f, 1.0f,
+						0.0f, 0.0f);
+
+					poRecoverLine[l].SetVertex(l1 + 1, l1 + 1,
+						(float)i * 100.0f + 50.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f,
+						0.0f, 0.0f, 0.0f,
+						0.0f, 0.4f, 1.0f, 1.0f,
+						0.0f, 0.0f);
+				}
 				k += 4;
 				k1 += 6;
+				l1 += 2;
 			}
 		}
 	}
@@ -895,22 +901,17 @@ void Map::Mapcreate_Recover(){
 
 void Map::Mapdraw_Recover() {
 
-	for (int k3 = 0; k3 < mxy.z; k3++) {
-		for (int j = 0; j < mxy.y; j++) {
-			for (int i = 0; i < mxy.x; i++) {
-				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 50)continue;//2のアスキーコード50
-
-				for (float i1 = 0; i1 < 360; i1 += 0.25f) {
-					float line_y = ((float)j * 100.0f + 50.0f) - (cos(i1 * 3.14f / 180.0f) * 50.0f);
-					float line_x = ((float)i * 100.0f + 50.0f) + (sin(i1 * 3.14f / 180.0f) * 50.0f);
-					int rnd = rand() % 20;
-					poRecoverLine[((int)i1) % 10].InstancedMap(line_x, line_y, (float)k3 * 100.0f + 1.0f, 0.0f, (float)rnd);
-				}
-			}
+	for (float j = 0.0f; j < 12.0f; j++) {
+		for (float i1 = 0.0f; i1 < 120.0f; i1++) {
+			float i = j * 30.0f + i1 * 0.25f;
+			float line_y = -cos(i * 3.14f / 180.0f) * 50.0f;
+			float line_x = sin(i * 3.14f / 180.0f) * 50.0f;
+			int rnd = rand() % 20;
+			poRecoverLine[(int)j].InstancedMapSize3(line_x, line_y, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
 		}
+		poRecoverLine[(int)j].InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 	poRecover.Draw(0, 0, 4.0f, 0, 0, 0, 0, 0);
-	for (int i = 0; i < 10; i++)poRecoverLine[i].Draw(0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 void Map::Mapcreate_Ds(){
@@ -960,7 +961,7 @@ void Map::Mapdraw_Ds() {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i - 1] == 48) {
 					//視野外スキップ
 					if (ViewCulling((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.Draw((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f, 0, 0, 0, src_theta, TRUE, 0);
+						poMo.InstancedMap((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f, src_theta);
 						light[licnt].x = i * 100.0f - 10.0f;
 						light[licnt].y = j * 100.0f + 50.0f;
 						light[licnt].z = k3 * 100.0f + 75.0f;
@@ -979,7 +980,7 @@ void Map::Mapdraw_Ds() {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i + 1] == 48) {
 					//視野外スキップ
 					if (ViewCulling((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.Draw((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f, 0, 0, 0, src_theta, 0);
+						poMo.InstancedMap((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f, src_theta);
 						light[licnt].x = i * 100.0f + 110.0f;
 						light[licnt].y = j * 100.0f + 50.0f;
 						light[licnt].z = k3 * 100.0f + 75.0f;
@@ -998,7 +999,7 @@ void Map::Mapdraw_Ds() {
 				if (mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] == 48) {
 					//視野外スキップ
 					if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.Draw((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f, 0, 0, 0, src_theta, 0);
+						poMo.InstancedMap((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f, src_theta);
 						light[licnt].x = i * 100.0f + 50.0f;
 						light[licnt].y = j * 100.0f - 10.0f;
 						light[licnt].z = k3 * 100.0f + 75.0f;
@@ -1017,7 +1018,7 @@ void Map::Mapdraw_Ds() {
 				if (mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] == 48) {
 					//視野外スキップ
 					if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.Draw((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f, 0, 0, 0, src_theta, 0);
+						poMo.InstancedMap((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f, src_theta);
 						light[licnt].x = i * 100.0f + 50.0f;
 						light[licnt].y = j * 100.0f + 110.0f;
 						light[licnt].z = k3 * 100.0f + 75.0f;
@@ -1035,6 +1036,7 @@ void Map::Mapdraw_Ds() {
 			}
 		}
 	}
+	poMo.InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f);
 	int loopcount = LIGHT_PCS_init;//ライトのインデックス(0:視点用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定)
 	//各ライト設定
 	for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
@@ -1162,6 +1164,7 @@ void Map::Mapcreate_EXIT(float x, float y, float z, float xsize){
 }
 
 Map::~Map(){
+	dx->FlushCommandQueue();
 	dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, FALSE);//出口ライト消す
 	ARR_DELETE(wood);
 	ARR_DELETE(wall1);

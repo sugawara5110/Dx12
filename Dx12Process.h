@@ -187,8 +187,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(LPSTR szFileName, size_t size, LPSTR szFuncName, LPSTR szProfileName);
 
 	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
+
+	void InstancedMapSize3(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ);
+
+	void MatrixMap2(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float r, float g, float b, float disp, float px, float py, float mx, float my);
+
 	void MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my);
+
+	void MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 
 public:
 	static void InstanceCreate();
@@ -410,6 +418,7 @@ private:
 
 	void LoadMaterialFromFile(LPSTR FileName, MY_MATERIAL** ppMaterial);
 	void GetShaderByteCode(bool disp);
+	void DrawParts();
 
 public:
 	static HANDLE *MeshObj_H;
@@ -427,6 +436,7 @@ public:
 	ID3D12PipelineState *GetPipelineState();
 	//木./dat/mesh/tree.obj
 	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
+	void InstanceDraw(float r, float g, float b, float disp);
 	void Draw(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp);
 };
 //GetVBarrayThreadArray内で使用
@@ -514,6 +524,7 @@ private:
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
 	void GetShaderByteCode(bool light, int tNo);
+	void DrawParts();
 
 public:
 	PolygonData();
@@ -536,6 +547,9 @@ public:
 		float u, float v);
 	void InstancedMap(float x, float y, float z, float theta);
 	void InstancedMap(float x, float y, float z, float theta, float size);
+	void InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ);
+	void InstanceDraw(float r, float g, float b, float disp);
+	void InstanceDraw(float r, float g, float b, float disp, float px, float py, float mx, float my);
 	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp);
 	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
 	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
@@ -580,6 +594,7 @@ private:
 	void GetShaderByteCode();
 	void SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
 	void SetText(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize);//DxText classでしか使わない
+	void DrawParts();
 
 public:
 	MY_VERTEX2         *d2varray;  //頂点配列
@@ -597,6 +612,7 @@ public:
 	void Create(bool blend, bool alpha);
 	void InstancedSetConstBf(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
 	void InstancedSetConstBf(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
+	void InstanceDraw();
 	void Draw(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
 	void Draw(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
 };

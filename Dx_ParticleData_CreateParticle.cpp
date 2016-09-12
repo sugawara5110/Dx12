@@ -313,8 +313,7 @@ void ParticleData::Draw(float x, float y, float z, float theta, float size, bool
 
 	mCommandList->SetGraphicsRootConstantBufferView(0, mObjectCB->Resource()->GetGPUVirtualAddress());
 
-	mCommandList->DrawInstanced(
-		ver, 1, 0, 0);
+	mCommandList->DrawInstanced(ver, 1, 0, 0);
 
 	//mSwapChainBuffer RENDER_TARGET¨PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
