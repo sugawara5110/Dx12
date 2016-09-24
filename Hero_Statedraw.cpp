@@ -86,10 +86,6 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 	}
 
 	float m;
-	TCHAR *str = L"ÉtÉåÉCÉÄÇkÇu";
-	TCHAR *str1 = L"ÉqÅ[ÉäÉìÉOÇkÇu";
-	TCHAR *str2 = L"ÉäÉJÉoÉäÇkÇu";
-	TCHAR *str3 = L"MPÇ™ë´ÇËÇ»Ç¢";
 	switch (act_f) {
 	case ATTACK:
 		m = tfloat.Add(0.15f);
@@ -126,22 +122,22 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		my = p3.y - 200.0f;//à íuï‚ê≥
 		switch (H_Magrun) {
 		case FLAME:
-			text->UpDateText(&str, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(L"ÉtÉåÉCÉÄÇkÇu", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetFlameATT_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 1;
 			break;
 		case HEAL:
-			text->UpDateText(&str1, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(L"ÉqÅ[ÉäÉìÉOÇkÇu", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetHealing_LV(), mx + 210.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 2;
 			break;
 		case RECOV:
-			text->UpDateText(&str2, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(L"ÉäÉJÉoÉäÇkÇu", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetRecover_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 3;
 			break;
 		case NOSEL:
-			text->UpDateText(&str3, mx, my, 30.0f, { 1.0f, 0.5f, 0.5f, 1.0f });
+			text->UpDateText(L"MPÇ™ë´ÇËÇ»Ç¢", mx, my, 30.0f, { 1.0f, 0.5f, 0.5f, 1.0f });
 			break;
 		}
 		if (effect_f == FALSE && (count += m) > 200.0f) {
@@ -216,18 +212,14 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 	p_att[p_att_Ind].Draw(b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f, 0.1f);
 
 	Statecreate(command_run);
-	TCHAR *str7 = L"é˙êlÇmÇè";
-	text->UpDateText(&str7, x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"é˙êlÇmÇè", x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(o_no, x + 60.0f, 470.0f, 15.0f, 1, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str8 = L"ÇgÇo";
-	text->UpDateText(&str8, x - 5.0f, 490.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"ÇgÇo", x - 5.0f, 490.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(p_data.HP, x + 25.0f, 490.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str9 = L"ÇlÇo";
-	text->UpDateText(&str9, x - 5.0f, 510.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"ÇlÇo", x - 5.0f, 510.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(p_data.MP, x + 25.0f, 510.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 	if (p_data.HP <= 0) {
-		TCHAR *str10 = L"êÌì¨ïsî\";
-		text->UpDateText(&str10, x, 525.0f, 25.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
+		text->UpDateText(L"êÌì¨ïsî\", x, 525.0f, 25.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 		return NOT_FIN;
 	}
 	if (me >= 1.0f) {
@@ -238,8 +230,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		else {
 			if ((r += m) >= 1.0f)clr_f = TRUE;
 		}
-		TCHAR *str11 = L"ó’êÌë‘ê®";
-		text->UpDateText(&str11, x, 525.0f, 25.0f, { 1.0f, 1.0f, 1.0f, r });
+		text->UpDateText(L"ó’êÌë‘ê®", x, 525.0f, 25.0f, { 1.0f, 1.0f, 1.0f, r });
 		return NOT_FIN;
 	}
 	Metercreate(me);

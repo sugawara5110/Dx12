@@ -99,24 +99,18 @@ CommandSelect Battle::Menu_main(Hero *hero, int i, Directionkey direction) {
 		}
 		break;
 	}
-	TCHAR *str = L"攻撃";
-	text->UpDateText(&str, 25.0f, 10.0f, 15.0f, { r[0], g[0], 1.0f, 1.0f });
+	text->UpDateText(L"攻撃", 25.0f, 10.0f, 15.0f, { r[0], g[0], 1.0f, 1.0f });
 	if (hero[i].GetFlameATT_LV() >= 1) {
-		TCHAR *str1 = L"フレイム";
-		text->UpDateText(&str1, 10.0f, 40.0f, 15.0f, { r[1], g[1], 1.0f, 1.0f });
+		text->UpDateText(L"フレイム", 10.0f, 40.0f, 15.0f, { r[1], g[1], 1.0f, 1.0f });
 	}
 	if (hero[i].GetHealing_LV() >= 1) {
-		TCHAR *str2 = L"ヒーリング";
-		text->UpDateText(&str2, 10.0f, 70.0f, 15.0f, { r[2], g[2], 1.0f, 1.0f });
+		text->UpDateText(L"ヒーリング", 10.0f, 70.0f, 15.0f, { r[2], g[2], 1.0f, 1.0f });
 	}
 	if (hero[i].GetRecover_LV() >= 1) {
-		TCHAR *str3 = L"リカバリ";
-		text->UpDateText(&str3, 10.0f, 100.0f, 15.0f, { r[3], g[3], 1.0f, 1.0f });
+		text->UpDateText(L"リカバリ", 10.0f, 100.0f, 15.0f, { r[3], g[3], 1.0f, 1.0f });
 	}
-	TCHAR *str4 = L"逃げる";
-	text->UpDateText(&str4, 10.0f, 130.0f, 15.0f, { r[4], g[4], 1.0f, 1.0f });
-	TCHAR *str5 = L"→スキップ";
-	text->UpDateText(&str5, 10.0f, 180.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"逃げる", 10.0f, 130.0f, 15.0f, { r[4], g[4], 1.0f, 1.0f });
+	text->UpDateText(L"→スキップ", 10.0f, 180.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 	return NOSELECT;
 }

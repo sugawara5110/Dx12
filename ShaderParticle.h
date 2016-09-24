@@ -10,7 +10,7 @@ char *ShaderParticle =
 "{\n"
 "	matrix g_WV;\n"
 "	matrix g_Proj;\n"
-"   float4 g_size;\n"
+"   float4 g_size;\n"//x:サイズ, y:初期化フラグ, z:スピード, w:textureフラグ
 "};\n"
 
 "struct GS_INPUT\n"
@@ -86,27 +86,29 @@ char *ShaderParticle =
 "   pos = mul(pos, g_WV);\n"
 
 "	PS_INPUT p = (PS_INPUT)0;\n"
-"	p.Pos = mul(pos, g_Proj);\n"
-"   p.Color = Input[0].Color;\n"
-"	p.UV = float2(0, 1);\n"
-"	ParticleStream.Append(p);\n"
-
-"	p.Pos = pos + float4(g_size.x, 0, 0, 0);\n"
+//左上
+"	p.Pos = pos + float4(-g_size.x, g_size.x, 0, 0);\n"
 "	p.Pos = mul(p.Pos, g_Proj);\n"
 "   p.Color = Input[0].Color;\n"
 "	p.UV = float2(0, 0);\n"
 "	ParticleStream.Append(p);\n"
-
-"	p.Pos = pos + float4(0, 0, -g_size.x, 0);\n"
-"	p.Pos = mul(p.Pos, g_Proj);\n"
-"   p.Color = Input[0].Color;\n"
-"	p.UV = float2(1, 1);\n"
-"	ParticleStream.Append(p);\n"
-
-"	p.Pos = pos + float4(g_size.x, 0, -g_size.x, 0);\n"
+//右上
+"	p.Pos = pos + float4(g_size.x, g_size.x, 0, 0);\n"
 "	p.Pos = mul(p.Pos, g_Proj);\n"
 "   p.Color = Input[0].Color;\n"
 "	p.UV = float2(1, 0);\n"
+"	ParticleStream.Append(p);\n"
+//左下
+"	p.Pos = pos + float4(-g_size.x, -g_size.x, 0, 0);\n"
+"	p.Pos = mul(p.Pos, g_Proj);\n"
+"   p.Color = Input[0].Color;\n"
+"	p.UV = float2(0, 1);\n"
+"	ParticleStream.Append(p);\n"
+//右下
+"	p.Pos = pos + float4(g_size.x, -g_size.x, 0, 0);\n"
+"	p.Pos = mul(p.Pos, g_Proj);\n"
+"   p.Color = Input[0].Color;\n"
+"	p.UV = float2(1, 1);\n"
 "	ParticleStream.Append(p);\n"
 
 "	ParticleStream.RestartStrip();\n"
@@ -116,7 +118,9 @@ char *ShaderParticle =
 //***************************ピクセル********************************//
 "float4 PS(PS_INPUT Input) : SV_Target\n"
 "{\n"
-"	return Input.Color;\n"
-//"	return g_Texture.Sample(g_Sampler, Input.UV);\n"
+"   float4 C;\n"
+"   if(g_size.w == 0.0f)C = Input.Color;\n"
+"	if(g_size.w == 1.0f)C = g_texColor.Sample(g_samLinear, Input.UV) * Input.Color;\n"
+"	return C;\n"
 "}\n";
 //***************************ピクセル********************************//

@@ -341,10 +341,8 @@ bool Battle::Escapedraw() {
 	float m = tfloat.Add(0.1f);
 	if (Escape_f != 0) {
 		if ((Escape_f += m) < 330) {
-			TCHAR *str = L"エスケープ成功";
-			TCHAR *str1 = L"エスケープ失敗";
-			if (Escape_s == TRUE)text->UpDateText(&str, 300.0f, 300.0f, 35.0f, { 0.0f, 0.7f, 1.0f, 1.0f });
-			if (Escape_s == FALSE)text->UpDateText(&str1, 300.0f, 300.0f, 35.0f, { 0.0f, 0.7f, 1.0f, 1.0f });
+			if (Escape_s == TRUE)text->UpDateText(L"エスケープ成功", 300.0f, 300.0f, 35.0f, { 0.0f, 0.7f, 1.0f, 1.0f });
+			if (Escape_s == FALSE)text->UpDateText(L"エスケープ失敗", 300.0f, 300.0f, 35.0f, { 0.0f, 0.7f, 1.0f, 1.0f });
 			return TRUE;
 		}
 		else {

@@ -368,7 +368,7 @@ void Map::MapText(TCHAR str[30]) {
 
 	if (map_text_f != 0) {
 		if ((map_text_f += tfloat.Add(0.1f)) < 340) {
-			text->UpDateText(&str, 300.0f, 300.0f, 25, { 0.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(str, 300.0f, 300.0f, 25, { 0.0f, 1.0f, 1.0f, 1.0f });
 		}
 		else {
 			map_text_f = 0;

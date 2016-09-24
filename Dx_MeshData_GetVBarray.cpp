@@ -250,7 +250,7 @@ ID3D12PipelineState *MeshData::GetPipelineState() {
 void MeshData::GetShaderByteCode(bool disp) {
 
 	if (disp == TRUE) {
-		ps = dx->pHullShader_MESH_D.Get();
+		hs = dx->pHullShader_MESH_D.Get();
 		ds = dx->pDomainShader_MESH_D.Get();
 		vs = dx->pVertexShader_MESH_D.Get();
 		ps = dx->pPixelShader_MESH_D.Get();

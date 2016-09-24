@@ -218,6 +218,7 @@ void Dx12Process::TextureBinaryDecodeAll() {
 	TextureBinaryDecode("./dat/texture/magic/side_magic.da", 60);
 	//魔方陣ボス
 	TextureBinaryDecode("./dat/texture/magic/boss_magic.da", 61);
+	TextureBinaryDecode("./dat/texture/magic/particle.da", 62);
 	//回復ポイント
 	TextureBinaryDecode("./dat/texture/magic/recover.da", 70);
 	//エフェクト

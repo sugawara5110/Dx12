@@ -49,7 +49,7 @@ private:
 	void operator=(const DxText& obj);// ‘ã“ü‰‰ŽZŽq‹ÖŽ~
 	DxText();
 	~DxText();
-	int CreateText(PolygonData2D *p2, TCHAR **c, int texNo, float fontsize);
+	int CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize);
 
 public:
 	static void InstanceCreate();
@@ -57,7 +57,7 @@ public:
 	static void DeleteInstance();
 	TCHAR *CreateTextValue(int val);
 	void BiginDraw();
-	void UpDateText(TCHAR **c, float x, float y, float fontsize, VECTOR4 cl);
+	void UpDateText(TCHAR *c, float x, float y, float fontsize, VECTOR4 cl);
 	void UpDateValue(int val, float x, float y, float fontsize, int pcs, VECTOR4 cl);
 	void EndDraw();
 };

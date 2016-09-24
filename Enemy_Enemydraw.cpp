@@ -47,10 +47,6 @@ Act_fin_flg Enemy::Enemydraw(Battle *battle, int *E_select_obj, Action action, M
 	}
 
 	float m;
-	TCHAR *str = L"ƒtƒŒƒCƒ€‚k‚u";
-	TCHAR *str1 = L"ƒq[ƒŠƒ“ƒO‚k‚u";
-	TCHAR *str2 = L"ƒŠƒJƒoƒŠ‚k‚u";
-	TCHAR *str3 = L"MP‚ª‘«‚è‚È‚¢";
 	switch (act_f) {
 	case MOVE:
 		m = tfloat.Add(0.005f);
@@ -81,22 +77,22 @@ Act_fin_flg Enemy::Enemydraw(Battle *battle, int *E_select_obj, Action action, M
 		my = p3.y - 160.0f;//ˆÊ’u•â³
 		switch (E_Magrun) {
 		case FLAME:
-			text->UpDateText(&str, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(L"ƒtƒŒƒCƒ€‚k‚u", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetFlameATT_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 1;
 			break;
 		case HEAL:
-			text->UpDateText(&str1, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(L"ƒq[ƒŠƒ“ƒO‚k‚u", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetHealing_LV(), mx + 210.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 2;
 			break;
 		case RECOV:
-			text->UpDateText(&str2, mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			text->UpDateText(L"ƒŠƒJƒoƒŠ‚k‚u", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetRecover_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 3;
 			break;
 		case NOSEL:
-			text->UpDateText(&str3, mx, my, 30.0f, { 1.0f, 0.5f, 0.5f, 1.0f });
+			text->UpDateText(L"MP‚ª‘«‚è‚È‚¢", mx, my, 30.0f, { 1.0f, 0.5f, 0.5f, 1.0f });
 			break;
 		}
 

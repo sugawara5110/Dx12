@@ -50,8 +50,8 @@ class UploadBuffer;
 class MeshData;
 class PolygonData;
 class PolygonData2D;
-class DxText;
 class ParticleData;
+class DxText;
 //前方宣言
 
 class Dx12Process {
@@ -60,7 +60,6 @@ private:
 	friend MeshData;
 	friend PolygonData;
 	friend PolygonData2D;
-	friend DxText;
 	friend ParticleData;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
@@ -412,7 +411,7 @@ private:
 
 	bool alpha = FALSE;
 	bool blend = FALSE;
-	bool disp = FALSE;//テセレータフラグ(機能せず。使ってないのでとりあえず後で)
+	bool disp = FALSE;//テセレータフラグ
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
@@ -505,10 +504,11 @@ private:
 	//テクスチャ保持(directshow用)
 	ID3D12Resource *texture = NULL;
 	ID3D12Resource *textureUp = NULL;
-	//テクスチャ番号
-	int            t_no = -1;
 	//movie_on
 	bool           m_on = FALSE;
+	//テクスチャ番号(通常テクスチャ用)
+	int            t_no = -1;
+	
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	D3D12_TEXTURE_COPY_LOCATION dest, src;
 
@@ -646,25 +646,24 @@ private:
 	ID3DBlob                   *ps;
 	int                        ver;//頂点数
 
-	struct CONSTANT_BUFFER_P {
-		MATRIX  WV;
-		MATRIX  Proj;
-		VECTOR4 size;//xパーティクル大きさ, yパーティクル初期化フラグ, zスピード
-	};
-	struct PartPos {
-		VECTOR3 CurrentPos; //描画に使う
-		VECTOR3 PosSt;     //開始位置
-		VECTOR3 PosEnd;   //終了位置
-		VECTOR4 Col;
-	};
-	PartPos *P_pos;//パーティクルデータ配列
-	bool Drawfirst;
+	PartPos                    *P_pos;//パーティクルデータ配列
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature_com = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature_draw = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB = nullptr;
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
+	D3D12_TEXTURE_COPY_LOCATION dest, src;
+
+	//テクスチャ保持(directshow用)
+	ID3D12Resource *texture = NULL;
+	ID3D12Resource *textureUp = NULL;
+	//movie_on
+	bool           m_on = FALSE;
+	bool           texpar_on = FALSE;
 
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
@@ -676,14 +675,29 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_draw = nullptr;
 
 	void GetShaderByteCode();
-	void MatrixMap(UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB, float x, float y, float z, float theta, float size, bool init, float speed);
+	void MatrixMap(UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB, float x, float y, float z, float theta, float size, bool init, float speed, bool tex);
+	void GetVbColarray(int texture_no, float size, float density);
+	void CreateVbObj();
+	void CreatePartsCom();
+	void CreatePartsDraw(int texpar);
+	void DrawParts0(float x, float y, float z, float theta, float size, bool init, float speed, bool tex);
+	void DrawParts1();
+	void DrawParts2();
 
 public:
 	ParticleData();
 	~ParticleData();
 	void SetCommandList(int no);
-	void CreateParticle(int texture_no, float size, float density);//テクスチャを元にパーティクルデータ生成, 全体サイズ倍率, 密度
+	void TextureInit(int width, int height);
+	void GetVBarray(int v);
+	void SetVertex(int i,
+		float vx, float vy, float vz,
+		float r, float g, float b, float a);
+	void CreateParticle(int texture_no, int texpar, float size, float density);//テクスチャを元にパーティクルデータ生成, 全体サイズ倍率, 密度
+	void CreateBillboard();//ver個の四角形を生成
 	void Draw(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
+	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
+	void DrawBillboard(float size);
 };
 
 //エラーメッセージ

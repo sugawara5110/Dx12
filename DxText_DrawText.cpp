@@ -54,7 +54,7 @@ DxText::DxText() {
 		value[i].TexOn();
 		value[i].CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 		TCHAR *va = CreateTextValue(i);
-		CreateText(value, &va, i, 15.0f);
+		CreateText(value, va, i, 15.0f);
 	}
 	dx->End(TEXT_COM);
 	dx->FlushCommandQueue();
@@ -65,7 +65,7 @@ DxText::~DxText(){
 
 }
 
-int DxText::CreateText(PolygonData2D *p2, TCHAR **c, int texNo, float fontsize) {
+int DxText::CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize) {
 
 	MAT2 Mat = { { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 } };
 	int fsize = 100;
@@ -81,7 +81,7 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR **c, int texNo, float fontsize) 
 	do {
 #if _UNICODE
 		// unicodeの場合、文字コードは単純にワイド文字のUINT変換です
-		code = (UINT)(*c)[count++];
+		code = (UINT)c[count++];
 #else
 		// マルチバイト文字の場合、
 		// 1バイト文字のコードは1バイト目のUINT変換、
@@ -104,7 +104,7 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR **c, int texNo, float fontsize) 
 		code = 0;
 #if _UNICODE
 		// unicodeの場合、文字コードは単純にワイド文字のUINT変換です
-		code = (UINT)(*c)[cnt];
+		code = (UINT)c[cnt];
 #else
 		// マルチバイト文字の場合、
 		// 1バイト文字のコードは1バイト目のUINT変換、
@@ -129,7 +129,7 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR **c, int texNo, float fontsize) 
 		code = 0;
 #if _UNICODE
 		// unicodeの場合、文字コードは単純にワイド文字のUINT変換です
-		code = (UINT)(*c)[cnt];
+		code = (UINT)c[cnt];
 #else
 		// マルチバイト文字の場合、
 		// 1バイト文字のコードは1バイト目のUINT変換、
@@ -230,13 +230,13 @@ TCHAR *DxText::CreateTextValue(int val){
 	return c;
 }
 
-void DxText::UpDateText(TCHAR **c, float x, float y, float fontsize, VECTOR4 cl) {
+void DxText::UpDateText(TCHAR *c, float x, float y, float fontsize, VECTOR4 cl) {
 	bool match = FALSE;
 	int texNo = -1;
 
 	//登録済みテキスト検索
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
-		if (_tcscmp(*c, str[i]) == 0 && f_size[i] == fontsize) {
+		if (_tcscmp(c, str[i]) == 0 && f_size[i] == fontsize) {
 			match = TRUE;
 			texNo = i;
 		}
@@ -249,7 +249,7 @@ void DxText::UpDateText(TCHAR **c, float x, float y, float fontsize, VECTOR4 cl)
 
 	if (match == FALSE) {
 		strcnt[texNo] = CreateText(text, c, texNo, fontsize);
-		_tcscpy_s(str[texNo], *c);//テキスト登録
+		_tcscpy_s(str[texNo], c);//テキスト登録
 		f_size[texNo] = fontsize;//フォントサイズ登録
 	}
 

@@ -76,7 +76,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Recover_LV = 10;
 				savedata.p_data[i].Rpoint = 100;
 				*/
-				
+
 				savedata.p_data[i].Attack = 100;
 				savedata.p_data[i].Magic = 100;
 				savedata.p_data[i].Agility = 100;
@@ -92,7 +92,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Hpoint = 1000;
 				savedata.p_data[i].Recover_LV = 100;
 				savedata.p_data[i].Rpoint = 1000;
-				
+
 			}
 
 			savedata.h_pos.cx1 = 450.0f;//ƒ{ƒX‘O
@@ -103,12 +103,12 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 10;//ƒ{ƒX‘O
 
 			//’Êí‚ÌƒXƒ^[ƒgˆÊ’u
-			savedata.h_pos.cx1 = 1150.0f;
+			/*savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 3350.0f;
 			savedata.h_pos.cy2 = 3280.0f;
 			savedata.h_pos.px = 11;
-			savedata.h_pos.py = 33;
+			savedata.h_pos.py = 33;*/
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 0;
@@ -166,7 +166,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			*/
 
 			//ƒ‰ƒXƒ_ƒ“
-			/*
+			
 			savedata.h_pos.cx1 = 1450.0f;//ƒ{ƒX‘O
 			savedata.h_pos.cx2 = 1450.0f;
 			savedata.h_pos.cy1 = 1550.0f;
@@ -174,16 +174,16 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.px = 14;
 			savedata.h_pos.py = 15;
 			savedata.h_pos.pz = 6;//ƒ{ƒX‘O
-			savedata.h_pos.cx1 = 1150.0f;
+			/*savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 2750.0f;
 			savedata.h_pos.cy2 = 2680.0f;
 			savedata.h_pos.px = 11;
 			savedata.h_pos.py = 27;
-			savedata.h_pos.pz = 0;
+			savedata.h_pos.pz = 0;*/
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 4;
-			*/
+			
 		}
 		if (select == 1) {
 			FILE *fp = fopen("./dat/save/save.da1", "rb");
@@ -295,10 +295,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 		return FALSE;
 		break;
 	}
-	TCHAR *str = L"‚m‚d‚v‚f‚`‚l‚d";
-	text->UpDateText(&str, 320.0f, 250.0f, 30.0f, { r1, g1, 1.0f, 1.0f });
-	TCHAR *str1 = L"‚b‚n‚m‚s‚h‚m‚t‚d";
-	text->UpDateText(&str1, 320.0f, 290.0f, 30.0f, { r2, g2, 1.0f, 1.0f });
+	text->UpDateText(L"‚m‚d‚v‚f‚`‚l‚d", 320.0f, 250.0f, 30.0f, { r1, g1, 1.0f, 1.0f });
+	text->UpDateText(L"‚b‚n‚m‚s‚h‚m‚t‚d", 320.0f, 290.0f, 30.0f, { r2, g2, 1.0f, 1.0f });
 	return TRUE;
 }
 
@@ -346,15 +344,12 @@ bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, He
 
 	Menucreate();
 	for (int i = 0; i < 4; i++) {
-		TCHAR *str = L"Žúl‚m‚";
-		text->UpDateText(&str, 160.0f, 10.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"Žúl‚m‚", 160.0f, 10.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(i, 270.0f, 10.0f + 110.0f * i, fsize, 1, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str1 = L"‚g‚o";
-		text->UpDateText(&str1, 160.0f, 40.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"‚g‚o", 160.0f, 40.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_HP(), 220.0f, 40.0f + 110.0f * i, fsize, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_MHP(), 370.0f, 40.0f + 110.0f * i, fsize, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str2 = L"‚l‚o";
-		text->UpDateText(&str2, 160.0f, 70.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"‚l‚o", 160.0f, 70.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_MP(), 220.0f, 70.0f + 110.0f * i, fsize, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_MMP(), 370.0f, 70.0f + 110.0f * i, fsize, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
@@ -484,14 +479,10 @@ bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, He
 	}
 
 	fsize = 15.0f;
-	TCHAR *str3 = L"ƒXƒe[ƒ^ƒX";
-	text->UpDateText(&str3, 10, 10, fsize, { r1, g1, 1.0f, 1.0f });
-	TCHAR *str4 = L"‰ñ•œ";
-	text->UpDateText(&str4, 10, 40, fsize, { r2, g2, 1.0f, 1.0f });
-	TCHAR *str5 = L"‚o‚oU‚è•ª‚¯";
-	text->UpDateText(&str5, 10, 70, fsize, { r3, g3, 1.0f, 1.0f });
-	TCHAR *str6 = L"ƒZ[ƒu";
-	text->UpDateText(&str6, 10, 100, fsize, { r4, g4, 1.0f, 1.0f });
+	text->UpDateText(L"ƒXƒe[ƒ^ƒX", 10, 10, fsize, { r1, g1, 1.0f, 1.0f });
+	text->UpDateText(L"‰ñ•œ", 10, 40, fsize, { r2, g2, 1.0f, 1.0f });
+	text->UpDateText(L"‚o‚oU‚è•ª‚¯", 10, 70, fsize, { r3, g3, 1.0f, 1.0f });
+	text->UpDateText(L"ƒZ[ƒu", 10, 100, fsize, { r4, g4, 1.0f, 1.0f });
 
 	return TRUE;
 }
@@ -500,54 +491,41 @@ void StateMenu::St_Menu(Hero *hero, Directionkey direction) {
 
 	float fsize = 25.0f;
 	St_create();
-	TCHAR *str = L"Žúl‚m‚";
-	text->UpDateText(&str, 120.0f, 10.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"Žúl‚m‚", 120.0f, 10.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(st_select, 230.0f, 10.0f, fsize, 1, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str1 = L"‚k‚u";
-	text->UpDateText(&str1, 120.0f, 40.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"‚k‚u", 120.0f, 40.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_LV(), 300.0f, 40.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_LV() * 10 - hero[st_select].s_Exp(), 180.0f, 70.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str2 = L"/";
-	text->UpDateText(&str2, 280.0f, 70.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"/", 280.0f, 70.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_LV() * 10, 305.0f, 70.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str3 = L"—Í";
-	text->UpDateText(&str3, 120.0f, 100.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"—Í", 120.0f, 100.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_ATT(), 200.0f, 100.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str4 = L"–‚—Í";
-	text->UpDateText(&str4, 120.0f, 130.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"–‚—Í", 120.0f, 130.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_MAG(), 200.0f, 130.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str5 = L"‘f‘‚³";
-	text->UpDateText(&str5, 120.0f, 160.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"‘f‘‚³", 120.0f, 160.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_AG(), 200.0f, 160.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *str6 = L"‘Ì—Í";
-	text->UpDateText(&str6, 120.0f, 190.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"‘Ì—Í", 120.0f, 190.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(hero[st_select].s_VIT(), 200.0f, 190.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 	if (hero[st_select].GetFlameATT_LV() != 0) {
-		TCHAR *str7 = L"ƒtƒŒƒCƒ€‚k‚u";
-		text->UpDateText(&str7, 120.0f, 220.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"ƒtƒŒƒCƒ€‚k‚u", 120.0f, 220.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetFlameATT_LV(), 300.0f, 220.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetFlameATT_LV() * 10 - hero[st_select].s_Fp(), 180.0f, 250.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str8 = L"/";
-		text->UpDateText(&str8, 280.0f, 250.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"/", 280.0f, 250.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetFlameATT_LV() * 10, 305.0f, 250.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 	if (hero[st_select].GetHealing_LV() != 0) {
-		TCHAR *str9 = L"ƒq[ƒŠƒ“ƒO‚k‚u";
-		text->UpDateText(&str9, 120.0f, 280.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"ƒq[ƒŠƒ“ƒO‚k‚u", 120.0f, 280.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetHealing_LV(), 300.0f, 280.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetHealing_LV() * 10 - hero[st_select].s_Hp(), 180.0f, 310.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str10 = L"/";
-		text->UpDateText(&str10, 280.0f, 310.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"/", 280.0f, 310.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetHealing_LV() * 10, 305.0f, 310.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 	if (hero[st_select].GetRecover_LV() != 0) {
-		TCHAR *str11 = L"ƒŠƒJƒoƒŠ‚k‚u";
-		text->UpDateText(&str11, 120.0f, 340.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"ƒŠƒJƒoƒŠ‚k‚u", 120.0f, 340.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetRecover_LV(), 300.0f, 340.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetRecover_LV() * 10 - hero[st_select].s_Rp(), 180.0f, 370.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str12 = L"/";
-		text->UpDateText(&str12, 280.0f, 370.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"/", 280.0f, 370.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[st_select].GetRecover_LV() * 10, 305.0f, 370.0f, fsize, 4, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 
@@ -743,15 +721,12 @@ void StateMenu::Re_Menu(Hero *hero, Directionkey direction) {
 	}
 
 	for (int i = 0; i < 4; i++) {
-		TCHAR *str = L"Žúl‚m‚";
-		text->UpDateText(&str, 10.0f, 10.0f + 20.0f * i, fsize0, { nr[i], ng[i], 1.0f, 1.0f });
+		text->UpDateText(L"Žúl‚m‚", 10.0f, 10.0f + 20.0f * i, fsize0, { nr[i], ng[i], 1.0f, 1.0f });
 		text->UpDateValue(i, 75.0f, 10.0f + 20.0f * i, fsize0, 1, { nr[i], ng[i], 1.0f, 1.0f });
-		TCHAR *str1 = L"‚g‚o";
-		text->UpDateText(&str1, 160.0f, 40.0f + 110.0f * i, fsize, { r[i], g[i], 1.0f, 1.0f });
+		text->UpDateText(L"‚g‚o", 160.0f, 40.0f + 110.0f * i, fsize, { r[i], g[i], 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_HP(), 220.0f, 40.0f + 110.0f * i, fsize, 5, { r[i], g[i], 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_MHP(), 370.0f, 40.0f + 110.0f * i, fsize, 5, { r[i], g[i], 1.0f, 1.0f });
-		TCHAR *str2 = L"‚l‚o";
-		text->UpDateText(&str2, 160.0f, 70.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"‚l‚o", 160.0f, 70.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_MP(), 220.0f, 70.0f + 110.0f * i, fsize, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[i].s_MMP(), 370.0f, 70.0f + 110.0f * i, fsize, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
@@ -759,12 +734,10 @@ void StateMenu::Re_Menu(Hero *hero, Directionkey direction) {
 	if (re_select1 != -1) {
 		Re_create1();
 		if (hero[re_select].GetHealing_LV() >= 1) {
-			TCHAR *str3 = L"ƒq[ƒŠƒ“ƒO";
-			text->UpDateText(&str3, 10.0f, 160.0f, fsize0, { mr[0], mg[0], 1.0f, 1.0f });
+			text->UpDateText(L"ƒq[ƒŠƒ“ƒO", 10.0f, 160.0f, fsize0, { mr[0], mg[0], 1.0f, 1.0f });
 		}
 		if (hero[re_select].GetRecover_LV() >= 1) {
-			TCHAR *str4 = L"ƒŠƒJƒoƒŠ";
-			text->UpDateText(&str4, 10.0f, 190.0f, fsize0, { mr[1], mg[1], 1.0f, 1.0f });
+			text->UpDateText(L"ƒŠƒJƒoƒŠ", 10.0f, 190.0f, fsize0, { mr[1], mg[1], 1.0f, 1.0f });
 		}
 	}
 }
@@ -840,34 +813,26 @@ void StateMenu::Pp_Menu(Hero *hero, Directionkey direction) {
 	}
 
 	for (int i = 0; i < 4; i++) {
-		TCHAR *str = L"Žúl‚m‚";
-		text->UpDateText(&str, 10.0f, 10.0f + 20.0f * i, fsize0, { nr[i], ng[i], 1.0f, 1.0f });
+		text->UpDateText(L"Žúl‚m‚", 10.0f, 10.0f + 20.0f * i, fsize0, { nr[i], ng[i], 1.0f, 1.0f });
 		text->UpDateValue(i, 75.0f, 10.0f + 20.0f * i, fsize0, 1, { nr[i], ng[i], 1.0f, 1.0f });
 	}
 
 	if (pp_select1 != -1) {
 		r[pp_select1] = 0.0f;
 		g[pp_select1] = 0.7f;
-		TCHAR *str1 = L"Žúl‚m‚";
-		text->UpDateText(&str1, 120.0f, 10.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"Žúl‚m‚", 120.0f, 10.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(pp_select, 230.0f, 10.0f, fsize, 1, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str2 = L"‚k‚u";
-		text->UpDateText(&str2, 120.0f, 40.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"‚k‚u", 120.0f, 40.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[pp_select].s_LV(), 300.0f, 40.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
-		TCHAR *str3 = L"—Í";
-		text->UpDateText(&str3, 120.0f, 100.0f, fsize, { r[0], g[0], 1.0f, 1.0f });
+		text->UpDateText(L"—Í", 120.0f, 100.0f, fsize, { r[0], g[0], 1.0f, 1.0f });
 		text->UpDateValue(hero[pp_select].s_ATT(), 200.0f, 100.0f, fsize, 3, { r[0], g[0], 1.0f, 1.0f });
-		TCHAR *str4 = L"–‚—Í";
-		text->UpDateText(&str4, 120.0f, 130.0f, fsize, { r[1], g[1], 1.0f, 1.0f });
+		text->UpDateText(L"–‚—Í", 120.0f, 130.0f, fsize, { r[1], g[1], 1.0f, 1.0f });
 		text->UpDateValue(hero[pp_select].s_MAG(), 200.0f, 130.0f, fsize, 3, { r[1], g[1], 1.0f, 1.0f });
-		TCHAR *str5 = L"‘f‘‚³";
-		text->UpDateText(&str5, 120.0f, 160.0f, fsize, { r[2], g[2], 1.0f, 1.0f });
+		text->UpDateText(L"‘f‘‚³", 120.0f, 160.0f, fsize, { r[2], g[2], 1.0f, 1.0f });
 		text->UpDateValue(hero[pp_select].s_AG(), 200.0f, 160.0f, fsize, 3, { r[2], g[2], 1.0f, 1.0f });
-		TCHAR *str6 = L"‘Ì—Í";
-		text->UpDateText(&str6, 120.0f, 190.0f, fsize, { r[3], g[3], 1.0f, 1.0f });
+		text->UpDateText(L"‘Ì—Í", 120.0f, 190.0f, fsize, { r[3], g[3], 1.0f, 1.0f });
 		text->UpDateValue(hero[pp_select].s_VIT(), 200.0f, 190.0f, fsize, 3, { r[3], g[3], 1.0f, 1.0f });
-		TCHAR *str7 = L"‚o‚o";
-		text->UpDateText(&str7, 120.0f, 250.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateText(L"‚o‚o", 120.0f, 250.0f, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(hero[pp_select].s_ParameterPoint(), 200.0f, 250.0f, fsize, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 }

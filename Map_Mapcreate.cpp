@@ -272,10 +272,10 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
 		poMo.SetCommandList(Map_Com);
-		poMo.GetVBarray(SQUARE, 1);
+		poMo.GetVBarray(lightcount);
 		poMo.TextureInit(128, 128);
 		Mapcreate_Ds();
-		poMo.Create(FALSE, -1, TRUE, TRUE);
+		poMo.CreateBillboard();
 	}
 
 	//動画テクスチャ炎壁
@@ -914,40 +914,9 @@ void Map::Mapdraw_Recover() {
 	poRecover.Draw(0, 0, 4.0f, 0, 0, 0, 0, 0);
 }
 
-void Map::Mapcreate_Ds(){
+void Map::Mapcreate_Ds() {
 
-	//左前
-	poMo.SetVertex(0, 0,
-		-20.0f, 0.0f, 100.0f,
-		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 0.8f,
-		0.0f, 0.0f);
-
-	//右前
-	poMo.SetVertex(1, 4, 1,
-		20.0f, 0.0f, 100.0f,
-		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 0.8f,
-		1.0f, 0.0f);
-
-	//左奥
-	poMo.SetVertex(2, 3, 2,
-		-20.0f, 0.0f, 60.0f,
-		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 0.8f,
-		0.0f, 1.0f);
-
-	//右奥
-	poMo.SetVertex(5, 3,
-		20.0f, 0.0f, 60.0f,
-		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 0.8f,
-		1.0f, 1.0f);
-}
-
-void Map::Mapdraw_Ds() {
-
-	int licnt = 0;
+	int ind = 0;
 	for (int k3 = 0; k3 < mxy.z; k3++) {
 		for (int j = 0; j < mxy.y; j++) {
 			for (int i = 0; i < mxy.x; i++) {
@@ -956,93 +925,122 @@ void Map::Mapdraw_Ds() {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 52 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
+				poMo.SetVertex(ind++,
+					(float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 80.0f,
+					1.0f, 1.0f, 1.0f, 0.8f);
+				poMo.SetVertex(ind++,
+					(float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 80.0f,
+					1.0f, 1.0f, 1.0f, 0.8f);
+				poMo.SetVertex(ind++,
+					(float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 80.0f,
+					1.0f, 1.0f, 1.0f, 0.8f);
+				poMo.SetVertex(ind++,
+					(float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 80.0f,
+					1.0f, 1.0f, 1.0f, 0.8f);
+			}
+		}
+	}
+}
 
-				//左(マップ端に配置する場合アクセス違反防止を追加すること)
-				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i - 1] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.InstancedMap((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f, src_theta);
-						light[licnt].x = i * 100.0f - 10.0f;
-						light[licnt].y = j * 100.0f + 50.0f;
-						light[licnt].z = k3 * 100.0f + 75.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
-						light[licnt].brightness = 0.6f;
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
+void Map::Mapdraw_Ds() {
+
+	if (lightFirst == FALSE || moving == TRUE) {
+		int licnt = 0;
+		for (int k3 = 0; k3 < mxy.z; k3++) {
+			for (int j = 0; j < mxy.y; j++) {
+				for (int i = 0; i < mxy.x; i++) {
+
+					//松明有壁以外スキップ
+					if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 52 &&
+						mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
+						mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
+
+					//左(マップ端に配置する場合アクセス違反防止を追加すること)
+					if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i - 1] == 48) {
+						//視野外スキップ
+						if (ViewCulling((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
+							light[licnt].x = i * 100.0f - 10.0f;
+							light[licnt].y = j * 100.0f + 50.0f;
+							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].r = 1.0f;
+							light[licnt].g = 0.4f;
+							light[licnt].b = 0.4f;
+							light[licnt].a = 1.0f;
+							light[licnt].range = 80.0f;
+							light[licnt].brightness = 0.6f;
+							light[licnt].attenuation = 2.0f;
+							light[licnt].on_off = TRUE;
+							licnt++;
+						}
 					}
-				}
-				//右
-				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i + 1] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.InstancedMap((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f, src_theta);
-						light[licnt].x = i * 100.0f + 110.0f;
-						light[licnt].y = j * 100.0f + 50.0f;
-						light[licnt].z = k3 * 100.0f + 75.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
-						light[licnt].brightness = 0.6f;
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
+					//右
+					if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i + 1] == 48) {
+						//視野外スキップ
+						if (ViewCulling((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
+							light[licnt].x = i * 100.0f + 110.0f;
+							light[licnt].y = j * 100.0f + 50.0f;
+							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].r = 1.0f;
+							light[licnt].g = 0.4f;
+							light[licnt].b = 0.4f;
+							light[licnt].a = 1.0f;
+							light[licnt].range = 80.0f;
+							light[licnt].brightness = 0.6f;
+							light[licnt].attenuation = 2.0f;
+							light[licnt].on_off = TRUE;
+							licnt++;
+						}
 					}
-				}
-				//上
-				if (mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.InstancedMap((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f, src_theta);
-						light[licnt].x = i * 100.0f + 50.0f;
-						light[licnt].y = j * 100.0f - 10.0f;
-						light[licnt].z = k3 * 100.0f + 75.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
-						light[licnt].brightness = 0.6f;
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
+					//上
+					if (mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] == 48) {
+						//視野外スキップ
+						if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f) == TRUE) {
+							light[licnt].x = i * 100.0f + 50.0f;
+							light[licnt].y = j * 100.0f - 10.0f;
+							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].r = 1.0f;
+							light[licnt].g = 0.4f;
+							light[licnt].b = 0.4f;
+							light[licnt].a = 1.0f;
+							light[licnt].range = 80.0f;
+							light[licnt].brightness = 0.6f;
+							light[licnt].attenuation = 2.0f;
+							light[licnt].on_off = TRUE;
+							licnt++;
+						}
 					}
-				}
-				//下
-				if (mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f) == TRUE) {
-						poMo.InstancedMap((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f, src_theta);
-						light[licnt].x = i * 100.0f + 50.0f;
-						light[licnt].y = j * 100.0f + 110.0f;
-						light[licnt].z = k3 * 100.0f + 75.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
-						light[licnt].brightness = 0.6f;
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
+					//下
+					if (mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] == 48) {
+						//視野外スキップ
+						if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f) == TRUE) {
+							light[licnt].x = i * 100.0f + 50.0f;
+							light[licnt].y = j * 100.0f + 110.0f;
+							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].r = 1.0f;
+							light[licnt].g = 0.4f;
+							light[licnt].b = 0.4f;
+							light[licnt].a = 1.0f;
+							light[licnt].range = 80.0f;
+							light[licnt].brightness = 0.6f;
+							light[licnt].attenuation = 2.0f;
+							light[licnt].on_off = TRUE;
+							licnt++;
+						}
 					}
 				}
 			}
 		}
+
+		int loopcount = LIGHT_PCS_init;//ライトのインデックス(0:視点用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定)
+		//各ライト設定
+		for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
+			dx->PointLightPosSet(loopcount, light[i].x, light[i].y, light[i].z, light[i].r, light[i].g, light[i].b, light[i].a, light[i].range, light[i].brightness, light[i].attenuation, light[i].on_off);
+			loopcount++;
+		}
+		lightFirst = TRUE;
 	}
-	poMo.InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f);
-	int loopcount = LIGHT_PCS_init;//ライトのインデックス(0:視点用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定)
-	//各ライト設定
-	for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
-		dx->PointLightPosSet(loopcount, light[i].x, light[i].y, light[i].z, light[i].r, light[i].g, light[i].b, light[i].a, light[i].range, light[i].brightness, light[i].attenuation, light[i].on_off);
-		loopcount++;
-	}
+
+	poMo.DrawBillboard(20.0f);
 }
 
 void Map::Mapcreate_BossPoint(){

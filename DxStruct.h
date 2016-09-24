@@ -75,6 +75,18 @@ struct CONSTANT_BUFFER2D {
 	VECTOR4 sizeXY[INSTANCE_PCS_2D];
 };
 
+struct CONSTANT_BUFFER_P {
+	MATRIX  WV;
+	MATRIX  Proj;
+	VECTOR4 size;//xパーティクル大きさ, yパーティクル初期化フラグ, zスピード
+};
+struct PartPos {
+	VECTOR3 CurrentPos; //描画に使う
+	VECTOR3 PosSt;     //開始位置
+	VECTOR3 PosEnd;   //終了位置
+	VECTOR4 Col;
+};
+
 //ポイントライト
 struct PointLight {
 	VECTOR4 LightPos[LIGHT_PCS];   //光源

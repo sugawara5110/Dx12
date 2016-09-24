@@ -29,44 +29,10 @@
 // –ß‚è’l
 //		ƒƒbƒZ[ƒWˆ—Œ‹‰Ê
 //-------------------------------------------------------------
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
-	switch (msg) {
-	case WM_CLOSE:			//~ƒ{ƒ^ƒ“
-		PostQuitMessage(0);//ƒAƒvƒŠƒP[ƒVƒ‡ƒ“I—¹ˆ—,ƒƒbƒZ[ƒWƒLƒ…[‚ÉWM_QUIT‚ðƒ|ƒXƒg
-		break;
-	case WM_KEYDOWN:
-		switch ((CHAR)wParam){
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
-		case VK_LEFT:
-			Control::directionkey = LEFT;
-			break;
-		case VK_RIGHT:
-			Control::directionkey = RIGHT;
-			break;
-		case VK_UP:
-			Control::directionkey = UP;
-			break;
-		case VK_DOWN:
-			Control::directionkey = DOWN;
-			break;
-		case VK_CONTROL:
-			Control::directionkey = ENTER;
-			break;
-		case VK_DELETE:
-			Control::directionkey = CANCEL;
-			break;
-		default:
-			Control::directionkey = NOTPRESS;
-			break;
-		}
-		break;
-	default:
-		Control::directionkey = NOTPRESS;
-		break;
-	}
+	Control *co = Control::GetInstance();
+	co->Input(msg, wParam);
 	return DefWindowProc(hWnd, msg, wParam, lParam);//ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ªˆ—‚µ‚È‚¢ƒEƒBƒ“ƒhƒEƒƒbƒZ[ƒW‚É‘Î‚µ‚Ä‚ÌŠù’è‚Ìˆ—ŽÀs
 }
 
@@ -173,8 +139,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 			dx->Sclear();
 			DxText::GetInstance()->BiginDraw();
-			TCHAR *str = L"‚m‚‚—‚k‚‚‚„‚‰‚Ž‚‡";
-			DxText::GetInstance()->UpDateText(&str, 215.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			DxText::GetInstance()->UpDateText(L"‚m‚‚—‚k‚‚‚„‚‰‚Ž‚‡", 215.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			DxText::GetInstance()->EndDraw();
 			dx->DrawScreen();
 			if (down == TRUE)i += 0.01;
@@ -191,7 +156,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	bool battle_flg[3] = { FALSE, FALSE, FALSE };
-	Control control;
+	Control *control = Control::GetInstance();
 	int map_no = 0;
 	InstanceCreate::MapCreate();//ƒ^ƒCƒgƒ‹‚Éo—Í‚·‚éƒ}ƒbƒv
 	InstanceCreate::MapObjSet();
@@ -225,7 +190,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		
 		if (title == TRUE){
 			if (title_in == TRUE){
-				title_in = statemenu.TitleMenu(control.Direction());
+				title_in = statemenu.TitleMenu(control->Direction());
 			}
 			if (title_in == FALSE){
 				if (heroInput == NULL){
@@ -240,7 +205,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		dx->Bigin(HERO_COM, nullptr);
 
-		encount = InstanceCreate::GetInstance_M()->Mapdraw(&mapstate, control.Direction(TRUE), encount, menu, title, endingflg);
+		encount = InstanceCreate::GetInstance_M()->Mapdraw(&mapstate, control->Direction(TRUE), encount, menu, title, endingflg);
 
 		if (mapstate == CHANGE_MAP){
 			bool m_flg = InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no);
@@ -254,7 +219,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			mapstate = NORMAL_MAP;
 		}
 
-		if (endingflg == FALSE && title == FALSE && encount == NOENCOUNT && menu == FALSE && control.Direction() == ENTER)menu = TRUE;
+		if (endingflg == FALSE && title == FALSE && encount == NOENCOUNT && menu == FALSE && control->Direction() == ENTER)menu = TRUE;
 
 		if (endingflg == FALSE && title == FALSE && encount != NOENCOUNT && menu == FALSE){
 			if (battle_flg[2] == FALSE){
@@ -283,7 +248,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				}
 				battle_flg[0] = FALSE;
 			}
-			if (battle_flg[2] != FALSE)result = InstanceCreate::GetInstance_B()->Fight(hero, control.Direction(), result);
+			if (battle_flg[2] != FALSE)result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
 			if (result == WIN && battle_flg[2] != FALSE){
 				InstanceCreate::BattleDelete();
 				battle_flg[2] = FALSE;
@@ -291,8 +256,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				encount = NOENCOUNT;
 			}
 			if (result == DIE){
-				TCHAR *str1 = L"‚f‚`‚l‚d‚n‚u‚d‚q";
-				DxText::GetInstance()->UpDateText(&str1, 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+				DxText::GetInstance()->UpDateText(L"‚f‚`‚l‚d‚n‚u‚d‚q", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			}
 		}
 
@@ -304,7 +268,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		if (mapstate == NORMAL_MAP && endingflg == FALSE && title == FALSE && encount == NOENCOUNT && menu == TRUE){
 			menu = statemenu.Menudraw(InstanceCreate::GetInstance_M()->Getposition(),
-				map_no, Map::GetBossKilled(), hero, control.Direction());
+				map_no, Map::GetBossKilled(), hero, control->Direction());
 		}
 
 		dx->End(HERO_COM);
@@ -314,6 +278,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		dx->DrawScreen();
 	}
 
+	Control::DeleteInstance();
 	MovieSoundManager::ObjDelete();
 	InstanceCreate::BattleDelete();
 	InstanceCreate::MapDelete();

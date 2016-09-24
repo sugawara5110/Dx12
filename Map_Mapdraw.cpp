@@ -372,28 +372,20 @@ Position::H_Pos *Map::Getposition(){
 }
 
 void Map::Debug() {//デバック用
-	TCHAR *s1 = L"theta";
-	text->UpDateText(&s1, 100.0f, 10.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"theta", 100.0f, 10.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue((int)(src_theta * 100.0f), 200.0f, 10.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s2 = L"posx";
-	text->UpDateText(&s2, 100.0f, 25.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"posx", 100.0f, 25.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(posx, 200.0f, 25.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s3 = L"posy";
-	text->UpDateText(&s3, 100.0f, 40.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"posy", 100.0f, 40.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(posy, 200.0f, 40.0f, 15.0, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s4 = L"posz";
-	text->UpDateText(&s4, 100.0f, 55.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"posz", 100.0f, 55.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(posz, 200.0f, 55.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s5 = L"cax1";
-	text->UpDateText(&s5, 100.0f, 70.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"cax1", 100.0f, 70.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue((int)(cax1 * 100.0f), 200.0f, 70.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s6 = L"cax2";
-	text->UpDateText(&s6, 100.0f, 85.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"cax2", 100.0f, 85.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue((int)(cax2 * 100.0f), 200.0f, 85.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s7 = L"cay1";
-	text->UpDateText(&s7, 100.0f, 100.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"cay1", 100.0f, 100.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue((int)(cay1 * 100.0f), 200.0f, 100.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TCHAR *s8 = L"cay2";
-	text->UpDateText(&s8, 100.0f, 115.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	text->UpDateText(L"cay2", 100.0f, 115.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue((int)(cay2 * 100.0f), 200.0f, 115.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 }

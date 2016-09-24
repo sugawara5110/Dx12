@@ -185,7 +185,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	}
 	mag_boss = new ParticleData();
 	mag_boss->SetCommandList(ENEMY_COM);
-	mag_boss->CreateParticle(61, mag_size, 5.0f);
+	mag_boss->CreateParticle(61, 62, mag_size, 5.0f);
 }
 
 //@Override
