@@ -24,7 +24,7 @@
 #include <D3Dcompiler.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
-#include "WICTextureLoader.h"
+#include "WICTextureLoader12.h"
 #include <memory>
 #include <stdlib.h>
 #include <string>

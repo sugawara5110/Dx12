@@ -119,7 +119,7 @@ void PolygonData::TextureInit(int width, int height) {
 	HeapProps.VisibleNodeMask = 1;
 	HRESULT hr;
 	hr = dx->md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-		D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&texture));
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&texture));
 
 	//upload
 	UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
@@ -179,7 +179,7 @@ void PolygonData::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) {
 	BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	BarrierDesc.Transition.pResource = texture;
 	BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+	BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
 	BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
 	mCommandList->ResourceBarrier(1, &BarrierDesc);
 

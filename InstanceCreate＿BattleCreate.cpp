@@ -69,6 +69,7 @@ void InstanceCreate::DeleteThread_M(){
 void InstanceCreate::HeroCreate() {
 	Dx12Process::GetInstance()->Bigin(HERO_COM, nullptr);
 	he = new Hero[4];
+	int j = 0;
 	for (int i = 0; i < 4; i++)new(he + i) Hero(i);//”z—ñ‚ðplacement new‚ðŽg‚Á‚Ä‰Šú‰»‚·‚é
 	Dx12Process::GetInstance()->End(HERO_COM);
 }
