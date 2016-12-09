@@ -33,7 +33,11 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		boss_count = 0;   //ポイント全て表示されないようにする。マップ中に複数使用の場合変更必要
 	}
 
-	if (*mapstate == NORMAL_MAP && ending == FALSE && title == FALSE && encount == NOENCOUNT && menu == FALSE)encount = Move(mapstate, direction);
+	bool Move_f = FALSE;
+	if (*mapstate == NORMAL_MAP && ending == FALSE && title == FALSE && encount == NOENCOUNT && menu == FALSE) {
+		encount = Move(mapstate, direction);
+		if (direction == UP || direction == DOWN)Move_f = TRUE;
+	}
 	if (ending == FALSE && title == FALSE && encount == NOENCOUNT)MovieSoundManager::Dungeon_sound(TRUE, map_no); else MovieSoundManager::Dungeon_soundoff(map_no);
 	if (title == FALSE && map_no == 1)MovieSoundManager::Rain_sound(TRUE);
 
@@ -88,11 +92,14 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		og = 0.0f;
 		ob = 0.0f;
 	}
-	//視点ライト
-	dx->PointLightPosSet(0, cax1, cay1, (float)posz * 100.0f + 70.0f + elevator_step, 1.0f, 1.0f, 1.0f, 1.0f, 150.0f, 15.0f, 2.01f, mainlight);
+
+	//戦闘時,非戦闘時のディレクショナルライト
+	float btr = 1.0f;
+	if (encount != NOENCOUNT)btr = 2.0f;
+	//視点ライト(無い方が雰囲気出る・・)
+	//dx->PointLightPosSet(0, cax1, cay1, (float)posz * 100.0f + 70.0f + elevator_step, 1.0f, 1.0f, 1.0f, 1.0f, 150.0f, 15.0f, 2.01f, mainlight);
 	//平行光源off
-	dx->SetDirectionLight(FALSE);
-	dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob, 1.5f, 0.5f);
+	dx->SetDirectionLight(TRUE);
 	//フォグoff
 	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 	if (map_no == 4)dx->PointLightPosSet(1, 1450.0f, 1000.0f, 650.0f, 0.4f, 0.4f, 0.8f, 1.0f, 200.0f, 100.0f, 2.0f, TRUE);
@@ -100,6 +107,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 	switch (map_no) {
 	case 0:
 		//出口光源
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f * btr, 0.1f * btr, 0.1f * btr, 1.5f, 0.5f);
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, TRUE);
 		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 0);
 		poCeilingM.Draw(0, 0, 0, 0, 0, 0, 0, 0);
@@ -113,6 +121,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 1:
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, TRUE);
 		poGroundF.Draw(1100, 3500, 0, 0, 0, 0, 0, 0);
 		poCeilingF.Draw(1100, 3500, 0, 0, 0, 0, 0, 0);
@@ -132,7 +141,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 		if (r_point_count >= 1)Mapdraw_Recover();
 		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		dx->SetDirectionLight(TRUE);
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 800.0f, 0.17f, TRUE);
 		poBackground.Draw(0, 0, -3500, or , og, ob, 0, 0);
 		dx->Fog(1.0f, 1.0f, 1.0f, 100.0f, 0.4f, TRUE);
@@ -145,6 +154,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		Mapdraw_Rain();
 		break;
 	case 2:
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f * btr, 0.15f * btr, 0.15f * btr, 1.5f, 0.5f);
 		poEXIT.Draw(150.0f, 3930.0f, 0, 0, 0, 0, 180.0f, 0);
 		//入口光源
 		dx->PointLightPosSet(2, 150.0f, 3980.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, TRUE);
@@ -166,6 +176,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		break;
 	case 3:
 		//とりあえずOK後で光源設定する
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f, 1.5f, 0.5f);
 		poGroundF.Draw(200, 3000, 0, 0, 0, 0, 0, 0);
 		poCeilingF.Draw(200, 2990, 0, 0, 0, 0, 0, 0);
 		if (blockcountC >= 1)poWallC.Draw(0, 0, 0, 0, 0, 0, 0, 0);
@@ -173,7 +184,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 			poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
 			Mapdraw_Ds();
 		}
-		dx->SetDirectionLight(TRUE);
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f, 1.0f, 1.0f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
 		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
 		poCeilingM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
@@ -187,6 +198,8 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		break;
 	case 4:
 		//入り口に何か細工する予定
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f * btr, 0.25f * btr, 0.25f * btr, 1.5f, 0.5f);
+		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
 		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
 		poCeilingM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
 		MapdrawObj();
@@ -200,7 +213,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		break;
 	}
 
-	if (encount == NOENCOUNT && ending == FALSE)HeroDraw(direction);
+	if (encount == NOENCOUNT && ending == FALSE)HeroDraw(Move_f);//Mov関数からフラグもらうようにする
 
 	MapText(m_tx);
 
@@ -209,16 +222,18 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 	return encount;
 }
 
-void Map::HeroDraw(Directionkey direction){
-	float step, ca;
-	//移動量に合わせて描画インデックスを決定する
-	if (moving == TRUE && direction_move != LEFT && direction_move != RIGHT){
-		if (src_theta == 0 || src_theta == 360 || src_theta == 180){ step = stepy; ca = cay1; }
-		if (src_theta == 90 || src_theta == 270){ step = stepx; ca = cax1; }
-		walkI = 17 - (int)abs(17.0f * (step - ca) / 100.0f);
-	}
-	else if (direction == NOTPRESS)walkI = -1;
+void Map::HeroDraw(bool mf) {
+	static float walk = 0.0f;
+	int walkI = -1;
+	float m = tfloat.Add(2.0f);
+	
+	if (!mf)walk = 0.0f;
 
+	if (mf) {
+		walk += m;
+		if (walk > 800.0f)walk = 0.0f;
+		walkI = (int)walk;
+	}
 	if (he)he->OBJWalkDraw(cax1, cay1, (float)posz * 100.0f + elevator_step, 0, 0, 0, src_theta, walkI);
 }
 
@@ -369,6 +384,21 @@ Position::H_Pos *Map::Getposition(){
 	h_pos.cz = posz * 100.0f + 40.0f;
 	
 	return &h_pos;
+}
+
+void Map::Setposition(Position::H_Pos *pos) {
+	cax1 = pos->cx1;
+	cax2 = pos->cx2;
+	cay1 = pos->cy1;
+	cay2 = pos->cy2;
+	posx = pos->px;
+	posy = pos->py;
+	posz = pos->pz;
+	src_theta = pos->theta;
+}
+
+Position::mapxy *Map::Getmap() {
+	return &mxy;
 }
 
 void Map::Debug() {//デバック用

@@ -35,13 +35,7 @@ private:
 	Dx12Process *dx;
 	DxText *text;
 	T_float tfloat;
-	typedef struct{
-		int *m;
-		int x;
-		int y;
-		int z;
-	}mapxy;
-	mapxy mxy;
+	Position::mapxy mxy;
 
 	struct LightPos{
 		float x, y, z;
@@ -84,12 +78,6 @@ private:
 	bool elevator_DOWN;
 	float elevator_step;
 
-	bool moving;
-	Directionkey direction_move;
-	float m_theta;
-	float stepx;
-	float stepy;
-
 	struct OBJPosRandomValue{
 		float x;
 		float y;
@@ -108,7 +96,6 @@ private:
 	Position::E_Pos e_pos[4];
 	Position::H_Pos h_pos;
 	Hero *he;//ˆÚ“®—p
-	int walkI;//ˆÚ“®—p
 
 	void Debug();
 	Map(){};
@@ -136,7 +123,7 @@ private:
 	Encount Move(MapState *mapstate, Directionkey direction);
 	void MapText(TCHAR str[30]);
 	bool ViewCulling(float obj_x, float obj_y, float obj_z);
-	void HeroDraw(Directionkey direction);
+	void HeroDraw(bool mf);
 
 public:
 	static int GetMapNo();
@@ -148,6 +135,8 @@ public:
 	Encount Mapdraw(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
 	Position::E_Pos *Getposition(int p);
 	Position::H_Pos *Getposition();
+	void Setposition(Position::H_Pos *pos);
+	Position::mapxy *Getmap();
 	~Map();
 };
 

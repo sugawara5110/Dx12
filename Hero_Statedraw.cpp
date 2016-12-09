@@ -14,33 +14,11 @@ void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, flo
 
 	if (walkI == -1) {
 		//静止
-		map_walk[0].Draw(x, y, z, r, g, b, theta, 0, 0, 2.0f, 0.1f);
+		map_walk0->Draw(x, y, z, r, g, b, theta, 0, 0, 2.0f, 0.1f);
 	}
 	else {
-		float ax, ay, wi;
-		ax = ay = wi = 0.0f;
-		wi = (float)walkI / 18.0f * 30.0f;
-		switch ((int)theta) {
-		case 360:
-		case 0:
-			ay = wi;
-			ax = 0.0f;
-			break;
-		case 90:
-			ax = -wi;
-			ay = 0.0f;
-			break;
-		case 180:
-			ay = -wi;
-			ax = 0.0f;
-			break;
-		case 270:
-			ax = wi;
-			ay = 0.0f;
-			break;
-		}
 		//移動
-		map_walk[walkI + 1].Draw(x + ax, y + ay, z, r, g, b, theta, 0, 0, 2.0f, 0.1f);
+		map_walk->Draw(walkI, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	}
 }
 
@@ -65,7 +43,6 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		count = 0;
 	}
 
-	float cntMax = 0;
 	switch (action) {
 	case ATTACK:
 		act_f = ATTACK;
@@ -88,12 +65,10 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 	float m;
 	switch (act_f) {
 	case ATTACK:
-		m = tfloat.Add(0.15f);
-		cntMax = (float)(ObjCntMax * 3 - 1);
+		m = tfloat.Add(2.0f);
 		if (effect_f == FALSE) {
-			if ((p_att_cnt += m) < cntMax) {//カウントcnt o_no=0:Max27, o_no=1:Max32, o_no=2:Max26, o_no=3:Max15
-				int cnt = (int)(p_att_cnt / 3.0f);
-				p_att_Ind = cnt;
+			if ((p_att_cnt += m) < ObjCntMax) {
+				p_att_Ind = (int)p_att_cnt;
 			}
 			else {
 				p_att_cnt = 0.0f;
@@ -209,7 +184,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		LA_x = 0.0f;
 		break;
 	}
-	p_att[p_att_Ind].Draw(b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f, 0.1f);
+	p_att->Draw(p_att_Ind, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 
 	Statecreate(command_run);
 	text->UpDateText(L"囚人Ｎｏ", x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });

@@ -25,10 +25,10 @@ Enemy::Enemy(int t_no, int no) {
 	tt = 0;
 	cr = cg = cb = 0.0f;
 	en = NULL;
+	en_boss_att0 = NULL;
 	en_boss_att = NULL;
 	en_boss_att_cnt = 0.0f;
 	en_boss_att_Ind = -1;
-	en_boss_att_pass = NULL;
 	ObjCntMax = 0;
 
 	for (int i = 0; i < 4; i++) {

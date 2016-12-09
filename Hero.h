@@ -21,13 +21,12 @@ class Hero:public Parameter{
 
 protected:
 	int o_no;//オブジェクトナンバー
-	MeshData *map_walk;//Mapクラスから操作(o_no=1のみ生成)
-	char **map_walk_pass;
-	MeshData *p_att;     //アタックアニメーション用
-	char **p_att_pass;    //objファイルパス
+	MeshData *map_walk0;//Mapクラスから操作立ち止まり状態(o_no=1のみ生成)
+	SkinMesh *map_walk;//歩行
+	SkinMesh *p_att;     //アタックアニメーション用
 	float p_att_cnt;      //アニメーションカウント
 	int p_att_Ind;       //アニメーション描画時のオブジェクトインデックス
-	int ObjCntMax;      //アニメーションオブジェクト個数
+	int ObjCntMax;      //アニメーションフレーム
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
 
 	PolygonData2D state, meter;
@@ -42,6 +41,9 @@ protected:
 	bool effect_f;//エフェクトON,OFF
 	float tx, ty;//エフェクト用テクスチャ座標
 	float tt;     //エフェクト速度調整用
+
+	bool Statecreate_clr_f;
+	float Statecreate_r;
 
 	void Statecreate(bool command_run);
 	void Metercreate(float me);

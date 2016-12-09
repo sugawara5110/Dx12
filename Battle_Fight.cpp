@@ -388,6 +388,7 @@ void Battle::Debug(Enemy *enemy) {//デバック用
 	for (int i = 0; i < 4; i++) {
 		if (e_pos[i].element == FALSE)continue;
 		text->UpDateValue(enemy[i].s_HP(), 500.0f, 10.0f + 90.0f * i, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
+		text->UpDateValue(e_pos[i].element, 650.0f, 10.0f + 90.0f * i, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(enemy[i].s_MHP(), 580.0f, 10.0f + 90.0f * i, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(enemy[i].s_MP(), 500.0f, 25.0f + 90.0f * i, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(enemy[i].s_MMP(), 580.0f, 25.0f + 90.0f * i, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });

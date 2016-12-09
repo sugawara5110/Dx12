@@ -15,11 +15,16 @@
 #define WINDOW_WIDTH 800 //ウィンドウ幅
 #define WINDOW_HEIGHT 600 //ウィンドウ高さ
 
-struct MATRIX{
-	float _11, _12, _13, _14;
-	float _21, _22, _23, _24;
-	float _31, _32, _33, _34;
-	float _41, _42, _43, _44;
+struct MATRIX {
+	union {
+		struct {
+			float _11, _12, _13, _14;
+			float _21, _22, _23, _24;
+			float _31, _32, _33, _34;
+			float _41, _42, _43, _44;
+		};
+		float m[4][4];
+	};
 };
 
 struct VECTOR4{
@@ -83,8 +88,12 @@ void MatrixLookAtLH(MATRIX *mat, float x1, float y1, float z1, float x2, float y
 void MatrixPerspectiveFovLH(MATRIX *mat, float theta, float aspect, float Near, float Far);
 //ベクトル3, 行列掛け算
 void VectorMatrixMultiply(VECTOR3 *v, MATRIX *mat);
+//逆行列
+bool MatrixInverse(MATRIX *invm, MATRIX *m);
 //ビューポート変換行列
 void MatrixViewPort(MATRIX *mat);
+//正規化
+void Normalize(float *x, float *y, float *z, float *w);
 
 void Bdecode(char *bpass, char **binary, int *size);
 

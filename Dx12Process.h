@@ -33,15 +33,13 @@
 #include <unordered_map>
 #include <assert.h>
 #include <Process.h>
+#include <fbxsdk.h>
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
 
 #define COM_NO        7
-#define RELEASE(p)    if(p){p->Release();  p=NULL;}
-#define S_DELETE(p)   if(p){delete p;      p=NULL;}
-#define ARR_DELETE(p) if(p){delete[] p;    p=NULL;}
 #define TEX_PCS       130
 
 //前方宣言
@@ -51,6 +49,7 @@ class MeshData;
 class PolygonData;
 class PolygonData2D;
 class ParticleData;
+class SkinMesh;
 class DxText;
 //前方宣言
 
@@ -61,6 +60,7 @@ private:
 	friend PolygonData;
 	friend PolygonData2D;
 	friend ParticleData;
+	friend SkinMesh;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
 	Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
@@ -96,12 +96,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISP = nullptr;
 
+	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_SKIN;
 	std::vector<D3D12_SO_DECLARATION_ENTRY> pDeclaration_PSO;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_P;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_MESH;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_3D;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_2D;
 
+	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_SKIN = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_PSO = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_MESH_D = nullptr;
@@ -114,6 +116,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2DTC = nullptr;
 
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH = nullptr;
@@ -298,7 +301,7 @@ struct StreamView {
 		D3D12_STREAM_OUTPUT_BUFFER_VIEW sbv;
 		sbv.BufferLocation = StreamBufferGPU->GetGPUVirtualAddress();
 		sbv.SizeInBytes = StreamBufferByteSize;
-		sbv.BufferFilledSizeLocation = BufferFilledSizeLocation;//分からないとりあえずこれで動いているVertexにおくるとhungする
+		sbv.BufferFilledSizeLocation = BufferFilledSizeLocation;//以前のサイズ?
 		return sbv;
 	}
 };
@@ -668,8 +671,11 @@ private:
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
 	//ストリームバッファOBJ
-	std::unique_ptr<StreamView> Sview1 = nullptr;
-	std::unique_ptr<StreamView> Sview2 = nullptr;//BufferFilledSizeLocationの送り先
+	std::unique_ptr<StreamView[]> Sview1 = nullptr;
+	std::unique_ptr<StreamView[]> Sview2 = nullptr;//BufferFilledSizeLocationの送り先
+	int svInd = 0;
+	bool firstDraw = FALSE;
+	int  streamInitcount = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_com = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_draw = nullptr;
@@ -698,6 +704,81 @@ public:
 	void Draw(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
 	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
 	void DrawBillboard(float size);
+};
+
+//*********************************SkinMeshクラス*************************************//
+
+class SkinMesh {
+
+private:
+	Dx12Process                *dx;
+	ID3D12GraphicsCommandList  *mCommandList;
+	int                        com_no = 0;
+	ID3DBlob                   *vs = nullptr;
+	ID3DBlob                   *ps = nullptr;
+	bool alpha = FALSE;
+	bool blend = FALSE;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
+
+	//コンスタントバッファOBJ
+	UploadBuffer<CONSTANT_BUFFER> *mObjectCB0 = nullptr;
+	UploadBuffer<SHADER_GLOBAL1> *mObjectCB1 = nullptr;
+	UploadBuffer<SHADER_GLOBAL_BONES> *mObject_BONES = nullptr;
+
+	std::unique_ptr<VertexView> Vview = nullptr;
+	std::unique_ptr<IndexView[]> Iview = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;//パイプラインOBJ
+
+	//メッシュ関連	
+	DWORD *m_pdwNumVert;//メッシュ毎の頂点数
+	DWORD VerAllpcs;    //全頂点数
+	DWORD MateAllpcs;  //全マテリアル数
+	MY_MATERIAL_S *m_pMaterial;
+
+	//ボーン
+	int m_iNumBone;
+	BONE *m_BoneArray;
+	bool centering, offset;
+	float cx, cy, cz;
+	float theX, theY, theZ;
+
+	//FBX
+	FbxManager *m_pSdkManager = NULL;
+	FbxImporter *m_pImporter = NULL;
+	FbxScene *m_pmyScene = NULL;
+	FbxCluster **m_ppCluster;//ボーン情報
+	FbxNode **m_ppNodeArray;//各Nodeへのポインタ配列
+	int NodeArraypcs;
+
+	void DestroyFBX();
+	FbxScene* GetScene();
+	int SearchNodeCount(FbxNode *pnode, FbxNodeAttribute::EType SearchType);
+	FbxNode *SearchNode(FbxNode *pnode, FbxNodeAttribute::EType SearchType, int Ind);
+
+	HRESULT InitFBX(CHAR* szFileName);
+	void CreateIndexBuffer(int cnt, int *pIndex, int IviewInd);
+	HRESULT ReadSkinInfo(MY_VERTEX_S *pvVB);
+	MATRIX GetCurrentPoseMatrix(int index);
+	void MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB);
+	void GetTexture();
+	int GetTexNomber(CHAR *fileName);
+	void SetNewPoseMatrices(int frame);
+	void ObjThetaOffset(float *thetaZ, float *thetaY, float *thetaX);
+
+public:
+	SkinMesh();
+	~SkinMesh();
+
+	void SetCommandList(int no);
+	void SetState(bool alpha, bool blend);
+	void ObjCentering(bool f);
+	void ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX);
+	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX);
+	HRESULT CreateFromFBX(CHAR* szFileName);
+	void Draw(int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 };
 
 //エラーメッセージ

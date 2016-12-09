@@ -60,6 +60,7 @@ void Control::Input(UINT msg, WPARAM wParam) {
 		directionkey = NOTPRESS;
 		break;
 	}
+	directionkey2 = directionkey;
 }
 
 Directionkey Control::Direction(){
@@ -98,5 +99,5 @@ Directionkey Control::Direction(){
 }
 
 Directionkey Control::Direction(bool f){
-	return directionkey;
+	return directionkey2;
 }

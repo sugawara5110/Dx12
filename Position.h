@@ -9,9 +9,21 @@
 
 #include "Dx12Process.h"
 
+#define POSY_U (h_posIn->pz * mxy->y * mxy->x + (h_posIn->py + 1) * mxy->x + h_posIn->px)
+#define POSY_D (h_posIn->pz * mxy->y * mxy->x + (h_posIn->py - 1) * mxy->x + h_posIn->px)
+#define POSX_U (h_posIn->pz * mxy->y * mxy->x + h_posIn->py * mxy->x + (h_posIn->px + 1))
+#define POSX_D (h_posIn->pz * mxy->y * mxy->x + h_posIn->py * mxy->x + (h_posIn->px - 1))
+
 class Position{
 
 public:
+	typedef struct {
+		int *m;
+		int x;
+		int y;
+		int z;
+	}mapxy;
+
 	typedef struct{
 		float theta;
 		bool element;
@@ -48,7 +60,7 @@ private:
 	static void P_Copy(H_Pos *h_posIn, H_Pos *h_posOut, float view_rev);
 
 public:
-	static bool CamAdvance(H_Pos *h_posIn, H_Pos *h_posOut, float speed);
+	static bool CamAdvance(H_Pos *h_posIn, H_Pos *h_posOut, H_Pos *h_posOut2, float speed, mapxy *mxy, Encount en);
 	static bool CamRecession(H_Pos *h_posIn, H_Pos *h_posOut, float speed);
 	static void CamActionBackView(Bt_H_Pos *b_posIn, H_Pos *h_posOut, float speed, bool CamActOn, Action act);
 	static void CamActionRoundView(Bt_H_Pos *b_posIn, H_Pos *h_posOut, float speed, bool CamActOn, Action act, char LR);

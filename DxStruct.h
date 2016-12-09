@@ -13,8 +13,12 @@
 #define LIGHT_PCS_init 7
 #define INSTANCE_PCS_3D 150
 #define INSTANCE_PCS_2D 80
+#define MAX_BONES 150
+#define RELEASE(p)    if(p){p->Release();  p=NULL;}
+#define S_DELETE(p)   if(p){delete p;      p=NULL;}
+#define ARR_DELETE(p) if(p){delete[] p;    p=NULL;}
 
-//頂点
+//頂点3D
 struct Vertex {
 	VECTOR3 Pos;       //位置
 	VECTOR3 normal;   //法線
@@ -22,12 +26,14 @@ struct Vertex {
 	VECTOR2 tex;    //テクスチャ座標
 };
 
+//頂点メッシュ
 struct MY_VERTEX_MESH {
 	VECTOR3 Pos;
 	VECTOR3 normal;
 	VECTOR2 tex;
 };
 
+//頂点2D
 struct MY_VERTEX2 {
 	VECTOR3 Pos;       
 	VECTOR4 color;
@@ -109,6 +115,61 @@ struct Fog {
 	float         Amount;  //フォグ量
 	float         Density;//密度
 	float         on_off;
+};
+
+//以下スキンメッシュ
+struct MY_VERTEX_S{
+	VECTOR3 vPos;//頂点位置
+	VECTOR3 vNorm;//頂点法線
+	VECTOR2 vTex;//UV座標
+	UINT bBoneIndex[4];//ボーン　番号
+	float bBoneWeight[4];//ボーン　重み
+	MY_VERTEX_S()
+	{
+		ZeroMemory(this, sizeof(MY_VERTEX_S));
+	}
+};
+
+struct MY_MATERIAL_S{
+	CHAR szName[255];
+	VECTOR4 Kd;//ディフューズ
+	CHAR szTextureName[255];//テクスチャーファイル名
+	DWORD dwNumFace;//マテリアル毎のポリゴン数
+	int tex_no;
+	MY_MATERIAL_S()
+	{
+		ZeroMemory(this, sizeof(MY_MATERIAL_S));
+		tex_no = -1;
+	}
+	~MY_MATERIAL_S()
+	{
+		
+	}
+};
+
+struct BONE{
+	MATRIX mBindPose;//初期ポーズ
+	MATRIX mNewPose;//現在のポーズ
+
+	BONE()
+	{
+		ZeroMemory(this, sizeof(BONE));
+	}
+};
+
+struct SHADER_GLOBAL1 {
+	VECTOR4 vDiffuse;//ディフューズ色
+};
+
+struct SHADER_GLOBAL_BONES {
+	MATRIX mBone[MAX_BONES];
+	SHADER_GLOBAL_BONES()
+	{
+		for (int i = 0; i < MAX_BONES; i++)
+		{
+			MatrixIdentity(&mBone[i]);
+		}
+	}
 };
 
 #endif

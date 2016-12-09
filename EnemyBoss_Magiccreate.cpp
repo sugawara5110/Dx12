@@ -128,60 +128,54 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 
 	switch (t_no) {
 	case 0:
-		ObjCntMax = 14;
+		ObjCntMax = 600;
 		break;
 	case 1:
-		ObjCntMax = 20;
+		ObjCntMax = 600;
 		break;
 	case 2:
-		en_boss_att = new MeshData[1];
-		en_boss_att[0].SetCommandList(ENEMY_COM);
-		en_boss_att[0].SetState(TRUE, TRUE, FALSE);
-		en_boss_att[0].GetVBarray("./dat/mesh/boss3.obj");
-		en_boss_att[0].GetTexture();
+		en_boss_att0 = new MeshData();
+		en_boss_att0->SetCommandList(ENEMY_COM);
+		en_boss_att0->SetState(TRUE, TRUE, FALSE);
+		en_boss_att0->GetVBarray("./dat/mesh/boss3.obj");
+		en_boss_att0->GetTexture();
 		break;
 	case 3:
-		ObjCntMax = 12;
+		ObjCntMax = 500;
 		break;
 	case 4:
-		ObjCntMax = 16;
+		ObjCntMax = 500;
 		break;
 	}
 	if (t_no != 2) {
-		en_boss_att = new MeshData[ObjCntMax];
-		en_boss_att_pass = (char**)malloc(sizeof(char*) * ObjCntMax);
-		for (int i = 0; i < ObjCntMax; i++) {
-			en_boss_att[i].SetCommandList(ENEMY_COM);
-			en_boss_att[i].SetState(TRUE, TRUE, FALSE);
-			en_boss_att_pass[i] = (char*)malloc(sizeof(char) * 50);
-			switch (t_no) {
-			case 0:
-				sprintf_s(en_boss_att_pass[i], sizeof(char) * 50, "./dat/mesh/boss1att/boss1_0000%02d.obj", i);
-				break;
-			case 1:
-				sprintf_s(en_boss_att_pass[i], sizeof(char) * 50, "./dat/mesh/boss2att/boss2_0000%02d.obj", i);
-				break;
-			case 3:
-				sprintf_s(en_boss_att_pass[i], sizeof(char) * 50, "./dat/mesh/boss4att/boss4_0000%02d.obj", i);
-				break;
-			case 4:
-				sprintf_s(en_boss_att_pass[i], sizeof(char) * 50, "./dat/mesh/lastbossatt/lastboss_0000%02d.obj", i);
-				break;
-			}
+		en_boss_att0 = new MeshData();
+		en_boss_att0->SetCommandList(ENEMY_COM);
+		en_boss_att0->SetState(TRUE, TRUE, FALSE);
+		en_boss_att = new SkinMesh();
+		en_boss_att->SetCommandList(ENEMY_COM);
+		en_boss_att->SetState(TRUE, TRUE);
+		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f);
+		switch (t_no) {
+		case 0:
+			en_boss_att0->GetVBarray("./dat/mesh/boss1att/boss1_000000.obj");
+			en_boss_att->CreateFromFBX("./dat/mesh/boss1att/boss1bone.fbx");
+			break;
+		case 1:
+			en_boss_att0->GetVBarray("./dat/mesh/boss2att/boss2_000000.obj");
+			en_boss_att->CreateFromFBX("./dat/mesh/boss2att/boss2bone.fbx");
+			break;
+		case 3:
+			en_boss_att0->GetVBarray("./dat/mesh/boss4att/boss4_000000.obj");
+			en_boss_att->CreateFromFBX("./dat/mesh/boss4att/boss4bone.fbx");
+			break;
+		case 4:
+			en_boss_att0->GetVBarray("./dat/mesh/lastbossatt/lastboss_000000.obj");
+			en_boss_att->CreateFromFBX("./dat/mesh/lastbossatt/lastbossbone.fbx");
+			break;
 		}
-		MeshData::GetVBarrayThreadArray(en_boss_att, en_boss_att_pass, ObjCntMax);
 		//テクスチャ設定
-		for (int i = 0; i < ObjCntMax; i++)en_boss_att[i].GetTexture();
+		en_boss_att0->GetTexture();
 
-		//パスはもう使わないのでここで解放
-		if (en_boss_att_pass != NULL) {
-			for (int i = 0; i < ObjCntMax; i++) {
-				free(en_boss_att_pass[i]);
-				en_boss_att_pass[i] = NULL;
-			}
-			free(en_boss_att_pass);
-			en_boss_att_pass = NULL;
-		}
 	}
 	mag_boss = new ParticleData();
 	mag_boss->SetCommandList(ENEMY_COM);
@@ -189,91 +183,84 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 }
 
 //@Override
-void EnemyBoss::AttackAction(){
+void EnemyBoss::AttackAction() {
 	float m;
-	if (effect_f == FALSE){
-		switch (e_no){
+	if (effect_f == FALSE) {
+		switch (e_no) {
 		case 0:
-			m = tfloat.Add(0.15f);
-			if ((en_boss_att_cnt += m) < 56.0f){//カウントcnt Max18まで
-				int cnt = (int)(en_boss_att_cnt / 3.0f);
-				if (cnt < 13)en_boss_att_Ind = cnt;
-				else en_boss_att_Ind = 24 - cnt;
+			m = tfloat.Add(1.0f);
+			if ((en_boss_att_cnt += m) < ObjCntMax) {
+				en_boss_att_Ind = (int)en_boss_att_cnt;
 			}
-			else{
+			else {
 				en_boss_att_cnt = 0.0f;
 				en_boss_att_Ind = -1;
 				effect_f = TRUE;
 			}
 			break;
 		case 1:
-			m = tfloat.Add(0.17f);
-			if ((en_boss_att_cnt += m) < 65.0f){//カウントcnt Max21まで
-				int cnt = (int)(en_boss_att_cnt / 3.0f);
-				if (cnt < 19)en_boss_att_Ind = cnt;
-				else en_boss_att_Ind = 21 - cnt;
+			m = tfloat.Add(1.0f);
+			if ((en_boss_att_cnt += m) < ObjCntMax) {
+				en_boss_att_Ind = (int)en_boss_att_cnt;
 			}
-			else{
+			else {
 				en_boss_att_cnt = 0.0f;
 				en_boss_att_Ind = -1;
 				effect_f = TRUE;
 			}
 			break;
 		case 3:
-			m = tfloat.Add(0.08f);
-			if ((en_boss_att_cnt += m) < 65.0f){//カウントcnt Max21まで
-				int cnt = (int)(en_boss_att_cnt / 3.0f);
-				if (cnt < 11)en_boss_att_Ind = cnt;
-				else en_boss_att_Ind = 20 - cnt;
+			m = tfloat.Add(1.0f);
+			if ((en_boss_att_cnt += m) < ObjCntMax) {
+				en_boss_att_Ind = (int)en_boss_att_cnt;
 			}
-			else{
+			else {
 				en_boss_att_cnt = 0.0f;
 				en_boss_att_Ind = -1;
 				effect_f = TRUE;
 			}
 			break;
 		case 4:
-			m = tfloat.Add(0.08f);
-			if ((en_boss_att_cnt += m) < 44.0f){//カウントcnt Max14まで
-				int cnt = (int)(en_boss_att_cnt / 3.0f);
-				en_boss_att_Ind = cnt;
+			m = tfloat.Add(1.0f);
+			if ((en_boss_att_cnt += m) < ObjCntMax) {
+				en_boss_att_Ind = (int)en_boss_att_cnt;
 			}
-			else{
+			else {
 				en_boss_att_cnt = 0.0f;
 				en_boss_att_Ind = -1;
 				effect_f = TRUE;
 			}
 			break;
 		}
-		if (e_no == 2){
+		if (e_no == 2) {
 			m = tfloat.Add(0.15f);
-			if (e_pos[o_no].theta >= 338.0f || e_pos[o_no].theta <= 22.0f){
+			if (e_pos[o_no].theta >= 338.0f || e_pos[o_no].theta <= 22.0f) {
 				if (zoom == TRUE && (mov_y += m) > 30.0f)zoom = FALSE;
-				if (zoom == FALSE && (mov_y -= m) < 0.0f){
+				if (zoom == FALSE && (mov_y -= m) < 0.0f) {
 					zoom = TRUE;
 					mov_y = 0.0f;
 					effect_f = TRUE;
 				}
 			}
-			if (e_pos[o_no].theta >= 68.0f && e_pos[o_no].theta <= 112.0f){
+			if (e_pos[o_no].theta >= 68.0f && e_pos[o_no].theta <= 112.0f) {
 				if (zoom == TRUE && (mov_x -= m) < -30.0f)zoom = FALSE;
-				if (zoom == FALSE && (mov_x += m) > 0.0f){
+				if (zoom == FALSE && (mov_x += m) > 0.0f) {
 					zoom = TRUE;
 					mov_y = 0.0f;
 					effect_f = TRUE;
 				}
 			}
-			if (e_pos[o_no].theta >= 158.0f && e_pos[o_no].theta <= 202.0f){
+			if (e_pos[o_no].theta >= 158.0f && e_pos[o_no].theta <= 202.0f) {
 				if (zoom == TRUE && (mov_y -= m) < -30.0f)zoom = FALSE;
-				if (zoom == FALSE && (mov_y += m) > 0.0f){
+				if (zoom == FALSE && (mov_y += m) > 0.0f) {
 					zoom = TRUE;
 					mov_y = 0.0f;
 					effect_f = TRUE;
 				}
 			}
-			if (e_pos[o_no].theta >= 248.0f && e_pos[o_no].theta <= 292.0f){
+			if (e_pos[o_no].theta >= 248.0f && e_pos[o_no].theta <= 292.0f) {
 				if (zoom == TRUE && (mov_x += m) > 30.0f)zoom = FALSE;
-				if (zoom == FALSE && (mov_x -= m) < 0.0f){
+				if (zoom == FALSE && (mov_x -= m) < 0.0f) {
 					zoom = TRUE;
 					mov_y = 0.0f;
 					effect_f = TRUE;
@@ -333,8 +320,8 @@ bool EnemyBoss::LostAction(float x, float y, float z){
 bool EnemyBoss::Magiccreate(float x, float y, float z){
 	float m = tfloat.Add(0.15f);
 	MovieSoundManager::Magic_sound(TRUE);
-	if (count == 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size);
-	if (count != 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size);
+	if (count == 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+	if (count != 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
 	dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 500.0f, mag_size * 100.0f, 2.0f, TRUE);
 
 	if ((count += m) > 900){
@@ -346,9 +333,9 @@ bool EnemyBoss::Magiccreate(float x, float y, float z){
 }
 
 //@Override
-void EnemyBoss::ObjDraw(float x, float y, float z, float r, float g, float b, float theta){
-	if (en_boss_att_Ind != -1)en_boss_att[en_boss_att_Ind + 1].Draw(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0.1f);
-	else en_boss_att[0].Draw(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0.1f);
+void EnemyBoss::ObjDraw(float x, float y, float z, float r, float g, float b, float theta) {
+	if (en_boss_att_Ind != -1)en_boss_att->Draw(en_boss_att_Ind, x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	else en_boss_att0->Draw(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0.1f);
 }
 
 //@Override
@@ -425,5 +412,6 @@ void EnemyBoss::M_select(int *r, int *r1){
 
 EnemyBoss::~EnemyBoss(){
 	S_DELETE(mag_boss);
-	ARR_DELETE(en_boss_att);
+	S_DELETE(en_boss_att0);
+	S_DELETE(en_boss_att);
 }

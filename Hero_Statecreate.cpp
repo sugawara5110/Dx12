@@ -33,66 +33,47 @@ Hero::Hero(int no) {
 	tx = ty = 0.0f;
 	tt = 0;
 
+	map_walk0 = NULL;
 	map_walk = NULL;
-	map_walk_pass = NULL;
 	p_att = NULL;
-	p_att_pass = NULL;
 	p_att_cnt = 0;
 	p_att_Ind = 0;
 
+	float ofsetthetaZ = 0.0f;
 	switch (o_no) {
 	case 0:
-		map_walk = new MeshData[19];
-		map_walk_pass = (char**)malloc(sizeof(char*) * 19);
-		for (int i = 0; i < 19; i++) {
-			map_walk[i].SetCommandList(HERO_COM);
-			map_walk[i].SetState(TRUE, TRUE, FALSE);
-			map_walk_pass[i] = (char*)malloc(sizeof(char) * 50);
-			sprintf_s(map_walk_pass[i], sizeof(char) * 50, "./dat/mesh/player_walk/player_walk_0000%02d.obj", i);
-		}
-		MeshData::GetVBarrayThreadArray(map_walk, map_walk_pass, 19);
-		//テクスチャ設定
-		for (int i = 0; i < 19; i++)map_walk[i].GetTexture();
-		if (map_walk_pass != NULL) {
-			for (int i = 0; i < 19; i++) {
-				free(map_walk_pass[i]);
-				map_walk_pass[i] = NULL;
-			}
-			free(map_walk_pass);
-			map_walk_pass = NULL;
-		}
-		ObjCntMax = 28;
+		map_walk0 = new MeshData();
+		map_walk0->SetCommandList(HERO_COM);
+		map_walk0->SetState(TRUE, TRUE, FALSE);
+		map_walk0->GetVBarray("./dat/mesh/player_walk/player_walk_000000.obj");
+		map_walk0->GetTexture();
+
+		map_walk = new SkinMesh();
+		map_walk->SetCommandList(HERO_COM);
+		map_walk->SetState(TRUE, TRUE);
+		map_walk->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f);
+		map_walk->CreateFromFBX("./dat/mesh/player_walk/player1_FBX_walk.fbx");
+
+		ObjCntMax = 3300;
 		break;
 	case 1:
-		ObjCntMax = 33;
+		ObjCntMax = 2600;
 		break;
 	case 2:
-		ObjCntMax = 27;
+		ObjCntMax = 2500;
 		break;
 	case 3:
-		ObjCntMax = 16;
+		ofsetthetaZ = 90.0f;
+		ObjCntMax = 2500;
 		break;
 	}
-	p_att = new MeshData[ObjCntMax];
-	p_att_pass = (char**)malloc(sizeof(char*) * ObjCntMax);
-	for (int i = 0; i < ObjCntMax; i++) {
-		p_att[i].SetCommandList(HERO_COM);
-		p_att[i].SetState(TRUE, TRUE, FALSE);
-		p_att_pass[i] = (char*)malloc(sizeof(char) * 50);
-		sprintf_s(p_att_pass[i], sizeof(char) * 50, "./dat/mesh/player%datt/player%datt_0000%02d.obj", o_no + 1, o_no + 1, i + 1);
-	}
-	MeshData::GetVBarrayThreadArray(p_att, p_att_pass, ObjCntMax);
-	//テクスチャ設定
-	for (int i = 0; i < ObjCntMax; i++)p_att[i].GetTexture();
-	//パスはもう使わないのでここで解放
-	if (p_att_pass != NULL) {
-		for (int i = 0; i < ObjCntMax; i++) {
-			free(p_att_pass[i]);
-			p_att_pass[i] = NULL;
-		}
-		free(p_att_pass);
-		p_att_pass = NULL;
-	}
+	p_att = new SkinMesh();
+	p_att->SetCommandList(HERO_COM);
+	p_att->SetState(TRUE, TRUE);
+	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f);
+	char p_att_pass[42];
+	sprintf_s(p_att_pass, sizeof(char) * 42, "./dat/mesh/player%datt/player%d_FBX_att.fbx", o_no + 1, o_no + 1);
+	p_att->CreateFromFBX(p_att_pass);
 
 	state.SetCommandList(HERO_COM);
 	state.GetVBarray2D(1);
@@ -147,20 +128,22 @@ Hero::Hero(int no) {
 	up = TRUE;
 	count = 0.0f;
 	LA = LA_x = LA_y = 0.0f;
+
+	Statecreate_clr_f = TRUE;
+	Statecreate_r = 1.0f;
 }
 
 void Hero::Statecreate(bool command_run) {
 
-	static bool clr_f = TRUE;
-	static float r = 1.0f;
 	float m = tfloat.Add(0.002f);
-	if (command_run == FALSE) { r = 0.5; }
+	if (command_run == FALSE) { Statecreate_r = 0.5f; }
 	if (command_run == TRUE) {
-		if (clr_f) {
-			if ((r -= m) <= 0.0f)clr_f = FALSE;
+
+		if (Statecreate_clr_f) {
+			if ((Statecreate_r -= m) <= 0.0f)Statecreate_clr_f = FALSE;
 		}
 		else {
-			if ((r += m) >= 1.0f)clr_f = TRUE;
+			if ((Statecreate_r += m) >= 1.0f)Statecreate_clr_f = TRUE;
 		}
 	}
 
@@ -171,7 +154,7 @@ void Hero::Statecreate(bool command_run) {
 	if (o_no == 3)x = 530.0f;
 
 	//ステータスウインドウ
-	state.Draw(x, 450.0f, 0.2f, r, r, r, 0.7f, 120.0f, 100.0f);
+	state.Draw(x, 450.0f, 0.2f, Statecreate_r, Statecreate_r, Statecreate_r, 0.7f, 120.0f, 100.0f);
 }
 
 void Hero::Metercreate(float me) {
@@ -319,7 +302,8 @@ bool Hero::Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, P
 }
 
 Hero::~Hero(){
-	ARR_DELETE(map_walk);
-	ARR_DELETE(p_att);
+	S_DELETE(map_walk0);
+	S_DELETE(map_walk);
+	S_DELETE(p_att);
 }
 

@@ -116,10 +116,8 @@ void InstanceCreate::BattleDelete(){
 	S_DELETE(battle)
 }
 
-bool InstanceCreate::BattleCreate_f(){
-	DWORD th_end;
-	GetExitCodeThread(battle_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return FALSE;
+bool InstanceCreate::BattleCreate_f() {
+	if (Battle::InitFin() == FALSE)return FALSE;
 	return TRUE;
 }
 
@@ -165,19 +163,26 @@ Map *InstanceCreate::GetInstance_M(){
 	return map;
 }
 
-bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu){
-	if (GetHANDLE_B() == NULL){
+bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu) {
+
+	static bool th = FALSE;
+
+	if (!th && GetHANDLE_B() == NULL) {
 		SetInstanceParameter_B(h, GetInstance_M()->Getposition(e_nu),
 			GetInstance_M()->Getposition(), encount, no, e_nu + 1);
 		CreateThread_B();
 	}
 
-	if (GetHANDLE_B() != NULL){
+	if (!th && GetHANDLE_B() != NULL) {
 		bool bf = BattleCreate_f();
-		if (bf == TRUE){
+		if (bf == TRUE) {
 			DeleteThread_B();
-			return TRUE;
+			th = TRUE;
 		}
+	}
+
+	if (th) {
+		if (battle != NULL && GetInstance_B()->InitFin()) { th = FALSE; return TRUE; }
 	}
 	return FALSE;
 }

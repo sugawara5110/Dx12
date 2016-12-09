@@ -13,6 +13,7 @@
 #include "ShaderMesh.h"
 #include "ShaderMesh_D.h"
 #include "ShaderParticle.h"
+#include "ShaderSkinMesh.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -75,6 +76,18 @@ void Dx12Process::FlushCommandQueue() {
 }
 
 void Dx12Process::CreateShaderByteCode() {
+
+	//スキンメッシュ
+	pVertexLayout_SKIN =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "BONE_INDEX", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "BONE_WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
+	pVertexShader_SKIN = dx->CompileShader(ShaderSkinMesh, strlen(ShaderSkinMesh), "VSSkin", "vs_5_0");
+	pPixelShader_SKIN = dx->CompileShader(ShaderSkinMesh, strlen(ShaderSkinMesh), "PSSkin", "ps_5_0");
 
 	//ストリーム出力データ定義(パーティクル用)
 	pDeclaration_PSO =
@@ -583,7 +596,7 @@ void Dx12Process::Sclear() {
 	mCommandList[0]->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
-		mRtvDescriptorSize), DirectX::Colors::LightSteelBlue, 0, nullptr);
+		mRtvDescriptorSize), DirectX::Colors::Black, 0, nullptr);
 	mCommandList[0]->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 

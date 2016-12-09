@@ -139,15 +139,16 @@ void ParticleData::CreateVbObj() {
 	Vview->VertexByteStride = sizeof(PartPos);
 	Vview->VertexBufferByteSize = vbByteSize;
 
-	Sview1 = std::make_unique<StreamView>();
-	Sview2 = std::make_unique<StreamView>();
+	Sview1 = std::make_unique<StreamView[]>(2);
+	Sview2 = std::make_unique<StreamView[]>(2);
+	for (int i = 0; i < 2; i++) {
+		Sview1[i].StreamBufferGPU = dx->CreateStreamBuffer(dx->md3dDevice.Get(), vbByteSize);
+		Sview2[i].StreamBufferGPU = dx->CreateStreamBuffer(dx->md3dDevice.Get(), vbByteSize);
 
-	Sview1->StreamBufferGPU = dx->CreateStreamBuffer(dx->md3dDevice.Get(), vbByteSize);
-	Sview2->StreamBufferGPU = dx->CreateStreamBuffer(dx->md3dDevice.Get(), vbByteSize);
-
-	Sview1->StreamByteStride = Sview2->StreamByteStride = sizeof(PartPos);
-	Sview1->StreamBufferByteSize = Sview2->StreamBufferByteSize = vbByteSize;
-	Sview1->BufferFilledSizeLocation = Sview2->StreamBufferGPU->GetGPUVirtualAddress();
+		Sview1[i].StreamByteStride = Sview2[i].StreamByteStride = sizeof(PartPos);
+		Sview1[i].StreamBufferByteSize = Sview2[i].StreamBufferByteSize = vbByteSize;
+		Sview1[i].BufferFilledSizeLocation = Sview2[i].StreamBufferGPU->GetGPUVirtualAddress();
+	}
 }
 
 void ParticleData::CreatePartsCom() {
@@ -193,7 +194,7 @@ void ParticleData::CreatePartsCom() {
 	//ストリーム
 	psoDesc.StreamOutput.pSODeclaration = dx->pDeclaration_PSO.data();
 	psoDesc.StreamOutput.NumEntries = 4;  //D3D12_SO_DECLARATION_ENTRYの個数
-	psoDesc.StreamOutput.pBufferStrides = &Sview1->StreamByteStride;
+	psoDesc.StreamOutput.pBufferStrides = &Sview1[0].StreamByteStride;
 	psoDesc.StreamOutput.NumStrides = 1;//バッファの数？
 	psoDesc.StreamOutput.RasterizedStream = D3D12_SO_NO_RASTERIZED_STREAM;
 
@@ -359,12 +360,18 @@ void ParticleData::DrawParts1() {
 
 	mCommandList->SetGraphicsRootConstantBufferView(0, mObjectCB->Resource()->GetGPUVirtualAddress());
 
-	mCommandList->SOSetTargets(0, 1, &Sview1->StreamBufferView());
+	mCommandList->SOSetTargets(0, 1, &Sview1[svInd].StreamBufferView());
 
 	mCommandList->DrawInstanced(ver, 1, 0, 0);
 
-	mCommandList->CopyResource(Vview->VertexBufferGPU.Get(), Sview1->StreamBufferGPU.Get());
-
+	svInd = 1 - svInd;
+	if (firstDraw) {
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(Vview->VertexBufferGPU.Get(),
+			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST));
+		mCommandList->CopyResource(Vview->VertexBufferGPU.Get(), Sview1[svInd].StreamBufferGPU.Get());
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(Vview->VertexBufferGPU.Get(),
+			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+	}
 	mCommandList->SOSetTargets(0, 1, nullptr);
 }
 
@@ -387,12 +394,20 @@ void ParticleData::DrawParts2() {
 
 void ParticleData::Draw(float x, float y, float z, float theta, float size, bool init, float speed) {
 
+	//一回のinit == TRUE で二つのstreamOutを初期化
+	if (init == TRUE) { streamInitcount = 1; }
+	else {
+		if (streamInitcount > 2) { streamInitcount = 0; }
+		if (streamInitcount != 0) { init = TRUE; streamInitcount++; }
+	}
+
 	DrawParts0(x, y, z, theta, size, init, speed, texpar_on | m_on);
 	DrawParts1();
-	DrawParts2();
+	if (firstDraw)DrawParts2();
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	firstDraw = TRUE;
 }
 
 void ParticleData::DrawBillboard(float size) {

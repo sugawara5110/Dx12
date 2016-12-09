@@ -5,6 +5,7 @@
 //*****************************************************************************************//
 
 #define _CRT_SECURE_NO_WARNINGS
+#define _USE_MATH_DEFINES
 #include "Map.h"
 #include <math.h>
 #include <stdlib.h>
@@ -17,6 +18,17 @@ int rounding(int val, int digit_number){
 	int v = 5 * (int)pow(10.0, (double)digit_number - 1.0);
 	val += v;
 	return val -= (val % (int)pow(10.0, (double)digit_number));
+}
+
+//downNum切り下げ
+//upNum切り上げ
+int rounding2(int val, int digit_num, int downNum, int upNum) {
+	int d = (int)pow(10.0, (double)digit_num - 1.0);
+	int valT = val / d;
+	int valT2 = valT / 10;
+	if ((valT % 10) >= upNum)return (valT2 + 1) * d * 10;
+	if ((valT % 10) <= downNum)return (valT2 - 1) * d * 10;
+	return val;
 }
 
 bool Map::MoveUpCond(int Ind){
@@ -44,59 +56,83 @@ bool Map::MoveDownCond(int Ind){
 	return FALSE;
 }
 
-Encount Map::Move(MapState *mapstate, Directionkey direction){
+Encount Map::Move(MapState *mapstate, Directionkey direction) {
 
-	int rnd;
+	float cax1Tmp = cax1;
+	float cax2Tmp = cax2;
+	float cay1Tmp = cay1;
+	float cay2Tmp = cay2;
+	float src_thetaTmp = src_theta;
+	float m = tfloat.Add(0.4f);
 
-	//一マス分の移動先決定
-	if (elevator_UP == FALSE && elevator_DOWN == FALSE && moving == FALSE && direction != NOTPRESS &&
-		direction != ENTER && direction != TWOPRESS && direction != CANCEL){
-		direction_move = direction;
-		if (direction_move == LEFT){
-			if (src_theta == 0)src_theta = 360;
-			m_theta = src_theta - 90;
+	//移動処理
+	float yt, xt, xyt;
+	if (!elevator_UP && !elevator_DOWN) {
+
+		switch (direction) {
+		case LEFT:
+			src_thetaTmp = src_thetaTmp - m;
+			if (src_thetaTmp <= 0)src_thetaTmp = 360;
+			cay2Tmp = cay1Tmp - cos(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			cax2Tmp = cax1Tmp + sin(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			break;
+
+		case RIGHT:
+			src_thetaTmp = src_thetaTmp + m;
+			if (src_thetaTmp >= 360)src_thetaTmp = 0;
+			cay2Tmp = cay1Tmp - cos(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			cax2Tmp = cax1Tmp + sin(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			break;
+
+		case UP:
+			yt = -cos(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			xt = sin(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			xyt = fabs(yt) + fabs(xt);
+			cay1Tmp += yt / xyt * m;
+			cay2Tmp += yt / xyt * m;
+			cax1Tmp += xt / xyt * m;
+			cax2Tmp += xt / xyt * m;
+			break;
+
+		case DOWN:
+			yt = -cos(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			xt = sin(src_thetaTmp * (float)M_PI / 180.0f) * 70.0f;
+			xyt = fabs(yt) + fabs(xt);
+			cay1Tmp -= yt / xyt * m;
+			cay2Tmp -= yt / xyt * m;
+			cax1Tmp -= xt / xyt * m;
+			cax2Tmp -= xt / xyt * m;
+			break;
 		}
-		if (direction_move == RIGHT){
-			if (src_theta == 360)src_theta = 0;
-			m_theta = src_theta + 90;
-		}
-		if (direction_move == UP){
-			if (src_theta == 0 || src_theta == 360){
-				stepx = cax1; stepy = cay1 - 100;
-			}
-			if (src_theta == 90){
-				stepx = cax1 + 100; stepy = cay1;
-			}
-			if (src_theta == 180){
-				stepx = cax1; stepy = cay1 + 100;
-			}
-			if (src_theta == 270){
-				stepx = cax1 - 100; stepy = cay1;
-			}
-		}
-		if (direction_move == DOWN){
-			if (src_theta == 0 || src_theta == 360){
-				stepx = cax1; stepy = cay1 + 100;
-			}
-			if (src_theta == 90){
-				stepx = cax1 - 100; stepy = cay1;
-			}
-			if (src_theta == 180){
-				stepx = cax1; stepy = cay1 - 100;
-			}
-			if (src_theta == 270){
-				stepx = cax1 + 100; stepy = cay1;
-			}
-		}
-		moving = TRUE;
 	}
+
+	//当たり判定
+	int indy = posz * mxy.y * mxy.x + (int)(rounding2((int)cay1Tmp, 2, 1, 9) * 0.01f) * mxy.x + (int)(cax1Tmp * 0.01f);
+	int indx = posz * mxy.y * mxy.x + (int)(cay1Tmp * 0.01f) * mxy.x + (int)(rounding2((int)cax1Tmp, 2, 1, 9) * 0.01f);
+
+	if (direction == UP) {
+		if (MoveUpCond(indy) || MoveUpCond(indx))return NOENCOUNT;
+	}
+	if (direction == DOWN) {
+		if (MoveDownCond(indy) || MoveDownCond(indx))return NOENCOUNT;
+	}
+	//座標更新
+	cax1 = cax1Tmp;
+	cax2 = cax2Tmp;
+	cay1 = cay1Tmp;
+	cay2 = cay2Tmp;
+	src_theta = src_thetaTmp;
+	posx = (int)(cax1 * 0.01f);
+	posy = (int)(cay1 * 0.01f);
 
 	//エレベータA上到達
-	if (elevator_UP == FALSE && mxy.m[POS_CE] == 65){
-		elevator_UP = TRUE;
+	if (!elevator_UP && mxy.m[POS_CE] == 65) {
+		if (((int)(cax1) % 100) > 30 && ((int)(cax1) % 100) < 70 &&
+			((int)(cay1) % 100) > 30 && ((int)(cay1) % 100) < 70)
+			elevator_UP = TRUE;
 	}
-	if (elevator_UP == TRUE){
-		if ((elevator_step += tfloat.Add(1.0f)) > 300.0f){
+	if (elevator_UP) {
+		if ((elevator_step += tfloat.Add(1.0f)) > 300.0f) {
 			posz += 3;
 			elevator_step = 0.0f;
 			elevator_UP = FALSE;
@@ -104,11 +140,13 @@ Encount Map::Move(MapState *mapstate, Directionkey direction){
 		return NOENCOUNT;
 	}
 	//エレベータB下到達
-	if (elevator_DOWN == FALSE && mxy.m[POS_CE] == 66){
-		elevator_DOWN = TRUE;
+	if (!elevator_DOWN && mxy.m[POS_CE] == 66) {
+		if (((int)(cax1) % 100) > 30 && ((int)(cax1) % 100) < 70 &&
+			((int)(cay1) % 100) > 30 && ((int)(cay1) % 100) < 70)
+			elevator_DOWN = TRUE;
 	}
-	if (elevator_DOWN == TRUE){
-		if ((elevator_step -= tfloat.Add(1.0f)) < -300.0f){
+	if (elevator_DOWN) {
+		if ((elevator_step -= tfloat.Add(1.0f)) < -300.0f) {
 			posz -= 3;
 			elevator_step = 0.0f;
 			elevator_DOWN = FALSE;
@@ -117,9 +155,9 @@ Encount Map::Move(MapState *mapstate, Directionkey direction){
 	}
 
 	//出口1ポイント到達
-	if (mxy.m[POS_CE] == 54){
+	if (mxy.m[POS_CE] == 54) {
 		*mapstate = CHANGE_MAP;
-		switch (map_no){
+		switch (map_no) {
 		case 0:
 			map_no_s = 1;
 			MPos = POS_ST;
@@ -137,9 +175,9 @@ Encount Map::Move(MapState *mapstate, Directionkey direction){
 	}
 
 	//出口2ポイント到達
-	if (mxy.m[POS_CE] == 56){
+	if (mxy.m[POS_CE] == 56) {
 		*mapstate = CHANGE_MAP;
-		switch (map_no){
+		switch (map_no) {
 		case 0:
 			break;
 		case 1:
@@ -151,9 +189,9 @@ Encount Map::Move(MapState *mapstate, Directionkey direction){
 	}
 
 	//入口ポイント到達
-	if (mxy.m[POS_CE] == 55){
+	if (mxy.m[POS_CE] == 55) {
 		*mapstate = CHANGE_MAP;
-		switch (map_no){
+		switch (map_no) {
 		case 0:
 			break;
 		case 1:
@@ -177,7 +215,7 @@ Encount Map::Move(MapState *mapstate, Directionkey direction){
 	}
 
 	//回復ポイント処理
-	if (mxy.m[POS_CE] == 50 && recover_p_f == FALSE){
+	if (mxy.m[POS_CE] == 50 && recover_p_f == FALSE) {
 		recover_p_f = TRUE;
 		map_text_f = 300;
 		_tcscpy_s(m_tx, L"ＨＰＭＰ全回復！！");
@@ -185,182 +223,22 @@ Encount Map::Move(MapState *mapstate, Directionkey direction){
 	}
 	else if (mxy.m[POS_CE] != 50)recover_p_f = FALSE;
 
-	//当たり判定
-	if (direction_move == UP){
-		if (((src_theta == 0 || src_theta == 360) &&
-			(posy == 0 || MoveUpCond(POSY_D1))) ||
-			(src_theta == 90 &&
-			(posx == mxy.x - 1 || MoveUpCond(POSX_U1))) ||
-			(src_theta == 180 &&
-			(posy == mxy.y - 1 || MoveUpCond(POSY_U1))) ||
-			(src_theta == 270 &&
-			(posx == 0 || MoveUpCond(POSX_D1)))){
-			moving = FALSE; return NOENCOUNT;
-		}
+	//ボスポイント到達
+	if (mxy.m[POS_CE] == 51 && boss_p_f == FALSE) {
+		boss_p_f = TRUE;//何度もreturn BOSS出さない
+		return BOSS;
 	}
-	if (direction_move == DOWN){
-		if (((src_theta == 0 || src_theta == 360) &&
-			(posy == mxy.y - 1 || MoveDownCond(POSY_U1))) ||
-			(src_theta == 90 &&
-			(posx == 0 || MoveDownCond(POSX_D1))) ||
-			(src_theta == 180 &&
-			(posy == 0 || MoveDownCond(POSY_D1))) ||
-			(src_theta == 270 &&
-			(posx == mxy.x - 1 || MoveDownCond(POSX_U1)))){
-			moving = FALSE; return NOENCOUNT;
+	else if (mxy.m[POS_CE] != 51)boss_p_f = FALSE;//ボスポイント離れたらFALSEにする
+	//通常エンカウント
+	int rnd = 0;
+	if (direction == UP)rnd = rand() % 500;
+	if (direction == DOWN)rnd = rand() % 150;
+	if (rnd == 3) {
+		if (mxy.m[POS_CE] != 50 && mxy.m[POS_CE] != 51 && mxy.m[POS_CE] != 65 && mxy.m[POS_CE] != 66) {
+			return SIDE;
 		}
 	}
 
-	//移動処理
-	bool movf;
-	float m = tfloat.Add(0.3f);
-	switch (direction_move){
-
-	case LEFT:
-		src_theta = src_theta - m;
-		cay2 = cay1 - (int)(cos(src_theta * 3.14f / 180.0f) * 70.0f);
-		cax2 = cax1 + (int)(sin(src_theta * 3.14f / 180.0f) * 70.0f);
-		if (src_theta <= m_theta){
-			src_theta = m_theta;
-			moving = FALSE;
-			direction_move = NOTPRESS;
-			cay2 = (float)rounding((int)cay2, 1);
-			cax2 = (float)rounding((int)cax2, 1);
-		}
-		break;
-
-	case RIGHT:
-		src_theta = src_theta + m;
-		cay2 = cay1 - (int)(cos(src_theta * 3.14f / 180.0f) * 70.0f);
-		cax2 = cax1 + (int)(sin(src_theta * 3.14f / 180.0f) * 70.0f);
-		if (src_theta >= m_theta){
-			src_theta = m_theta;
-			moving = FALSE;
-			direction_move = NOTPRESS;
-			cay2 = (float)rounding((int)cay2, 1);
-			cax2 = (float)rounding((int)cax2, 1);
-		}
-		break;
-
-	case UP:
-		movf = FALSE;
-		if (src_theta == 0 || src_theta == 360){
-			cay1 -= m; cay2 -= m;
-			if (stepy >= cay1){
-				cay1 = stepy;
-				cay2 = cay1 - 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (src_theta == 90){
-			cax1 += m; cax2 += m;
-			if (stepx <= cax1){
-				cax1 = stepx;
-				cax2 = cax1 + 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (src_theta == 180){
-			cay1 += m; cay2 += m;
-			if (stepy <= cay1){
-				cay1 = stepy;
-				cay2 = cay1 + 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (src_theta == 270){
-			cax1 -= m; cax2 -= m;
-			if (stepx >= cax1){
-				cax1 = stepx;
-				cax2 = cax1 - 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (movf == TRUE){
-			if (src_theta == 0 || src_theta == 360)posy -= 1;
-			if (src_theta == 90)posx += 1;
-			if (src_theta == 180)posy += 1;
-			if (src_theta == 270)posx -= 1;
-			moving = FALSE;
-			direction_move = NOTPRESS;
-			//ボスエンカウント
-			if (mxy.m[POS_CE] == 51 && boss_p_f == FALSE){
-				if (((src_theta == 0 || src_theta == 360) && mxy.m[POSY_D1] == 48) ||//アスキーコード48 = 0
-					(src_theta == 90 && mxy.m[POSX_U1] == 48) ||
-					(src_theta == 180 && mxy.m[POSY_U1] == 48) ||
-					(src_theta == 270 && mxy.m[POSX_D1] == 48)){
-					boss_p_f = TRUE;
-					return BOSS;
-				}
-			}
-			else if (mxy.m[POS_CE] != 51)boss_p_f = FALSE;
-			//通常エンカウント
-			rnd = rand() % 10;
-			if (rnd == 1){
-				if (mxy.m[POS_CE] != 50 && mxy.m[POS_CE] != 51 && mxy.m[POS_CE] != 65 && mxy.m[POS_CE] != 66){
-					if (((src_theta == 0 || src_theta == 360) && mxy.m[POSY_D1] == 48) ||//アスキーコード48 = 0
-						(src_theta == 90 && mxy.m[POSX_U1] == 48) ||
-						(src_theta == 180 && mxy.m[POSY_U1] == 48) ||
-						(src_theta == 270 && mxy.m[POSX_D1] == 48))return SIDE;
-				}
-			}
-		}
-		break;
-
-	case DOWN:
-		movf = FALSE;
-		if (src_theta == 0 || src_theta == 360){
-			cay1 += m; cay2 += m;
-			if (stepy <= cay1){
-				cay1 = stepy;
-				cay2 = cay1 - 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (src_theta == 90){
-			cax1 -= m; cax2 -= m;
-			if (stepx >= cax1){
-				cax1 = stepx;
-				cax2 = cax1 + 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (src_theta == 180){
-			cay1 -= m; cay2 -= m;
-			if (stepy >= cay1){
-				cay1 = stepy;
-				cay2 = cay1 + 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (src_theta == 270){
-			cax1 += m; cax2 += m;
-			if (stepx <= cax1){
-				cax1 = stepx;
-				cax2 = cax1 - 70.0f;
-				movf = TRUE;
-			}
-		}
-		if (movf == TRUE){
-			if (src_theta == 0 || src_theta == 360)posy += 1;
-			if (src_theta == 90)posx -= 1;
-			if (src_theta == 180)posy -= 1;
-			if (src_theta == 270)posx += 1;
-			moving = FALSE;
-			direction_move = NOTPRESS;
-			//通常エンカウント
-			rnd = rand() % 3;
-			if (rnd == 1){
-				if (mxy.m[POS_CE] != 50 && mxy.m[POS_CE] != 51 && mxy.m[POS_CE] != 65 && mxy.m[POS_CE] != 66){
-					if (((src_theta == 0 || src_theta == 360) && mxy.m[POSY_D1] == 48) ||
-						(src_theta == 90 && mxy.m[POSX_U1] == 48) ||
-						(src_theta == 180 && mxy.m[POSY_U1] == 48) ||
-						(src_theta == 270 && mxy.m[POSX_D1] == 48))return SIDE;
-				}
-			}
-		}
-		break;
-	}
 	return NOENCOUNT;
 }
 

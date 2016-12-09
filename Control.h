@@ -15,6 +15,7 @@ private:
 	static Control *co;
 	Directionkey keydownhistory;
 	Directionkey directionkey;
+	Directionkey directionkey2;
 
 	Control();
 

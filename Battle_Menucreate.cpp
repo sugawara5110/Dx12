@@ -11,14 +11,19 @@
 #include "EnemyBoss.h"
 #include "Battle.h"
 #include "Hero.h"
+#include <memory.h>
 
-Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount encount, int no, int e_nu){
+bool Battle::initFin = FALSE;
+
+Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount encount, int no, int e_nu) {
 
 	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	e_num = e_nu;//敵出現数
-	e_pos = e_po;//ポジションアドレス
-	h_pos = h_po;//ポジションアドレス
+	e_pos = (Position::E_Pos*)malloc(sizeof(Position::E_Pos) * 4);
+	memcpy(e_pos, e_po, sizeof(Position::E_Pos) * 4);//ポジションアドレス
+	h_pos = (Position::H_Pos*)malloc(sizeof(Position::H_Pos));
+	memcpy(h_pos, h_po, sizeof(Position::H_Pos));//ポジションアドレス
 	b_pos = GetBtPos(h_pos);//アドレスで渡す
 	dx->Bigin(ENEMY_COM, nullptr);
 	command.SetCommandList(ENEMY_COM);
@@ -63,7 +68,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 
 	int en_bgm;
 	if (encount == SIDE)en_bgm = 0;
-	if (encount == BOSS){
+	if (encount == BOSS) {
 		if (no <= 2)en_bgm = 1;
 		if (no == 3)en_bgm = 2;
 		if (no == 4)en_bgm = 3;
@@ -72,7 +77,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	MovieSoundManager::ObjCreate_battle(en_bgm);
 	MovieSoundManager::Enemy_sound(FALSE);
 	MovieSoundManager::Enemy_sound(TRUE);
-	if (encount == SIDE){
+	if (encount == SIDE) {
 		//通常の敵の生成
 		enemyside = new EnemySide[e_num];
 
@@ -86,7 +91,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 		//アップキャスト
 		enemy = enemyside;
 	}
-	if (encount == BOSS){
+	if (encount == BOSS) {
 		//ボス生成
 		enemyboss = new EnemyBoss[e_num];
 
@@ -111,7 +116,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	h_draw = new Draw[4];
 	Menucreate();
 
-	for (int i = 0; i < e_num; i++){
+	for (int i = 0; i < e_num; i++) {
 		e_draw[i].AGmeter = 0.0f;
 		e_draw[i].action = RECOVER;
 		e_draw[i].RCVdrawY = 0;
@@ -121,13 +126,13 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 		e_draw[i].DMdata = -1;
 		e_draw[i].command_run = FALSE;
 		e_draw[i].LOST_fin = FALSE;
-		if (e_pos[i].element == FALSE){
+		if (e_pos[i].element == FALSE) {
 			e_draw[i].LOST_fin = TRUE; enemy[i].Dieflg(TRUE);
 		}
 		E_drawPos(i);
 	}
 
-	for (int i = 0; i < 4; i++){
+	for (int i = 0; i < 4; i++) {
 		h_draw[i].AGmeter = 0.0f;
 		h_draw[i].action = NORMAL;
 		h_draw[i].RCVdrawY = 0;
@@ -148,6 +153,11 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	}
 	dx->End(ENEMY_COM);
 	dx->FlushCommandQueue();
+	initFin = TRUE;
+}
+
+bool Battle::InitFin() {
+	return initFin;
 }
 
 void Battle::Menucreate() {
@@ -249,10 +259,15 @@ void Battle::SelectPermissionMove(Hero *hero){
 	}
 }
 
-Battle::~Battle(){
+Battle::~Battle() {
 	dx->FlushCommandQueue();
 	MovieSoundManager::ObjDelete_battle();
+	free(e_pos);
+	e_pos = NULL;
+	free(h_pos);
+	h_pos = NULL;
 	ARR_DELETE(enemy);
 	ARR_DELETE(e_draw);
 	ARR_DELETE(h_draw);
+	initFin = FALSE;
 }

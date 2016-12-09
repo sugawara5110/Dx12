@@ -49,12 +49,6 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	he = hero;
-	walkI = -1;
-	moving = FALSE;
-	direction_move = NOTPRESS;
-	m_theta = 0;
-	stepx = 0.0f;
-	stepy = 0.0f;
 	map_text_f = 0;
 	recover_p_f = FALSE;
 	boss_p_f = FALSE;
@@ -926,16 +920,16 @@ void Map::Mapcreate_Ds() {
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 80.0f,
+					(float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f,
 					1.0f, 1.0f, 1.0f, 0.8f);
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 80.0f,
+					(float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f,
 					1.0f, 1.0f, 1.0f, 0.8f);
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 80.0f,
+					(float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f,
 					1.0f, 1.0f, 1.0f, 0.8f);
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 80.0f,
+					(float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f,
 					1.0f, 1.0f, 1.0f, 0.8f);
 			}
 		}
@@ -944,7 +938,7 @@ void Map::Mapcreate_Ds() {
 
 void Map::Mapdraw_Ds() {
 
-	if (lightFirst == FALSE || moving == TRUE) {
+	if (!lightFirst) {
 		int licnt = 0;
 		for (int k3 = 0; k3 < mxy.z; k3++) {
 			for (int j = 0; j < mxy.y; j++) {
@@ -958,10 +952,10 @@ void Map::Mapdraw_Ds() {
 					//左(マップ端に配置する場合アクセス違反防止を追加すること)
 					if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i - 1] == 48) {
 						//視野外スキップ
-						if (ViewCulling((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
+						if (ViewCulling((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
 							light[licnt].x = i * 100.0f - 10.0f;
 							light[licnt].y = j * 100.0f + 50.0f;
-							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].z = k3 * 100.0f + 65.0f;
 							light[licnt].r = 1.0f;
 							light[licnt].g = 0.4f;
 							light[licnt].b = 0.4f;
@@ -976,10 +970,10 @@ void Map::Mapdraw_Ds() {
 					//右
 					if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i + 1] == 48) {
 						//視野外スキップ
-						if (ViewCulling((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f) == TRUE) {
+						if (ViewCulling((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
 							light[licnt].x = i * 100.0f + 110.0f;
 							light[licnt].y = j * 100.0f + 50.0f;
-							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].z = k3 * 100.0f + 65.0f;
 							light[licnt].r = 1.0f;
 							light[licnt].g = 0.4f;
 							light[licnt].b = 0.4f;
@@ -994,10 +988,10 @@ void Map::Mapdraw_Ds() {
 					//上
 					if (mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] == 48) {
 						//視野外スキップ
-						if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f) == TRUE) {
+						if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
 							light[licnt].x = i * 100.0f + 50.0f;
 							light[licnt].y = j * 100.0f - 10.0f;
-							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].z = k3 * 100.0f + 65.0f;
 							light[licnt].r = 1.0f;
 							light[licnt].g = 0.4f;
 							light[licnt].b = 0.4f;
@@ -1012,10 +1006,10 @@ void Map::Mapdraw_Ds() {
 					//下
 					if (mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] == 48) {
 						//視野外スキップ
-						if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f) == TRUE) {
+						if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
 							light[licnt].x = i * 100.0f + 50.0f;
 							light[licnt].y = j * 100.0f + 110.0f;
-							light[licnt].z = k3 * 100.0f + 75.0f;
+							light[licnt].z = k3 * 100.0f + 65.0f;
 							light[licnt].r = 1.0f;
 							light[licnt].g = 0.4f;
 							light[licnt].b = 0.4f;
