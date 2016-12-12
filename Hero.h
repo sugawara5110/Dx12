@@ -22,12 +22,12 @@ class Hero:public Parameter{
 protected:
 	int o_no;//オブジェクトナンバー
 	MeshData *map_walk0;//Mapクラスから操作立ち止まり状態(o_no=1のみ生成)
-	SkinMesh *map_walk;//歩行
 	SkinMesh *p_att;     //アタックアニメーション用
 	float p_att_cnt;      //アニメーションカウント
 	int p_att_Ind;       //アニメーション描画時のオブジェクトインデックス
 	int ObjCntMax;      //アニメーションフレーム
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
+	float ofsetthetaZ;
 
 	PolygonData2D state, meter;
 	PolygonData mag, effect[4];

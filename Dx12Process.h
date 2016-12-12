@@ -171,7 +171,7 @@ private:
 	Fog fog;
 
 	CONSTANT_BUFFER cb;
-	int             ins_no = 0;
+	int  ins_no = 0;
 
 	Dx12Process() {}//外部からのオブジェクト生成禁止
 	Dx12Process(const Dx12Process &obj) {}     // コピーコンストラクタ禁止
@@ -708,6 +708,19 @@ public:
 
 //*********************************SkinMeshクラス*************************************//
 
+class SkinMesh_sub {
+
+private:
+	friend SkinMesh;
+	FbxManager *m_pSdkManager = NULL;
+	FbxImporter *m_pImporter = NULL;
+	FbxScene *m_pmyScene = NULL;
+
+	SkinMesh_sub();
+	~SkinMesh_sub();
+	bool Create(CHAR *szFileName);
+};
+
 class SkinMesh {
 
 private:
@@ -746,26 +759,24 @@ private:
 	float theX, theY, theZ;
 
 	//FBX
-	FbxManager *m_pSdkManager = NULL;
-	FbxImporter *m_pImporter = NULL;
-	FbxScene *m_pmyScene = NULL;
+	SkinMesh_sub *fbx;
 	FbxCluster **m_ppCluster;//ボーン情報
 	FbxNode **m_ppNodeArray;//各Nodeへのポインタ配列
 	int NodeArraypcs;
+	FbxNode **m_ppSubAnimationBone;//その他アニメーションボーンポインタ配列
 
 	void DestroyFBX();
-	FbxScene* GetScene();
+	FbxScene* GetScene(int p);
 	int SearchNodeCount(FbxNode *pnode, FbxNodeAttribute::EType SearchType);
 	FbxNode *SearchNode(FbxNode *pnode, FbxNodeAttribute::EType SearchType, int Ind);
-
-	HRESULT InitFBX(CHAR* szFileName);
+	HRESULT InitFBX(CHAR* szFileName, int p);
 	void CreateIndexBuffer(int cnt, int *pIndex, int IviewInd);
 	HRESULT ReadSkinInfo(MY_VERTEX_S *pvVB);
 	MATRIX GetCurrentPoseMatrix(int index);
 	void MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB);
 	void GetTexture();
 	int GetTexNomber(CHAR *fileName);
-	void SetNewPoseMatrices(int frame);
+	void SetNewPoseMatrices(int frame, int ind);
 	void ObjThetaOffset(float *thetaZ, float *thetaY, float *thetaX);
 
 public:
@@ -778,7 +789,9 @@ public:
 	void ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX);
 	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX);
 	HRESULT CreateFromFBX(CHAR* szFileName);
+	HRESULT CreateFromFBX_SubAnimation(CHAR* szFileName, int ind);
 	void Draw(int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	void Draw(int ind, int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 };
 
 //エラーメッセージ

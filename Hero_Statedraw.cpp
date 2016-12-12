@@ -18,7 +18,8 @@ void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, flo
 	}
 	else {
 		//ˆÚ“®
-		map_walk->Draw(walkI, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+		p_att->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f);
+		p_att->Draw(1, walkI, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	}
 }
 
@@ -184,6 +185,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		LA_x = 0.0f;
 		break;
 	}
+	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f);
 	p_att->Draw(p_att_Ind, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 
 	Statecreate(command_run);

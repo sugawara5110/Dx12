@@ -34,12 +34,11 @@ Hero::Hero(int no) {
 	tt = 0;
 
 	map_walk0 = NULL;
-	map_walk = NULL;
 	p_att = NULL;
 	p_att_cnt = 0;
 	p_att_Ind = 0;
 
-	float ofsetthetaZ = 0.0f;
+	ofsetthetaZ = 0.0f;
 	switch (o_no) {
 	case 0:
 		map_walk0 = new MeshData();
@@ -47,12 +46,6 @@ Hero::Hero(int no) {
 		map_walk0->SetState(TRUE, TRUE, FALSE);
 		map_walk0->GetVBarray("./dat/mesh/player_walk/player_walk_000000.obj");
 		map_walk0->GetTexture();
-
-		map_walk = new SkinMesh();
-		map_walk->SetCommandList(HERO_COM);
-		map_walk->SetState(TRUE, TRUE);
-		map_walk->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f);
-		map_walk->CreateFromFBX("./dat/mesh/player_walk/player1_FBX_walk.fbx");
 
 		ObjCntMax = 3300;
 		break;
@@ -74,6 +67,7 @@ Hero::Hero(int no) {
 	char p_att_pass[42];
 	sprintf_s(p_att_pass, sizeof(char) * 42, "./dat/mesh/player%datt/player%d_FBX_att.fbx", o_no + 1, o_no + 1);
 	p_att->CreateFromFBX(p_att_pass);
+	if (o_no == 0)p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 1);
 
 	state.SetCommandList(HERO_COM);
 	state.GetVBarray2D(1);
@@ -303,7 +297,6 @@ bool Hero::Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, P
 
 Hero::~Hero(){
 	S_DELETE(map_walk0);
-	S_DELETE(map_walk);
 	S_DELETE(p_att);
 }
 

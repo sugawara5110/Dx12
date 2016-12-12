@@ -231,7 +231,7 @@ Encount Map::Move(MapState *mapstate, Directionkey direction) {
 	else if (mxy.m[POS_CE] != 51)boss_p_f = FALSE;//ボスポイント離れたらFALSEにする
 	//通常エンカウント
 	int rnd = 0;
-	if (direction == UP)rnd = rand() % 500;
+	if (direction == UP)rnd = rand() % 1000;
 	if (direction == DOWN)rnd = rand() % 150;
 	if (rnd == 3) {
 		if (mxy.m[POS_CE] != 50 && mxy.m[POS_CE] != 51 && mxy.m[POS_CE] != 65 && mxy.m[POS_CE] != 66) {

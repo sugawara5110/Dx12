@@ -9,10 +9,27 @@
 //の場合,Y前方,Z上で出力する
 
 #define _CRT_SECURE_NO_WARNINGS
+#define FBX_PCS 5
 #include "Dx12Process.h"
 #include <string.h>
 
 using namespace std;
+
+SkinMesh_sub::SkinMesh_sub() {
+	m_pSdkManager = FbxManager::Create();
+	m_pImporter = FbxImporter::Create(m_pSdkManager, "my importer");
+}
+
+SkinMesh_sub::~SkinMesh_sub() {
+	if (m_pSdkManager) m_pSdkManager->Destroy();
+}
+
+bool SkinMesh_sub::Create(CHAR *szFileName) {
+	int iFormat = -1;
+	m_pImporter->Initialize((const char*)szFileName, iFormat);
+	m_pmyScene = FbxScene::Create(m_pSdkManager, "my scene");
+	return m_pImporter->Import(m_pmyScene);
+}
 
 SkinMesh::SkinMesh() {
 	ZeroMemory(this, sizeof(SkinMesh));
@@ -21,10 +38,13 @@ SkinMesh::SkinMesh() {
 	centering = TRUE;
 	offset = FALSE;
 	cx = cy = cz = theZ = theY = theX = 0.0f;
+	fbx = new SkinMesh_sub[FBX_PCS];
+	m_ppSubAnimationBone = NULL;
 }
 
 SkinMesh::~SkinMesh() {
-
+	
+	ARR_DELETE(m_ppSubAnimationBone);
 	ARR_DELETE(m_pdwNumVert);
 	ARR_DELETE(m_ppNodeArray);
 	ARR_DELETE(m_BoneArray);
@@ -124,28 +144,19 @@ FbxNode *SkinMesh::SearchNode(FbxNode *pnode, FbxNodeAttribute::EType SearchType
 	return NULL;
 }
 
-HRESULT SkinMesh::InitFBX(CHAR *szFileName) {
+HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
-	m_pSdkManager = FbxManager::Create();
+	if (fbx[p].Create(szFileName))return S_OK;
 
-	m_pImporter = FbxImporter::Create(m_pSdkManager, "my importer");
-
-	int iFormat = -1;
-	m_pImporter->Initialize((const char*)szFileName, iFormat);
-
-	m_pmyScene = FbxScene::Create(m_pSdkManager, "my scene");
-
-	m_pImporter->Import(m_pmyScene);
-
-	return S_OK;
+	return E_FAIL;
 }
 
-FbxScene *SkinMesh::GetScene() {
-	return m_pmyScene;
+FbxScene *SkinMesh::GetScene(int p) {
+	return fbx[p].m_pmyScene;
 }
 
 void SkinMesh::DestroyFBX() {
-	if (m_pSdkManager) m_pSdkManager->Destroy();
+	ARR_DELETE(fbx);
 }
 
 HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
@@ -223,9 +234,9 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 
 HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName) {
 	//FBXローダーを初期化
-	if (FAILED(InitFBX(szFileName)))
+	if (FAILED(InitFBX(szFileName, 0)))
 	{
-		MessageBox(0, L"FBXローダー初期化失敗",NULL, MB_OK);
+		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
 	}
 
@@ -266,7 +277,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName) {
 		serializedRootSig->GetBufferSize(),
 		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
 
-	FbxScene *pScene = GetScene();//シーン取得
+	FbxScene *pScene = GetScene(0);//シーン取得
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 
 	NodeArraypcs = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eMesh);//eMesh数カウント
@@ -588,6 +599,36 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName) {
 	return S_OK;
 }
 
+HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind) {
+	if (ind <= 0) {
+		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
+		return E_FAIL;
+	}
+
+	if (FAILED(InitFBX(szFileName, ind))) {
+		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
+		return E_FAIL;
+	}
+
+	FbxScene *pScene = GetScene(ind);//シーン取得
+	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
+
+	int BoneNum = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eSkeleton);
+	if (BoneNum == 0) {
+		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
+		return E_FAIL;
+	}
+	SearchNodeCount(NULL, FbxNodeAttribute::eSkeleton);//リセット
+
+	if (!m_ppSubAnimationBone)m_ppSubAnimationBone = new FbxNode*[(FBX_PCS - 1) * m_iNumBone];
+
+	for (int i = 0; i < m_iNumBone; i++) {
+		m_ppSubAnimationBone[(ind - 1) * m_iNumBone + i] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, i + 1);
+		SearchNode(NULL, FbxNodeAttribute::eSkeleton, 0);//リセット
+	}
+	return S_OK;
+}
+
 void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 
 	const UINT ibByteSize = (UINT)cnt * sizeof(UINT);
@@ -603,12 +644,22 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 }
 
 //ボーンを次のポーズ位置にセットする
-void SkinMesh::SetNewPoseMatrices(int frame) {
-	int i;
+void SkinMesh::SetNewPoseMatrices(int frame, int ind) {
+
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, FbxTime::eFrames60);//30フレーム/秒　と推定　厳密には状況ごとに調べる必要あり
 
-	FbxMatrix matf0 = m_ppCluster[0]->GetLink()->EvaluateGlobalTransform(time);
+	bool subanm = TRUE;
+	if (ind <= 0 || ind > FBX_PCS - 1)subanm = FALSE;
+
+	FbxMatrix matf0;
+	if (!subanm) {
+		matf0 = m_ppCluster[0]->GetLink()->EvaluateGlobalTransform(time);
+	}
+	else {
+		matf0 = m_ppSubAnimationBone[(ind - 1) * m_iNumBone]->EvaluateGlobalTransform(time);
+	}
+
 	MATRIX mat0;
 	MatrixIdentity(&mat0);
 	if (offset) {
@@ -623,8 +674,14 @@ void SkinMesh::SetNewPoseMatrices(int frame) {
 	}
 
 	MATRIX pose;
-	for (i = 0; i < m_iNumBone; i++) {
-		FbxMatrix mat = m_ppCluster[i]->GetLink()->EvaluateGlobalTransform(time);
+	for (int i = 0; i < m_iNumBone; i++) {
+		FbxMatrix mat;
+		if (!subanm) {
+			mat = m_ppCluster[i]->GetLink()->EvaluateGlobalTransform(time);
+		}
+		else {
+			mat = m_ppSubAnimationBone[(ind - 1) * m_iNumBone + i]->EvaluateGlobalTransform(time);
+		}
 
 		for (int x = 0; x < 4; x++) {
 			for (int y = 0; y < 4; y++) {
@@ -760,10 +817,14 @@ void SkinMesh::ObjThetaOffset(float *thetaZ, float *thetaY, float *thetaX) {
 }
 
 void SkinMesh::Draw(int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
+	Draw(0, frame, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size);
+}
+
+void SkinMesh::Draw(int ind, int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
 
 	ObjThetaOffset(&thetaZ, &thetaY, &thetaX);
 	dx->MatrixMap(mObjectCB0, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	SetNewPoseMatrices(frame / 10);
+	SetNewPoseMatrices(frame / 10, ind);
 	MatrixMap_Bone(mObject_BONES);
 
 	mCommandList->SetPipelineState(mPSO.Get());
