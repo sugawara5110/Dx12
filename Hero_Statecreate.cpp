@@ -33,41 +33,49 @@ Hero::Hero(int no) {
 	tx = ty = 0.0f;
 	tt = 0;
 
-	map_walk0 = NULL;
 	p_att = NULL;
-	p_att_cnt = 0;
-	p_att_Ind = 0;
+	attOn = attFin = FALSE;
+	float ofsetthetaZ = 0.0f;
+	float frameMaxWalk, frameMaxWait, frameMaxAtt0, frameMaxAtt;
 
-	ofsetthetaZ = 0.0f;
 	switch (o_no) {
 	case 0:
-		map_walk0 = new MeshData();
-		map_walk0->SetCommandList(HERO_COM);
-		map_walk0->SetState(TRUE, TRUE, FALSE);
-		map_walk0->GetVBarray("./dat/mesh/player_walk/player_walk_000000.obj");
-		map_walk0->GetTexture();
-
-		ObjCntMax = 3300;
+		frameMaxWalk = 800.0f;
+		frameMaxWait = 6500.0f;
+		frameMaxAtt0 = 500.0f;
+		frameMaxAtt = 2900.0f;
 		break;
 	case 1:
-		ObjCntMax = 2600;
+		frameMaxAtt0 = 1300.0f;
+		frameMaxAtt = 2500.0f;
 		break;
 	case 2:
-		ObjCntMax = 2500;
+		frameMaxAtt0 = 1000.0f;
+		frameMaxAtt = 1500.0f;
 		break;
 	case 3:
 		ofsetthetaZ = 90.0f;
-		ObjCntMax = 2500;
+		frameMaxAtt0 = 1000.0f;
+		frameMaxAtt = 2000.0f;
 		break;
 	}
 	p_att = new SkinMesh();
 	p_att->SetCommandList(HERO_COM);
 	p_att->SetState(TRUE, TRUE);
-	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f);
 	char p_att_pass[42];
+	char p_att_pass2[50];
 	sprintf_s(p_att_pass, sizeof(char) * 42, "./dat/mesh/player%datt/player%d_FBX_att.fbx", o_no + 1, o_no + 1);
-	p_att->CreateFromFBX(p_att_pass);
-	if (o_no == 0)p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 1);
+	sprintf_s(p_att_pass2, sizeof(char) * 50, "./dat/mesh/player%datt/player%d_FBX_att0_deform.fbx", o_no + 1, o_no + 1);
+	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 0);
+	p_att->CreateFromFBX(p_att_pass, frameMaxAtt);
+	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 1);
+	p_att->CreateFromFBX_SubAnimation(p_att_pass2, 1, frameMaxAtt0);
+	if (o_no == 0) {
+		p_att->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 2);
+		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 2, frameMaxWalk);
+		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 3);
+		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 3, frameMaxWait);
+	}
 
 	state.SetCommandList(HERO_COM);
 	state.GetVBarray2D(1);
@@ -296,7 +304,6 @@ bool Hero::Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, P
 }
 
 Hero::~Hero(){
-	S_DELETE(map_walk0);
 	S_DELETE(p_att);
 }
 

@@ -21,13 +21,9 @@ class Hero:public Parameter{
 
 protected:
 	int o_no;//オブジェクトナンバー
-	MeshData *map_walk0;//Mapクラスから操作立ち止まり状態(o_no=1のみ生成)
-	SkinMesh *p_att;     //アタックアニメーション用
-	float p_att_cnt;      //アニメーションカウント
-	int p_att_Ind;       //アニメーション描画時のオブジェクトインデックス
-	int ObjCntMax;      //アニメーションフレーム
+	SkinMesh *p_att;        //アタックアニメーション用
+	bool attOn, attFin;    //attアニメーション中
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
-	float ofsetthetaZ;
 
 	PolygonData2D state, meter;
 	PolygonData mag, effect[4];
@@ -54,7 +50,8 @@ public:
 	Hero();
 	Hero(int no);
 	void P_DataInput(P_Data *p_dat);
-	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, int walkI);//walkIはMapクラスから操作(-1～)
+	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta);
+	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, bool walkOn);//walkOnはMapクラスから操作
 	Act_fin_flg Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun);
 	Action Normal_act_get();
 	void Act_f_init();

@@ -27,9 +27,7 @@ Enemy::Enemy(int t_no, int no) {
 	en = NULL;
 	en_boss_att0 = NULL;
 	en_boss_att = NULL;
-	en_boss_att_cnt = 0.0f;
-	en_boss_att_Ind = -1;
-	ObjCntMax = 0;
+	attFin = attOn = FALSE;
 
 	for (int i = 0; i < 4; i++) {
 		effect[i].SetCommandList(ENEMY_COM);

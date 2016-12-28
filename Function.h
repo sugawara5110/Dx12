@@ -11,6 +11,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h >
+#include <string.h>
 
 #define WINDOW_WIDTH 800 //ウィンドウ幅
 #define WINDOW_HEIGHT 600 //ウィンドウ高さ
@@ -88,12 +89,25 @@ void MatrixLookAtLH(MATRIX *mat, float x1, float y1, float z1, float x2, float y
 void MatrixPerspectiveFovLH(MATRIX *mat, float theta, float aspect, float Near, float Far);
 //ベクトル3, 行列掛け算
 void VectorMatrixMultiply(VECTOR3 *v, MATRIX *mat);
+//ベクトル掛け算
+void VectorMultiply(VECTOR3 *v, float f);
+//ベクトル割り算
+void VectorDivision(VECTOR3 *v, float f);
+//ベクトル足し算
+void VectorAddition(VECTOR3 *out, VECTOR3 *in1, VECTOR3 *in2);
 //逆行列
 bool MatrixInverse(MATRIX *invm, MATRIX *m);
 //ビューポート変換行列
 void MatrixViewPort(MATRIX *mat);
 //正規化
 void Normalize(float *x, float *y, float *z, float *w);
+void VectorNormalize(VECTOR3 *out, VECTOR3 *in);
+//外積
+void VectorCross(VECTOR3 *out, VECTOR3 *in1, VECTOR3 *in2);
+//内積
+float VectorDot(VECTOR3 *in1, VECTOR3 *in2);
+//線形補間
+void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t);
 
 void Bdecode(char *bpass, char **binary, int *size);
 

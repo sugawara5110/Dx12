@@ -76,7 +76,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Recover_LV = 10;
 				savedata.p_data[i].Rpoint = 100;
 				
-				/*
+				
 				savedata.p_data[i].Attack = 100;
 				savedata.p_data[i].Magic = 100;
 				savedata.p_data[i].Agility = 100;
@@ -92,7 +92,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Hpoint = 1000;
 				savedata.p_data[i].Recover_LV = 100;
 				savedata.p_data[i].Rpoint = 1000;
-				*/
+				
 			}
 
 			savedata.h_pos.cx1 = 450.0f;//ボス前
@@ -103,12 +103,12 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 10;//ボス前
 
 			//通常のスタート位置
-			savedata.h_pos.cx1 = 1150.0f;
+			/*savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 3350.0f;
 			savedata.h_pos.cy2 = 3280.0f;
 			savedata.h_pos.px = 11;
-			savedata.h_pos.py = 33;
+			savedata.h_pos.py = 33;*/
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 0;

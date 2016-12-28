@@ -18,6 +18,11 @@ using namespace std;
 SkinMesh_sub::SkinMesh_sub() {
 	m_pSdkManager = FbxManager::Create();
 	m_pImporter = FbxImporter::Create(m_pSdkManager, "my importer");
+	current_frame = 0.0f;
+	centering = TRUE;
+	offset = FALSE;
+	cx = cy = cz = 0.0f;
+	connect_step = 3000.0f;
 }
 
 SkinMesh_sub::~SkinMesh_sub() {
@@ -35,16 +40,17 @@ SkinMesh::SkinMesh() {
 	ZeroMemory(this, sizeof(SkinMesh));
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->mCommandList[0].Get();
-	centering = TRUE;
-	offset = FALSE;
-	cx = cy = cz = theZ = theY = theX = 0.0f;
+	
 	fbx = new SkinMesh_sub[FBX_PCS];
 	m_ppSubAnimationBone = NULL;
+	AnimLastInd = -1;
+	BoneConnect = -1.0f;
 }
 
 SkinMesh::~SkinMesh() {
 	
 	ARR_DELETE(m_ppSubAnimationBone);
+	ARR_DELETE(m_pLastBoneMatrix);
 	ARR_DELETE(m_pdwNumVert);
 	ARR_DELETE(m_ppNodeArray);
 	ARR_DELETE(m_BoneArray);
@@ -68,32 +74,38 @@ void SkinMesh::SetState(bool al, bool bl) {
 	blend = bl;
 }
 
-void SkinMesh::ObjCentering(bool f) {
-	centering = f;
-	offset = FALSE;
-	cx = cy = cz = 0.0f;
+void SkinMesh::ObjCentering(bool f, int ind) {
+	fbx[ind].centering = f;
+	fbx[ind].offset = FALSE;
+	fbx[ind].cx = fbx[ind].cy = fbx[ind].cz = 0.0f;
 }
 
-void SkinMesh::ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX) {
-	centering = TRUE;
-	offset = FALSE;
-	cx = x;
-	cy = y;
-	cz = z;
-	theX = thetaX;
-	theY = thetaY;
-	theZ = thetaZ;
+void SkinMesh::CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind) {
+	MATRIX rotZ, rotY, rotX, rotZY;
+	MatrixIdentity(&fbx[ind].rotZYX);
+	MatrixRotationZ(&rotZ, thetaZ);
+	MatrixRotationY(&rotY, thetaY);
+	MatrixRotationX(&rotX, thetaX);
+	MatrixMultiply(&rotZY, &rotZ, &rotY);
+	MatrixMultiply(&fbx[ind].rotZYX, &rotZY, &rotX);
 }
 
-void SkinMesh::ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX) {
-	centering = TRUE;
-	offset = TRUE;
-	cx = x;
-	cy = y;
-	cz = z;
-	theX = thetaX;
-	theY = thetaY;
-	theZ = thetaZ;
+void SkinMesh::ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind) {
+	fbx[ind].centering = TRUE;
+	fbx[ind].offset = FALSE;
+	fbx[ind].cx = x;
+	fbx[ind].cy = y;
+	fbx[ind].cz = z;
+	CreateRotMatrix(thetaZ, thetaY, thetaX, ind);
+}
+
+void SkinMesh::ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind) {
+	fbx[ind].centering = TRUE;
+	fbx[ind].offset = TRUE;
+	fbx[ind].cx = x;
+	fbx[ind].cy = y;
+	fbx[ind].cz = z;
+	CreateRotMatrix(thetaZ, thetaY, thetaX, ind);
 }
 
 int SkinMesh::SearchNodeCount(FbxNode *pnode, FbxNodeAttribute::EType SearchType) {
@@ -215,6 +227,7 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 	//ボーンを生成
 	m_iNumBone = iNumBone;
 	m_BoneArray = new BONE[iNumBone];
+	m_pLastBoneMatrix = new MATRIX[iNumBone];
 
 	FbxAMatrix mat;
 
@@ -232,7 +245,11 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 	return S_OK;
 }
 
-HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName) {
+void SkinMesh::SetConnectStep(int ind, float step) {
+	fbx[ind].connect_step = step;
+}
+
+HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	//FBXローダーを初期化
 	if (FAILED(InitFBX(szFileName, 0)))
 	{
@@ -277,6 +294,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName) {
 		serializedRootSig->GetBufferSize(),
 		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
 
+	fbx[0].end_frame = end_frame;
 	FbxScene *pScene = GetScene(0);//シーン取得
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 
@@ -599,7 +617,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName) {
 	return S_OK;
 }
 
-HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind) {
+HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind,float end_frame) {
 	if (ind <= 0) {
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
@@ -612,6 +630,7 @@ HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind) {
 
 	FbxScene *pScene = GetScene(ind);//シーン取得
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
+	fbx[ind].end_frame = end_frame;
 
 	int BoneNum = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eSkeleton);
 	if (BoneNum == 0) {
@@ -644,10 +663,35 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 }
 
 //ボーンを次のポーズ位置にセットする
-void SkinMesh::SetNewPoseMatrices(int frame, int ind) {
+bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 
+	if (AnimLastInd == -1)AnimLastInd = ind;//最初に描画するアニメーション番号で初期化初期化
+
+	bool ind_change = FALSE;
+	if (AnimLastInd != ind) {//アニメーションが切り替わった
+		ind_change = TRUE; AnimLastInd = ind;
+		fbx[ind].current_frame = 0.0f;//アニメーションが切り替わってるのでMatrix更新前にフレームを0に初期化
+	}
+	bool frame_end = FALSE;
+	fbx[ind].current_frame += ti;
+	if (fbx[ind].end_frame <= fbx[ind].current_frame) frame_end = TRUE;
+
+	if (frame_end || ind_change) {
+		for (int i = 0; i < m_iNumBone; i++) {
+			for (int x = 0; x < 4; x++) {
+				for (int y = 0; y < 4; y++) {
+					m_pLastBoneMatrix[i].m[y][x] = m_BoneArray[i].mNewPose.m[y][x];
+				}
+			}
+		}
+		BoneConnect = 0.1f;
+	}
+
+	if (BoneConnect != -1.0f)fbx[ind].current_frame = 0.0f;
+
+	int frame = (int)fbx[ind].current_frame;
 	FbxTime time;
-	time.SetTime(0, 0, 0, frame, 0, FbxTime::eFrames60);//30フレーム/秒　と推定　厳密には状況ごとに調べる必要あり
+	time.SetTime(0, 0, 0, frame / 10, 0, FbxTime::eFrames60);
 
 	bool subanm = TRUE;
 	if (ind <= 0 || ind > FBX_PCS - 1)subanm = FALSE;
@@ -660,17 +704,15 @@ void SkinMesh::SetNewPoseMatrices(int frame, int ind) {
 		matf0 = m_ppSubAnimationBone[(ind - 1) * m_iNumBone]->EvaluateGlobalTransform(time);
 	}
 
-	MATRIX mat0;
-	MatrixIdentity(&mat0);
-	if (offset) {
-		mat0.m[3][0] = cx;
-		mat0.m[3][1] = cy;
-		mat0.m[3][2] = cz;
+	MATRIX mat0_mov;
+	MatrixIdentity(&mat0_mov);
+	if (fbx[ind].offset) {
+		MatrixTranslation(&mat0_mov, fbx[ind].cx, fbx[ind].cy, fbx[ind].cz);
 	}
 	else {
-		mat0.m[3][0] = (float)-matf0.Get(3, 0) + cx;
-		mat0.m[3][1] = (float)-matf0.Get(3, 1) + cy;
-		mat0.m[3][2] = (float)-matf0.Get(3, 2) + cz;
+		MatrixTranslation(&mat0_mov, (float)-matf0.Get(3, 0) + fbx[ind].cx,
+			(float)-matf0.Get(3, 1) + fbx[ind].cy,
+			(float)-matf0.Get(3, 2) + fbx[ind].cz);
 	}
 
 	MATRIX pose;
@@ -685,7 +727,7 @@ void SkinMesh::SetNewPoseMatrices(int frame, int ind) {
 
 		for (int x = 0; x < 4; x++) {
 			for (int y = 0; y < 4; y++) {
-				if (centering) {
+				if (fbx[ind].centering) {
 					pose.m[y][x] = (float)mat.Get(y, x);
 				}
 				else {
@@ -693,9 +735,23 @@ void SkinMesh::SetNewPoseMatrices(int frame, int ind) {
 				}
 			}
 		}
-		if (centering)
-			MatrixMultiply(&m_BoneArray[i].mNewPose, &pose, &mat0);
+		if (fbx[ind].centering) {
+			MATRIX tmp;
+			MatrixMultiply(&tmp, &fbx[ind].rotZYX, &mat0_mov);
+			MatrixMultiply(&m_BoneArray[i].mNewPose, &pose, &tmp);
+		}
 	}
+
+	if (frame_end)fbx[ind].current_frame = 0.0f;
+
+	if (BoneConnect != -1.0f) {
+		for (int i = 0; i < m_iNumBone; i++) {
+			StraightLinear(&m_BoneArray[i].mNewPose, &m_pLastBoneMatrix[i], &m_BoneArray[i].mNewPose, BoneConnect += (ti / fbx[ind].connect_step));
+		}
+		if (BoneConnect >= 1.0f)BoneConnect = -1.0f;
+	}
+
+	return frame_end;
 }
 
 //次の（現在の）ポーズ行列を返す
@@ -796,35 +852,15 @@ int SkinMesh::GetTexNomber(CHAR *fileName) {
 	return -1;
 }
 
-void ObjThetaOffset_sub(float *theta) {
-	int the = (int)(*theta);
-	if (the >= 0) {
-		*theta = (float)(the % 360);
-	}
-	else {
-		*theta = (float)(360 - the);
-	}
+bool SkinMesh::Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
+	return Draw(0, time, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size);
 }
 
-void SkinMesh::ObjThetaOffset(float *thetaZ, float *thetaY, float *thetaX) {
+bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
 
-	*thetaZ += theZ;
-	*thetaY += theY;
-	*thetaX += theX;
-	ObjThetaOffset_sub(thetaZ);
-	ObjThetaOffset_sub(thetaY);
-	ObjThetaOffset_sub(thetaX);
-}
-
-void SkinMesh::Draw(int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
-	Draw(0, frame, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size);
-}
-
-void SkinMesh::Draw(int ind, int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
-
-	ObjThetaOffset(&thetaZ, &thetaY, &thetaX);
+	bool frame_end = FALSE;
 	dx->MatrixMap(mObjectCB0, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	SetNewPoseMatrices(frame / 10, ind);
+	if (ti != -1.0f) { if (SetNewPoseMatrices(ti, ind)) frame_end = TRUE; }
 	MatrixMap_Bone(mObject_BONES);
 
 	mCommandList->SetPipelineState(mPSO.Get());
@@ -871,6 +907,8 @@ void SkinMesh::Draw(int ind, int frame, float x, float y, float z, float r, floa
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 	dx->ins_no = 0;
+
+	return frame_end;
 }
 
 

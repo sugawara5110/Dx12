@@ -715,6 +715,12 @@ private:
 	FbxManager *m_pSdkManager = NULL;
 	FbxImporter *m_pImporter = NULL;
 	FbxScene *m_pmyScene = NULL;
+	float end_frame, current_frame;
+
+	bool centering, offset;
+	float cx, cy, cz;
+	MATRIX rotZYX;
+	float connect_step;
 
 	SkinMesh_sub();
 	~SkinMesh_sub();
@@ -754,16 +760,16 @@ private:
 	//ボーン
 	int m_iNumBone;
 	BONE *m_BoneArray;
-	bool centering, offset;
-	float cx, cy, cz;
-	float theX, theY, theZ;
-
+	
 	//FBX
 	SkinMesh_sub *fbx;
 	FbxCluster **m_ppCluster;//ボーン情報
 	FbxNode **m_ppNodeArray;//各Nodeへのポインタ配列
 	int NodeArraypcs;
 	FbxNode **m_ppSubAnimationBone;//その他アニメーションボーンポインタ配列
+	MATRIX *m_pLastBoneMatrix;
+	int AnimLastInd;
+	float BoneConnect;
 
 	void DestroyFBX();
 	FbxScene* GetScene(int p);
@@ -776,8 +782,8 @@ private:
 	void MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB);
 	void GetTexture();
 	int GetTexNomber(CHAR *fileName);
-	void SetNewPoseMatrices(int frame, int ind);
-	void ObjThetaOffset(float *thetaZ, float *thetaY, float *thetaX);
+	bool SetNewPoseMatrices(float time, int ind);
+	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
 
 public:
 	SkinMesh();
@@ -785,13 +791,14 @@ public:
 
 	void SetCommandList(int no);
 	void SetState(bool alpha, bool blend);
-	void ObjCentering(bool f);
-	void ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX);
-	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX);
-	HRESULT CreateFromFBX(CHAR* szFileName);
-	HRESULT CreateFromFBX_SubAnimation(CHAR* szFileName, int ind);
-	void Draw(int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
-	void Draw(int ind, int frame, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	void ObjCentering(bool f, int ind);
+	void ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind);
+	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind);
+	void SetConnectStep(int ind, float step);
+	HRESULT CreateFromFBX(CHAR* szFileName, float end_frame);
+	HRESULT CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float end_frame);
+	bool Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	bool Draw(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 };
 
 //エラーメッセージ

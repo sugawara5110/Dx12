@@ -10,16 +10,20 @@
 #include <time.h>
 #include "Hero.h"
 
-void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, int walkI) {
+void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta) {
+	p_att->Draw(3, -1.0f, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+}
 
-	if (walkI == -1) {
+void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, bool walkOn) {
+
+	float m = tfloat.Add(2.0f);
+	if (!walkOn) {
 		//ê√é~
-		map_walk0->Draw(x, y, z, r, g, b, theta, 0, 0, 2.0f, 0.1f);
+		p_att->Draw(3, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	}
 	else {
 		//à⁄ìÆ
-		p_att->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f);
-		p_att->Draw(1, walkI, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+		p_att->Draw(2, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	}
 }
 
@@ -66,14 +70,11 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 	float m;
 	switch (act_f) {
 	case ATTACK:
-		m = tfloat.Add(2.0f);
 		if (effect_f == FALSE) {
-			if ((p_att_cnt += m) < ObjCntMax) {
-				p_att_Ind = (int)p_att_cnt;
-			}
-			else {
-				p_att_cnt = 0.0f;
-				p_att_Ind = 0;
+			attOn = TRUE;
+			if (attFin) {
+				attOn = FALSE;
+				attFin = FALSE;
 				effect_f = TRUE;
 			}
 		}
@@ -185,8 +186,11 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		LA_x = 0.0f;
 		break;
 	}
-	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f);
-	p_att->Draw(p_att_Ind, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+
+	m = tfloat.Add(2.0f);
+	if (Dieflg() == TRUE)m = 0.0f;
+	if (attOn) { attFin = p_att->Draw(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f); }
+	else { p_att->Draw(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f); }
 
 	Statecreate(command_run);
 	text->UpDateText(L"é˙êlÇmÇè", x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });

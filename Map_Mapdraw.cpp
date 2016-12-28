@@ -223,18 +223,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 }
 
 void Map::HeroDraw(bool mf) {
-	static float walk = 0.0f;
-	int walkI = -1;
-	float m = tfloat.Add(2.0f);
-	
-	if (!mf)walk = 0.0f;
-
-	if (mf) {
-		walk += m;
-		if (walk > 800.0f)walk = 0.0f;
-		walkI = (int)walk;
-	}
-	if (he)he->OBJWalkDraw(cax1, cay1, (float)posz * 100.0f + elevator_step, 0, 0, 0, src_theta, walkI);
+	if (he)he->OBJWalkDraw(cax1, cay1, (float)posz * 100.0f + elevator_step, 0, 0, 0, src_theta, mf);
 }
 
 Position::E_Pos *Map::Getposition(int p){

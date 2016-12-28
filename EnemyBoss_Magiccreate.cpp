@@ -126,27 +126,14 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 
 	PosOffset(o_no);
 
-	switch (t_no) {
-	case 0:
-		ObjCntMax = 600;
-		break;
-	case 1:
-		ObjCntMax = 600;
-		break;
-	case 2:
+	if (t_no == 2) {
 		en_boss_att0 = new MeshData();
 		en_boss_att0->SetCommandList(ENEMY_COM);
 		en_boss_att0->SetState(TRUE, TRUE, FALSE);
 		en_boss_att0->GetVBarray("./dat/mesh/boss3.obj");
 		en_boss_att0->GetTexture();
-		break;
-	case 3:
-		ObjCntMax = 500;
-		break;
-	case 4:
-		ObjCntMax = 500;
-		break;
 	}
+
 	if (t_no != 2) {
 		en_boss_att0 = new MeshData();
 		en_boss_att0->SetCommandList(ENEMY_COM);
@@ -154,28 +141,27 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		en_boss_att = new SkinMesh();
 		en_boss_att->SetCommandList(ENEMY_COM);
 		en_boss_att->SetState(TRUE, TRUE);
-		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f);
+		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
 		switch (t_no) {
 		case 0:
 			en_boss_att0->GetVBarray("./dat/mesh/boss1att/boss1_000000.obj");
-			en_boss_att->CreateFromFBX("./dat/mesh/boss1att/boss1bone.fbx");
+			en_boss_att->CreateFromFBX("./dat/mesh/boss1att/boss1bone.fbx", 600.0f);
 			break;
 		case 1:
 			en_boss_att0->GetVBarray("./dat/mesh/boss2att/boss2_000000.obj");
-			en_boss_att->CreateFromFBX("./dat/mesh/boss2att/boss2bone.fbx");
+			en_boss_att->CreateFromFBX("./dat/mesh/boss2att/boss2bone.fbx", 600.0f);
 			break;
 		case 3:
 			en_boss_att0->GetVBarray("./dat/mesh/boss4att/boss4_000000.obj");
-			en_boss_att->CreateFromFBX("./dat/mesh/boss4att/boss4bone.fbx");
+			en_boss_att->CreateFromFBX("./dat/mesh/boss4att/boss4bone.fbx", 500.0f);
 			break;
 		case 4:
 			en_boss_att0->GetVBarray("./dat/mesh/lastbossatt/lastboss_000000.obj");
-			en_boss_att->CreateFromFBX("./dat/mesh/lastbossatt/lastbossbone.fbx");
+			en_boss_att->CreateFromFBX("./dat/mesh/lastbossatt/lastbossbone.fbx", 500.0f);
 			break;
 		}
 		//テクスチャ設定
 		en_boss_att0->GetTexture();
-
 	}
 	mag_boss = new ParticleData();
 	mag_boss->SetCommandList(ENEMY_COM);
@@ -184,54 +170,18 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 
 //@Override
 void EnemyBoss::AttackAction() {
-	float m;
+
 	if (effect_f == FALSE) {
-		switch (e_no) {
-		case 0:
-			m = tfloat.Add(1.0f);
-			if ((en_boss_att_cnt += m) < ObjCntMax) {
-				en_boss_att_Ind = (int)en_boss_att_cnt;
-			}
-			else {
-				en_boss_att_cnt = 0.0f;
-				en_boss_att_Ind = -1;
+		if (e_no != 2) {
+			attOn = TRUE;
+			if (attFin) {
+				attOn = FALSE;
+				attFin = FALSE;
 				effect_f = TRUE;
 			}
-			break;
-		case 1:
-			m = tfloat.Add(1.0f);
-			if ((en_boss_att_cnt += m) < ObjCntMax) {
-				en_boss_att_Ind = (int)en_boss_att_cnt;
-			}
-			else {
-				en_boss_att_cnt = 0.0f;
-				en_boss_att_Ind = -1;
-				effect_f = TRUE;
-			}
-			break;
-		case 3:
-			m = tfloat.Add(1.0f);
-			if ((en_boss_att_cnt += m) < ObjCntMax) {
-				en_boss_att_Ind = (int)en_boss_att_cnt;
-			}
-			else {
-				en_boss_att_cnt = 0.0f;
-				en_boss_att_Ind = -1;
-				effect_f = TRUE;
-			}
-			break;
-		case 4:
-			m = tfloat.Add(1.0f);
-			if ((en_boss_att_cnt += m) < ObjCntMax) {
-				en_boss_att_Ind = (int)en_boss_att_cnt;
-			}
-			else {
-				en_boss_att_cnt = 0.0f;
-				en_boss_att_Ind = -1;
-				effect_f = TRUE;
-			}
-			break;
 		}
+
+		float m;
 		if (e_no == 2) {
 			m = tfloat.Add(0.15f);
 			if (e_pos[o_no].theta >= 338.0f || e_pos[o_no].theta <= 22.0f) {
@@ -334,7 +284,7 @@ bool EnemyBoss::Magiccreate(float x, float y, float z){
 
 //@Override
 void EnemyBoss::ObjDraw(float x, float y, float z, float r, float g, float b, float theta) {
-	if (en_boss_att_Ind != -1)en_boss_att->Draw(en_boss_att_Ind, x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	if (attOn)attFin = en_boss_att->Draw(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
 	else en_boss_att0->Draw(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0.1f);
 }
 

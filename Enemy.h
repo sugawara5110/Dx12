@@ -28,10 +28,8 @@ protected:
 	int effect_no = 0;
 	MeshData *en_boss_att0;       //ボス用デフォルトポーズ
 	SkinMesh *en_boss_att;       //ボスアニメーション
-	float en_boss_att_cnt;      //↑のアニメーションカウント
-	int en_boss_att_Ind;       //↑描画時のオブジェクトインデックス
-	int ObjCntMax;             //アニメーションオブジェクト個数
-	ParticleData *mag_boss;  //ボス用
+	bool attOn, attFin;         //attアニメーション中
+	ParticleData *mag_boss;    //ボス用
 	float mag_size;           //ボス用
 
 	bool esc;//エスケープ可否 TRUE==エスケープ可

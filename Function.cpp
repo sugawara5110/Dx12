@@ -181,6 +181,24 @@ void VectorMatrixMultiply(VECTOR3 *v, MATRIX *mat){
 	v->z /= w;
 }
 
+void VectorAddition(VECTOR3 *out, VECTOR3 *in1, VECTOR3 *in2) {
+	out->x = in1->x + in2->x;
+	out->y = in1->y + in2->y;
+	out->z = in1->z + in2->z;
+}
+
+void VectorMultiply(VECTOR3 *v, float f) {
+	v->x *= f;
+	v->y *= f;
+	v->z *= f;
+}
+
+void VectorDivision(VECTOR3 *v, float f) {
+	v->x /= f;
+	v->y /= f;
+	v->z /= f;
+}
+
 //MatrixInverse“à‚ÅŽg—p
 double CalDetMat4x4(MATRIX *m) {
 
@@ -235,7 +253,6 @@ void MatrixViewPort(MATRIX *mat){
 }
 
 void Normalize(float *x, float *y, float *z, float *w) {
-
 	float nor = (float)sqrt(*x * *x + *y * *y + *z * *z + *w * *w);
 	if (nor != 0.0f) {
 		*x = *x / nor;
@@ -248,6 +265,38 @@ void Normalize(float *x, float *y, float *z, float *w) {
 		*y = 0.0f;
 		*z = 0.0f;
 		*w = 0.0f;
+	}
+}
+
+void VectorNormalize(VECTOR3 *out, VECTOR3 *in) {
+	float nor = (float)sqrt(in->x * in->x + in->y * in->y + in->z * in->z);
+	if (nor != 0.0f) {
+		out->x = in->x / nor;
+		out->y = in->y / nor;
+		out->z = in->z / nor;
+	}
+	else {
+		out->x = 0.0f;
+		out->y = 0.0f;
+		out->z = 0.0f;
+	}
+}
+
+void VectorCross(VECTOR3 *out, VECTOR3 *in1, VECTOR3 *in2) {
+	out->x = in1->y * in2->z - in1->z * in2->y;
+	out->y = in1->z * in2->x - in1->x * in2->z;
+	out->z = in1->x * in2->y - in1->y * in2->x;
+}
+
+float VectorDot(VECTOR3 *in1, VECTOR3 *in2) {
+	return in1->x * in2->x + in1->y * in2->y + in1->z * in2->z;
+}
+
+void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t) {
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			out->m[y][x] = start->m[y][x] * (1.0f - t) + end->m[y][x] * t;
+		}
 	}
 }
 
