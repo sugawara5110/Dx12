@@ -58,7 +58,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	wood = NULL;
 	wall1 = NULL;
 
-	dx->Bigin(Map_Com, nullptr);
+	dx->Bigin(Map_Com);
 
 	switch (map_no) {
 	case 0:
@@ -298,7 +298,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	}
 
 	dx->End(Map_Com);
-	dx->FlushCommandQueue();
+	dx->WaitFenceCurrent();
 
 	//ライトポジション構造体確保
 	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);
@@ -1156,7 +1156,7 @@ void Map::Mapcreate_EXIT(float x, float y, float z, float xsize){
 }
 
 Map::~Map(){
-	dx->FlushCommandQueue();
+	dx->WaitFenceCurrent();
 	dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, FALSE);//出口ライト消す
 	ARR_DELETE(wood);
 	ARR_DELETE(wall1);

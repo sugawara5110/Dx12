@@ -36,7 +36,7 @@ DxText::DxText() {
 
 	dx = Dx12Process::GetInstance();
 
-	dx->Bigin(TEXT_COM, nullptr);
+	dx->Bigin(TEXT_COM);
 	//文字列用バッファ初期化
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
 		text[i].SetCommandList(TEXT_COM);
@@ -57,7 +57,7 @@ DxText::DxText() {
 		CreateText(value, va, i, 15.0f);
 	}
 	dx->End(TEXT_COM);
-	dx->FlushCommandQueue();
+	dx->WaitFenceCurrent();
 	CreateTextNo = 0;
 }
 
@@ -298,7 +298,7 @@ void DxText::UpDateValue(int val, float x, float y, float fontsize, int pcs, VEC
 }
 
 void DxText::BiginDraw() {
-	dx->Bigin(TEXT_COM, nullptr);
+	dx->Bigin(TEXT_COM);
 }
 
 void DxText::EndDraw() {

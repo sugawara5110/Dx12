@@ -26,7 +26,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	h_posOut.cz = h_pos->cz;
 	h_posOut.theta = h_pos->theta;
 
-	dx->Bigin(ENEMY_COM, nullptr);
+	dx->Bigin(ENEMY_COM);
 
 	//Debug(enemy);
 

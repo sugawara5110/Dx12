@@ -316,7 +316,7 @@ int StateMenu::Set_boss_kil(int i){
 }
 
 bool StateMenu::Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {
-	dx->Bigin(STATEMENU_COM, nullptr);
+	dx->Bigin(STATEMENU_COM);
 	bool m_ref = FALSE;
 	switch (menu_select) {
 	case MAIN:

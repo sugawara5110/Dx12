@@ -15,6 +15,8 @@
 
 using namespace std;
 
+volatile bool SkinMesh::stInitFBX_ON = FALSE;
+
 SkinMesh_sub::SkinMesh_sub() {
 	m_pSdkManager = FbxManager::Create();
 	m_pImporter = FbxImporter::Create(m_pSdkManager, "my importer");
@@ -39,7 +41,7 @@ bool SkinMesh_sub::Create(CHAR *szFileName) {
 SkinMesh::SkinMesh() {
 	ZeroMemory(this, sizeof(SkinMesh));
 	dx = Dx12Process::GetInstance();
-	mCommandList = dx->mCommandList[0].Get();
+	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	
 	fbx = new SkinMesh_sub[FBX_PCS];
 	m_ppSubAnimationBone = NULL;
@@ -66,7 +68,7 @@ SkinMesh::~SkinMesh() {
 
 void SkinMesh::SetCommandList(int no) {
 	com_no = no;
-	mCommandList = dx->mCommandList[com_no].Get();
+	mCommandList = dx->dx_sub[com_no].mCommandList.Get();
 }
 
 void SkinMesh::SetState(bool al, bool bl) {
@@ -158,8 +160,14 @@ FbxNode *SkinMesh::SearchNode(FbxNode *pnode, FbxNodeAttribute::EType SearchType
 
 HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
-	if (fbx[p].Create(szFileName))return S_OK;
+	static bool f = FALSE;
 
+	while (stInitFBX_ON);
+	stInitFBX_ON = TRUE;
+	f = fbx[p].Create(szFileName);
+	stInitFBX_ON = FALSE;
+	
+	if (f)return S_OK;
 	return E_FAIL;
 }
 
@@ -400,7 +408,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 
 		//頂点配列をfbxからコピー
 		for (DWORD i = 0; i < m_pdwNumVert[m]; i++) {
-			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[i][0];//FBXは右手座標系なのでxあるいはｚを反転(+-切り替え)
+			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[i][0];//FBXは右手座標系なのでxあるいはｚを反転
 			pvVB[i + VerArrStart].vPos.y = (float)pCoord[i][1];
 			pvVB[i + VerArrStart].vPos.z = (float)pCoord[i][2];
 		}
@@ -425,23 +433,23 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 
 			if (iVert0Index < 0) continue;
 			pFbxMesh->GetPolygonVertexNormal(i, 0, Normal);//(polyInd, verInd, FbxVector4)
-			pvVB[iVert0Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転(+-切り替え)
+			pvVB[iVert0Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転
 			pvVB[iVert0Index].vNorm.y = (float)Normal[1];
 			pvVB[iVert0Index].vNorm.z = (float)Normal[2];
 
 			pFbxMesh->GetPolygonVertexNormal(i, 1, Normal);
-			pvVB[iVert1Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転(+-切り替え)
+			pvVB[iVert1Index].vNorm.x = (float)-Normal[0];
 			pvVB[iVert1Index].vNorm.y = (float)Normal[1];
 			pvVB[iVert1Index].vNorm.z = (float)Normal[2];
 
 			pFbxMesh->GetPolygonVertexNormal(i, 2, Normal);
-			pvVB[iVert2Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転(+-切り替え)
+			pvVB[iVert2Index].vNorm.x = (float)-Normal[0];
 			pvVB[iVert2Index].vNorm.y = (float)Normal[1];
 			pvVB[iVert2Index].vNorm.z = (float)Normal[2];
 
 			if (pcs == 4) {
 				pFbxMesh->GetPolygonVertexNormal(i, 3, Normal);
-				pvVB[iVert3Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転(+-切り替え)
+				pvVB[iVert3Index].vNorm.x = (float)-Normal[0];
 				pvVB[iVert3Index].vNorm.y = (float)Normal[1];
 				pvVB[iVert3Index].vNorm.z = (float)Normal[2];
 			}
@@ -470,20 +478,20 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 			if (iVert0Index < 0) continue;
 			pFbxMesh->GetPolygonVertexUV(i, 0, uvname, UV, UnMap);//(polyInd, verInd, UV_Name, FbxVector2_UV, bool_UnMap)
 			pvVB[iVert0Index].vTex.x = (float)UV[0];
-			pvVB[iVert0Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV 切り替え)
+			pvVB[iVert0Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV)
 
 			pFbxMesh->GetPolygonVertexUV(i, 1, uvname, UV, UnMap);
 			pvVB[iVert1Index].vTex.x = (float)UV[0];
-			pvVB[iVert1Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV 切り替え)
+			pvVB[iVert1Index].vTex.y = 1.0f - (float)UV[1];
 
 			pFbxMesh->GetPolygonVertexUV(i, 2, uvname, UV, UnMap);
 			pvVB[iVert2Index].vTex.x = (float)UV[0];
-			pvVB[iVert2Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV 切り替え)
+			pvVB[iVert2Index].vTex.y = 1.0f - (float)UV[1];
 
 			if (pcs == 4) {
 				pFbxMesh->GetPolygonVertexUV(i, 3, uvname, UV, UnMap);
 				pvVB[iVert3Index].vTex.x = (float)UV[0];
-				pvVB[iVert3Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV 切り替え)
+				pvVB[iVert3Index].vTex.y = 1.0f - (float)UV[1];
 			}
 		}
 
@@ -528,8 +536,8 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 				if (pcs != 3 && pcs != 4)continue;//頂点数3個,4個以外はスキップ
 				if (matId == i)//現在処理中のマテリアルと一致した場合以下処理実行(1Meshに2以上のマテリアルが有る場合の処理)
 				{
-					int a = pIndex[iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;//ポリゴンkを構成する0番目の頂点のインデックス番号
-					int a1 = pIndex[iCount + 1] = pFbxMesh->GetPolygonVertex(k, 1) + VerArrStart;
+					pIndex[iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;//ポリゴンkを構成する0番目の頂点のインデックス番号
+					pIndex[iCount + 1] = pFbxMesh->GetPolygonVertex(k, 1) + VerArrStart;
 					pIndex[iCount + 2] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
 					iCount += 3;
 
@@ -559,7 +567,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 		mObjectCB1->CopyData(i, sg);
 	}
 
-	//スキン情報（ジョイント、ウェイト　）読み込み
+	//スキン情報(ジョイント, ウェイト)
 	ReadSkinInfo(pvVB);
 	//バーテックスバッファーを作成
 	const UINT vbByteSize = (UINT)VerAllpcs * sizeof(MY_VERTEX_S);
@@ -571,7 +579,6 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	Vview->VertexByteStride = sizeof(MY_VERTEX_S);
 	Vview->VertexBufferByteSize = vbByteSize;
 
-	//一時的な入れ物は、もはや不要
 	ARR_DELETE(m_pMaterialCount);
 	ARR_DELETE(IndexCount34Me);
 	ARR_DELETE(IndexCount3M);
@@ -657,7 +664,7 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 	Iview[IviewInd].IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
 		mCommandList, pIndex, ibByteSize, Iview[IviewInd].IndexBufferUploader);
 
-	Iview[IviewInd].IndexFormat = DXGI_FORMAT_R32_UINT;//これ間違うと全然変わる注意
+	Iview[IviewInd].IndexFormat = DXGI_FORMAT_R32_UINT;
 	Iview[IviewInd].IndexBufferByteSize = ibByteSize;
 	Iview[IviewInd].IndexCount = cnt;
 }
@@ -665,7 +672,8 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 //ボーンを次のポーズ位置にセットする
 bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 
-	if (AnimLastInd == -1)AnimLastInd = ind;//最初に描画するアニメーション番号で初期化初期化
+	stInitFBX_ON = TRUE;
+	if (AnimLastInd == -1)AnimLastInd = ind;//最初に描画するアニメーション番号で初期化
 
 	bool ind_change = FALSE;
 	if (AnimLastInd != ind) {//アニメーションが切り替わった
@@ -750,7 +758,7 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 		}
 		if (BoneConnect >= 1.0f)BoneConnect = -1.0f;
 	}
-
+	stInitFBX_ON = FALSE;
 	return frame_end;
 }
 
@@ -761,7 +769,7 @@ MATRIX SkinMesh::GetCurrentPoseMatrix(int index) {
 	MatrixInverse(&inv, &m_BoneArray[index].mBindPose);//FBXのバインドポーズは初期姿勢（絶対座標）
 	MATRIX ret;
 	MatrixIdentity(&ret);
-	MatrixMultiply(&ret, &inv, &m_BoneArray[index].mNewPose);//バインドポーズの逆行列とフレーム姿勢行列をかける。なお、バインドポーズ自体が既に逆行列であるとする考えもある。（FBXの場合は違うが）
+	MatrixMultiply(&ret, &inv, &m_BoneArray[index].mNewPose);//バインドポーズの逆行列とフレーム姿勢行列をかける
 	
 	return ret;
 }
@@ -860,7 +868,7 @@ bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float
 
 	bool frame_end = FALSE;
 	dx->MatrixMap(mObjectCB0, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	if (ti != -1.0f) { if (SetNewPoseMatrices(ti, ind)) frame_end = TRUE; }
+	if (ti != -1.0f && !stInitFBX_ON) { if (SetNewPoseMatrices(ti, ind)) frame_end = TRUE; }
 	MatrixMap_Bone(mObject_BONES);
 
 	mCommandList->SetPipelineState(mPSO.Get());

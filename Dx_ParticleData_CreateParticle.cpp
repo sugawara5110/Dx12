@@ -8,16 +8,14 @@
 
 ParticleData::ParticleData() {
 	dx = Dx12Process::GetInstance();
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[0].Get();
-	mCommandList = dx->mCommandList[0].Get();
+	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	ver = 0;
 	P_pos = NULL;
 }
 
 void ParticleData::SetCommandList(int no) {
 	com_no = no;
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[com_no].Get();
-	mCommandList = dx->mCommandList[com_no].Get();
+	mCommandList = dx->dx_sub[com_no].mCommandList.Get();
 }
 
 ParticleData::~ParticleData() {

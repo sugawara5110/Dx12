@@ -9,16 +9,14 @@
 
 PolygonData::PolygonData() {
 	dx = Dx12Process::GetInstance();
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[0].Get();
-	mCommandList = dx->mCommandList[0].Get();
+	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	d3varray = NULL;
 	d3varrayI = NULL;
 }
 
 void PolygonData::SetCommandList(int no) {
 	com_no = no;
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[com_no].Get();
-	mCommandList = dx->mCommandList[com_no].Get();
+	mCommandList = dx->dx_sub[com_no].mCommandList.Get();
 }
 
 PolygonData::~PolygonData() {

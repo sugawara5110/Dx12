@@ -21,7 +21,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 
 	//Debug();
 
-	dx->Bigin(Map_Com, nullptr);
+	dx->Bigin(Map_Com);
 
 	//ボス撃破後のマップ,テキスト処理
 	if (mxy.m[POS_CE] == 51 && boss_killed[map_no] == 1) {

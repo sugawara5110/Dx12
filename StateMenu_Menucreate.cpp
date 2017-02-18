@@ -15,7 +15,7 @@ StateMenu::StateMenu() {
 	text = DxText::GetInstance();
 	MovieSoundManager::ObjCreate_title();
 	MovieSoundManager::Title_sound(FALSE);
-	dx->Bigin(STATEMENU_COM, nullptr);
+	dx->Bigin(STATEMENU_COM);
 	state.SetCommandList(STATEMENU_COM);
 	state.GetVBarray2D(1);
 	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
@@ -29,7 +29,7 @@ StateMenu::StateMenu() {
 	r_state1.GetVBarray2D(1);
 	r_state1.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	dx->End(STATEMENU_COM);
-	dx->FlushCommandQueue();
+	dx->WaitFenceCurrent();
 	menu_select = MAIN;
 	main_select = 0;
 	st_select = 0;

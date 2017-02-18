@@ -30,7 +30,7 @@ DsProcess::DsProcess(){
 	pGraphBuilder->QueryInterface(IID_IMediaControl,
 		(LPVOID *)&pMediaControl);
 
-	// IVideoWindowインターフェースを取得します
+	// IVideoWindowインターフェース取得
 	pGraphBuilder->QueryInterface(IID_IVideoWindow, (void **)&pVideoWindow);
 
 	//MediaPositionインターフェース取得

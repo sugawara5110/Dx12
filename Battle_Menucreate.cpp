@@ -25,7 +25,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	h_pos = (Position::H_Pos*)malloc(sizeof(Position::H_Pos));
 	memcpy(h_pos, h_po, sizeof(Position::H_Pos));//ポジションアドレス
 	b_pos = GetBtPos(h_pos);//アドレスで渡す
-	dx->Bigin(ENEMY_COM, nullptr);
+	dx->Bigin(ENEMY_COM);
 	command.SetCommandList(ENEMY_COM);
 	command.GetVBarray2D(1);
 	h_select.SetCommandList(ENEMY_COM);
@@ -152,7 +152,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 		H_drawPos(i);
 	}
 	dx->End(ENEMY_COM);
-	dx->FlushCommandQueue();
+	dx->WaitFenceCurrent();
 	initFin = TRUE;
 }
 
@@ -260,7 +260,7 @@ void Battle::SelectPermissionMove(Hero *hero){
 }
 
 Battle::~Battle() {
-	dx->FlushCommandQueue();
+	dx->WaitFenceCurrent();
 	MovieSoundManager::ObjDelete_battle();
 	free(e_pos);
 	e_pos = NULL;

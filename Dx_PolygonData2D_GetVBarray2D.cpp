@@ -17,8 +17,7 @@ void PolygonData2D::Pos2DCompute(VECTOR3 *p){
 
 PolygonData2D::PolygonData2D() {
 	dx = Dx12Process::GetInstance();
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[0].Get();
-	mCommandList = dx->mCommandList[0].Get();
+	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	com_no = 0;
 	d2varray = NULL;
 	d2varrayI = NULL;
@@ -26,8 +25,7 @@ PolygonData2D::PolygonData2D() {
 
 void PolygonData2D::SetCommandList(int no) {
 	com_no = no;
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[com_no].Get();
-	mCommandList = dx->mCommandList[com_no].Get();
+	mCommandList = dx->dx_sub[com_no].mCommandList.Get();
 }
 
 PolygonData2D::~PolygonData2D() {

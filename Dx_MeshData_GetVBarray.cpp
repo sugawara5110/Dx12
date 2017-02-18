@@ -225,8 +225,7 @@ unsigned __stdcall GetVB35(void *){
 
 MeshData::MeshData() {
 	dx = Dx12Process::GetInstance();
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[0].Get();
-	mCommandList = dx->mCommandList[0].Get();
+	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }
@@ -239,8 +238,7 @@ MeshData::~MeshData() {
 
 void MeshData::SetCommandList(int no) {
 	com_no = no;
-	mDirectCmdListAlloc = dx->mDirectCmdListAlloc[com_no].Get();
-	mCommandList = dx->mCommandList[com_no].Get();
+	mCommandList = dx->dx_sub[com_no].mCommandList.Get();
 }
 
 ID3D12PipelineState *MeshData::GetPipelineState() {

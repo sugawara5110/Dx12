@@ -45,6 +45,7 @@
 //前方宣言
 template<typename T>
 class UploadBuffer;
+class Dx12Process;
 class MeshData;
 class PolygonData;
 class PolygonData2D;
@@ -52,6 +53,25 @@ class ParticleData;
 class SkinMesh;
 class DxText;
 //前方宣言
+
+class Dx12Process_sub {
+
+private:
+	friend Dx12Process;
+	friend MeshData;
+	friend PolygonData;
+	friend PolygonData2D;
+	friend ParticleData;
+	friend SkinMesh;
+
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCmdListAlloc[2];
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
+	int mAloc_Num = 0;
+
+	void ListCreate();
+	void Bigin();
+	void End();
+};
 
 class Dx12Process {
 
@@ -61,6 +81,7 @@ private:
 	friend PolygonData2D;
 	friend ParticleData;
 	friend SkinMesh;
+	friend Dx12Process_sub;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
 	Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
@@ -73,8 +94,8 @@ private:
 	UINT m4xMsaaQuality = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc[COM_NO];
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList[COM_NO];
+	volatile bool   CommandQueueAcc = false;
+	Dx12Process_sub dx_sub[COM_NO];
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer = 0;
@@ -199,6 +220,7 @@ private:
 
 	void MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
+	void WaitFence(int fence);
 
 public:
 	static void InstanceCreate();
@@ -208,9 +230,10 @@ public:
 	void TextureBinaryDecodeAll();
 	void GetTexture();
 	void Sclear();
-	void Bigin(int com_no, ID3D12PipelineState *pso);
+	void Bigin(int com_no);
 	void End(int com_no);
-	void FlushCommandQueue();
+	void WaitFenceCurrent();
+	void WaitFencePast();
 	void DrawScreen();
 	void Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2);
 	void ResetPointLight();
@@ -371,7 +394,6 @@ class MeshData {
 
 private:
 	Dx12Process                *dx;
-	ID3D12CommandAllocator     *mDirectCmdListAlloc;
 	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
@@ -486,7 +508,6 @@ class PolygonData {
 private:
 	//ポインタで受け取る
 	Dx12Process *dx;
-	ID3D12CommandAllocator     *mDirectCmdListAlloc;
 	ID3D12GraphicsCommandList  *mCommandList;   
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
@@ -566,7 +587,6 @@ private:
 	friend DxText;
 
 	Dx12Process                *dx;
-	ID3D12CommandAllocator     *mDirectCmdListAlloc;
 	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
@@ -639,7 +659,6 @@ class ParticleData {
 
 private:
 	Dx12Process                *dx;
-	ID3D12CommandAllocator     *mDirectCmdListAlloc;
 	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *gsSO;
@@ -730,6 +749,9 @@ private:
 class SkinMesh {
 
 private:
+	//InitFBX排他処理用
+	static volatile bool stInitFBX_ON;
+
 	Dx12Process                *dx;
 	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;

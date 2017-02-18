@@ -17,6 +17,46 @@
 
 using Microsoft::WRL::ComPtr;
 
+void Dx12Process_sub::ListCreate() {
+	for (int i = 0; i < 2; i++) {
+		//コマンドアロケータ生成(コマンドリストに積むバッファを確保するObj)
+		if (FAILED(Dx12Process::dx->md3dDevice->CreateCommandAllocator(
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			IID_PPV_ARGS(mCmdListAlloc[i].GetAddressOf()))))FALSE;
+	}
+
+	//コマンドリスト生成
+	if (FAILED(Dx12Process::dx->md3dDevice->CreateCommandList(
+		0,
+		D3D12_COMMAND_LIST_TYPE_DIRECT,
+		mCmdListAlloc[0].Get(),
+		nullptr,
+		IID_PPV_ARGS(mCommandList.GetAddressOf()))))FALSE;
+
+	//最初は閉じた方が良い
+	mCommandList->Close();
+	mCommandList->Reset(mCmdListAlloc[0].Get(), nullptr);
+}
+
+void Dx12Process_sub::Bigin() {
+	mAloc_Num = 1 - mAloc_Num;
+	mCmdListAlloc[mAloc_Num]->Reset();
+	mCommandList->Reset(mCmdListAlloc[mAloc_Num].Get(), nullptr);
+}
+
+void Dx12Process_sub::End() {
+
+	//コマンドクローズ
+	mCommandList->Close();
+
+	while (Dx12Process::dx->CommandQueueAcc);
+	Dx12Process::dx->CommandQueueAcc = true;
+	//クローズ後リストに加える
+	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
+	Dx12Process::dx->mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	Dx12Process::dx->CommandQueueAcc = false;
+}
+
 Dx12Process *Dx12Process::dx = NULL;
 
 void Dx12Process::InstanceCreate() {
@@ -40,7 +80,7 @@ void Dx12Process::DeleteInstance() {
 
 Dx12Process::~Dx12Process() {
 
-	FlushCommandQueue();
+	WaitFenceCurrent();
 
 	for (int i = 0; i < TEX_PCS; i++) {
 		if (binary_ch[i] == NULL)continue;
@@ -53,26 +93,39 @@ Dx12Process::~Dx12Process() {
 	free(binary_size);
 }
 
-void Dx12Process::FlushCommandQueue() {
-	
+void Dx12Process::WaitFence(int fence) {
+
+	while (Dx12Process::dx->CommandQueueAcc);
+	Dx12Process::dx->CommandQueueAcc = true;
 	//インクリメントされたことで描画完了と判断
 	mCurrentFence++;
-	
-	//GPU上で実行されているコマンド完了後、自動的にフェンスにmCurrentFenceを書き込む
+	//GPU上で実行されているコマンド完了後,自動的にフェンスにmCurrentFenceを書き込む
+	//(mFence->GetCompletedValue()で得られる値がmCurrentFenceと同じになる)
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 
 	//ここまででコマンドキューが終了してしまうと
 	//↓のイベントが正しく処理されない可能性有る為↓ifでチェックしている
 	//GetCompletedValue():Fence内部UINT64のカウンタ取得(初期値0)
-	if (mFence->GetCompletedValue() < mCurrentFence)
-	{
+	//コマンドアロケータをダブルバッファにしているのでFence値1つ手前までのGPU処理が未完の場合のみ待ち処理を行う
+	if (mFence->GetCompletedValue() < mCurrentFence - fence) {
+
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-		//このFenceにおいて、mCurrentFence の値になったらイベントを発火させる
+		//このFenceにおいて,mCurrentFence の値になったらイベントを発火させる
+		//↑上記のif文が無いと既にmCurrentFenceと同値になってしまう事もあるのでその際は↓WaitForSingleObjectで停止したままになる
 		mFence->SetEventOnCompletion(mCurrentFence, eventHandle);
-		//イベントが発火するまで待つ(GPUの処理待ち)
+		//イベントが発火するまで待つ(GPUの処理待ち)これによりGPU上の全コマンド実行終了まで待たせる事が出来る
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
+	Dx12Process::dx->CommandQueueAcc = false;
+}
+
+void Dx12Process::WaitFenceCurrent() {
+	WaitFence(0);
+}
+
+void Dx12Process::WaitFencePast() {
+	WaitFence(1);
 }
 
 void Dx12Process::CreateShaderByteCode() {
@@ -280,9 +333,11 @@ void Dx12Process::GetTexture() {
 	Microsoft::WRL::ComPtr<ID3D12Resource> t = nullptr;
 
 	char str[50];
-	dx->Bigin(0, nullptr);
+	
 	for (int i = 0; i < TEX_PCS; i++) {
 		if (binary_size[i] == 0)continue;
+
+		Bigin(0);
 
 		if (FAILED(DirectX::LoadWICTextureFromMemory(md3dDevice.Get(),
 			(uint8_t*)binary_ch[i], binary_size[i], &t, decodedData, subresource))) {
@@ -335,16 +390,18 @@ void Dx12Process::GetTexture() {
 		BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		mCommandList[0]->ResourceBarrier(1, &BarrierDesc);
+		dx_sub[0].mCommandList->ResourceBarrier(1, &BarrierDesc);
 
-		UpdateSubresources(mCommandList[0].Get(), texture[i], textureUp[i], 0, 0, 1, &subresource);
+		UpdateSubresources(dx_sub[0].mCommandList.Get(), texture[i], textureUp[i], 0, 0, 1, &subresource);
 
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-		mCommandList[0]->ResourceBarrier(1, &BarrierDesc);
+		dx_sub[0].mCommandList->ResourceBarrier(1, &BarrierDesc);
+
+		End(0);
+		//ループ内でコマンドリストを使用しているので1ループ毎に待たせる
+		WaitFenceCurrent();
 	}
-	dx->End(0);
-	dx->FlushCommandQueue();
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {
@@ -413,22 +470,8 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	if (FAILED(md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue))))FALSE;
 
 	for (int i = 0; i < COM_NO; i++) {
-		//コマンドアロケータ生成(コマンドリストに積むバッファを確保するObj)
-		if (FAILED(md3dDevice->CreateCommandAllocator(
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			IID_PPV_ARGS(mDirectCmdListAlloc[i].GetAddressOf()))))FALSE;
-
-		//コマンドリスト生成
-		if (FAILED(md3dDevice->CreateCommandList(
-			0,
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			mDirectCmdListAlloc[i].Get(),
-			nullptr,
-			IID_PPV_ARGS(mCommandList[i].GetAddressOf()))))FALSE;
-
-		//最初は閉じた方が良い
-		mCommandList[i]->Close();
-		mCommandList[i]->Reset(mDirectCmdListAlloc[i].Get(), nullptr);
+		//コマンドアロケータ,コマンドリスト生成
+		dx_sub[i].ListCreate();
 	}
 	//初期化
 	mSwapChain.Reset();
@@ -520,7 +563,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	md3dDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDsvHeapHeapHandle);
 
 	//深度ステンシルバッファ,リソースバリア共有→深度書き込み
-	mCommandList[0]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	dx_sub[0].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 	//ビューポート
@@ -550,11 +593,11 @@ bool Dx12Process::Initialize(HWND hWnd) {
 
 	//クローズしてからキューに積む(コマンドリストは全部積む、そうしないとエラーが出る)
 	for (int i = 0; i < COM_NO; i++) {
-		mCommandList[i]->Close();
-		ID3D12CommandList* cmdsLists[] = { mCommandList[i].Get() };
+		dx_sub[i].mCommandList->Close();
+		ID3D12CommandList* cmdsLists[] = { dx_sub[i].mCommandList.Get() };
 		mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	}
-	FlushCommandQueue();
+	WaitFenceCurrent();
 	//ポイントライト構造体初期化
 	ResetPointLight();
 
@@ -584,54 +627,45 @@ bool Dx12Process::Initialize(HWND hWnd) {
 
 void Dx12Process::Sclear() {
 
-	mDirectCmdListAlloc[0]->Reset();
-	mCommandList[0]->Reset(mDirectCmdListAlloc[0].Get(), nullptr);
+	dx_sub[0].Bigin();
 
-	mCommandList[0]->RSSetViewports(1, &mScreenViewport);
-	mCommandList[0]->RSSetScissorRects(1, &mScissorRect);
+	dx_sub[0].mCommandList->RSSetViewports(1, &mScreenViewport);
+	dx_sub[0].mCommandList->RSSetScissorRects(1, &mScissorRect);
 
-	mCommandList[0]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
+	dx_sub[0].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	mCommandList[0]->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
+	dx_sub[0].mCommandList->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
 		mRtvDescriptorSize), DirectX::Colors::Black, 0, nullptr);
-	mCommandList[0]->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
+	dx_sub[0].mCommandList->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	mCommandList[0]->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
+	dx_sub[0].mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
 		mRtvDescriptorSize), true, &mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
-	mCommandList[0]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
+	dx_sub[0].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-	mCommandList[0]->Close();
-
-	ID3D12CommandList* cmdsLists[] = { mCommandList[0].Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	dx_sub[0].End();
 }
 
-void Dx12Process::Bigin(int com_no, ID3D12PipelineState *pso) {
-	mDirectCmdListAlloc[com_no]->Reset();
-	mCommandList[com_no]->Reset(mDirectCmdListAlloc[com_no].Get(), pso);
+void Dx12Process::Bigin(int com_no) {
+	dx_sub[com_no].Bigin();
 }
 
 void Dx12Process::End(int com_no) {
-	//コマンドクローズ
-	mCommandList[com_no]->Close();
-	//クローズ後リストに加える
-	ID3D12CommandList* cmdsLists[] = { mCommandList[com_no].Get() };
-	dx->mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	dx_sub[com_no].End();
 }
 
 void Dx12Process::DrawScreen() {
 	// swap the back and front buffers
 	mSwapChain->Present(0, 0);
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
-	FlushCommandQueue();
+	WaitFencePast();
 }
 
 void Dx12Process::Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2) {
