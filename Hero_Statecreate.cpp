@@ -26,12 +26,50 @@ void Hero::P_DataInput(P_Data *p_dat){
 	p_data.Rpoint = p_dat->Rpoint;
 }
 
+void Hero::CreateTorchFlame() {
+	//左前
+	torchFlame->SetVertex(0, 0,
+		-15.0f, 0.0f, 15.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f);
+
+	//右前
+	torchFlame->SetVertex(1, 4, 1,
+		15.0f, 0.0f, 15.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f);
+
+	//左奥
+	torchFlame->SetVertex(2, 3, 2,
+		-15.0f, 0.0f, -15.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f);
+
+	//右奥
+	torchFlame->SetVertex(5, 3,
+		15.0f, 0.0f, -15.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f);
+}
+
+void Hero::TorchSwitch(bool f) {
+	torchOn = f;
+	if (!torchOn)dx->PointLightPosSet(0, 0, 0, 0, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, FALSE);
+}
+
 Hero::Hero(int no) {
 
 	o_no = no;
 	effect_f = FALSE;
 	tx = ty = 0.0f;
 	tt = 0;
+	torchWood = NULL;
+	torchFlame = NULL;
+	torchOn = TRUE;
 
 	p_att = NULL;
 	attOn = attFin = FALSE;
@@ -75,6 +113,21 @@ Hero::Hero(int no) {
 		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 2, frameMaxWalk);
 		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 3);
 		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 3, frameMaxWait);
+		torchWood = new SkinMesh();
+		torchWood->SetCommandList(HERO_COM);
+		torchWood->SetState(TRUE, TRUE);
+		torchWood->Vertex_hold();
+		torchWood->CreateFromFBX("./dat/mesh/player_walk/player1_FBX_torch.fbx", frameMaxAtt);//0番にはアニメーション入っていない
+		torchWood->ObjCentering(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 2);
+		torchWood->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 2, frameMaxWalk);
+		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 3);
+		torchWood->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 3, frameMaxWait);
+		torchFlame = new PolygonData();
+		torchFlame->SetCommandList(HERO_COM);
+		torchFlame->GetVBarray(SQUARE, 1);
+		CreateTorchFlame();
+		torchFlame->TextureInit(128, 128);
+		torchFlame->Create(FALSE, -1, TRUE, TRUE);
 	}
 
 	state.SetCommandList(HERO_COM);
@@ -304,6 +357,8 @@ bool Hero::Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, P
 }
 
 Hero::~Hero(){
+	S_DELETE(torchWood);
+	S_DELETE(torchFlame);
 	S_DELETE(p_att);
 }
 

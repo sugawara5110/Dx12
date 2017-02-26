@@ -92,12 +92,11 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		og = 0.0f;
 		ob = 0.0f;
 	}
+	if (map_no == 3)mainlight = FALSE;
 
 	//戦闘時,非戦闘時のディレクショナルライト
 	float btr = 1.0f;
 	if (encount != NOENCOUNT)btr = 2.0f;
-	//視点ライト(無い方が雰囲気出る・・)
-	//dx->PointLightPosSet(0, cax1, cay1, (float)posz * 100.0f + 70.0f + elevator_step, 1.0f, 1.0f, 1.0f, 1.0f, 150.0f, 15.0f, 2.01f, mainlight);
 	//平行光源off
 	dx->SetDirectionLight(TRUE);
 	//フォグoff
@@ -213,6 +212,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		break;
 	}
 
+	he->TorchSwitch(mainlight);
 	if (encount == NOENCOUNT && ending == FALSE)HeroDraw(Move_f);//Mov関数からフラグもらうようにする
 
 	MapText(m_tx);

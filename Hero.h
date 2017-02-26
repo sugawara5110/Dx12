@@ -24,6 +24,9 @@ protected:
 	SkinMesh *p_att;        //アタックアニメーション用
 	bool attOn, attFin;    //attアニメーション中
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
+	SkinMesh *torchWood;
+	PolygonData *torchFlame;
+	bool torchOn;
 
 	PolygonData2D state, meter;
 	PolygonData mag, effect[4];
@@ -41,6 +44,7 @@ protected:
 	bool Statecreate_clr_f;
 	float Statecreate_r;
 
+	void CreateTorchFlame();
 	void Statecreate(bool command_run);
 	void Metercreate(float me);
 	void Magiccreate();
@@ -50,6 +54,7 @@ public:
 	Hero();
 	Hero(int no);
 	void P_DataInput(P_Data *p_dat);
+	void TorchSwitch(bool f);
 	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta);
 	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, bool walkOn);//walkOnはMapクラスから操作
 	Act_fin_flg Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun);

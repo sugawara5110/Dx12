@@ -777,6 +777,8 @@ private:
 	DWORD *m_pdwNumVert;//メッシュ毎の頂点数
 	DWORD VerAllpcs;    //全頂点数
 	DWORD MateAllpcs;  //全マテリアル数
+	MY_VERTEX_S *pvVB;//使用後保持するか破棄するかフラグで決める,通常は破棄
+	bool pvVB_delete_f;
 	MY_MATERIAL_S *m_pMaterial;
 
 	//ボーン
@@ -817,10 +819,12 @@ public:
 	void ObjCentering(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind);
 	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind);
 	void SetConnectStep(int ind, float step);
+	void Vertex_hold();
 	HRESULT CreateFromFBX(CHAR* szFileName, float end_frame);
 	HRESULT CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float end_frame);
 	bool Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 	bool Draw(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX);
 };
 
 //エラーメッセージ

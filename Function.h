@@ -101,6 +101,7 @@ bool MatrixInverse(MATRIX *invm, MATRIX *m);
 void MatrixViewPort(MATRIX *mat);
 //ê≥ãKâª
 void Normalize(float *x, float *y, float *z, float *w);
+//ê≥ãKâª
 void VectorNormalize(VECTOR3 *out, VECTOR3 *in);
 //äOêœ
 void VectorCross(VECTOR3 *out, VECTOR3 *in1, VECTOR3 *in2);

@@ -47,10 +47,12 @@ SkinMesh::SkinMesh() {
 	m_ppSubAnimationBone = NULL;
 	AnimLastInd = -1;
 	BoneConnect = -1.0f;
+	pvVB_delete_f = TRUE;
+	pvVB = NULL;
 }
 
 SkinMesh::~SkinMesh() {
-	
+	ARR_DELETE(pvVB);
 	ARR_DELETE(m_ppSubAnimationBone);
 	ARR_DELETE(m_pLastBoneMatrix);
 	ARR_DELETE(m_pdwNumVert);
@@ -257,6 +259,10 @@ void SkinMesh::SetConnectStep(int ind, float step) {
 	fbx[ind].connect_step = step;
 }
 
+void SkinMesh::Vertex_hold() {
+	pvVB_delete_f = FALSE;
+}
+
 HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	//FBXローダーを初期化
 	if (FAILED(InitFBX(szFileName, 0)))
@@ -392,8 +398,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	//IBO マテリアル毎に生成する
 	Iview = std::make_unique<IndexView[]>(MateAllpcs);
 
-	//一時的なメモリ確保
-	MY_VERTEX_S *pvVB = new MY_VERTEX_S[VerAllpcs];//頂点バッファはそのままの数で確保,不要な頂点が存在してもIndexでアクセスするので問題無し
+	pvVB = new MY_VERTEX_S[VerAllpcs];//頂点バッファはそのままの数で確保,不要な頂点が存在してもIndexでアクセスするので問題無し
 
 	//メッシュ毎に配列格納処理
 	mInd = 0;//マテリアル内カウント
@@ -583,7 +588,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	ARR_DELETE(IndexCount34Me);
 	ARR_DELETE(IndexCount3M);
 	ARR_DELETE(pdwNumFace);
-	ARR_DELETE(pvVB);
+	if (pvVB_delete_f)ARR_DELETE(pvVB);
 
 	//パイプラインステートオブジェクト生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
@@ -770,7 +775,35 @@ MATRIX SkinMesh::GetCurrentPoseMatrix(int index) {
 	MATRIX ret;
 	MatrixIdentity(&ret);
 	MatrixMultiply(&ret, &inv, &m_BoneArray[index].mNewPose);//バインドポーズの逆行列とフレーム姿勢行列をかける
-	
+
+	return ret;
+}
+
+VECTOR3 SkinMesh::GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX) {
+
+	//頂点にボーン行列を掛け出力
+	VECTOR3 ret, pos;
+	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
+	MatrixRotationZ(&rotZ, thetaZ);
+	MatrixRotationY(&rotY, thetaY);
+	MatrixRotationX(&rotX, thetaX);
+	MatrixMultiply(&rotZY, &rotZ, &rotY);
+	MatrixMultiply(&rotZYX, &rotZY, &rotX);
+
+	ret.x = ret.y = ret.z = 0.0f;
+	pos.x = pvVB[verNum].vPos.x;
+	pos.y = pvVB[verNum].vPos.y;
+	pos.z = pvVB[verNum].vPos.z;
+	for (int i = 0; i < 4; i++) {
+		MATRIX m = GetCurrentPoseMatrix(pvVB[verNum].bBoneIndex[i]);
+		VectorMatrixMultiply(&pos, &m);
+		VectorMultiply(&pos, pvVB[verNum].bBoneWeight[i]);
+		VectorAddition(&ret, &ret, &pos);
+	}
+	ret.x += adjustX;
+	ret.y += adjustY;
+	ret.z += adjustZ;
+	VectorMatrixMultiply(&ret, &rotZYX);
 	return ret;
 }
 
@@ -833,6 +866,8 @@ int SkinMesh::GetTexNomber(CHAR *fileName) {
 	if (!strcmp(fileName, "jeans01_black_diffuse.png") || !strcmp(fileName, "jeans01_black_diffuse_png"))return 94;
 	if (!strcmp(fileName, "male01_diffuse_black.png") || !strcmp(fileName, "male01_diffuse_black_png"))return 95;
 	if (!strcmp(fileName, "young_lightskinned_male_diffuse.png") || !strcmp(fileName, "young_lightskinned_male_diffuse_png"))return 96;
+	if (!strcmp(fileName, "wood.jpeg") || !strcmp(fileName, "wood_jpeg"))return 10;
+
 	//プレイヤー2
 	if (!strcmp(fileName, "brown_eye.png") || !strcmp(fileName, "brown_eye_png"))return 100;
 	if (!strcmp(fileName, "diffuse_black.png") || !strcmp(fileName, "diffuse_black_png"))return 101;
