@@ -779,22 +779,25 @@ MATRIX SkinMesh::GetCurrentPoseMatrix(int index) {
 	return ret;
 }
 
-VECTOR3 SkinMesh::GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX) {
+VECTOR3 SkinMesh::GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scal) {
 
 	//頂点にボーン行列を掛け出力
 	VECTOR3 ret, pos;
 	MATRIX rotZ, rotY, rotX, rotZY, rotZYX;
+	MATRIX scale, scaro;
+	MatrixScaling(&scale, scal, scal, scal);
 	MatrixRotationZ(&rotZ, thetaZ);
 	MatrixRotationY(&rotY, thetaY);
 	MatrixRotationX(&rotX, thetaX);
 	MatrixMultiply(&rotZY, &rotZ, &rotY);
 	MatrixMultiply(&rotZYX, &rotZY, &rotX);
-
+	MatrixMultiply(&scaro, &scale, &rotZYX);
 	ret.x = ret.y = ret.z = 0.0f;
-	pos.x = pvVB[verNum].vPos.x;
-	pos.y = pvVB[verNum].vPos.y;
-	pos.z = pvVB[verNum].vPos.z;
+
 	for (int i = 0; i < 4; i++) {
+		pos.x = pvVB[verNum].vPos.x;
+		pos.y = pvVB[verNum].vPos.y;
+		pos.z = pvVB[verNum].vPos.z;
 		MATRIX m = GetCurrentPoseMatrix(pvVB[verNum].bBoneIndex[i]);
 		VectorMatrixMultiply(&pos, &m);
 		VectorMultiply(&pos, pvVB[verNum].bBoneWeight[i]);
@@ -803,7 +806,7 @@ VECTOR3 SkinMesh::GetVertexPosition(int verNum, float adjustZ, float adjustY, fl
 	ret.x += adjustX;
 	ret.y += adjustY;
 	ret.z += adjustZ;
-	VectorMatrixMultiply(&ret, &rotZYX);
+	VectorMatrixMultiply(&ret, &scaro);
 	return ret;
 }
 

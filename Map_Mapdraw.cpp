@@ -92,7 +92,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		og = 0.0f;
 		ob = 0.0f;
 	}
-	if (map_no == 3)mainlight = FALSE;
+	if (map_no == 3 || encount != NOENCOUNT)mainlight = FALSE;
 
 	//戦闘時,非戦闘時のディレクショナルライト
 	float btr = 1.0f;

@@ -824,7 +824,7 @@ public:
 	HRESULT CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float end_frame);
 	bool Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 	bool Draw(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
-	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX);
+	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scale);
 };
 
 //エラーメッセージ

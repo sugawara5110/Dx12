@@ -30,7 +30,7 @@ void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, flo
 	p_att->Draw(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	if (torchOn) {
 		torchWood->Draw(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
-		v3 = torchWood->GetVertexPosition(6, 13.0f, -11.0f, -3.0f, theta, 0, 0);
+		v3 = torchWood->GetVertexPosition(6, 2.0f, -3.0f, -2.0f, theta, 0, 0, 2.0f);
 		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
 		dx->PointLightPosSet(0, v3.x + x, v3.y + y, v3.z + z, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, TRUE);
 		torchFlame->Draw(v3.x + x, v3.y + y, v3.z + z, r, g, b, theta, 0.0f);
