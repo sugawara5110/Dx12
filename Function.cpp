@@ -300,7 +300,7 @@ void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t) {
 	}
 }
 
-void Bdecode(char *bpass, char **binary, int *size){
+void Bdecode(char *bpass, char **binary, int *size) {
 	//暗号化時コード↓
 	/*
 	FILE *fp;
@@ -395,7 +395,7 @@ void Bdecode(char *bpass, char **binary, int *size){
 	//復号コード↓
 	FILE *fp = fopen(bpass, "rb");
 
-	while (!feof(fp)){
+	while (!feof(fp)) {
 		(*size)++; fgetc(fp);
 	}
 	(*size)++;//終端文字も含んだ個数
@@ -405,10 +405,10 @@ void Bdecode(char *bpass, char **binary, int *size){
 
 	(*binary) = (char*)malloc(sizeof(char) * (*size));
 
-	for (int i = 99; i >= 0; i--){
+	for (int i = 99; i >= 0; i--) {
 		(*binary)[i] = fgetc(fp);
 	}
-	for (int i = 100; i < (*size); i++){
+	for (int i = 100; i < (*size); i++) {
 		(*binary)[i] = fgetc(fp);
 	}
 

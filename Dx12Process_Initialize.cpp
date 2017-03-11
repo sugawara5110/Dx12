@@ -333,11 +333,11 @@ void Dx12Process::GetTexture() {
 	Microsoft::WRL::ComPtr<ID3D12Resource> t = nullptr;
 
 	char str[50];
-	
+	const int COM = 2;
+
+	Bigin(COM);
 	for (int i = 0; i < TEX_PCS; i++) {
 		if (binary_size[i] == 0)continue;
-
-		Bigin(0);
 
 		if (FAILED(DirectX::LoadWICTextureFromMemory(md3dDevice.Get(),
 			(uint8_t*)binary_ch[i], binary_size[i], &t, decodedData, subresource))) {
@@ -390,18 +390,16 @@ void Dx12Process::GetTexture() {
 		BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		dx_sub[0].mCommandList->ResourceBarrier(1, &BarrierDesc);
+		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
 
-		UpdateSubresources(dx_sub[0].mCommandList.Get(), texture[i], textureUp[i], 0, 0, 1, &subresource);
+		UpdateSubresources(dx_sub[COM].mCommandList.Get(), texture[i], textureUp[i], 0, 0, 1, &subresource);
 
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-		dx_sub[0].mCommandList->ResourceBarrier(1, &BarrierDesc);
-
-		End(0);
-		//ループ内でコマンドリストを使用しているので1ループ毎に待たせる
-		WaitFenceCurrent();
+		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
 	}
+	End(COM);
+	WaitFenceCurrent();
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {

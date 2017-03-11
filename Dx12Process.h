@@ -750,7 +750,7 @@ class SkinMesh {
 
 private:
 	//InitFBXîrëºèàóùóp
-	static volatile bool stInitFBX_ON;
+	static volatile bool stInitFBX_ON, stSetNewPose_ON;
 
 	Dx12Process                *dx;
 	ID3D12GraphicsCommandList  *mCommandList;

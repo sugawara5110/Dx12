@@ -16,6 +16,7 @@
 using namespace std;
 
 volatile bool SkinMesh::stInitFBX_ON = FALSE;
+volatile bool SkinMesh::stSetNewPose_ON = FALSE;
 
 SkinMesh_sub::SkinMesh_sub() {
 	m_pSdkManager = FbxManager::Create();
@@ -164,7 +165,7 @@ HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
 	static bool f = FALSE;
 
-	while (stInitFBX_ON);
+	while (stSetNewPose_ON);
 	stInitFBX_ON = TRUE;
 	f = fbx[p].Create(szFileName);
 	stInitFBX_ON = FALSE;
@@ -677,7 +678,8 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 //ボーンを次のポーズ位置にセットする
 bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 
-	stInitFBX_ON = TRUE;
+	while (stInitFBX_ON);
+	stSetNewPose_ON = TRUE;
 	if (AnimLastInd == -1)AnimLastInd = ind;//最初に描画するアニメーション番号で初期化
 
 	bool ind_change = FALSE;
@@ -763,7 +765,7 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 		}
 		if (BoneConnect >= 1.0f)BoneConnect = -1.0f;
 	}
-	stInitFBX_ON = FALSE;
+	stSetNewPose_ON = FALSE;
 	return frame_end;
 }
 
