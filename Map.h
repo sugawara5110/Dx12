@@ -124,7 +124,25 @@ private:
 	void MapText(TCHAR str[30]);
 	bool ViewCulling(float obj_x, float obj_y, float obj_z);
 	void HeroDraw(bool mf);
+	bool CollisionDetection(float in_y, float in_x, Directionkey dir);
 
+	//ŽlŽÌŒÜ“ü
+	int rounding(int val, int digit_number) {
+		int v = 5 * (int)pow(10.0, (double)digit_number - 1.0);
+		val += v;
+		return val -= (val % (int)pow(10.0, (double)digit_number));
+	}
+	//downNumØ‚è‰º‚°
+	//upNumØ‚èã‚°
+	int rounding2(int val, int digit_num, int downNum, int upNum) {
+		int d = (int)pow(10.0, (double)digit_num - 1.0);
+		int valT = val / d;
+		int valT2 = valT / 10;
+		if ((valT % 10) >= upNum)return (valT2 + 1) * d * 10;
+		if ((valT % 10) <= downNum)return (valT2 - 1) * d * 10;
+		return val;
+	}
+	
 public:
 	static int GetMapNo();
 	static void SetMapNo(int no);

@@ -15,9 +15,6 @@
 class InstanceCreate{
 
 private:
-	//プレイヤーオブジェクト生成
-	static HANDLE *hero_loading_h;
-
 	//初期リソース読み込み
 	static HANDLE *resource_loading_h;
 
@@ -41,21 +38,18 @@ private:
 	InstanceCreate(){};//インスタンス生成無
 
 public:
-	static void CreateThread_H();
 	static void CreateThread_R();
 	static void CreateThread_B();
 	static void CreateThread_M();
 
-	static void DeleteThread_H();
 	static void DeleteThread_R();
 	static void DeleteThread_B();
 	static void DeleteThread_M();
 
 	static void HeroCreate();
-	static Hero *HeroCreate_f();
 
 	static void ResourceLoad();
-	static bool Resource_load_f();
+	static Hero *Resource_load_f();
 
 	static HANDLE *GetHANDLE_B();
 	static void SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
@@ -78,7 +72,6 @@ public:
 
 #endif
 
-unsigned __stdcall HeroLoading(void *);
 unsigned __stdcall ResourceLoading(void *);
 unsigned __stdcall InstanceLoadingBattle(void *);
 unsigned __stdcall InstanceLoadingMap(void *);

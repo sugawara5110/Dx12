@@ -6,8 +6,6 @@
 
 #include "InstanceCreate.h"
 
-HANDLE *InstanceCreate::hero_loading_h = NULL;
-
 HANDLE *InstanceCreate::resource_loading_h = NULL;
 
 HANDLE *InstanceCreate::battle_loading_h = NULL;
@@ -25,10 +23,6 @@ Map *InstanceCreate::map_t = NULL;
 
 Hero *InstanceCreate::he = NULL;
 
-void InstanceCreate::CreateThread_H(){
-	hero_loading_h = (HANDLE*)_beginthreadex(NULL, 0, HeroLoading, NULL, 0, NULL);
-}
-
 void InstanceCreate::CreateThread_R(){
 	resource_loading_h = (HANDLE*)_beginthreadex(NULL, 0, ResourceLoading, NULL, 0, NULL);
 }
@@ -41,17 +35,10 @@ void InstanceCreate::CreateThread_M(){
 	map_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingMap, NULL, 0, NULL);
 }
 
-void InstanceCreate::DeleteThread_H(){
-	WaitForSingleObject(hero_loading_h, INFINITE);//スレッドが終了するまで待つ
-	CloseHandle(hero_loading_h);                 //ハンドルを閉じる
-	hero_loading_h = NULL;
-}
-
 void InstanceCreate::DeleteThread_R() {
 	WaitForSingleObject(resource_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(resource_loading_h);                 //ハンドルを閉じる
 	resource_loading_h = NULL;
-	Dx12Process::GetInstance()->GetTexture();
 }
 
 void InstanceCreate::DeleteThread_B(){
@@ -74,23 +61,16 @@ void InstanceCreate::HeroCreate() {
 	Dx12Process::GetInstance()->End(HERO_COM);
 }
 
-Hero *InstanceCreate::HeroCreate_f(){
-	DWORD th_end;
-	GetExitCodeThread(hero_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return NULL;
-	return he;
-}
-
 void InstanceCreate::ResourceLoad(){
 	Dx12Process::GetInstance()->TextureBinaryDecodeAll();
 	MovieSoundManager::ObjInit();
 }
 
-bool InstanceCreate::Resource_load_f(){
+Hero *InstanceCreate::Resource_load_f() {
 	DWORD th_end;
 	GetExitCodeThread(resource_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return FALSE;
-	return TRUE;
+	if (th_end == STILL_ACTIVE)return NULL;
+	return he;
 }
 
 HANDLE *InstanceCreate::GetHANDLE_B(){
@@ -201,13 +181,10 @@ bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no){
 	return TRUE;
 }
 
-unsigned __stdcall HeroLoading(void *){
-	InstanceCreate::HeroCreate();
-	return 0;
-}
-
 unsigned __stdcall ResourceLoading(void *){
 	InstanceCreate::ResourceLoad();
+	Dx12Process::GetInstance()->GetTexture();
+	InstanceCreate::HeroCreate();
 	return 0;
 }
 

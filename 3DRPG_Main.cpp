@@ -60,8 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	InstanceCreate::CreateThread_R();
 	double i = 300.0;
 	bool down = TRUE;
-	bool res_f = FALSE;
-	bool Thread_H_st_f = FALSE;
+	
 	try {
 		while (1) {
 			if (!DispatchMSG(&msg)) {
@@ -69,17 +68,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				return -1;	//ƒAƒvƒŠI—¹
 			}
 
-			if (hero == NULL)hero = InstanceCreate::HeroCreate_f();
-			if (!res_f)res_f = InstanceCreate::Resource_load_f();
-			if (res_f && !Thread_H_st_f) {
+			if (hero == NULL)hero = InstanceCreate::Resource_load_f();
+			else {
 				InstanceCreate::DeleteThread_R();
-				InstanceCreate::CreateThread_H();
-				Thread_H_st_f = TRUE;
-			}
-			if (res_f && hero != NULL) {
-				InstanceCreate::DeleteThread_H();
 				break;
 			}
+
 			dx->Sclear();
 			DxText::GetInstance()->BiginDraw();
 			DxText::GetInstance()->UpDateText(L"‚m‚‚—‚k‚‚‚„‚‰‚‚‡", 215.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
