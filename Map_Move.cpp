@@ -38,8 +38,8 @@ bool Map::MoveDownCond(int Ind){
 }
 
 bool Map::CollisionDetection(float in_y, float in_x, Directionkey dir) {
-	int indY = (int)in_y * 0.01f;
-	int indX = (int)in_x * 0.01f;
+	int indY = (int)(in_y * 0.01f);
+	int indX = (int)(in_x * 0.01f);
 
 	for (int y = -1; y < 2; y++) {
 		for (int x = -1; x < 2; x++) {

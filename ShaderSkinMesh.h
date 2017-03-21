@@ -169,7 +169,7 @@ char *ShaderSkinMesh =
 "        if (g_Lightst[i].w == 1.0f && distance < g_Lightst[i].x * 3){\n"
 
 //ライト方向正規化
-"           float3 L = normalize(abs(g_LightPos[i].xyz - input.wPos.xyz));\n"
+"           float3 L = normalize(g_LightPos[i].xyz - input.wPos.xyz);\n"
 
 //デフォルト減衰率
 "            float attenuation = 2.0f;\n"

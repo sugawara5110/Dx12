@@ -240,7 +240,7 @@ char *ShaderDisp =
 "   float4 texheight = g_texColor.SampleLevel(g_samLinear, uv, 0);\n"
 "   float4 height = texheight * g_DispAmount.x;\n"
 "   float hei = (height.x + height.y + height.z) / 3;\n"
-//画像から法線ベクトル生成
+//画像から法線計算用ベクトル生成
 "   float4 nor = texheight * 2 - 1;\n"//-1.0～1.0にする為
 //pos座標計算
 "   float3 top_pos = lerp(patchL[0].Pos, patchL[1].Pos, UV.x);\n"
@@ -248,47 +248,9 @@ char *ShaderDisp =
 "   output.Pos = float4(lerp(top_pos, bottom_pos, UV.y), 1);\n"
 //ローカル法線の方向にhei分頂点移動
 "   output.Pos.xyz += hei * patchL[0].Nor;\n"
-//ローカル法線の絶対値が大きい方向に法線ベクトル変換
+//画像から生成したベクトルにローカル法線を掛け法線ベクトルとする
 "   float3 nor1;\n"
-"   float absNx = abs(patchL[0].Nor.x);\n"
-"   float absNy = abs(patchL[0].Nor.y);\n"
-"   float absNz = abs(patchL[0].Nor.z);\n"
-"   if(absNx >= absNy && absNx >= absNz){\n"
-"     if (patchL[0].Nor.x < 0){\n"
-"        nor1.x = -nor.y;\n"
-"        nor1.y =  nor.x;\n"
-"        nor1.z =  nor.z;\n"
-"     }\n"
-"     if (patchL[0].Nor.x >= 0){\n"
-"        nor1.x =  nor.y;\n"
-"        nor1.y = -nor.x;\n"
-"        nor1.z =  nor.z;\n"
-"     }\n"
-"   }\n"
-"   if(absNy >= absNx && absNy >= absNz){\n"
-"     if (patchL[0].Nor.y < 0){\n"
-"        nor1.x = -nor.x;\n"
-"        nor1.y = -nor.y;\n"
-"        nor1.z =  nor.z;\n"
-"     }\n"
-"     if (patchL[0].Nor.y >= 0){\n"
-"        nor1.x =  nor.x;\n"
-"        nor1.y =  nor.y;\n"
-"        nor1.z =  nor.z;\n"
-"     }\n"
-"   }\n"
-"   if(absNz >= absNx && absNz >= absNy){\n"
-"     if (patchL[0].Nor.z < 0){\n"
-"        nor1.x =  nor.x;\n"
-"        nor1.y =  nor.z;\n"
-"        nor1.z = -nor.y;\n"
-"     }\n"
-"     if (patchL[0].Nor.z >= 0){\n"
-"        nor1.x =  nor.x;\n"
-"        nor1.y =  nor.z;\n"
-"        nor1.z =  nor.y;\n"
-"     }\n"
-"   }\n"
+"   nor1 = nor.xyz * patchL[0].Nor;\n"
 "   output.wPos = mul(output.Pos, g_World[patchL[0].instanceID]);\n"
 "   output.Pos = mul(output.Pos, g_WVP[patchL[0].instanceID]);\n"
 
@@ -382,7 +344,7 @@ char *ShaderDisp =
 "        if (g_Lightst[i].w == 1.0f && distance < g_Lightst[i].x * 3){\n"
 
 //ライト方向正規化
-"            float3 L = normalize(abs(g_LightPos[i].xyz - input.wPos.xyz));\n"
+"            float3 L = normalize(g_LightPos[i].xyz - input.wPos.xyz);\n"
 
 //デフォルト減衰率
 "            float attenuation = 2.0f;\n"

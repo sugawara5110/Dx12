@@ -175,49 +175,11 @@ char *ShaderMesh_D =
 "   {\n"
 //ローカル法線の方向にhei分頂点移動
 "      output.Pos.xyz += hei * patch[0].Nor;\n"
-//画像から法線計算
+//画像から法線計算用ベクトル生成
 "      nor = g_texColor.SampleLevel(g_samLinear, uv, 0) * 2 - 1;\n"
-//ローカル法線の絶対値が大きい方向に法線ベクトル変換
+//画像から生成したベクトルにローカル法線を掛け法線ベクトルとする
 "      float3 nor1;\n"
-"      float absNx = abs(patch[0].Nor.x);\n"
-"      float absNy = abs(patch[0].Nor.y);\n"
-"      float absNz = abs(patch[0].Nor.z);\n"
-"      if(absNx >= absNy && absNx >= absNz){\n"
-"        if (patch[0].Nor.x < 0){\n"
-"          nor1.x = -nor.y;\n"
-"          nor1.y =  nor.x;\n"
-"          nor1.z =  nor.z;\n"
-"        }\n"
-"        if (patch[0].Nor.x >= 0){\n"
-"          nor1.x =  nor.y;\n"
-"          nor1.y = -nor.x;\n"
-"          nor1.z =  nor.z;\n"
-"        }\n"
-"      }\n"
-"      if(absNy >= absNx && absNy >= absNz){\n"
-"        if (patch[0].Nor.y < 0){\n"
-"          nor1.x = -nor.x;\n"
-"          nor1.y = -nor.y;\n"
-"          nor1.z =  nor.z;\n"
-"        }\n"
-"        if (patch[0].Nor.y >= 0){\n"
-"          nor1.x =  nor.x;\n"
-"          nor1.y =  nor.y;\n"
-"          nor1.z =  nor.z;\n"
-"        }\n"
-"      }\n"
-"      if(absNz >= absNx && absNz >= absNy){\n"
-"        if (patch[0].Nor.z < 0){\n"
-"          nor1.x =  nor.x;\n"
-"          nor1.y =  nor.z;\n"
-"          nor1.z = -nor.y;\n"
-"        }\n"
-"        if (patch[0].Nor.z >= 0){\n"
-"          nor1.x =  nor.x;\n"
-"          nor1.y =  nor.z;\n"
-"          nor1.z =  nor.y;\n"
-"        }\n"
-"      }\n"
+"      nor1 = nor.xyz * patchL[0].Nor;\n"
 "      nor.xyz = nor1;\n"
 "   }\n"
 
@@ -273,7 +235,7 @@ char *ShaderMesh_D =
 "        if (g_Lightst[i].w == 1.0f && distance < g_Lightst[i].x * 3){\n"
 
 //ライト方向正規化
-"           float3 L = normalize(abs(g_LightPos[i].xyz - input.wPos.xyz));\n"
+"           float3 L = normalize(g_LightPos[i].xyz - input.wPos.xyz);\n"
 
 //デフォルト減衰率
 "            float attenuation = 2.0f;\n"
