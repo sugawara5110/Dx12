@@ -142,22 +142,27 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		en_boss_att->SetCommandList(ENEMY_COM);
 		en_boss_att->SetState(TRUE, TRUE);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
+		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 1);
 		switch (t_no) {
 		case 0:
 			en_boss_att0->GetVBarray("./dat/mesh/boss1att/boss1_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/boss1att/boss1bone.fbx", 600.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss1att/boss1bone_wait.fbx", 1, 200.0f);
 			break;
 		case 1:
 			en_boss_att0->GetVBarray("./dat/mesh/boss2att/boss2_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/boss2att/boss2bone.fbx", 600.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss2att/boss2bone_wait.fbx", 1, 200.0f);
 			break;
 		case 3:
 			en_boss_att0->GetVBarray("./dat/mesh/boss4att/boss4_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/boss4att/boss4bone.fbx", 500.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss4att/boss4bone_wait.fbx", 1, 200.0f);
 			break;
 		case 4:
 			en_boss_att0->GetVBarray("./dat/mesh/lastbossatt/lastboss_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/lastbossatt/lastbossbone.fbx", 500.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/lastbossatt/lastbossbone_wait.fbx", 1, 200.0f);
 			break;
 		}
 		//テクスチャ設定
@@ -285,7 +290,7 @@ bool EnemyBoss::Magiccreate(float x, float y, float z){
 //@Override
 void EnemyBoss::ObjDraw(float x, float y, float z, float r, float g, float b, float theta) {
 	if (attOn)attFin = en_boss_att->Draw(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
-	else en_boss_att0->Draw(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0.1f);
+	else en_boss_att->Draw(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
 }
 
 //@Override

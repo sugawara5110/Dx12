@@ -46,6 +46,7 @@ SkinMesh::SkinMesh() {
 	
 	fbx = new SkinMesh_sub[FBX_PCS];
 	m_ppSubAnimationBone = NULL;
+	m_pClusterName = NULL;
 	AnimLastInd = -1;
 	BoneConnect = -1.0f;
 	pvVB_delete_f = TRUE;
@@ -54,6 +55,7 @@ SkinMesh::SkinMesh() {
 
 SkinMesh::~SkinMesh() {
 	ARR_DELETE(pvVB);
+	ARR_DELETE(m_pClusterName);
 	ARR_DELETE(m_ppSubAnimationBone);
 	ARR_DELETE(m_pLastBoneMatrix);
 	ARR_DELETE(m_pdwNumVert);
@@ -189,8 +191,11 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 	FbxSkin *pSkinInfo = static_cast<FbxSkin*>(pDeformer);
 	int iNumBone = pSkinInfo->GetClusterCount();//どのメッシュからでも同じボーン数が得られているようだ
 	m_ppCluster = new  FbxCluster*[iNumBone];//ボーン情報配列
+	m_pClusterName = new char[iNumBone * 255];
 	for (int i = 0; i < iNumBone; i++) {
 		m_ppCluster[i] = pSkinInfo->GetCluster(i);//行列関係はどのメッシュからでも同じ物を得られるようだ
+		const char *name = m_ppCluster[i]->GetName();
+		strcpy(&m_pClusterName[i * 255], name);//ボーンの名前保持
 	}
 	
 	int VertexStart = 0;
@@ -630,7 +635,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	return S_OK;
 }
 
-HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind,float end_frame) {
+HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float end_frame) {
 	if (ind <= 0) {
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
@@ -654,9 +659,20 @@ HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind,float end
 
 	if (!m_ppSubAnimationBone)m_ppSubAnimationBone = new FbxNode*[(FBX_PCS - 1) * m_iNumBone];
 
-	for (int i = 0; i < m_iNumBone; i++) {
-		m_ppSubAnimationBone[(ind - 1) * m_iNumBone + i] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, i + 1);
+	int loopind = 0;
+	int searchCount = 0;
+	while (loopind < m_iNumBone) {
+		int sa_ind = (ind - 1) * m_iNumBone + loopind;
+		m_ppSubAnimationBone[sa_ind] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, searchCount + 1);
+		searchCount++;
 		SearchNode(NULL, FbxNodeAttribute::eSkeleton, 0);//リセット
+		const char *name = m_ppSubAnimationBone[sa_ind]->GetName();
+		char *name2 = &m_pClusterName[loopind * 255];//各Bone名の先頭アドレスを渡す
+		while (*name != '\0')name++;//終端文字までポインタを進める
+		while (*name2 != '\0')name2++;
+		while (*(--name) == *(--name2) && *name2 != ' ');
+		if (*name2 != ' ')continue;
+		loopind++;
 	}
 	return S_OK;
 }

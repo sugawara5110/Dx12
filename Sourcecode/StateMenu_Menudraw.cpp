@@ -113,8 +113,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 0;
 			//通常のスタート位置
-			/*
-			savedata.h_pos.cx1 = 950.0f;//ボス前
+			
+			/*savedata.h_pos.cx1 = 950.0f;//ボス前
 			savedata.h_pos.cx2 = 950.0f;
 			savedata.h_pos.cy1 = 950.0f;
 			savedata.h_pos.cy2 = 880.0f;
@@ -128,8 +128,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 32;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 1;
-			*/
+			savedata.map_no = 1;*/
+			
 			/*
 			savedata.h_pos.cx1 = 150.0f;//ボス前
 			savedata.h_pos.cx2 = 150.0f;
@@ -147,8 +147,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 2;
 			*/
-			/*
-			savedata.h_pos.cx1 = 450.0f;//ボス前
+			
+			/*savedata.h_pos.cx1 = 450.0f;//ボス前
 			savedata.h_pos.cx2 = 450.0f;
 			savedata.h_pos.cy1 = 750.0f;
 			savedata.h_pos.cy2 = 680.0f;
@@ -162,8 +162,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 27;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 3;
-			*/
+			savedata.map_no = 3;*/
+			
 
 			//ラスダン
 			/*savedata.h_pos.cx1 = 1450.0f;//ボス前

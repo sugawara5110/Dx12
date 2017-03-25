@@ -788,6 +788,7 @@ private:
 	//FBX
 	SkinMesh_sub *fbx;
 	FbxCluster **m_ppCluster;//ボーン情報
+	char *m_pClusterName;
 	FbxNode **m_ppNodeArray;//各Nodeへのポインタ配列
 	int NodeArraypcs;
 	FbxNode **m_ppSubAnimationBone;//その他アニメーションボーンポインタ配列
