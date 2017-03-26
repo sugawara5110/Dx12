@@ -26,9 +26,10 @@ protected:
 	Position::E_Pos *e_pos;
 	PolygonData *en, *mag, effect[4];
 	int effect_no = 0;
-	MeshData *en_boss_att0;       //ボス用デフォルトポーズ
+	MeshData *en_boss_att0;       //boss2のみ使用
 	SkinMesh *en_boss_att;       //ボスアニメーション
 	bool attOn, attFin;         //attアニメーション中
+	bool magicAttOn;            //magicアニメーションフラグ
 	ParticleData *mag_boss;    //ボス用
 	float mag_size;           //ボス用
 

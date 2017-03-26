@@ -21,11 +21,11 @@ void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, flo
 	float m = tfloat.Add(2.0f);
 	if (!walkOn) {
 		//Ã~
-		i = 3;
+		i = 4;
 	}
 	else {
 		//ˆÚ“®
-		i = 2;
+		i = 3;
 	}
 	p_att->Draw(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	if (torchOn) {
@@ -64,6 +64,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		break;
 	case MAGIC:
 		act_f = MAGIC;
+		magicAttOn = TRUE;
 		break;
 	case DAMAGE:
 		if (act_f == ATTACK || act_f == MAGIC)break;
@@ -129,6 +130,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		}
 		if (effect_f == FALSE && (count += m) > 200.0f) {
 			count = 0;
+			magicAttOn = FALSE;
 			if (H_Magrun == NOSEL) {
 				act_f = NORMAL;
 				return AT_FIN;
@@ -199,8 +201,15 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 
 	m = tfloat.Add(2.0f);
 	if (Dieflg() == TRUE)m = 0.0f;
-	if (attOn) { attFin = p_att->Draw(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f); }
-	else { p_att->Draw(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f); }
+	if (attOn) {
+		attFin = p_att->Draw(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+	}
+	if (magicAttOn) {
+		p_att->Draw(2, m * 0.3f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+	}
+	if (!attOn && !magicAttOn) {
+		p_att->Draw(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+	}
 
 	Statecreate(command_run);
 	text->UpDateText(L"úl‚m‚", x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });

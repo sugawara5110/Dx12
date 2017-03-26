@@ -23,6 +23,7 @@ protected:
 	int o_no;//オブジェクトナンバー
 	SkinMesh *p_att;        //アタックアニメーション用
 	bool attOn, attFin;    //attアニメーション中
+	bool magicAttOn;      //マジックアニメーション中
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
 	SkinMesh *torchWood;
 	PolygonData *torchFlame;

@@ -14,6 +14,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	h_pos = h_po;
 	e_pos = e_po;
 	mag_size = 0.1f;
+	en_boss_att0 = NULL;
 	//t_no=敵№
 	int e;
 	switch (t_no) {
@@ -135,38 +136,34 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	}
 
 	if (t_no != 2) {
-		en_boss_att0 = new MeshData();
-		en_boss_att0->SetCommandList(ENEMY_COM);
-		en_boss_att0->SetState(TRUE, TRUE, FALSE);
 		en_boss_att = new SkinMesh();
 		en_boss_att->SetCommandList(ENEMY_COM);
 		en_boss_att->SetState(TRUE, TRUE);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 1);
+		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 2);
 		switch (t_no) {
 		case 0:
-			en_boss_att0->GetVBarray("./dat/mesh/boss1att/boss1_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/boss1att/boss1bone.fbx", 600.0f);
 			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss1att/boss1bone_wait.fbx", 1, 200.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss1att/boss1bone_magic.fbx", 2, 200.0f);
 			break;
 		case 1:
-			en_boss_att0->GetVBarray("./dat/mesh/boss2att/boss2_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/boss2att/boss2bone.fbx", 600.0f);
 			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss2att/boss2bone_wait.fbx", 1, 200.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss2att/boss2bone_magic.fbx", 2, 200.0f);
 			break;
 		case 3:
-			en_boss_att0->GetVBarray("./dat/mesh/boss4att/boss4_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/boss4att/boss4bone.fbx", 500.0f);
 			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss4att/boss4bone_wait.fbx", 1, 200.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/boss4att/boss4bone_magic.fbx", 2, 200.0f);
 			break;
 		case 4:
-			en_boss_att0->GetVBarray("./dat/mesh/lastbossatt/lastboss_000000.obj");
 			en_boss_att->CreateFromFBX("./dat/mesh/lastbossatt/lastbossbone.fbx", 500.0f);
 			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/lastbossatt/lastbossbone_wait.fbx", 1, 200.0f);
+			en_boss_att->CreateFromFBX_SubAnimation("./dat/mesh/lastbossatt/lastbossbone_magic.fbx", 2, 200.0f);
 			break;
 		}
-		//テクスチャ設定
-		en_boss_att0->GetTexture();
 	}
 	mag_boss = new ParticleData();
 	mag_boss->SetCommandList(ENEMY_COM);
@@ -272,15 +269,19 @@ bool EnemyBoss::LostAction(float x, float y, float z){
 }
 
 //@Override
-bool EnemyBoss::Magiccreate(float x, float y, float z){
+bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	float m = tfloat.Add(0.15f);
 	MovieSoundManager::Magic_sound(TRUE);
-	if (count == 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+	if (count == 0.0f) {
+		magicAttOn = TRUE;
+		mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+	}
 	if (count != 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
 	dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 500.0f, mag_size * 100.0f, 2.0f, TRUE);
 
-	if ((count += m) > 900){
+	if ((count += m) > 900) {
 		count = 0.0f;
+		magicAttOn = FALSE;//最終フレームで止めたままにするので終わるタイミングまでOnのまま
 		dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 1000.0f, 100.0f, 2.0f, FALSE);
 		return FALSE;
 	}
@@ -290,7 +291,8 @@ bool EnemyBoss::Magiccreate(float x, float y, float z){
 //@Override
 void EnemyBoss::ObjDraw(float x, float y, float z, float r, float g, float b, float theta) {
 	if (attOn)attFin = en_boss_att->Draw(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
-	else en_boss_att->Draw(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	if (magicAttOn)en_boss_att->Draw(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	if (!attOn && !magicAttOn) en_boss_att->Draw(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
 }
 
 //@Override
