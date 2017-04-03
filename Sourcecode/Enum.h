@@ -79,6 +79,12 @@ enum PrimitiveType{
 	CONTROL_POINT
 };
 
+enum ComListState {
+	USED,
+	OPEN,
+	CLOSE
+};
+
 enum Encount{
 	NOENCOUNT,
 	SIDE,

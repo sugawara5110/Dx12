@@ -67,6 +67,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCmdListAlloc[2];
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
 	int mAloc_Num = 0;
+	volatile ComListState mComState;
 
 	void ListCreate();
 	void Bigin();
@@ -94,8 +95,9 @@ private:
 	UINT m4xMsaaQuality = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
-	volatile bool   CommandQueueAcc = false;
 	Dx12Process_sub dx_sub[COM_NO];
+	volatile bool waitInit, InitFin;
+	volatile bool flagswitch;
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer = 0;
@@ -232,8 +234,9 @@ public:
 	void Sclear();
 	void Bigin(int com_no);
 	void End(int com_no);
-	void WaitFenceCurrent();
-	void WaitFencePast();
+	void WaitFenceCurrent();//GPU処理そのまま待つ(シングルスレッド時CPU処理待たせたままGPU処理を待つ場合使用)
+	void WaitFencePast();//前回GPU処理未完の場合待つ
+	void WaitForInit();//他スレッドでCommandListClose直後実行し本スレッドのWaitFencePast()からGPU処理終了フラグを待つ
 	void DrawScreen();
 	void Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2);
 	void ResetPointLight();

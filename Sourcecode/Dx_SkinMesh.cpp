@@ -468,10 +468,10 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 
 		//テクスチャー座標読み込み
 		FbxVector2 UV;
-		FbxLayerElementUV* pUV = 0;
+		FbxLayerElementUV *pUV = 0;
 		pUV = pFbxMesh->GetLayer(0)->GetUVs();
 		const char *uvname = pUV->GetName();
-		FbxLayerElement::EMappingMode	mappingMode = pUV->GetMappingMode();
+		FbxLayerElement::EMappingMode mappingMode = pUV->GetMappingMode();
 		bool UnMap = TRUE;
 		if (mappingMode == FbxLayerElement::eByPolygonVertex)UnMap = FALSE;
 
@@ -508,8 +508,8 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 
 		for (DWORD i = 0; i < m_pMaterialCount[m]; i++) {
 			//フォンモデルを想定
-			FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
-			FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pMaterial;
+			FbxSurfaceMaterial *pMaterial = pNode->GetMaterial(i);
+			FbxSurfacePhong *pPhong = (FbxSurfacePhong*)pMaterial;
 
 			typedef FbxPropertyT<FbxDouble3> FbxPropertyDouble3;
 
@@ -523,7 +523,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 			//テクスチャー
 			FbxProperty lProperty;
 			lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
-			FbxTexture* texture = FbxCast<FbxTexture>(lProperty.GetSrcObject<FbxTexture>(0));
+			FbxTexture *texture = FbxCast<FbxTexture>(lProperty.GetSrcObject<FbxTexture>(0));
 			if (texture) {
 				FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(texture);
 				strcpy_s(m_pMaterial[mInd].szTextureName, fileTexture->GetFileName());

@@ -152,7 +152,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 		H_drawPos(i);
 	}
 	dx->End(ENEMY_COM);
-	dx->WaitFenceCurrent();
+	dx->WaitForInit();
 	initFin = TRUE;
 }
 

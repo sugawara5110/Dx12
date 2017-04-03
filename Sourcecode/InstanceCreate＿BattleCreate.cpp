@@ -59,6 +59,7 @@ void InstanceCreate::HeroCreate() {
 	int j = 0;
 	for (int i = 0; i < 4; i++)new(he + i) Hero(i);//配列をplacement newを使って初期化する
 	Dx12Process::GetInstance()->End(HERO_COM);
+	Dx12Process::GetInstance()->WaitForInit();
 }
 
 void InstanceCreate::ResourceLoad(){
@@ -181,10 +182,12 @@ bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no){
 	return TRUE;
 }
 
-unsigned __stdcall ResourceLoading(void *){
+unsigned __stdcall ResourceLoading(void *) {
 	InstanceCreate::ResourceLoad();
 	Dx12Process::GetInstance()->GetTexture();
 	InstanceCreate::HeroCreate();
+	InstanceCreate::MapCreate();//タイトルに出力するマップ
+	InstanceCreate::MapObjSet();
 	return 0;
 }
 

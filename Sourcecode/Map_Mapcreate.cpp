@@ -298,7 +298,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	}
 
 	dx->End(Map_Com);
-	dx->WaitFenceCurrent();
+	dx->WaitForInit();
 
 	//ライトポジション構造体確保
 	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);

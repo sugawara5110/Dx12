@@ -100,8 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	Control *control = Control::GetInstance();
 	int map_no = 0;
-	InstanceCreate::MapCreate();//タイトルに出力するマップ
-	InstanceCreate::MapObjSet();
+	
 	StateMenu statemenu;
 	Encount encount = NOENCOUNT;
 	bool menu = FALSE;

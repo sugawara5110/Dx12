@@ -36,25 +36,21 @@ void Dx12Process_sub::ListCreate() {
 	//最初は閉じた方が良い
 	mCommandList->Close();
 	mCommandList->Reset(mCmdListAlloc[0].Get(), nullptr);
+	mCommandList->Close();
+	mComState = USED;
 }
 
 void Dx12Process_sub::Bigin() {
+	mComState = OPEN;
 	mAloc_Num = 1 - mAloc_Num;
 	mCmdListAlloc[mAloc_Num]->Reset();
 	mCommandList->Reset(mCmdListAlloc[mAloc_Num].Get(), nullptr);
 }
 
 void Dx12Process_sub::End() {
-
 	//コマンドクローズ
 	mCommandList->Close();
-
-	while (Dx12Process::dx->CommandQueueAcc);
-	Dx12Process::dx->CommandQueueAcc = true;
-	//クローズ後リストに加える
-	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-	Dx12Process::dx->mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	Dx12Process::dx->CommandQueueAcc = false;
+	mComState = CLOSE;
 }
 
 Dx12Process *Dx12Process::dx = NULL;
@@ -94,9 +90,14 @@ Dx12Process::~Dx12Process() {
 }
 
 void Dx12Process::WaitFence(int fence) {
+	//クローズ後リストに加える
+	for (int i = 0; i < COM_NO; i++) {
+		if (dx_sub[i].mComState != CLOSE)continue;
+		ID3D12CommandList* cmdsLists[] = { dx_sub[i].mCommandList.Get() };
+		mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+		dx_sub[i].mComState = USED;
+	}
 
-	while (Dx12Process::dx->CommandQueueAcc);
-	Dx12Process::dx->CommandQueueAcc = true;
 	//インクリメントされたことで描画完了と判断
 	mCurrentFence++;
 	//GPU上で実行されているコマンド完了後,自動的にフェンスにmCurrentFenceを書き込む
@@ -117,7 +118,8 @@ void Dx12Process::WaitFence(int fence) {
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
-	Dx12Process::dx->CommandQueueAcc = false;
+	if (flagswitch) { InitFin = TRUE; waitInit = flagswitch = FALSE; return; }//このタイミングでwaitInit変化する可能性が有るのでreturn
+	if (waitInit) { flagswitch = TRUE; }
 }
 
 void Dx12Process::WaitFenceCurrent() {
@@ -125,7 +127,14 @@ void Dx12Process::WaitFenceCurrent() {
 }
 
 void Dx12Process::WaitFencePast() {
-	WaitFence(1);
+	if (flagswitch)WaitFence(0);
+	else WaitFence(1);
+}
+
+void Dx12Process::WaitForInit() {
+	waitInit = TRUE;
+	while (!InitFin);
+	InitFin = FALSE;
 }
 
 void Dx12Process::CreateShaderByteCode() {
@@ -399,7 +408,7 @@ void Dx12Process::GetTexture() {
 		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
 	}
 	End(COM);
-	WaitFenceCurrent();
+	WaitForInit();
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {
@@ -471,6 +480,9 @@ bool Dx12Process::Initialize(HWND hWnd) {
 		//コマンドアロケータ,コマンドリスト生成
 		dx_sub[i].ListCreate();
 	}
+	dx_sub[0].Bigin();
+	waitInit = InitFin = flagswitch = FALSE;
+
 	//初期化
 	mSwapChain.Reset();
 
@@ -518,8 +530,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 
 	//レンダーターゲットビューデスクリプターヒープの開始ハンドル取得
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
-	for (UINT i = 0; i < SwapChainBufferCount; i++)
-	{
+	for (UINT i = 0; i < SwapChainBufferCount; i++) {
 		//スワップチェインバッファ取得
 		if (FAILED(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i]))))FALSE;
 		//レンダーターゲットビュー(Descriptor)生成,DescriptorHeapにDescriptorが記録される
@@ -589,13 +600,9 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	//ビューポート行列作成(3D座標→2D座標変換に使用)
 	MatrixViewPort(&Vp);
 
-	//クローズしてからキューに積む(コマンドリストは全部積む、そうしないとエラーが出る)
-	for (int i = 0; i < COM_NO; i++) {
-		dx_sub[i].mCommandList->Close();
-		ID3D12CommandList* cmdsLists[] = { dx_sub[i].mCommandList.Get() };
-		mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	}
+	dx_sub[0].End();
 	WaitFenceCurrent();
+
 	//ポイントライト構造体初期化
 	ResetPointLight();
 
@@ -661,9 +668,9 @@ void Dx12Process::End(int com_no) {
 
 void Dx12Process::DrawScreen() {
 	// swap the back and front buffers
+	WaitFencePast();
 	mSwapChain->Present(0, 0);
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
-	WaitFencePast();
 }
 
 void Dx12Process::Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2) {
