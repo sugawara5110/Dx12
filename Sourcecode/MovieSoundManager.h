@@ -7,41 +7,12 @@
 #ifndef Class_MovieSoundManager_Header
 #define Class_MovieSoundManager_Header
 
-#include "DsProcess.h"
+#include "Movie.h"
+#include "Sound_.h"
 
 class MovieSoundManager{
 
 private:
-	class Movie :public DsProcess{
-
-	protected:
-		VIDEOINFOHEADER *pVideoInfoHeader;//構造体,ビデオ イメージのビットマップと色情報
-		AM_MEDIA_TYPE am_media_type;     //メディア サンプルの メジャー タイプを指定するグローバル一意識別子 (GUID)
-
-		long nBufferSize;//バッファサイズサイズ
-		BYTE *pBuffer;  //ピクセルデータバッファ
-		int linesize;   //1ラインサイズ
-		int xs, ys;    //画像サイズ
-		int wid, hei; //格納時画像サイズ 
-		int **m_pix; //受け渡し用ピクセルデータ
-
-	public:
-		Movie();
-		Movie(int no);
-		int **GetFrame(int width, int height);
-		virtual ~Movie();
-	};
-
-	class Sound_ :public DsProcess{
-
-	public:
-		Sound_();
-		Sound_(int no);
-		void sound(bool repeat, long volume);//volume -10000～0
-		void soundoff();
-		void soundloop(bool repeat, long volume, REFTIME start, REFTIME end);
-	};
-
 	static Movie *mo;
 	static Movie *f_wall;
 	static Sound_ *dungeon_so[5];

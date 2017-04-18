@@ -5,11 +5,11 @@
 //*****************************************************************************************//
 
 #define _CRT_SECURE_NO_WARNINGS
-#include "MovieSoundManager.h"
+#include "Movie.h"
 
-MovieSoundManager::Movie::Movie(){}
+Movie::Movie(){}
 
-MovieSoundManager::Movie::Movie(int no){
+Movie::Movie(char *pass) {
 
 	pVideoInfoHeader = NULL;
 	nBufferSize = NULL;
@@ -42,15 +42,7 @@ MovieSoundManager::Movie::Movie(int no){
 
 	char *fname = NULL;
 
-	switch (no){
-	case 0:
-		fname = BinaryDecode("./dat/movie/torch.da");//松明
-		break;
-
-	case 1:
-		fname = BinaryDecode("./dat/movie/f_wall.da");//炎壁
-		break;
-	}
+	fname = BinaryDecode(pass);//松明
 
 	BSTR bstr;
 	BSTR_Convert(fname, &bstr);
@@ -87,10 +79,10 @@ MovieSoundManager::Movie::Movie(int no){
 	//ストリームの時間幅を取得(最初に1回取得すればok)
 	pMediaPosition->get_Duration(&time2);
 
-	remove(fname);//ファイル削除、すぐに削除されないが使用中だとアクセスできないみたい
+	remove(fname);//ファイル削除。解放されると削除されてる
 }
 
-int **MovieSoundManager::Movie::GetFrame(int width, int height){
+int **Movie::GetFrame(int width, int height){
 
 	hei = height;
 	wid = width;
@@ -130,7 +122,7 @@ int **MovieSoundManager::Movie::GetFrame(int width, int height){
 	return m_pix;
 }
 
-MovieSoundManager::Movie::~Movie(){
+Movie::~Movie(){
 
 	if (m_pix != NULL){
 		for (int i = 0; i < hei; i++)free(m_pix[i]);

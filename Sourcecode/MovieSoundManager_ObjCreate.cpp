@@ -6,49 +6,49 @@
 
 #include "MovieSoundManager.h"
 
-MovieSoundManager::Movie *MovieSoundManager::mo;
-MovieSoundManager::Movie *MovieSoundManager::f_wall;
-MovieSoundManager::Sound_ *MovieSoundManager::dungeon_so[5];
-MovieSoundManager::Sound_ *MovieSoundManager::rain_so;
-MovieSoundManager::Sound_ *MovieSoundManager::enemy_so[2];
-MovieSoundManager::Sound_ *MovieSoundManager::title_so;
-MovieSoundManager::Sound_ *MovieSoundManager::die_so;
-MovieSoundManager::Sound_ *MovieSoundManager::att_so;
-MovieSoundManager::Sound_ *MovieSoundManager::flame_so;
-MovieSoundManager::Sound_ *MovieSoundManager::heal_so;
-MovieSoundManager::Sound_ *MovieSoundManager::magic_so;
-MovieSoundManager::Sound_ *MovieSoundManager::select_so;
-MovieSoundManager::Sound_ *MovieSoundManager::enter_so;
-MovieSoundManager::Sound_ *MovieSoundManager::ending_so;
-MovieSoundManager::Sound_ *MovieSoundManager::bosslost_so;
+Movie *MovieSoundManager::mo;
+Movie *MovieSoundManager::f_wall;
+Sound_ *MovieSoundManager::dungeon_so[5];
+Sound_ *MovieSoundManager::rain_so;
+Sound_ *MovieSoundManager::enemy_so[2];
+Sound_ *MovieSoundManager::title_so;
+Sound_ *MovieSoundManager::die_so;
+Sound_ *MovieSoundManager::att_so;
+Sound_ *MovieSoundManager::flame_so;
+Sound_ *MovieSoundManager::heal_so;
+Sound_ *MovieSoundManager::magic_so;
+Sound_ *MovieSoundManager::select_so;
+Sound_ *MovieSoundManager::enter_so;
+Sound_ *MovieSoundManager::ending_so;
+Sound_ *MovieSoundManager::bosslost_so;
 int MovieSoundManager::map_n;
 
 MovieSoundManager::MovieSoundManager(){}
 
 void MovieSoundManager::ObjInit(){
 
-	mo = new Movie(0);
-	f_wall = new Movie(1);
+	mo = new Movie("./dat/movie/torch.da");
+	f_wall = new Movie("./dat/movie/f_wall.da");
 	for (int i = 0; i < 5; i++)dungeon_so[i] = NULL;
 	rain_so = NULL;
-	enemy_so[0] = new Sound_(31);//ŽG‹›“G‚Í‚¸‚Á‚Æ•ÛŽ‚µ‚Á‚Ï‚È‚µ
+	enemy_so[0] = new Sound_("./dat/movie/side_enemy.da");//ŽG‹›“G‚Í‚¸‚Á‚Æ•ÛŽ‚µ‚Á‚Ï‚È‚µ
 	enemy_so[1] = NULL;
 	bosslost_so = NULL;
 	title_so = NULL;
 	die_so = NULL;
 	ending_so = NULL;
-	att_so = new Sound_(0);
-	flame_so = new Sound_(1);
-	heal_so = new Sound_(2);
-	magic_so = new Sound_(3);
-	select_so = new Sound_(4);
-	enter_so = new Sound_(5);
+	att_so = new Sound_("./dat/movie/att.da");
+	flame_so = new Sound_("./dat/movie/flame.da");
+	heal_so = new Sound_("./dat/movie/heal.da");
+	magic_so = new Sound_("./dat/movie/magic.da");
+	select_so = new Sound_("./dat/movie/select.da");
+	enter_so = new Sound_("./dat/movie/enter.da");
 	map_n = 0;
 }
 
 void MovieSoundManager::ObjCreate_title(){
 
-	if (title_so == NULL)title_so = new Sound_(20);
+	if (title_so == NULL)title_so = new Sound_("./dat/movie/title.da");
 }
 
 void MovieSoundManager::ObjDelete_title(){
@@ -59,20 +59,20 @@ void MovieSoundManager::ObjCreate_map(int map_no){
 	map_n = map_no;
 	switch (map_no){
 	case 0:
-		if (dungeon_so[0] == NULL)dungeon_so[0] = new Sound_(21);
+		if (dungeon_so[0] == NULL)dungeon_so[0] = new Sound_("./dat/movie/dungeon0.da");
 		break;
 	case 1:
-		if (dungeon_so[1] == NULL)dungeon_so[1] = new Sound_(22);
-		if (rain_so == NULL)rain_so = new Sound_(23);
+		if (dungeon_so[1] == NULL)dungeon_so[1] = new Sound_("./dat/movie/dungeon1.da");
+		if (rain_so == NULL)rain_so = new Sound_("./dat/movie/rain.da");
 		break;
 	case 2:
-		if (dungeon_so[2] == NULL)dungeon_so[2] = new Sound_(24);
+		if (dungeon_so[2] == NULL)dungeon_so[2] = new Sound_("./dat/movie/dungeon2.da");
 		break;
 	case 3:
-		if (dungeon_so[3] == NULL)dungeon_so[3] = new Sound_(25);
+		if (dungeon_so[3] == NULL)dungeon_so[3] = new Sound_("./dat/movie/dungeon3.da");
 		break;
 	case 4:
-		if (dungeon_so[4] == NULL)dungeon_so[4] = new Sound_(26);
+		if (dungeon_so[4] == NULL)dungeon_so[4] = new Sound_("./dat/movie/dungeon4.da");
 		break;
 	}
 }
@@ -93,11 +93,11 @@ void MovieSoundManager::ObjDelete_map(){
 
 void MovieSoundManager::ObjCreate_battle(int n){
 
-	if (die_so == NULL)die_so = new Sound_(30);
-	if (n == 1 && enemy_so[1] == NULL)enemy_so[1] = new Sound_(32);
-	if (n == 2 && enemy_so[1] == NULL)enemy_so[1] = new Sound_(33);
-	if (n == 3 && enemy_so[1] == NULL)enemy_so[1] = new Sound_(34);
-	if (n > 0 && bosslost_so == NULL)bosslost_so = new Sound_(36);
+	if (die_so == NULL)die_so = new Sound_("./dat/movie/die.da");
+	if (n == 1 && enemy_so[1] == NULL)enemy_so[1] = new Sound_("./dat/movie/boss_enemy.da");
+	if (n == 2 && enemy_so[1] == NULL)enemy_so[1] = new Sound_("./dat/movie/boss_enemy2.da");
+	if (n == 3 && enemy_so[1] == NULL)enemy_so[1] = new Sound_("./dat/movie/lastboss.da");
+	if (n > 0 && bosslost_so == NULL)bosslost_so = new Sound_("./dat/movie/bosslost.da");
 }
 
 void MovieSoundManager::ObjDelete_battle(){
@@ -109,7 +109,7 @@ void MovieSoundManager::ObjDelete_battle(){
 
 void MovieSoundManager::ObjCreate_ending(){
 
-	if (ending_so == NULL)ending_so = new Sound_(35);
+	if (ending_so == NULL)ending_so = new Sound_("./dat/movie/ending.da");
 }
 
 void MovieSoundManager::ObjDelete_ending(){

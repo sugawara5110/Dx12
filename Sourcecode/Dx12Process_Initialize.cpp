@@ -43,7 +43,9 @@ void Dx12Process_sub::ListCreate() {
 void Dx12Process_sub::Bigin() {
 	mComState = OPEN;
 	mAloc_Num = 1 - mAloc_Num;
+	Dx12Process::dx->Lock();
 	mCmdListAlloc[mAloc_Num]->Reset();
+	Dx12Process::dx->Unlock();
 	mCommandList->Reset(mCmdListAlloc[mAloc_Num].Get(), nullptr);
 }
 
@@ -85,8 +87,6 @@ Dx12Process::~Dx12Process() {
 		RELEASE(texture[i]);
 		RELEASE(textureUp[i]);
 	}
-	free(binary_ch);
-	free(binary_size);
 }
 
 void Dx12Process::WaitFence(int fence) {
@@ -237,102 +237,7 @@ void Dx12Process::CreateShaderByteCode() {
 
 void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
 	Bdecode(Bpass, &binary_ch[i], &binary_size[i]);
-}
-
-void Dx12Process::TextureBinaryDecodeAll() {
-
-	//マップ0
-	TextureBinaryDecode("./dat/texture/map/wall1.da", 0);
-	TextureBinaryDecode("./dat/texture/map/ground1.da", 1);
-	TextureBinaryDecode("./dat/texture/map/ceiling1.da", 2);
-	//マップ1
-	TextureBinaryDecode("./dat/texture/map/wall2.da", 4);
-	TextureBinaryDecode("./dat/texture/map/ground2.da", 5);
-	TextureBinaryDecode("./dat/texture/map/ceiling2.da", 6);
-	TextureBinaryDecode("./dat/texture/map/wall2-1.da", 8);
-	TextureBinaryDecode("./dat/texture/map/leaf.da", 9);
-	TextureBinaryDecode("./dat/texture/map/wood.da", 10);
-	//マップ2
-	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3.da", 11);
-	TextureBinaryDecode("./dat/texture/map/ground3.da", 12);
-	//マップ3
-	TextureBinaryDecode("./dat/texture/map/ceiling4_ground4.da", 15);
-	//マップ4
-	TextureBinaryDecode("./dat/texture/map/wall5.da", 26);
-	TextureBinaryDecode("./dat/texture/map/ground5.da", 27);
-	TextureBinaryDecode("./dat/texture/map/ceiling5.da", 28);
-	//通常敵
-	TextureBinaryDecode("./dat/texture/enemy/enemy1.da", 30);
-	TextureBinaryDecode("./dat/texture/enemy/enemy2.da", 31);
-	TextureBinaryDecode("./dat/texture/enemy/enemy3.da", 32);
-	TextureBinaryDecode("./dat/texture/enemy/enemy4.da", 33);
-	TextureBinaryDecode("./dat/texture/enemy/enemy5.da", 34);
-	TextureBinaryDecode("./dat/texture/enemy/enemy6.da", 35);
-	TextureBinaryDecode("./dat/texture/enemy/enemy7.da", 36);
-	TextureBinaryDecode("./dat/texture/enemy/enemy8.da", 37);
-	TextureBinaryDecode("./dat/texture/enemy/enemy9.da", 38);
-	TextureBinaryDecode("./dat/texture/enemy/enemy10.da", 39);
-	TextureBinaryDecode("./dat/texture/enemy/enemy11.da", 40);
-	TextureBinaryDecode("./dat/texture/enemy/enemy12.da", 41);
-	TextureBinaryDecode("./dat/texture/enemy/enemy13.da", 42);
-	TextureBinaryDecode("./dat/texture/enemy/enemy14.da", 43);
-	TextureBinaryDecode("./dat/texture/enemy/enemy15.da", 44);
-	TextureBinaryDecode("./dat/texture/enemy/enemy16.da", 45);
-	TextureBinaryDecode("./dat/texture/enemy/enemy17.da", 46);
-	TextureBinaryDecode("./dat/texture/enemy/enemy18.da", 47);
-	TextureBinaryDecode("./dat/texture/enemy/enemy19.da", 48);
-	TextureBinaryDecode("./dat/texture/enemy/enemy20.da", 49);
-	//ボス
-	TextureBinaryDecode("./dat/texture/enemy/boss1.da", 50);
-	TextureBinaryDecode("./dat/texture/enemy/boss2.da", 51);
-	TextureBinaryDecode("./dat/texture/enemy/boss3.da", 52);
-	TextureBinaryDecode("./dat/texture/enemy/boss4.da", 53);
-	//ラストボス
-	TextureBinaryDecode("./dat/texture/enemy/lastboss.da", 59);
-	//魔方陣通常
-	TextureBinaryDecode("./dat/texture/magic/side_magic.da", 60);
-	//魔方陣ボス
-	TextureBinaryDecode("./dat/texture/magic/boss_magic.da", 61);
-	TextureBinaryDecode("./dat/texture/magic/particle.da", 62);
-	//回復ポイント
-	TextureBinaryDecode("./dat/texture/magic/recover.da", 70);
-	//エフェクト
-	TextureBinaryDecode("./dat/texture/effect/e_att.da", 80);
-	TextureBinaryDecode("./dat/texture/effect/h_att.da", 81);
-	TextureBinaryDecode("./dat/texture/effect/flame.da", 82);
-	TextureBinaryDecode("./dat/texture/effect/healing.da", 83);
-	TextureBinaryDecode("./dat/texture/effect/recov.da", 84);
-	//プレイヤー1テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p1/brown_eye.da", 90);
-	TextureBinaryDecode("./dat/texture/player/p1/classicshoes_texture_diffuse.da", 91);
-	TextureBinaryDecode("./dat/texture/player/p1/eyebrow001.da", 92);
-	TextureBinaryDecode("./dat/texture/player/p1/jacket01_diffuse.da", 93);
-	TextureBinaryDecode("./dat/texture/player/p1/jeans01_black_diffuse.da", 94);
-	TextureBinaryDecode("./dat/texture/player/p1/male01_diffuse_black.da", 95);
-	TextureBinaryDecode("./dat/texture/player/p1/young_lightskinned_male_diffuse.da", 96);
-	//プレイヤー2テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p2/brown_eye.da", 100);
-	TextureBinaryDecode("./dat/texture/player/p2/diffuse_black.da", 101);
-	TextureBinaryDecode("./dat/texture/player/p2/eyebrow006.da", 102);
-	TextureBinaryDecode("./dat/texture/player/p2/eyelashes03.da", 103);
-	TextureBinaryDecode("./dat/texture/player/p2/shoes02_default.da", 104);
-	TextureBinaryDecode("./dat/texture/player/p2/short01_black_diffuse.da", 105);
-	TextureBinaryDecode("./dat/texture/player/p2/tshirt02_texture.da", 106);
-	TextureBinaryDecode("./dat/texture/player/p2/young_lightskinned_female_diffuse.da", 107);
-	//プレイヤー3テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p3/brown_eye.da", 110);
-	TextureBinaryDecode("./dat/texture/player/p3/classicshoes_texture_diffuse.da", 111);
-	TextureBinaryDecode("./dat/texture/player/p3/jeans_basic_diffuse.da", 112);
-	TextureBinaryDecode("./dat/texture/player/p3/young_darkskinned_male_diffuse.da", 113);
-	//プレイヤー4テクスチャ
-	TextureBinaryDecode("./dat/texture/player/p4/afro.da", 120);
-	TextureBinaryDecode("./dat/texture/player/p4/brown_eye.da", 121);
-	TextureBinaryDecode("./dat/texture/player/p4/eyebrow007.da", 122);
-	TextureBinaryDecode("./dat/texture/player/p4/eyelashes03.da", 123);
-	TextureBinaryDecode("./dat/texture/player/p4/shoes02_default.da", 124);
-	TextureBinaryDecode("./dat/texture/player/p4/short01_black_diffuse.da", 125);
-	TextureBinaryDecode("./dat/texture/player/p4/tshirt_texture_blue.da", 126);
-	TextureBinaryDecode("./dat/texture/player/p4/young_darkskinned_female_diffuse.da", 127);
+	texName[i] = GetNameFromPass(Bpass);
 }
 
 void Dx12Process::GetTexture() {
@@ -616,14 +521,6 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	fog.Amount = 0.0f;
 	fog.Density = 0.0f;
 	fog.on_off = 0.0f;
-
-	//テクスチャバイナリ
-	binary_ch = (char**)malloc(sizeof(char*) * TEX_PCS);
-	binary_size = (int*)malloc(sizeof(int) * TEX_PCS);
-	for (int i = 0; i < TEX_PCS; i++) {
-		binary_ch[i] = NULL;
-		binary_size[i] = 0;
-	}
 
 	CreateShaderByteCode();
 
@@ -986,6 +883,27 @@ float Dx12Process::GetNearPlane() {
 
 float Dx12Process::GetFarPlane() {
 	return FarPlane;
+}
+
+char *Dx12Process::GetNameFromPass(char *pass) {
+
+	CHAR temp[255];
+	strcpy_s(temp, pass);
+
+	bool f = FALSE;
+
+	for (int i = 0; temp[i] != '\0' && i < 255; i++) {
+		if (temp[i] == '\\' || temp[i] == '/') { f = TRUE; break; }
+	}
+
+	if (f) {
+		//ファイル名のみでは無い場合の処理
+		while (*pass != '\0') pass++;//終端文字までポインタを進める
+		while (*pass != '\\' && *pass != '/')pass--;//ファイル名先頭の'\'か'/'までポインタを進める
+		pass++;//'\'または'/'の次(ファイル名先頭文字)までポインタを進める
+	}
+
+	return pass;//ポインタ操作してるので返り値を使用させる
 }
 
 //移動量一定化

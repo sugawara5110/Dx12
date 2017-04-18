@@ -1,0 +1,24 @@
+//*****************************************************************************************//
+//**                                                                                     **//
+//**                   　　　　　　  Sound_クラス                                        **//
+//**                                                                                     **//
+//*****************************************************************************************//
+
+#ifndef Class_Sound_Header
+#define Class_Sound_Header
+
+#include "DsProcess.h"
+
+class Sound_ :public DsProcess {
+
+protected:
+	Sound_();
+
+public:
+	Sound_(char *pass);
+	void sound(bool repeat, long volume);//volume -10000～0
+	void soundoff();
+	void soundloop(bool repeat, long volume, REFTIME start, REFTIME end);
+};
+
+#endif

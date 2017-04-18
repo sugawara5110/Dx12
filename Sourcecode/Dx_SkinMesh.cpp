@@ -528,12 +528,12 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 				FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(texture);
 				strcpy_s(m_pMaterial[mInd].szTextureName, fileTexture->GetFileName());
 				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
-				m_pMaterial[mInd].tex_no = GetTexNomber(m_pMaterial[mInd].szTextureName);
+				m_pMaterial[mInd].tex_no = GetTexNumber(m_pMaterial[mInd].szTextureName);
 			}
 			else {
 				strcpy_s(m_pMaterial[mInd].szTextureName, pMaterial->GetName());//テクスチャ名が無い場合マテリアル名から
 				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
-				m_pMaterial[mInd].tex_no = GetTexNomber(m_pMaterial[mInd].szTextureName);
+				m_pMaterial[mInd].tex_no = GetTexNumber(m_pMaterial[mInd].szTextureName);
 			}
 		
 			int iCount = 0;
@@ -854,64 +854,20 @@ void SkinMesh::GetTexture() {
 	}
 }
 
-int SkinMesh::GetTexNomber(CHAR *fileName) {
+int SkinMesh::GetTexNumber(CHAR *fileName) {
 
-	//ファイル名のみか検査
-	CHAR temp[255];
-	strcpy_s(temp, fileName);
+	fileName = dx->GetNameFromPass(fileName);
 
-	bool f = FALSE;
-
-	for (int i = 0; temp[i] != '\0' && i < 255; i++) {
-		if (temp[i] == '\\' || temp[i] == '/') { f = TRUE; break; }
+	for (int i = 0; i < TEX_PCS; i++) {
+		if (dx->texName[i] == '\0')continue;
+		char str[50];
+		char str1[50];
+		strcpy(str, dx->texName[i]);
+		strcpy(str1, fileName);
+		int i1 = 0;
+		while (str[i1] != '\0' && str[i1] != '.' && str[i1] == str1[i1++]);
+		if (str[i1] == '.')return i;
 	}
-
-	if (f) {
-		//ファイル名のみでは無い場合の処理
-		while (*fileName != '\0') fileName++;//終端文字までポインタを進める
-		while (*fileName != '\\' && *fileName != '/')fileName--;//ファイル名先頭の'\'か'/'までポインタを進める
-		fileName++;//'\'または'/'の次(ファイル名先頭文字)までポインタを進める
-	}
-
-	if (!strcmp(fileName, "boss1.jpg"))return 50;//boss1
-	if (!strcmp(fileName, "boss2.jpg"))return 51;//boss2
-	if (!strcmp(fileName, "boss3.jpg"))return 52;//boss3
-	if (!strcmp(fileName, "boss4.jpg"))return 53;//boss4
-	if (!strcmp(fileName, "lastboss.jpg"))return 59;//ラスボス
-
-	//プレイヤー1
-	if (!strcmp(fileName, "brown_eye.png") || !strcmp(fileName, "brown_eye_png"))return 90;
-	if (!strcmp(fileName, "classicshoes_texture_diffuse.png") || !strcmp(fileName, "classicshoes_texture_diffuse_png"))return 91;
-	if (!strcmp(fileName, "eyebrow001.png") || !strcmp(fileName, "eyebrow001_png"))return 92;
-	if (!strcmp(fileName, "jacket01_diffuse.png") || !strcmp(fileName, "jacket01_diffuse_png"))return 93;
-	if (!strcmp(fileName, "jeans01_black_diffuse.png") || !strcmp(fileName, "jeans01_black_diffuse_png"))return 94;
-	if (!strcmp(fileName, "male01_diffuse_black.png") || !strcmp(fileName, "male01_diffuse_black_png"))return 95;
-	if (!strcmp(fileName, "young_lightskinned_male_diffuse.png") || !strcmp(fileName, "young_lightskinned_male_diffuse_png"))return 96;
-	if (!strcmp(fileName, "wood.jpeg") || !strcmp(fileName, "wood_jpeg"))return 10;
-
-	//プレイヤー2
-	if (!strcmp(fileName, "brown_eye.png") || !strcmp(fileName, "brown_eye_png"))return 100;
-	if (!strcmp(fileName, "diffuse_black.png") || !strcmp(fileName, "diffuse_black_png"))return 101;
-	if (!strcmp(fileName, "eyebrow006.png") || !strcmp(fileName, "eyebrow006_png"))return 102;
-	if (!strcmp(fileName, "eyelashes03.png") || !strcmp(fileName, "eyelashes03_png"))return 103;
-	if (!strcmp(fileName, "shoes02_default.png") || !strcmp(fileName, "shoes02_default_png"))return 104;
-	if (!strcmp(fileName, "short01_black_diffuse.png") || !strcmp(fileName, "short01_black_diffuse_png"))return 105;
-	if (!strcmp(fileName, "tshirt02_texture.png") || !strcmp(fileName, "tshirt02_texture_png"))return 106;
-	if (!strcmp(fileName, "young_lightskinned_female_diffuse.png") || !strcmp(fileName, "young_lightskinned_female_diffuse_png"))return 107;
-	//プレイヤー3
-	if (!strcmp(fileName, "brown_eye.png") || !strcmp(fileName, "brown_eye_png"))return 110;
-	if (!strcmp(fileName, "classicshoes_texture_diffuse.png") || !strcmp(fileName, "classicshoes_texture_diffuse_png"))return 111;
-	if (!strcmp(fileName, "jeans_basic_diffuse.png") || !strcmp(fileName, "jeans_basic_diffuse_png"))return 112;
-	if (!strcmp(fileName, "young_darkskinned_male_diffuse.png") || !strcmp(fileName, "young_darkskinned_male_diffuse_png"))return 113;
-	//プレイヤー4
-	if (!strcmp(fileName, "afro.png") || !strcmp(fileName, "afro_png"))return 120;
-	if (!strcmp(fileName, "brown_eye.png") || !strcmp(fileName, "brown_eye_png"))return 121;
-	if (!strcmp(fileName, "eyebrow007.png") || !strcmp(fileName, "eyebrow007_png"))return 122;
-	if (!strcmp(fileName, "eyelashes03.png") || !strcmp(fileName, "eyelashes03_png"))return 123;
-	if (!strcmp(fileName, "shoes02_default.png") || !strcmp(fileName, "shoes02_default_png"))return 124;
-	if (!strcmp(fileName, "short01_black_diffuse.png") || !strcmp(fileName, "short01_black_diffuse_png"))return 125;
-	if (!strcmp(fileName, "tshirt_texture_blue.png") || !strcmp(fileName, "tshirt_texture_blue_png"))return 126;
-	if (!strcmp(fileName, "young_darkskinned_female_diffuse.png") || !strcmp(fileName, "young_darkskinned_female_diffuse_png"))return 127;
 
 	return -1;
 }

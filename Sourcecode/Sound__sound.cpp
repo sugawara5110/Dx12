@@ -5,81 +5,15 @@
 //*****************************************************************************************//
 
 #define _CRT_SECURE_NO_WARNINGS
-#include "MovieSoundManager.h"
+#include "Sound_.h"
 
-MovieSoundManager::Sound_::Sound_(){}
+Sound_::Sound_(){}
 
-MovieSoundManager::Sound_::Sound_(int no){
+Sound_::Sound_(char *pass) {
 
 	char *fname = NULL;
 
-	//復号処理
-	switch (no){
-		//効果音
-	case 0:
-		fname = BinaryDecode("./dat/movie/att.da");
-		break;
-	case 1:
-		fname = BinaryDecode("./dat/movie/flame.da");
-		break;
-	case 2:
-		fname = BinaryDecode("./dat/movie/heal.da");
-		break;
-	case 3:
-		fname = BinaryDecode("./dat/movie/magic.da");
-		break;
-	case 4:
-		fname = BinaryDecode("./dat/movie/select.da");
-		break;
-	case 5:
-		fname = BinaryDecode("./dat/movie/enter.da");
-		break;
-		//タイトル
-	case 20:
-		fname = BinaryDecode("./dat/movie/title.da");
-		break;
-		//ダンジョン
-	case 21:
-		fname = BinaryDecode("./dat/movie/dungeon0.da");
-		break;
-	case 22:
-		fname = BinaryDecode("./dat/movie/dungeon1.da");
-		break;
-	case 23:
-		fname = BinaryDecode("./dat/movie/rain.da");
-		break;
-	case 24:
-		fname = BinaryDecode("./dat/movie/dungeon2.da");
-		break;
-	case 25:
-		fname = BinaryDecode("./dat/movie/dungeon3.da");
-		break;
-	case 26:
-		fname = BinaryDecode("./dat/movie/dungeon4.da");
-		break;
-		//戦闘
-	case 30:
-		fname = BinaryDecode("./dat/movie/die.da");
-		break;
-	case 31:
-		fname = BinaryDecode("./dat/movie/side_enemy.da");
-		break;
-	case 32:
-		fname = BinaryDecode("./dat/movie/boss_enemy.da");
-		break;
-	case 33:
-		fname = BinaryDecode("./dat/movie/boss_enemy2.da");
-		break;
-	case 34:
-		fname = BinaryDecode("./dat/movie/lastboss.da");
-		break;
-	case 35:
-		fname = BinaryDecode("./dat/movie/ending.da");
-		break;
-	case 36:
-		fname = BinaryDecode("./dat/movie/bosslost.da");
-		break;
-	}
+	fname = BinaryDecode(pass);
 
 	BSTR bstr;
 	BSTR_Convert(fname, &bstr);
@@ -98,10 +32,10 @@ MovieSoundManager::Sound_::Sound_(int no){
 	//ストリームの時間幅を取得(最初に1回取得すればok)
 	pMediaPosition->get_Duration(&time2);
 
-	remove(fname);//ファイル削除、すぐに削除されないが使用中だとアクセスできないみたい
+	remove(fname);//ファイル削除。解放後削除されてる
 }
 
-void MovieSoundManager::Sound_::sound(bool repeat, long volume){
+void Sound_::sound(bool repeat, long volume){
 
 	pBasicAudio->put_Volume(volume);//音声ON
 
@@ -117,11 +51,11 @@ void MovieSoundManager::Sound_::sound(bool repeat, long volume){
 	}
 }
 
-void MovieSoundManager::Sound_::soundoff(){
+void Sound_::soundoff(){
 	pBasicAudio->put_Volume(-10000);//音声OFF
 }
 
-void MovieSoundManager::Sound_::soundloop(bool repeat, long volume, REFTIME start, REFTIME end){
+void Sound_::soundloop(bool repeat, long volume, REFTIME start, REFTIME end){
 
 	REFTIME s = time2 * start / 100.0;
 	REFTIME e = time2 * end / 100.0;

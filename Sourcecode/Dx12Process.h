@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <Process.h>
 #include <fbxsdk.h>
+#include <mutex>
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -167,9 +168,9 @@ private:
 	int mClientHeight = WINDOW_HEIGHT;
 
 	//テクスチャ
-	char  **binary_ch;                   //デコード後バイナリ
-	int   *binary_size;                 //バイナリサイズ
-	//テクスチャ保持
+	char  *binary_ch[TEX_PCS] = { 0 };    //デコード後バイナリ
+	int   binary_size[TEX_PCS] = { 0 };  //バイナリサイズ
+	char  *texName[TEX_PCS] = { 0 };
 	ID3D12Resource *texture[TEX_PCS];
 	ID3D12Resource *textureUp[TEX_PCS];
 
@@ -196,13 +197,14 @@ private:
 	CONSTANT_BUFFER cb;
 	int  ins_no = 0;
 
+	std::mutex mtx;
+
 	Dx12Process() {}//外部からのオブジェクト生成禁止
 	Dx12Process(const Dx12Process &obj) {}     // コピーコンストラクタ禁止
 	void operator=(const Dx12Process& obj) {};// 代入演算子禁止
 	~Dx12Process();
 	
 	void CreateShaderByteCode();
-	void TextureBinaryDecode(char *Bpass, int i);//暗号化済み画像バイナリデコード
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
 		const void* initData, UINT64 byteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
@@ -223,13 +225,16 @@ private:
 	void MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 	void WaitFence(int fence);
+	void Lock() { mtx.lock(); }
+	void Unlock() { mtx.unlock(); }
+	char *GetNameFromPass(char *pass);
 
 public:
 	static void InstanceCreate();
 	static Dx12Process *GetInstance();
 	static void DeleteInstance();
 	bool Initialize(HWND hWnd);
-	void TextureBinaryDecodeAll();
+	void TextureBinaryDecode(char *Bpass, int i);//暗号化済み画像バイナリデコード
 	void GetTexture();
 	void Sclear();
 	void Bigin(int com_no);
@@ -273,12 +278,6 @@ struct VertexView {
 
 		return vbv;
 	}
-
-	//GPUにアップロード後自分で解放する
-	void DisposeUploaders()
-	{
-		VertexBufferUploader = nullptr;
-	}
 };
 
 struct IndexView {
@@ -303,12 +302,6 @@ struct IndexView {
 		ibv.SizeInBytes = IndexBufferByteSize;
 
 		return ibv;
-	}
-
-	//GPUにアップロード後自分で解放する
-	void DisposeUploaders()
-	{
-		IndexBufferUploader = nullptr;
 	}
 };
 
@@ -335,20 +328,24 @@ struct StreamView {
 template<typename T>
 class UploadBuffer {
 
+private:
+	Microsoft::WRL::ComPtr<ID3D12Resource> mUploadBuffer;
+	BYTE *mMappedData = nullptr;
+	UINT mElementByteSize = 0;
+
 public:
-	UploadBuffer(ID3D12Device *device, UINT elementCount, bool isConstantBuffer) :
-		mIsConstantBuffer(isConstantBuffer)
-	{
+	UploadBuffer(ID3D12Device *device, UINT elementCount, bool isConstantBuffer) {
+
 		mElementByteSize = sizeof(T);
 
-		//コンスタントバッファの要素は256バイトにしておく(ハードウエアの都合上)
+		//コンスタントバッファサイズは256バイト単位にしておく(アライメント)
 		// at m*256 byte offsets and of n*256 byte lengths. 
 		// typedef struct D3D12_CONSTANT_BUFFER_VIEW_DESC {
 		// UINT64 OffsetInBytes; // multiple of 256
 		// UINT   SizeInBytes;   // multiple of 256
 		// } D3D12_CONSTANT_BUFFER_VIEW_DESC;
-		if (isConstantBuffer)
-			mElementByteSize = (sizeof(T) + 255) & ~255;
+		if (isConstantBuffer)//コンスタントバッファの場合
+			mElementByteSize = (sizeof(T) + 255) & ~255;//255を足して255の補数の論理積を取る。(255単位に変換)
 
 		device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -365,30 +362,22 @@ public:
 
 	UploadBuffer(const UploadBuffer& rhs) = delete;
 	UploadBuffer& operator=(const UploadBuffer& rhs) = delete;
-	~UploadBuffer()
-	{
+
+	~UploadBuffer() {
+
 		if (mUploadBuffer != nullptr)
 			mUploadBuffer->Unmap(0, nullptr);
 
 		mMappedData = nullptr;
 	}
 
-	ID3D12Resource *Resource()const
-	{
+	ID3D12Resource *Resource()const {
 		return mUploadBuffer.Get();
 	}
 
-	void CopyData(int elementIndex, const T& data)
-	{
+	void CopyData(int elementIndex, const T& data) {
 		memcpy(&mMappedData[elementIndex*mElementByteSize], &data, sizeof(T));
 	}
-
-private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> mUploadBuffer;
-	BYTE* mMappedData = nullptr;
-
-	UINT mElementByteSize = 0;
-	bool mIsConstantBuffer = false;
 };
 
 //*********************************MeshDataクラス*************************************//
@@ -809,7 +798,7 @@ private:
 	MATRIX GetCurrentPoseMatrix(int index);
 	void MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB);
 	void GetTexture();
-	int GetTexNomber(CHAR *fileName);
+	int GetTexNumber(CHAR *fileName);
 	bool SetNewPoseMatrices(float time, int ind);
 	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
 

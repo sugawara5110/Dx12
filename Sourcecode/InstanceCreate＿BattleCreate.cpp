@@ -5,6 +5,7 @@
 //*****************************************************************************************//
 
 #include "InstanceCreate.h"
+#include "TextureBinaryLoader.h"
 
 HANDLE *InstanceCreate::resource_loading_h = NULL;
 
@@ -62,8 +63,8 @@ void InstanceCreate::HeroCreate() {
 	Dx12Process::GetInstance()->WaitForInit();
 }
 
-void InstanceCreate::ResourceLoad(){
-	Dx12Process::GetInstance()->TextureBinaryDecodeAll();
+void InstanceCreate::ResourceLoad() {
+	TextureBinaryLoader::TextureBinaryDecodeAll();
 	MovieSoundManager::ObjInit();
 }
 
