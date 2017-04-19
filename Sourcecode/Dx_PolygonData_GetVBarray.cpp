@@ -91,8 +91,10 @@ void PolygonData::GetVBarray(PrimitiveType type, int v) {
 		verI = v * 4;
 	}
 
+	Dx12Process::Lock();
 	d3varray = (Vertex*)malloc(sizeof(Vertex) * ver);
 	d3varrayI = (std::uint16_t*)malloc(sizeof(std::uint16_t) * verI);
+	Dx12Process::Unlock();
 }
 
 void PolygonData::TextureInit(int width, int height) {
@@ -251,7 +253,9 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 	GetShaderByteCode(light, tNo);
 
 	//BuildConstantBuffers
+	Dx12Process::Lock();
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
+	Dx12Process::Unlock();
 
 	//BuildRootSignature
 	CD3DX12_DESCRIPTOR_RANGE texTable;

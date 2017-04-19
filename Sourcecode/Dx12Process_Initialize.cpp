@@ -56,6 +56,7 @@ void Dx12Process_sub::End() {
 }
 
 Dx12Process *Dx12Process::dx = NULL;
+std::mutex Dx12Process::mtx;
 
 void Dx12Process::InstanceCreate() {
 
@@ -79,6 +80,8 @@ void Dx12Process::DeleteInstance() {
 Dx12Process::~Dx12Process() {
 
 	WaitFenceCurrent();
+
+	SkinMesh::DeleteManager();
 
 	for (int i = 0; i < TEX_PCS; i++) {
 		if (binary_ch[i] == NULL)continue;
@@ -233,6 +236,10 @@ void Dx12Process::CreateShaderByteCode() {
 	//2D
 	pVertexShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "VSBaseColor", "vs_5_0");
 	pPixelShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "PSBaseColor", "ps_5_0");
+}
+
+void Dx12Process::TextureGetBuffer(char *Bpass, int i) {
+	BGetBuffer(Bpass, &binary_ch[i], &binary_size[i]);
 }
 
 void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
@@ -523,6 +530,8 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	fog.on_off = 0.0f;
 
 	CreateShaderByteCode();
+
+	SkinMesh::CreateManager();
 
 	return TRUE;
 }

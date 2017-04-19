@@ -52,7 +52,7 @@ protected:
 	bool Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos);
 
 public:
-	Hero();
+	Hero(){}
 	Hero(int no);
 	void P_DataInput(P_Data *p_dat);
 	void TorchSwitch(bool f);

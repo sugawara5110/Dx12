@@ -72,13 +72,13 @@ private:
 		int MA_select; //マジック対象カーソル位置
 		int R_select; //回復対象カーソル位置 
 	}Draw;
-	Draw *h_draw, *e_draw;
-	Position::E_Pos *e_pos;
-	Position::H_Pos *h_pos;
+	Draw h_draw[4];
+	Draw *e_draw;
+	Position::E_Pos e_pos[4];
+	Position::H_Pos h_pos;
 	Position::Bt_H_Pos *b_pos;
 
 	void Debug(Enemy *enemy);//デバック用
-	Battle(){};                //引数無し生成禁止
 	void Menucreate();
 	void Cursor_h(int no);
 	void Cursor_e(int select, float *r, float *b);
@@ -250,6 +250,7 @@ private:
 	}
 
 public:
+	Battle() {}
 	Battle(Hero *he, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
 	static bool InitFin();
 	Result Fight(Hero *he, Directionkey direction, Result result);

@@ -99,7 +99,6 @@ private:
 	Hero *he;//ˆÚ“®—p
 
 	void Debug();
-	Map(){};
 	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int *cnt);
 	void Mapfilter(Position::H_Pos *h_p);
 	void Mapdraw_Wood();
@@ -150,6 +149,7 @@ public:
 	static void SetBossKilled(int i, int f);
 	static int *GetBossKilled();
 	static int GetBossKilled(int map_no);
+	Map() {}
 	Map(Position::H_Pos *h_p, Hero *hero);
 	Encount Mapdraw(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
 	Position::E_Pos *Getposition(int p);

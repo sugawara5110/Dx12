@@ -21,9 +21,8 @@ protected:
 	int wid, hei; //格納時画像サイズ 
 	int **m_pix; //受け渡し用ピクセルデータ
 
-	Movie();
-
 public:
+	Movie() {}
 	Movie(char *pass);
 	int **GetFrame(int width, int height);
 	virtual ~Movie();

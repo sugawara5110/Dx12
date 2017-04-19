@@ -16,7 +16,9 @@ void MeshData::GetVBarrayThreadArray(MeshData *meshObj, char **Mpass, int pcs){
 	//生成済objポインタ受け取り
 	MeshObj = meshObj;
 	//ハンドル生成
+	Dx12Process::Lock();
 	MeshObj_H = (HANDLE*)malloc(sizeof(HANDLE) * pcs);
+	Dx12Process::Unlock();
 
 	//スレッド生成
 	if (pcs > 0)MeshObj_H[0] = (HANDLE)_beginthreadex(NULL, 0, GetVB0, NULL, 0, NULL);
@@ -281,7 +283,9 @@ void MeshData::LoadMaterialFromFile(LPSTR FileName, MY_MATERIAL** ppMaterial) {
 			MaterialCount++;
 		}
 	}
+	Dx12Process::Lock();
 	MY_MATERIAL* pMaterial = new MY_MATERIAL[MaterialCount]();
+	Dx12Process::Unlock();
 
 	//本読み込み	
 	fseek(fp, 0, SEEK_SET);
@@ -336,7 +340,9 @@ void MeshData::GetVBarray(LPSTR FileName) {
 
 	GetShaderByteCode(disp);
 
+	Dx12Process::Lock();
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
+	Dx12Process::Unlock();
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -418,9 +424,11 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	}
 
 	//一時的なメモリ確保
+	Dx12Process::Lock();
 	VECTOR3* pvCoord = new VECTOR3[VCount]();
 	VECTOR3* pvNormal = new VECTOR3[VNCount]();
 	VECTOR2* pvTexture = new VECTOR2[VTCount]();
+	Dx12Process::Unlock();
 
 	//本読み込み	
 	fseek(fp, 0, SEEK_SET);
@@ -465,7 +473,10 @@ void MeshData::GetVBarray(LPSTR FileName) {
 		}
 	}
 
+	Dx12Process::Lock();
 	mObject_MESHCB = new UploadBuffer<CONSTANT_BUFFER_MESH>(dx->md3dDevice.Get(), MaterialCount, true);//アドレスずらして各Materialアクセス
+	Dx12Process::Unlock();
+
 	for (int i = 0; i < MaterialCount; i++) {
 		CONSTANT_BUFFER_MESH sg;
 		sg.vDiffuse = pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
@@ -491,8 +502,10 @@ void MeshData::GetVBarray(LPSTR FileName) {
 
 	//フェイス　読み込み　バラバラに収録されている可能性があるので、マテリアル名を頼りにつなぎ合わせる
 	bool boFlag = false;
+	Dx12Process::Lock();
 	piFaceBuffer = new int[MaterialCount * FaceCount * 3]();//3頂点なので3インデックス * Material個数
 	pvVertexBuffer = new MY_VERTEX_MESH[FaceCount * 3]();
+	Dx12Process::Unlock();
 	int FCount = 0;
 	int dwPartFCount = 0;
 	for (int i = 0; i < MaterialCount; i++)

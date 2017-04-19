@@ -205,8 +205,10 @@ ID3D12PipelineState *PolygonData2D::GetPipelineState() {
 void PolygonData2D::GetVBarray2D(int pcs) {
 
 	ver = pcs * 4;
+	Dx12Process::Lock();
 	d2varray = (MY_VERTEX2*)malloc(sizeof(MY_VERTEX2) * ver);
 	d2varrayI = (std::uint16_t*)malloc(sizeof(std::uint16_t) * (int)(ver * 1.5));
+	Dx12Process::Unlock();
 }
 
 void PolygonData2D::TexOn() {
@@ -259,7 +261,9 @@ void PolygonData2D::Create(bool blend, bool alpha) {
 
 	GetShaderByteCode();
 
+	Dx12Process::Lock();
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER2D>(dx->md3dDevice.Get(), 1, true);
+	Dx12Process::Unlock();
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);

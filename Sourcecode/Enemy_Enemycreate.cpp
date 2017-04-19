@@ -7,8 +7,6 @@
 #include "Enemy.h"
 #include "Battle.h"
 
-Enemy::Enemy(){}
-
 Enemy::Enemy(int t_no, int no) {
 
 	o_no = no;

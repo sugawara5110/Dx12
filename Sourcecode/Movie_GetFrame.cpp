@@ -7,8 +7,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Movie.h"
 
-Movie::Movie(){}
-
 Movie::Movie(char *pass) {
 
 	pVideoInfoHeader = NULL;
@@ -69,7 +67,9 @@ Movie::Movie(char *pass) {
 
 	// バッファを用意
 	nBufferSize = am_media_type.lSampleSize;// データサイズ
+	Dx12Process::Lock();
 	pBuffer = new BYTE[nBufferSize];
+	Dx12Process::Unlock();
 
 	//pBuffe x方向1ラインサイズ計算
 	linesize = pVideoInfoHeader->bmiHeader.biWidth * 3;
@@ -100,10 +100,12 @@ int **Movie::GetFrame(int width, int height){
 	pSampleGrabber->GetCurrentBuffer(&nBufferSize, (long *)(pBuffer));
 
 	if (m_pix == NULL){
+		Dx12Process::Lock();
 		m_pix = (int**)malloc(sizeof(int*) * hei);
 		for (int i = 0; i < hei; i++){
 			m_pix[i] = (int*)malloc(sizeof(int) * wid);
 		}
+		Dx12Process::Unlock();
 	}
 
 	//フレームサイズ

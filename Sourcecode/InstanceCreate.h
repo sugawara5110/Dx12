@@ -10,11 +10,12 @@
 #include "Battle.h"
 #include "Map.h"
 #include <Process.h>
-#include <new>
 
 class InstanceCreate{
 
 private:
+	//進行状況
+	static int progress;
 	//初期リソース読み込み
 	static HANDLE *resource_loading_h;
 
@@ -35,9 +36,10 @@ private:
 	//Heroオブジェクト保持用
 	static Hero *he;
 
-	InstanceCreate(){};//インスタンス生成無
+	InstanceCreate(){}//インスタンス生成無
 
 public:
+	static int GetProgress();
 	static void CreateThread_R();
 	static void CreateThread_B();
 	static void CreateThread_M();

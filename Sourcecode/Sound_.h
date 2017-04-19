@@ -11,10 +11,8 @@
 
 class Sound_ :public DsProcess {
 
-protected:
-	Sound_();
-
 public:
+	Sound_() {}
 	Sound_(char *pass);
 	void sound(bool repeat, long volume);//volume -10000Å`0
 	void soundoff();

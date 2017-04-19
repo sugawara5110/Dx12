@@ -196,8 +196,10 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	Mapfilter(h_p);
 
 	//配置位置ずらし用
+	Dx12Process::Lock();
 	wood = new OBJPosRandomValue[woodcount];
 	wall1 = new OBJPosRandomValue[squarecount];
+	Dx12Process::Unlock();
 
 	//木
 	if (woodcount > 0) {
@@ -301,7 +303,9 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	dx->WaitForInit();
 
 	//ライトポジション構造体確保
+	Dx12Process::Lock();
 	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);
+	Dx12Process::Unlock();
 	//ポイントライトリセット
 	dx->ResetPointLight();
 }

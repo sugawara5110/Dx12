@@ -96,9 +96,11 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize) {
 	if (count == 0)return 0;
 
 	ptr = NULL;
+	Dx12Process::Lock();
 	TM = new TEXTMETRIC[count]();
 	GM = new GLYPHMETRICS[count]();
 	allsize = new DWORD[count]();//各要素までの合計サイズ
+	Dx12Process::Unlock();
 
 	for (int cnt = 0; cnt < count; cnt++) {
 		code = 0;
@@ -123,7 +125,9 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize) {
 			allsize[cnt] = allsize[cnt - 1] + size;
 		}
 	}
+	Dx12Process::Lock();
 	ptr = new BYTE[allsize[count - 1]]();
+	Dx12Process::Unlock();
 
 	for (int cnt = 0; cnt < count; cnt++) {
 		code = 0;

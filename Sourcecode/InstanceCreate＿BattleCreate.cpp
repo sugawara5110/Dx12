@@ -7,6 +7,7 @@
 #include "InstanceCreate.h"
 #include "TextureBinaryLoader.h"
 
+int InstanceCreate::progress = 0;
 HANDLE *InstanceCreate::resource_loading_h = NULL;
 
 HANDLE *InstanceCreate::battle_loading_h = NULL;
@@ -23,6 +24,10 @@ Map *InstanceCreate::map = NULL;
 Map *InstanceCreate::map_t = NULL;
 
 Hero *InstanceCreate::he = NULL;
+
+int InstanceCreate::GetProgress() {
+	return progress;
+}
 
 void InstanceCreate::CreateThread_R(){
 	resource_loading_h = (HANDLE*)_beginthreadex(NULL, 0, ResourceLoading, NULL, 0, NULL);
@@ -55,17 +60,24 @@ void InstanceCreate::DeleteThread_M(){
 }
 
 void InstanceCreate::HeroCreate() {
+	progress = 50;
 	Dx12Process::GetInstance()->Bigin(HERO_COM);
+	Dx12Process::Lock();
 	he = new Hero[4];
+	Dx12Process::Unlock();
 	int j = 0;
-	for (int i = 0; i < 4; i++)new(he + i) Hero(i);//配列をplacement newを使って初期化する
+	for (int i = 0; i < 4; i++) { new(he + i) Hero(i); progress += 10; }//配列をplacement newを使って初期化する
 	Dx12Process::GetInstance()->End(HERO_COM);
 	Dx12Process::GetInstance()->WaitForInit();
 }
 
 void InstanceCreate::ResourceLoad() {
+	TextureBinaryLoader::TextureGetBufferAll();
+	progress = 10;
 	TextureBinaryLoader::TextureBinaryDecodeAll();
+	progress = 30;
 	MovieSoundManager::ObjInit();
+	progress = 40;
 }
 
 Hero *InstanceCreate::Resource_load_f() {
@@ -88,9 +100,12 @@ void InstanceCreate::SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Pos
 	e_nu_d = e_nu;
 }
 
-void InstanceCreate::BattleCreate(){
-	if (battle == NULL){
-		battle = new Battle(he, e_po, h_po, encount_d, no_d, e_nu_d);
+void InstanceCreate::BattleCreate() {
+	if (battle == NULL) {
+		Dx12Process::Lock();
+		battle = new Battle();
+		Dx12Process::Unlock();
+		new(battle)Battle(he, e_po, h_po, encount_d, no_d, e_nu_d);
 	}
 }
 
@@ -118,8 +133,12 @@ void InstanceCreate::SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h){
 
 void InstanceCreate::MapCreate(){
 	S_DELETE(map_t);
-	map_t = new Map(h_p, he);
+	Dx12Process::Lock();
+	map_t = new Map();
+	Dx12Process::Unlock();
+	new(map_t) Map(h_p, he);
 	MovieSoundManager::ObjCreate_map(Map::GetMapNo());
+	progress = 95;
 }
 
 void InstanceCreate::MapObjSet(){
@@ -127,6 +146,7 @@ void InstanceCreate::MapObjSet(){
 	MovieSoundManager::ObjChange_map();
 	map = map_t;
 	map_t = NULL;
+	progress = 100;
 }
 
 void InstanceCreate::MapDelete(){

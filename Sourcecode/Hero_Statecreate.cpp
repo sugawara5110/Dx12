@@ -6,8 +6,6 @@
 
 #include "Hero.h"
 
-Hero::Hero(){}
-
 void Hero::P_DataInput(P_Data *p_dat){
 	p_data.Attack = p_dat->Attack;
 	p_data.Magic = p_dat->Magic;
@@ -97,7 +95,9 @@ Hero::Hero(int no) {
 		frameMaxAtt = 2000.0f;
 		break;
 	}
+	Dx12Process::Lock();
 	p_att = new SkinMesh();
+	Dx12Process::Unlock();
 	p_att->SetCommandList(HERO_COM);
 	p_att->SetState(TRUE, TRUE);
 	char p_att_pass[42];
@@ -117,7 +117,9 @@ Hero::Hero(int no) {
 		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
 		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 4);
 		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		Dx12Process::Lock();
 		torchWood = new SkinMesh();
+		Dx12Process::Unlock();
 		torchWood->SetCommandList(HERO_COM);
 		torchWood->SetState(TRUE, TRUE);
 		torchWood->Vertex_hold();
@@ -126,7 +128,9 @@ Hero::Hero(int no) {
 		torchWood->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
 		torchWood->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		Dx12Process::Lock();
 		torchFlame = new PolygonData();
+		Dx12Process::Unlock();
 		torchFlame->SetCommandList(HERO_COM);
 		torchFlame->GetVBarray(SQUARE, 1);
 		CreateTorchFlame();

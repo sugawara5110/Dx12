@@ -300,7 +300,6 @@ void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t) {
 	}
 }
 
-void Bdecode(char *bpass, char **binary, int *size) {
 	//暗号化時コード↓
 	/*
 	FILE *fp;
@@ -392,18 +391,21 @@ void Bdecode(char *bpass, char **binary, int *size) {
 	}
 	*/
 
-	//復号コード↓
+void BGetBuffer(char *bpass, char **binary, int *size) {
+
 	FILE *fp = fopen(bpass, "rb");
 
-	while (!feof(fp)) {
-		(*size)++; fgetc(fp);
-	}
-	(*size)++;//終端文字も含んだ個数
+	fseek(fp, 0, SEEK_END);
+	*size = ftell(fp);
+	*binary = (char*)malloc(sizeof(char) * (*size));
 
-	//ポインタを先頭に戻す
-	fseek(fp, 0, SEEK_SET);
+	fclose(fp);
+}
 
-	(*binary) = (char*)malloc(sizeof(char) * (*size));
+void Bdecode(char *bpass, char **binary, int *size) {
+
+	//復号コード↓
+	FILE *fp = fopen(bpass, "rb");
 
 	for (int i = 99; i >= 0; i--) {
 		(*binary)[i] = fgetc(fp);

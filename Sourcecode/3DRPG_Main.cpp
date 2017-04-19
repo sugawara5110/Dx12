@@ -76,7 +76,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			dx->Sclear();
 			DxText::GetInstance()->BiginDraw();
-			DxText::GetInstance()->UpDateText(L"‚m‚‚—‚k‚‚‚„‚‰‚Ž‚‡", 215.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			DxText::GetInstance()->UpDateText(L"‚m‚‚—‚k‚‚‚„‚‰‚Ž‚‡EE  “Š®—¹", 205.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			DxText::GetInstance()->UpDateValue(InstanceCreate::GetProgress(), 540.0f, (float)i, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			DxText::GetInstance()->EndDraw();
 			dx->DrawScreen();
 			if (down)i += 0.01;

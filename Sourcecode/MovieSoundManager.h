@@ -26,7 +26,7 @@ private:
 	static Sound_ *bosslost_so;
 	static int map_n;//dungeon_so[5]“Y‚¦Žš
 	
-	MovieSoundManager();
+	MovieSoundManager(){}
 
 public:
 	static void ObjInit();

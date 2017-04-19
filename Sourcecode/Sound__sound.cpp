@@ -7,8 +7,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Sound_.h"
 
-Sound_::Sound_(){}
-
 Sound_::Sound_(char *pass) {
 
 	char *fname = NULL;

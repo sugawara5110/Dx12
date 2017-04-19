@@ -125,6 +125,7 @@ Encount Map::Move(MapState *mapstate, Directionkey direction) {
 	//当たり判定
 	switch (direction) {
 	case UP:
+		//x方向,y方向別々に判定をし, 真の方向のみ更新する
 		if (CollisionDetection(cay1Tmp, cax1Tmp, UP)) {
 			if (CollisionDetection(cay1, cax1Tmp, UP)) {
 				if (CollisionDetection(cay1Tmp, cax1, UP))

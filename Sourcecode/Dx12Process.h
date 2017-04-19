@@ -35,6 +35,7 @@
 #include <Process.h>
 #include <fbxsdk.h>
 #include <mutex>
+#include <new>
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -197,7 +198,7 @@ private:
 	CONSTANT_BUFFER cb;
 	int  ins_no = 0;
 
-	std::mutex mtx;
+	static std::mutex mtx;
 
 	Dx12Process() {}//外部からのオブジェクト生成禁止
 	Dx12Process(const Dx12Process &obj) {}     // コピーコンストラクタ禁止
@@ -225,15 +226,17 @@ private:
 	void MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 	void WaitFence(int fence);
-	void Lock() { mtx.lock(); }
-	void Unlock() { mtx.unlock(); }
 	char *GetNameFromPass(char *pass);
-
+	
 public:
 	static void InstanceCreate();
 	static Dx12Process *GetInstance();
 	static void DeleteInstance();
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
+
 	bool Initialize(HWND hWnd);
+	void TextureGetBuffer(char *Bpass, int i);
 	void TextureBinaryDecode(char *Bpass, int i);//暗号化済み画像バイナリデコード
 	void GetTexture();
 	void Sclear();
@@ -723,8 +726,7 @@ class SkinMesh_sub {
 
 private:
 	friend SkinMesh;
-	FbxManager *m_pSdkManager = NULL;
-	FbxImporter *m_pImporter = NULL;
+	
 	FbxScene *m_pmyScene = NULL;
 	float end_frame, current_frame;
 
@@ -741,6 +743,10 @@ private:
 class SkinMesh {
 
 private:
+	friend SkinMesh_sub;
+	friend Dx12Process;
+	static FbxManager *m_pSdkManager;
+	static FbxImporter *m_pImporter;
 	//InitFBX排他処理用
 	static volatile bool stInitFBX_ON, stSetNewPose_ON;
 
@@ -787,6 +793,10 @@ private:
 	MATRIX *m_pLastBoneMatrix;
 	int AnimLastInd;
 	float BoneConnect;
+
+	//共通で使うマネージャー生成(Dx12Processで生成解放を行う)
+	static void CreateManager();
+	static void DeleteManager();
 
 	void DestroyFBX();
 	FbxScene* GetScene(int p);

@@ -15,6 +15,7 @@ private:
 	TextureBinaryLoader(){}
 
 public:
+	static void TextureGetBufferAll();
 	static void TextureBinaryDecodeAll();
 };
 

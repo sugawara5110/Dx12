@@ -22,7 +22,7 @@ protected:
 	virtual void ObjDraw(float x, float y, float z, float r, float g, float b, float theta);
 
 public:
-	EnemyBoss();
+	EnemyBoss() {}
 	EnemyBoss(int t_no, int no, Position::H_Pos *h_pos, Position::E_Pos *e_pos);
 	//@Override
 	virtual bool M_run_flg();//マジック実行フラグ

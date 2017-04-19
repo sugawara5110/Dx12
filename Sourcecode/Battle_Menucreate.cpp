@@ -20,11 +20,9 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	e_num = e_nu;//敵出現数
-	e_pos = (Position::E_Pos*)malloc(sizeof(Position::E_Pos) * 4);
 	memcpy(e_pos, e_po, sizeof(Position::E_Pos) * 4);//ポジションアドレス
-	h_pos = (Position::H_Pos*)malloc(sizeof(Position::H_Pos));
-	memcpy(h_pos, h_po, sizeof(Position::H_Pos));//ポジションアドレス
-	b_pos = GetBtPos(h_pos);//アドレスで渡す
+	memcpy(&h_pos, h_po, sizeof(Position::H_Pos));//ポジションアドレス
+	b_pos = GetBtPos(&h_pos);//アドレスで渡す
 	dx->Bigin(ENEMY_COM);
 	command.SetCommandList(ENEMY_COM);
 	command.GetVBarray2D(1);
@@ -79,13 +77,14 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	MovieSoundManager::Enemy_sound(TRUE);
 	if (encount == SIDE) {
 		//通常の敵の生成
+		Dx12Process::Lock();
 		enemyside = new EnemySide[e_num];
-
+		Dx12Process::Unlock();
 		int rnd;
 		//アップキャスト前に初期化
 		for (int i = 0; i < e_num; i++) {
 			rnd = (rand() % 4) + no * 4;
-			new(enemyside + i) EnemySide(rnd, i, h_pos, e_pos);// 配列をplacement newを使って初期化する
+			new(enemyside + i) EnemySide(rnd, i, &h_pos, e_pos);// 配列をplacement newを使って初期化する
 		}
 
 		//アップキャスト
@@ -93,11 +92,13 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	}
 	if (encount == BOSS) {
 		//ボス生成
+		Dx12Process::Lock();
 		enemyboss = new EnemyBoss[e_num];
+		Dx12Process::Unlock();
 
 		//アップキャスト前に初期化
 		for (int i = 0; i < e_num; i++) {
-			new(enemyboss + i) EnemyBoss(no, i, h_pos, e_pos);// 配列をplacement newを使って初期化する
+			new(enemyboss + i) EnemyBoss(no, i, &h_pos, e_pos);// 配列をplacement newを使って初期化する
 		}
 
 		//アップキャスト
@@ -112,8 +113,9 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	E_select_obj = 0;
 	MAG_select = NOSEL;
 	E_MAG_select = NOSEL;
+	Dx12Process::Lock();
 	e_draw = new Draw[e_num];
-	h_draw = new Draw[4];
+	Dx12Process::Unlock();
 	Menucreate();
 
 	for (int i = 0; i < e_num; i++) {
@@ -262,12 +264,7 @@ void Battle::SelectPermissionMove(Hero *hero){
 Battle::~Battle() {
 	dx->WaitFenceCurrent();
 	MovieSoundManager::ObjDelete_battle();
-	free(e_pos);
-	e_pos = NULL;
-	free(h_pos);
-	h_pos = NULL;
 	ARR_DELETE(enemy);
 	ARR_DELETE(e_draw);
-	ARR_DELETE(h_draw);
 	initFin = FALSE;
 }

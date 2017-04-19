@@ -54,7 +54,7 @@ public:
 	}Bt_H_Pos;//battle用hero位置
 
 private:
-	Position(){};//外部からのオブジェクト生成禁止
+	Position(){}//外部からのオブジェクト生成禁止
 	Position(const Position &obj){};     // コピーコンストラクタ禁止
 	void operator=(const Position& obj){};// 代入演算子禁止
 	static void P_Copy(H_Pos *h_posIn, H_Pos *h_posOut, float view_rev);

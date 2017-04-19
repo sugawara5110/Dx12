@@ -7,8 +7,6 @@
 #include "EnemyBoss.h"
 #include <time.h>
 
-EnemyBoss::EnemyBoss(){}
-
 EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e_po) :Enemy(t_no, no) {
 
 	h_pos = h_po;
@@ -128,7 +126,9 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	PosOffset(o_no);
 
 	if (t_no == 2) {
+		Dx12Process::Lock();
 		en_boss_att0 = new MeshData();
+		Dx12Process::Unlock();
 		en_boss_att0->SetCommandList(ENEMY_COM);
 		en_boss_att0->SetState(TRUE, TRUE, FALSE);
 		en_boss_att0->GetVBarray("./dat/mesh/boss3.obj");
@@ -136,7 +136,9 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	}
 
 	if (t_no != 2) {
+		Dx12Process::Lock();
 		en_boss_att = new SkinMesh();
+		Dx12Process::Unlock();
 		en_boss_att->SetCommandList(ENEMY_COM);
 		en_boss_att->SetState(TRUE, TRUE);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
@@ -165,7 +167,9 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 			break;
 		}
 	}
+	Dx12Process::Lock();
 	mag_boss = new ParticleData();
+	Dx12Process::Unlock();
 	mag_boss->SetCommandList(ENEMY_COM);
 	mag_boss->CreateParticle(61, 62, mag_size, 5.0f);
 }

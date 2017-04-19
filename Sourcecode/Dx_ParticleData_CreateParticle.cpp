@@ -87,7 +87,9 @@ void ParticleData::GetVbColarray(int texture_no, float size, float density) {
 	dx->textureUp[texture_no]->Unmap(0, nullptr);
 
 	//パーティクル配列確保
+	Dx12Process::Lock();
 	P_pos = (PartPos*)malloc(sizeof(PartPos) * ver);
+	Dx12Process::Unlock();
 
 	//ピクセルデータ読み込み
 	dx->textureUp[texture_no]->Map(0, nullptr, reinterpret_cast<void**>(&texResource));
@@ -121,7 +123,9 @@ void ParticleData::GetVbColarray(int texture_no, float size, float density) {
 
 void ParticleData::GetVBarray(int v) {
 	ver = v;
+	Dx12Process::Lock();
 	P_pos = (PartPos*)malloc(sizeof(PartPos) * ver);
+	Dx12Process::Unlock();
 }
 
 void ParticleData::CreateVbObj() {
@@ -317,7 +321,9 @@ void ParticleData::CreatePartsDraw(int texpar) {
 
 void ParticleData::CreateParticle(int texture_no, int texpar, float size, float density) {
 	GetShaderByteCode();
+	Dx12Process::Lock();
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER_P>(dx->md3dDevice.Get(), 1, true);
+	Dx12Process::Unlock();
 	GetVbColarray(texture_no, size, density);
 	CreateVbObj();
 	CreatePartsCom();
@@ -326,7 +332,9 @@ void ParticleData::CreateParticle(int texture_no, int texpar, float size, float 
 
 void ParticleData::CreateBillboard() {
 	GetShaderByteCode();
+	Dx12Process::Lock();
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER_P>(dx->md3dDevice.Get(), 1, true);
+	Dx12Process::Unlock();
 	CreateVbObj();
 	CreatePartsDraw(-1);
 }

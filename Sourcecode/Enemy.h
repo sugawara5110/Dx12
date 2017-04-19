@@ -62,7 +62,7 @@ protected:
 	void PosOffset(int o_no);
 
 public:
-	Enemy();
+	Enemy() {}
 	Enemy(int t_no, int no);
 	Act_fin_flg Enemydraw(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
 	Action Normal_act_get();

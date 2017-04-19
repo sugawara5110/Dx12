@@ -19,12 +19,12 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 
 	Position::H_Pos h_posOut;//視点変換後用
 	//視点初期値
-	h_posOut.cx = h_pos->cx;//視点
-	h_posOut.cy = h_pos->cy;//視点
-	h_posOut.cx2 = h_pos->cx2;//注視点
-	h_posOut.cy2 = h_pos->cy2;//注視点
-	h_posOut.cz = h_pos->cz;
-	h_posOut.theta = h_pos->theta;
+	h_posOut.cx = h_pos.cx;//視点
+	h_posOut.cy = h_pos.cy;//視点
+	h_posOut.cx2 = h_pos.cx2;//注視点
+	h_posOut.cy2 = h_pos.cy2;//注視点
+	h_posOut.cz = h_pos.cz;
+	h_posOut.theta = h_pos.theta;
 
 	dx->Bigin(ENEMY_COM);
 
@@ -32,7 +32,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 
 	//戦闘開始直後視点
 	if (!battlefirst) {
-		battlefirst = Position::CamRecession(h_pos, &h_posOut, tfloat.Add(0.1f));
+		battlefirst = Position::CamRecession(&h_pos, &h_posOut, tfloat.Add(0.1f));
 		if (battlefirst)Position::CamRecession(NULL, NULL, 0);//初期化(初期化しておかないと次回戦闘時機能しない)
 	}
 
@@ -75,7 +75,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	for (int i = 0; i < 4; i++)if (hero[i].Dieflg() == TRUE)h_draw[i].action = LOST;
 	//プレイヤーステータス表示
 	for (int i = 0; i < 4; i++) {
-		act = hero[i].Statedraw(this, &select_obj, h_pos, e_pos, h_draw[i].AGmeter / METER_MAX, h_draw[i].command_run, h_draw[i].action, h_draw[i].Magrun);
+		act = hero[i].Statedraw(this, &select_obj, &h_pos, e_pos, h_draw[i].AGmeter / METER_MAX, h_draw[i].command_run, h_draw[i].action, h_draw[i].Magrun);
 		switch (act) {
 		case AT_FIN://プレイヤー側攻撃,回復終了
 			ValueDraw<Hero>(hero, e_draw, h_draw, e_num, 4);//フラグ, action = DAMAGE or RECOVER
@@ -330,7 +330,7 @@ void Battle::E_drawPos(int i){
 
 void Battle::H_drawPos(int i){
 	VECTOR3 p3;
-	p3.as(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, h_pos->pz * 100.0f);
+	p3.as(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, h_pos.pz * 100.0f);
 	PolygonData2D::Pos2DCompute(&p3);
 	h_draw[i].draw_x = p3.x;
 	h_draw[i].draw_y = p3.y;
