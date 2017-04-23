@@ -52,6 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Dx12Process::DeleteInstance();
 		return -1;
 	}
+	
 	//DxTextオブジェクト生成
 	DxText::InstanceCreate();
 	//プレイヤー
@@ -74,12 +75,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				break;
 			}
 
+			dx->Lock();
 			dx->Sclear();
 			DxText::GetInstance()->BiginDraw();
-			DxText::GetInstance()->UpDateText(L"ＮｏｗＬｏａｄｉｎｇ・・  ％完了", 205.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+			DxText::GetInstance()->UpDateText(L"ＮｏｗＬｏａｄｉｎｇ・・   ％完了", 185.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			DxText::GetInstance()->UpDateValue(InstanceCreate::GetProgress(), 540.0f, (float)i, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			DxText::GetInstance()->EndDraw();
+			dx->Unlock();
+			dx->ReplySync();
 			dx->DrawScreen();
+			
 			if (down)i += 0.01;
 			if (!down)i -= 0.01;
 			if (i > 320.0)down = FALSE;
@@ -115,6 +120,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int  rnd;
 	T_float tfloat;
 
+	//同期有無切り替え
+	bool sync = TRUE;//通常モード(シングルスレッド)
+
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg))break;
 
@@ -131,8 +139,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					heroInput = TRUE;
 					Map::SetMapNo(statemenu.SetMap_No());
 					for (int i = 0; i < 5; i++)Map::SetBossKilled(i, statemenu.Set_boss_kil(i));
+					sync = FALSE;
 				}
 				title = InstanceCreate::CreateMapIns(statemenu.SetH_Pos(), &hero[0], &map_no);
+				if (!title)sync = TRUE;
 			}
 		}
 
@@ -144,7 +154,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		switch (mapstate) {
 		case CHANGE_MAP:
-			if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no))mapstate = NORMAL_MAP;
+			sync = FALSE;
+			if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) { mapstate = NORMAL_MAP; sync = TRUE; }
 			break;
 		case RECOV_MAP:
 			for (int i = 0; i < 4; i++) {
@@ -186,8 +197,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				dx->Cameraset(h_posOut.cx, h_posOut.cx2, h_posOut.cy, h_posOut.cy2, h_posOut.cz, h_posOut.cz);
 				hero[0].OBJWalkDraw(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
+				//if(!battle_flg[0])sync = FALSE;
 				battle_flg[0] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
-				if (battle_flg[0])battle_flg[1] = TRUE;
+				if (battle_flg[0]) {
+					battle_flg[1] = TRUE;
+					//sync = TRUE;
+				}
 				if (f && battle_flg[1]) {
 					battle_flg[1] = FALSE;
 					battle_flg[2] = TRUE;
@@ -200,6 +215,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			if (battle_flg[2])result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
+
 			switch (result) {
 			case WIN:
 				if (battle_flg[2]) {
@@ -213,7 +229,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				DxText::GetInstance()->UpDateText(L"ＧＡＭＥＯＶＥＲ", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 				break;
 			}
-
 		}
 
 		switch (endingflg) {
@@ -232,6 +247,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		T_float::GetTime(hWnd);
 		DxText::GetInstance()->EndDraw();
+		
+		switch (sync) {
+		case TRUE://シングルスレッド
+			dx->WaitFencePast();
+			break;
+		case FALSE:
+			dx->ReplySync();
+			break;
+		}
 		dx->DrawScreen();
 	}
 

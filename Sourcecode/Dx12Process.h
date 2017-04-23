@@ -98,8 +98,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
 	Dx12Process_sub dx_sub[COM_NO];
-	volatile bool waitInit, InitFin;
-	volatile bool flagswitch;
+	volatile bool requestSync, replySync, syncFin;
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer = 0;
@@ -242,9 +241,12 @@ public:
 	void Sclear();
 	void Bigin(int com_no);
 	void End(int com_no);
-	void WaitFenceCurrent();//GPU処理そのまま待つ(シングルスレッド時CPU処理待たせたままGPU処理を待つ場合使用)
+	void WaitFenceCurrent();//GPU処理そのまま待つ
 	void WaitFencePast();//前回GPU処理未完の場合待つ
-	void WaitForInit();//他スレッドでCommandListClose直後実行し本スレッドのWaitFencePast()からGPU処理終了フラグを待つ
+	void RequestSync();//同期要求
+	void ReplySync();//同期返答
+	void SyncFin(bool on);//TRUE:同期終了
+	bool SyncFin();
 	void DrawScreen();
 	void Cameraset(float cx1, float cx2, float cy1, float cy2, float cz1, float cz2);
 	void ResetPointLight();
@@ -748,7 +750,9 @@ private:
 	static FbxManager *m_pSdkManager;
 	static FbxImporter *m_pImporter;
 	//InitFBX排他処理用
-	static volatile bool stInitFBX_ON, stSetNewPose_ON;
+	static volatile bool stInitFBX_ON, stSetNewPose_ON;//並列読み込みに後で改造する時やり方変える
+
+	FbxMutex fbm;//後で使い方を調べる今は使ってない
 
 	Dx12Process                *dx;
 	ID3D12GraphicsCommandList  *mCommandList;

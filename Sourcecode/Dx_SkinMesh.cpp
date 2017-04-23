@@ -178,7 +178,9 @@ HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
 	while (stSetNewPose_ON);
 	stInitFBX_ON = TRUE;
+	//fbm.Acquire();
 	f = fbx[p].Create(szFileName);
+	//fbm.Release();
 	stInitFBX_ON = FALSE;
 	
 	if (f)return S_OK;
@@ -760,6 +762,7 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 	bool subanm = TRUE;
 	if (ind <= 0 || ind > FBX_PCS - 1)subanm = FALSE;
 
+	//fbm.Acquire();
 	FbxMatrix matf0;
 	if (!subanm) {
 		matf0 = m_ppCluster[0]->GetLink()->EvaluateGlobalTransform(time);
@@ -805,6 +808,7 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 			MatrixMultiply(&m_BoneArray[i].mNewPose, &pose, &tmp);
 		}
 	}
+	//fbm.Release();
 
 	if (frame_end)fbx[ind].current_frame = 0.0f;
 

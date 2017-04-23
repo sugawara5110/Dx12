@@ -60,24 +60,31 @@ void InstanceCreate::DeleteThread_M(){
 }
 
 void InstanceCreate::HeroCreate() {
-	progress = 50;
-	Dx12Process::GetInstance()->Bigin(HERO_COM);
 	Dx12Process::Lock();
 	he = new Hero[4];
 	Dx12Process::Unlock();
-	int j = 0;
-	for (int i = 0; i < 4; i++) { new(he + i) Hero(i); progress += 10; }//配列をplacement newを使って初期化する
-	Dx12Process::GetInstance()->End(HERO_COM);
-	Dx12Process::GetInstance()->WaitForInit();
+	for (int i = 0; i < 4; i++) {
+		Dx12Process::GetInstance()->Bigin(HERO_COM);
+		new(he + i) Hero(i); progress += 10;//配列をplacement newを使って初期化する
+		Dx12Process::GetInstance()->End(HERO_COM);
+		Dx12Process::GetInstance()->RequestSync();
+	}
 }
 
 void InstanceCreate::ResourceLoad() {
+	Dx12Process::GetInstance()->RequestSync();
 	TextureBinaryLoader::TextureGetBufferAll();
 	progress = 10;
+	Dx12Process::GetInstance()->RequestSync();
 	TextureBinaryLoader::TextureBinaryDecodeAll();
 	progress = 30;
+	Dx12Process::GetInstance()->RequestSync();
 	MovieSoundManager::ObjInit();
 	progress = 40;
+	Dx12Process::GetInstance()->RequestSync();
+	Dx12Process::GetInstance()->GetTexture();
+	progress = 50;
+	Dx12Process::GetInstance()->RequestSync();
 }
 
 Hero *InstanceCreate::Resource_load_f() {
@@ -107,6 +114,7 @@ void InstanceCreate::BattleCreate() {
 		Dx12Process::Unlock();
 		new(battle)Battle(he, e_po, h_po, encount_d, no_d, e_nu_d);
 	}
+	//Dx12Process::GetInstance()->RequestSync();
 }
 
 void InstanceCreate::BattleDelete(){
@@ -139,9 +147,10 @@ void InstanceCreate::MapCreate(){
 	new(map_t) Map(h_p, he);
 	MovieSoundManager::ObjCreate_map(Map::GetMapNo());
 	progress = 95;
+	Dx12Process::GetInstance()->RequestSync();
 }
 
-void InstanceCreate::MapObjSet(){
+void InstanceCreate::MapObjSet() {
 	S_DELETE(map);
 	MovieSoundManager::ObjChange_map();
 	map = map_t;
@@ -184,7 +193,11 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 	}
 
 	if (th) {
-		if (battle != NULL && GetInstance_B()->InitFin()) { th = FALSE; return TRUE; }
+		if (battle != NULL && GetInstance_B()->InitFin()) {
+			//GPU処理を終わらせる,ここは本スレで実行されるのでWaitFenceCurrent()を使用
+			Dx12Process::GetInstance()->WaitFenceCurrent();
+			th = FALSE; return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -204,20 +217,26 @@ bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no){
 }
 
 unsigned __stdcall ResourceLoading(void *) {
+	Dx12Process::GetInstance()->SyncFin(FALSE);
 	InstanceCreate::ResourceLoad();
-	Dx12Process::GetInstance()->GetTexture();
 	InstanceCreate::HeroCreate();
 	InstanceCreate::MapCreate();//タイトルに出力するマップ
 	InstanceCreate::MapObjSet();
+	Dx12Process::GetInstance()->RequestSync();
+	Dx12Process::GetInstance()->SyncFin(TRUE);
 	return 0;
 }
 
 unsigned __stdcall InstanceLoadingBattle(void *){
-	InstanceCreate::BattleCreate();
+	//Dx12Process::GetInstance()->SyncFin(FALSE);
+	InstanceCreate::BattleCreate();//後で他のスレッド同様のCreate時の処理に変更する
+	//Dx12Process::GetInstance()->SyncFin(TRUE);
 	return 0;
 }
 
 unsigned __stdcall InstanceLoadingMap(void *){
+	Dx12Process::GetInstance()->SyncFin(FALSE);
 	InstanceCreate::MapCreate();
+	Dx12Process::GetInstance()->SyncFin(TRUE);
 	return 0;
 }

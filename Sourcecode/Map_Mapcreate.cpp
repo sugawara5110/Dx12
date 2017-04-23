@@ -300,7 +300,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	}
 
 	dx->End(Map_Com);
-	dx->WaitForInit();
+	dx->RequestSync();
 
 	//ライトポジション構造体確保
 	Dx12Process::Lock();

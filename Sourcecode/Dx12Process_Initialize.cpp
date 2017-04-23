@@ -43,9 +43,7 @@ void Dx12Process_sub::ListCreate() {
 void Dx12Process_sub::Bigin() {
 	mComState = OPEN;
 	mAloc_Num = 1 - mAloc_Num;
-	Dx12Process::dx->Lock();
 	mCmdListAlloc[mAloc_Num]->Reset();
-	Dx12Process::dx->Unlock();
 	mCommandList->Reset(mCmdListAlloc[mAloc_Num].Get(), nullptr);
 }
 
@@ -121,8 +119,6 @@ void Dx12Process::WaitFence(int fence) {
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
-	if (flagswitch) { InitFin = TRUE; waitInit = flagswitch = FALSE; return; }//このタイミングでwaitInit変化する可能性が有るのでreturn
-	if (waitInit) { flagswitch = TRUE; }
 }
 
 void Dx12Process::WaitFenceCurrent() {
@@ -130,14 +126,31 @@ void Dx12Process::WaitFenceCurrent() {
 }
 
 void Dx12Process::WaitFencePast() {
-	if (flagswitch)WaitFence(0);
-	else WaitFence(1);
+	WaitFence(1);
 }
 
-void Dx12Process::WaitForInit() {
-	waitInit = TRUE;
-	while (!InitFin);
-	InitFin = FALSE;
+void Dx12Process::RequestSync() {
+	while (requestSync);
+	WaitFenceCurrent();
+	requestSync = TRUE;
+	while (!replySync);
+	replySync = FALSE;
+}
+
+void Dx12Process::ReplySync() {
+	while (!requestSync && !syncFin);
+	WaitFenceCurrent();
+	replySync = TRUE;
+	requestSync = FALSE;
+}
+
+void Dx12Process::SyncFin(bool on) {
+	syncFin = on;
+	requestSync = replySync = FALSE;
+}
+
+bool Dx12Process::SyncFin() {
+	return syncFin;
 }
 
 void Dx12Process::CreateShaderByteCode() {
@@ -320,7 +333,7 @@ void Dx12Process::GetTexture() {
 		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
 	}
 	End(COM);
-	WaitForInit();
+	WaitFenceCurrent();
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {
@@ -393,7 +406,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 		dx_sub[i].ListCreate();
 	}
 	dx_sub[0].Bigin();
-	waitInit = InitFin = flagswitch = FALSE;
+	requestSync = replySync = syncFin = FALSE;
 
 	//初期化
 	mSwapChain.Reset();
@@ -574,7 +587,6 @@ void Dx12Process::End(int com_no) {
 
 void Dx12Process::DrawScreen() {
 	// swap the back and front buffers
-	WaitFencePast();
 	mSwapChain->Present(0, 0);
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 }
