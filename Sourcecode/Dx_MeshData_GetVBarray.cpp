@@ -6,225 +6,6 @@
 
 #include "Dx12Process.h"
 
-HANDLE *MeshData::MeshObj_H = NULL;
-MeshData *MeshData::MeshObj = NULL;
-char **MeshData::MeshPass = NULL;
-
-void MeshData::GetVBarrayThreadArray(MeshData *meshObj, char **Mpass, int pcs){
-	//objファイルパス配列受け取り
-	MeshPass = Mpass;
-	//生成済objポインタ受け取り
-	MeshObj = meshObj;
-	//ハンドル生成
-	Dx12Process::Lock();
-	MeshObj_H = (HANDLE*)malloc(sizeof(HANDLE) * pcs);
-	Dx12Process::Unlock();
-
-	//スレッド生成
-	if (pcs > 0)MeshObj_H[0] = (HANDLE)_beginthreadex(NULL, 0, GetVB0, NULL, 0, NULL);
-	if (pcs > 1)MeshObj_H[1] = (HANDLE)_beginthreadex(NULL, 0, GetVB1, NULL, 0, NULL);
-	if (pcs > 2)MeshObj_H[2] = (HANDLE)_beginthreadex(NULL, 0, GetVB2, NULL, 0, NULL);
-	if (pcs > 3)MeshObj_H[3] = (HANDLE)_beginthreadex(NULL, 0, GetVB3, NULL, 0, NULL);
-	if (pcs > 4)MeshObj_H[4] = (HANDLE)_beginthreadex(NULL, 0, GetVB4, NULL, 0, NULL);
-	if (pcs > 5)MeshObj_H[5] = (HANDLE)_beginthreadex(NULL, 0, GetVB5, NULL, 0, NULL);
-	if (pcs > 6)MeshObj_H[6] = (HANDLE)_beginthreadex(NULL, 0, GetVB6, NULL, 0, NULL);
-	if (pcs > 7)MeshObj_H[7] = (HANDLE)_beginthreadex(NULL, 0, GetVB7, NULL, 0, NULL);
-	if (pcs > 8)MeshObj_H[8] = (HANDLE)_beginthreadex(NULL, 0, GetVB8, NULL, 0, NULL);
-	if (pcs > 9)MeshObj_H[9] = (HANDLE)_beginthreadex(NULL, 0, GetVB9, NULL, 0, NULL);
-	if (pcs > 10)MeshObj_H[10] = (HANDLE)_beginthreadex(NULL, 0, GetVB10, NULL, 0, NULL);
-	if (pcs > 11)MeshObj_H[11] = (HANDLE)_beginthreadex(NULL, 0, GetVB11, NULL, 0, NULL);
-	if (pcs > 12)MeshObj_H[12] = (HANDLE)_beginthreadex(NULL, 0, GetVB12, NULL, 0, NULL);
-	if (pcs > 13)MeshObj_H[13] = (HANDLE)_beginthreadex(NULL, 0, GetVB13, NULL, 0, NULL);
-	if (pcs > 14)MeshObj_H[14] = (HANDLE)_beginthreadex(NULL, 0, GetVB14, NULL, 0, NULL);
-	if (pcs > 15)MeshObj_H[15] = (HANDLE)_beginthreadex(NULL, 0, GetVB15, NULL, 0, NULL);
-	if (pcs > 16)MeshObj_H[16] = (HANDLE)_beginthreadex(NULL, 0, GetVB16, NULL, 0, NULL);
-	if (pcs > 17)MeshObj_H[17] = (HANDLE)_beginthreadex(NULL, 0, GetVB17, NULL, 0, NULL);
-	if (pcs > 18)MeshObj_H[18] = (HANDLE)_beginthreadex(NULL, 0, GetVB18, NULL, 0, NULL);
-	if (pcs > 19)MeshObj_H[19] = (HANDLE)_beginthreadex(NULL, 0, GetVB19, NULL, 0, NULL);
-	if (pcs > 20)MeshObj_H[20] = (HANDLE)_beginthreadex(NULL, 0, GetVB20, NULL, 0, NULL);
-	if (pcs > 21)MeshObj_H[21] = (HANDLE)_beginthreadex(NULL, 0, GetVB21, NULL, 0, NULL);
-	if (pcs > 22)MeshObj_H[22] = (HANDLE)_beginthreadex(NULL, 0, GetVB22, NULL, 0, NULL);
-	if (pcs > 23)MeshObj_H[23] = (HANDLE)_beginthreadex(NULL, 0, GetVB23, NULL, 0, NULL);
-	if (pcs > 24)MeshObj_H[24] = (HANDLE)_beginthreadex(NULL, 0, GetVB24, NULL, 0, NULL);
-	if (pcs > 25)MeshObj_H[25] = (HANDLE)_beginthreadex(NULL, 0, GetVB25, NULL, 0, NULL);
-	if (pcs > 26)MeshObj_H[26] = (HANDLE)_beginthreadex(NULL, 0, GetVB26, NULL, 0, NULL);
-	if (pcs > 27)MeshObj_H[27] = (HANDLE)_beginthreadex(NULL, 0, GetVB27, NULL, 0, NULL);
-	if (pcs > 28)MeshObj_H[28] = (HANDLE)_beginthreadex(NULL, 0, GetVB28, NULL, 0, NULL);
-	if (pcs > 29)MeshObj_H[29] = (HANDLE)_beginthreadex(NULL, 0, GetVB29, NULL, 0, NULL);
-	if (pcs > 30)MeshObj_H[30] = (HANDLE)_beginthreadex(NULL, 0, GetVB30, NULL, 0, NULL);
-	if (pcs > 31)MeshObj_H[31] = (HANDLE)_beginthreadex(NULL, 0, GetVB31, NULL, 0, NULL);
-	if (pcs > 32)MeshObj_H[32] = (HANDLE)_beginthreadex(NULL, 0, GetVB32, NULL, 0, NULL);
-	if (pcs > 33)MeshObj_H[33] = (HANDLE)_beginthreadex(NULL, 0, GetVB33, NULL, 0, NULL);
-	if (pcs > 34)MeshObj_H[34] = (HANDLE)_beginthreadex(NULL, 0, GetVB34, NULL, 0, NULL);
-	if (pcs > 35)MeshObj_H[35] = (HANDLE)_beginthreadex(NULL, 0, GetVB35, NULL, 0, NULL);
-
-	//全スレッドが終了するまでループ
-	int cnt = 0;
-	while (cnt != pcs){
-		cnt = 0;
-		for (int i = 0; i < pcs; i++){
-			DWORD th_end;
-			GetExitCodeThread(MeshObj_H[i], &th_end);//ハンドルの状態
-			if (th_end != STILL_ACTIVE)cnt++;//停止してればカウント
-		}
-	}
-	for (int i = 0; i < pcs; i++){
-		WaitForSingleObject(MeshObj_H[i], INFINITE);//スレッドが終了するまで待つ
-		CloseHandle(MeshObj_H[i]);                 //ハンドルを閉じる
-		MeshObj_H[i] = NULL;
-	}
-	free(MeshObj_H);//ハンドル配列解放
-	MeshObj_H = NULL;
-	MeshObj = NULL;
-	MeshPass = NULL;
-}
-
-//GetVBarrayThreadArray内で使用
-unsigned __stdcall GetVB0(void *){
-	MeshData::MeshObj[0].GetVBarray(MeshData::MeshPass[0]);
-	return 0;
-}
-unsigned __stdcall GetVB1(void *){
-	MeshData::MeshObj[1].GetVBarray(MeshData::MeshPass[1]);
-	return 0;
-}
-unsigned __stdcall GetVB2(void *){
-	MeshData::MeshObj[2].GetVBarray(MeshData::MeshPass[2]);
-	return 0;
-}
-unsigned __stdcall GetVB3(void *){
-	MeshData::MeshObj[3].GetVBarray(MeshData::MeshPass[3]);
-	return 0;
-}
-unsigned __stdcall GetVB4(void *){
-	MeshData::MeshObj[4].GetVBarray(MeshData::MeshPass[4]);
-	return 0;
-}
-unsigned __stdcall GetVB5(void *){
-	MeshData::MeshObj[5].GetVBarray(MeshData::MeshPass[5]);
-	return 0;
-}
-unsigned __stdcall GetVB6(void *){
-	MeshData::MeshObj[6].GetVBarray(MeshData::MeshPass[6]);
-	return 0;
-}
-unsigned __stdcall GetVB7(void *){
-	MeshData::MeshObj[7].GetVBarray(MeshData::MeshPass[7]);
-	return 0;
-}
-unsigned __stdcall GetVB8(void *){
-	MeshData::MeshObj[8].GetVBarray(MeshData::MeshPass[8]);
-	return 0;
-}
-unsigned __stdcall GetVB9(void *){
-	MeshData::MeshObj[9].GetVBarray(MeshData::MeshPass[9]);
-	return 0;
-}
-unsigned __stdcall GetVB10(void *){
-	MeshData::MeshObj[10].GetVBarray(MeshData::MeshPass[10]);
-	return 0;
-}
-unsigned __stdcall GetVB11(void *){
-	MeshData::MeshObj[11].GetVBarray(MeshData::MeshPass[11]);
-	return 0;
-}
-unsigned __stdcall GetVB12(void *){
-	MeshData::MeshObj[12].GetVBarray(MeshData::MeshPass[12]);
-	return 0;
-}
-unsigned __stdcall GetVB13(void *){
-	MeshData::MeshObj[13].GetVBarray(MeshData::MeshPass[13]);
-	return 0;
-}
-unsigned __stdcall GetVB14(void *){
-	MeshData::MeshObj[14].GetVBarray(MeshData::MeshPass[14]);
-	return 0;
-}
-unsigned __stdcall GetVB15(void *){
-	MeshData::MeshObj[15].GetVBarray(MeshData::MeshPass[15]);
-	return 0;
-}
-unsigned __stdcall GetVB16(void *){
-	MeshData::MeshObj[16].GetVBarray(MeshData::MeshPass[16]);
-	return 0;
-}
-unsigned __stdcall GetVB17(void *){
-	MeshData::MeshObj[17].GetVBarray(MeshData::MeshPass[17]);
-	return 0;
-}
-unsigned __stdcall GetVB18(void *){
-	MeshData::MeshObj[18].GetVBarray(MeshData::MeshPass[18]);
-	return 0;
-}
-unsigned __stdcall GetVB19(void *){
-	MeshData::MeshObj[19].GetVBarray(MeshData::MeshPass[19]);
-	return 0;
-}
-unsigned __stdcall GetVB20(void *){
-	MeshData::MeshObj[20].GetVBarray(MeshData::MeshPass[20]);
-	return 0;
-}
-unsigned __stdcall GetVB21(void *){
-	MeshData::MeshObj[21].GetVBarray(MeshData::MeshPass[21]);
-	return 0;
-}
-unsigned __stdcall GetVB22(void *){
-	MeshData::MeshObj[22].GetVBarray(MeshData::MeshPass[22]);
-	return 0;
-}
-unsigned __stdcall GetVB23(void *){
-	MeshData::MeshObj[23].GetVBarray(MeshData::MeshPass[23]);
-	return 0;
-}
-unsigned __stdcall GetVB24(void *){
-	MeshData::MeshObj[24].GetVBarray(MeshData::MeshPass[24]);
-	return 0;
-}
-unsigned __stdcall GetVB25(void *){
-	MeshData::MeshObj[25].GetVBarray(MeshData::MeshPass[25]);
-	return 0;
-}
-unsigned __stdcall GetVB26(void *){
-	MeshData::MeshObj[26].GetVBarray(MeshData::MeshPass[26]);
-	return 0;
-}
-unsigned __stdcall GetVB27(void *){
-	MeshData::MeshObj[27].GetVBarray(MeshData::MeshPass[27]);
-	return 0;
-}
-unsigned __stdcall GetVB28(void *){
-	MeshData::MeshObj[28].GetVBarray(MeshData::MeshPass[28]);
-	return 0;
-}
-unsigned __stdcall GetVB29(void *){
-	MeshData::MeshObj[29].GetVBarray(MeshData::MeshPass[29]);
-	return 0;
-}
-unsigned __stdcall GetVB30(void *){
-	MeshData::MeshObj[30].GetVBarray(MeshData::MeshPass[30]);
-	return 0;
-}
-unsigned __stdcall GetVB31(void *){
-	MeshData::MeshObj[31].GetVBarray(MeshData::MeshPass[31]);
-	return 0;
-}
-unsigned __stdcall GetVB32(void *){
-	MeshData::MeshObj[32].GetVBarray(MeshData::MeshPass[32]);
-	return 0;
-}
-unsigned __stdcall GetVB33(void *){
-	MeshData::MeshObj[33].GetVBarray(MeshData::MeshPass[33]);
-	return 0;
-}
-unsigned __stdcall GetVB34(void *){
-	MeshData::MeshObj[34].GetVBarray(MeshData::MeshPass[34]);
-	return 0;
-}
-unsigned __stdcall GetVB35(void *){
-	MeshData::MeshObj[35].GetVBarray(MeshData::MeshPass[35]);
-	return 0;
-}
-
 MeshData::MeshData() {
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
@@ -261,7 +42,7 @@ void MeshData::GetShaderByteCode(bool disp) {
 	}
 }
 
-void MeshData::LoadMaterialFromFile(LPSTR FileName, MY_MATERIAL** ppMaterial) {
+void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 
 	//マテリアルファイルを開いて内容を読み込む
 	FILE* fp = NULL;
@@ -283,9 +64,8 @@ void MeshData::LoadMaterialFromFile(LPSTR FileName, MY_MATERIAL** ppMaterial) {
 			MaterialCount++;
 		}
 	}
-	Dx12Process::Lock();
+	
 	MY_MATERIAL* pMaterial = new MY_MATERIAL[MaterialCount]();
-	Dx12Process::Unlock();
 
 	//本読み込み	
 	fseek(fp, 0, SEEK_SET);
@@ -336,13 +116,74 @@ void MeshData::SetState(bool al, bool bl, bool di) {
 	}
 }
 
-void MeshData::GetVBarray(LPSTR FileName) {
+void MeshData::GetBuffer(char *FileName) {
+
+	strcpy_s(mFileName, FileName);
+
+	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
+
+	int VCount = 0;//読み込みカウンター
+	int VNCount = 0;//読み込みカウンター
+	int VTCount = 0;//読み込みカウンター
+	FaceCount = 0;//ポリゴン数カウンター
+
+	char line[200] = { 0 };
+	char key[200] = { 0 };
+	//OBJファイルを開いて内容を読み込む
+	FILE* fp = NULL;
+	fopen_s(&fp, mFileName, "rt");
+
+	//事前に頂点数、ポリゴン数を調べる
+	while (!feof(fp))
+	{
+		//キーワード読み込み
+		fgets(line, sizeof(line), fp);
+		sscanf_s(line, "%s ", key, sizeof(key));
+		//マテリアル読み込み
+		if (strcmp(key, "mtllib") == 0)
+		{
+			sscanf_s(&line[7], "%s ", key, sizeof(key));
+			LoadMaterialFromFile(key, &pMaterial);
+		}
+		//頂点
+		if (strcmp(key, "v") == 0)
+		{
+			VCount++;
+		}
+		//法線
+		if (strcmp(key, "vn") == 0)
+		{
+			VNCount++;
+		}
+		//テクスチャー座標
+		if (strcmp(key, "vt") == 0)
+		{
+			VTCount++;
+		}
+		//フェイス（ポリゴン）
+		if (strcmp(key, "f") == 0)
+		{
+			FaceCount++;
+		}
+	}
+	fclose(fp);
+
+	//一時的なメモリ確保
+	pvCoord = new VECTOR3[VCount]();
+	pvNormal = new VECTOR3[VNCount]();
+	pvTexture = new VECTOR2[VTCount]();
+
+	mObject_MESHCB = new UploadBuffer<CONSTANT_BUFFER_MESH>(dx->md3dDevice.Get(), MaterialCount, true);//アドレスずらして各Materialアクセス
+	Vview = std::make_unique<VertexView>();
+	Iview = std::make_unique<IndexView[]>(MaterialCount);
+
+	piFaceBuffer = new int[MaterialCount * FaceCount * 3]();//3頂点なので3インデックス * Material個数
+	pvVertexBuffer = new MY_VERTEX_MESH[FaceCount * 3]();
+}
+
+void MeshData::CreateMesh() {
 
 	GetShaderByteCode(disp);
-
-	Dx12Process::Lock();
-	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
-	Dx12Process::Unlock();
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -381,61 +222,14 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	int VCount = 0;//読み込みカウンター
 	int VNCount = 0;//読み込みカウンター
 	int VTCount = 0;//読み込みカウンター
-	FaceCount = 0;//ポリゴン数カウンター
 
 	char line[200] = { 0 };
 	char key[200] = { 0 };
 	//OBJファイルを開いて内容を読み込む
 	FILE* fp = NULL;
-	fopen_s(&fp, FileName, "rt");
-
-	//事前に頂点数、ポリゴン数を調べる
-	while (!feof(fp))
-	{
-		//キーワード読み込み
-		fgets(line, sizeof(line), fp);
-		sscanf_s(line, "%s ", key, sizeof(key));
-		//マテリアル読み込み
-		if (strcmp(key, "mtllib") == 0)
-		{
-			sscanf_s(&line[7], "%s ", key, sizeof(key));
-			LoadMaterialFromFile(key, &pMaterial);
-		}
-		//頂点
-		if (strcmp(key, "v") == 0)
-		{
-			VCount++;
-		}
-		//法線
-		if (strcmp(key, "vn") == 0)
-		{
-			VNCount++;
-		}
-		//テクスチャー座標
-		if (strcmp(key, "vt") == 0)
-		{
-			VTCount++;
-		}
-		//フェイス（ポリゴン）
-		if (strcmp(key, "f") == 0)
-		{
-			FaceCount++;
-		}
-	}
-
-	//一時的なメモリ確保
-	Dx12Process::Lock();
-	VECTOR3* pvCoord = new VECTOR3[VCount]();
-	VECTOR3* pvNormal = new VECTOR3[VNCount]();
-	VECTOR2* pvTexture = new VECTOR2[VTCount]();
-	Dx12Process::Unlock();
+	fopen_s(&fp, mFileName, "rt");
 
 	//本読み込み	
-	fseek(fp, 0, SEEK_SET);
-	VCount = 0;
-	VNCount = 0;
-	VTCount = 0;
-
 	while (!feof(fp))
 	{
 		//キーワード 読み込み
@@ -473,10 +267,6 @@ void MeshData::GetVBarray(LPSTR FileName) {
 		}
 	}
 
-	Dx12Process::Lock();
-	mObject_MESHCB = new UploadBuffer<CONSTANT_BUFFER_MESH>(dx->md3dDevice.Get(), MaterialCount, true);//アドレスずらして各Materialアクセス
-	Dx12Process::Unlock();
-
 	for (int i = 0; i < MaterialCount; i++) {
 		CONSTANT_BUFFER_MESH sg;
 		sg.vDiffuse = pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
@@ -497,15 +287,9 @@ void MeshData::GetVBarray(LPSTR FileName) {
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
-	Vview = std::make_unique<VertexView>();
-	Iview = std::make_unique<IndexView[]>(MaterialCount);
-
 	//フェイス　読み込み　バラバラに収録されている可能性があるので、マテリアル名を頼りにつなぎ合わせる
 	bool boFlag = false;
-	Dx12Process::Lock();
-	piFaceBuffer = new int[MaterialCount * FaceCount * 3]();//3頂点なので3インデックス * Material個数
-	pvVertexBuffer = new MY_VERTEX_MESH[FaceCount * 3]();
-	Dx12Process::Unlock();
+
 	int FCount = 0;
 	int dwPartFCount = 0;
 	for (int i = 0; i < MaterialCount; i++)
@@ -581,7 +365,7 @@ void MeshData::GetVBarray(LPSTR FileName) {
 		Iview[i].IndexBufferByteSize = ibByteSize;
 		Iview[i].IndexCount = dwPartFCount * 3;
 	}
-	
+
 	fclose(fp);
 
 	const UINT vbByteSize = (UINT)FCount * 3 * sizeof(MY_VERTEX_MESH);

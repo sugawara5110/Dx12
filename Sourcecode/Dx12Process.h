@@ -361,8 +361,6 @@ public:
 			IID_PPV_ARGS(&mUploadBuffer));
 
 		mUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData));
-		//デストラクタでUnmap
-		//GPU使用中書き込まない事
 	}
 
 	UploadBuffer(const UploadBuffer& rhs) = delete;
@@ -415,6 +413,11 @@ private:
 	int              *piFaceBuffer;
 	MY_VERTEX_MESH   *pvVertexBuffer;
 	int              FaceCount;  //ポリゴン数カウンター
+	char             mFileName[255];
+	//一時保管
+	VECTOR3 *pvCoord;
+	VECTOR3 *pvNormal;
+	VECTOR2 *pvTexture;
 
 	struct MY_MATERIAL {
 		CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
@@ -437,22 +440,17 @@ private:
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
-	void LoadMaterialFromFile(LPSTR FileName, MY_MATERIAL** ppMaterial);
+	void LoadMaterialFromFile(char *FileName, MY_MATERIAL **ppMaterial);
 	void GetShaderByteCode(bool disp);
 	void DrawParts();
 
 public:
-	static HANDLE *MeshObj_H;
-	static MeshData *MeshObj;
-	static char **MeshPass;
-
-	static void GetVBarrayThreadArray(MeshData *meshObj, char **Mpass, int pcs);
-
 	MeshData();
 	~MeshData();
 	void SetCommandList(int no);
 	void SetState(bool alpha, bool blend, bool disp);
-	void GetVBarray(LPSTR FileName);
+	void GetBuffer(char *FileName);
+	void CreateMesh();
 	void GetTexture();
 	ID3D12PipelineState *GetPipelineState();
 	//木./dat/mesh/tree.obj
@@ -460,43 +458,6 @@ public:
 	void InstanceDraw(float r, float g, float b, float disp);
 	void Draw(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp);
 };
-//GetVBarrayThreadArray内で使用
-unsigned __stdcall GetVB0(void *);
-unsigned __stdcall GetVB1(void *);
-unsigned __stdcall GetVB2(void *);
-unsigned __stdcall GetVB3(void *);
-unsigned __stdcall GetVB4(void *);
-unsigned __stdcall GetVB5(void *);
-unsigned __stdcall GetVB6(void *);
-unsigned __stdcall GetVB7(void *);
-unsigned __stdcall GetVB8(void *);
-unsigned __stdcall GetVB9(void *);
-unsigned __stdcall GetVB10(void *);
-unsigned __stdcall GetVB11(void *);
-unsigned __stdcall GetVB12(void *);
-unsigned __stdcall GetVB13(void *);
-unsigned __stdcall GetVB14(void *);
-unsigned __stdcall GetVB15(void *);
-unsigned __stdcall GetVB16(void *);
-unsigned __stdcall GetVB17(void *);
-unsigned __stdcall GetVB18(void *);
-unsigned __stdcall GetVB19(void *);
-unsigned __stdcall GetVB20(void *);
-unsigned __stdcall GetVB21(void *);
-unsigned __stdcall GetVB22(void *);
-unsigned __stdcall GetVB23(void *);
-unsigned __stdcall GetVB24(void *);
-unsigned __stdcall GetVB25(void *);
-unsigned __stdcall GetVB26(void *);
-unsigned __stdcall GetVB27(void *);
-unsigned __stdcall GetVB28(void *);
-unsigned __stdcall GetVB29(void *);
-unsigned __stdcall GetVB30(void *);
-unsigned __stdcall GetVB31(void *);
-unsigned __stdcall GetVB32(void *);
-unsigned __stdcall GetVB33(void *);
-unsigned __stdcall GetVB34(void *);
-unsigned __stdcall GetVB35(void *);
 
 //*********************************PolygonDataクラス*************************************//
 
@@ -711,11 +672,12 @@ public:
 	~ParticleData();
 	void SetCommandList(int no);
 	void TextureInit(int width, int height);
-	void GetVBarray(int v);
+	void GetBufferParticle(int texture_no, float size, float density);//テクスチャを元にパーティクルデータ生成, 全体サイズ倍率, 密度
+	void GetBufferBill(int v);
 	void SetVertex(int i,
 		float vx, float vy, float vz,
 		float r, float g, float b, float a);
-	void CreateParticle(int texture_no, int texpar, float size, float density);//テクスチャを元にパーティクルデータ生成, 全体サイズ倍率, 密度
+	void CreateParticle(int texpar);//パーティクル1個のテクスチャナンバー
 	void CreateBillboard();//ver個の四角形を生成
 	void Draw(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
 	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
@@ -778,10 +740,19 @@ private:
 	//メッシュ関連	
 	DWORD *m_pdwNumVert;//メッシュ毎の頂点数
 	DWORD VerAllpcs;    //全頂点数
-	DWORD MateAllpcs;  //全マテリアル数
 	MY_VERTEX_S *pvVB;//使用後保持するか破棄するかフラグで決める,通常は破棄
 	bool pvVB_delete_f;
+
+	int MateAllpcs;  //全マテリアル数
 	MY_MATERIAL_S *m_pMaterial;
+
+	//一時格納用
+	DWORD *m_pMaterialCount;//メッシュ毎のマテリアルカウント
+	DWORD *pdwNumFace; //メッシュ毎のポリゴン数
+	int *IndexCount34Me;  //4頂点ポリゴン分割前のメッシュ毎のインデックス数
+	int *IndexCount3M;  //4頂点ポリゴン分割後のマテリアル毎のインデックス数
+	int **piFaceBuffer;//メッシュ毎の頂点インデックス配列
+	int **pIndex;      //メッシュ毎の4頂点分割後インデックス配列
 
 	//ボーン
 	int m_iNumBone;
@@ -797,6 +768,7 @@ private:
 	MATRIX *m_pLastBoneMatrix;
 	int AnimLastInd;
 	float BoneConnect;
+
 
 	//共通で使うマネージャー生成(Dx12Processで生成解放を行う)
 	static void CreateManager();
@@ -827,8 +799,10 @@ public:
 	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind);
 	void SetConnectStep(int ind, float step);
 	void Vertex_hold();
-	HRESULT CreateFromFBX(CHAR* szFileName, float end_frame);
-	HRESULT CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float end_frame);
+	HRESULT GetBuffer(CHAR* szFileName, float end_frame);
+	void CreateFromFBX();
+	HRESULT GetBuffer_Sub(CHAR* szFileName, int ind, float end_frame);
+	void CreateFromFBX_SubAnimation(int ind);
 	bool Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 	bool Draw(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scale);

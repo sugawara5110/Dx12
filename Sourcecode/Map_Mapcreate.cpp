@@ -82,7 +82,10 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		//山
 		mountain.SetCommandList(Map_Com);
 		mountain.SetState(TRUE, TRUE, FALSE);
-		mountain.GetVBarray("./dat/mesh/mountain.obj");
+		Dx12Process::Lock();
+		mountain.GetBuffer("./dat/mesh/mountain.obj");
+		Dx12Process::Unlock();
+		mountain.CreateMesh();
 		mountain.GetTexture();
 		//地面入り口
 		poGroundF.SetCommandList(Map_Com);
@@ -205,7 +208,10 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	if (woodcount > 0) {
 		mWood.SetCommandList(Map_Com);
 		mWood.SetState(TRUE, TRUE, FALSE);
-		mWood.GetVBarray("./dat/mesh/tree.obj");
+		Dx12Process::Lock();
+		mWood.GetBuffer("./dat/mesh/tree.obj");
+		Dx12Process::Unlock();
+		mWood.CreateMesh();
 		mWood.GetTexture();
 	}
 
@@ -268,7 +274,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
 		poMo.SetCommandList(Map_Com);
-		poMo.GetVBarray(lightcount);
+		poMo.GetBufferBill(lightcount);
 		poMo.TextureInit(128, 128);
 		Mapcreate_Ds();
 		poMo.CreateBillboard();

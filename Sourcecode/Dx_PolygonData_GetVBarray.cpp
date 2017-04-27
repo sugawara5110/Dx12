@@ -91,10 +91,11 @@ void PolygonData::GetVBarray(PrimitiveType type, int v) {
 		verI = v * 4;
 	}
 
-	Dx12Process::Lock();
 	d3varray = (Vertex*)malloc(sizeof(Vertex) * ver);
 	d3varrayI = (std::uint16_t*)malloc(sizeof(std::uint16_t) * verI);
-	Dx12Process::Unlock();
+	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
+	Vview = std::make_unique<VertexView>();
+	Iview = std::make_unique<IndexView>();
 }
 
 void PolygonData::TextureInit(int width, int height) {
@@ -252,11 +253,6 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 
 	GetShaderByteCode(light, tNo);
 
-	//BuildConstantBuffers
-	Dx12Process::Lock();
-	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
-	Dx12Process::Unlock();
-
 	//BuildRootSignature
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);// このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, 開始Index 0番
@@ -324,9 +320,6 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 
 	const UINT vbByteSize = ver * sizeof(Vertex);
 	const UINT ibByteSize = verI * sizeof(std::uint16_t);
-
-	Vview = std::make_unique<VertexView>();
-	Iview = std::make_unique<IndexView>();
 
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), d3varray, vbByteSize);

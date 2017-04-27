@@ -121,17 +121,26 @@ void ParticleData::GetVbColarray(int texture_no, float size, float density) {
 	dx->textureUp[texture_no]->Unmap(0, nullptr);
 }
 
-void ParticleData::GetVBarray(int v) {
+void ParticleData::GetBufferParticle(int texture_no, float size, float density) {
+	mObjectCB = new UploadBuffer<CONSTANT_BUFFER_P>(dx->md3dDevice.Get(), 1, true);
+	Vview = std::make_unique<VertexView>();
+	Sview1 = std::make_unique<StreamView[]>(2);
+	Sview2 = std::make_unique<StreamView[]>(2);
+	GetVbColarray(texture_no, size, density);
+}
+
+void ParticleData::GetBufferBill(int v) {
 	ver = v;
-	Dx12Process::Lock();
 	P_pos = (PartPos*)malloc(sizeof(PartPos) * ver);
-	Dx12Process::Unlock();
+	mObjectCB = new UploadBuffer<CONSTANT_BUFFER_P>(dx->md3dDevice.Get(), 1, true);
+	Vview = std::make_unique<VertexView>();
+	Sview1 = std::make_unique<StreamView[]>(2);
+	Sview2 = std::make_unique<StreamView[]>(2);
 }
 
 void ParticleData::CreateVbObj() {
 	const UINT vbByteSize = ver * sizeof(PartPos);
-	Vview = std::make_unique<VertexView>();
-
+	
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), P_pos, vbByteSize);
 
@@ -141,8 +150,6 @@ void ParticleData::CreateVbObj() {
 	Vview->VertexByteStride = sizeof(PartPos);
 	Vview->VertexBufferByteSize = vbByteSize;
 
-	Sview1 = std::make_unique<StreamView[]>(2);
-	Sview2 = std::make_unique<StreamView[]>(2);
 	for (int i = 0; i < 2; i++) {
 		Sview1[i].StreamBufferGPU = dx->CreateStreamBuffer(dx->md3dDevice.Get(), vbByteSize);
 		Sview2[i].StreamBufferGPU = dx->CreateStreamBuffer(dx->md3dDevice.Get(), vbByteSize);
@@ -319,12 +326,8 @@ void ParticleData::CreatePartsDraw(int texpar) {
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO_draw));
 }
 
-void ParticleData::CreateParticle(int texture_no, int texpar, float size, float density) {
+void ParticleData::CreateParticle(int texpar) {
 	GetShaderByteCode();
-	Dx12Process::Lock();
-	mObjectCB = new UploadBuffer<CONSTANT_BUFFER_P>(dx->md3dDevice.Get(), 1, true);
-	Dx12Process::Unlock();
-	GetVbColarray(texture_no, size, density);
 	CreateVbObj();
 	CreatePartsCom();
 	CreatePartsDraw(texpar);
@@ -332,9 +335,6 @@ void ParticleData::CreateParticle(int texture_no, int texpar, float size, float 
 
 void ParticleData::CreateBillboard() {
 	GetShaderByteCode();
-	Dx12Process::Lock();
-	mObjectCB = new UploadBuffer<CONSTANT_BUFFER_P>(dx->md3dDevice.Get(), 1, true);
-	Dx12Process::Unlock();
 	CreateVbObj();
 	CreatePartsDraw(-1);
 }

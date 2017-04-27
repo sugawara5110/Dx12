@@ -200,17 +200,13 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 	FbxMesh *pmesh = m_ppNodeArray[0]->GetMesh();
 	FbxDeformer *pDeformer = pmesh->GetDeformer(0);
 	FbxSkin *pSkinInfo = static_cast<FbxSkin*>(pDeformer);
-	int iNumBone = pSkinInfo->GetClusterCount();//どのメッシュからでも同じボーン数が得られているようだ
-	Dx12Process::Lock();
-	m_ppCluster = new  FbxCluster*[iNumBone];//ボーン情報配列
-	m_pClusterName = new char[iNumBone * 255];
-	Dx12Process::Unlock();
-	for (int i = 0; i < iNumBone; i++) {
+
+	for (int i = 0; i < m_iNumBone; i++) {
 		m_ppCluster[i] = pSkinInfo->GetCluster(i);//行列関係はどのメッシュからでも同じ物を得られるようだ
 		const char *name = m_ppCluster[i]->GetName();
 		strcpy(&m_pClusterName[i * 255], name);//ボーンの名前保持
 	}
-	
+
 	int VertexStart = 0;
 	for (int m = 0; m < NodeArraypcs; m++) {
 
@@ -219,7 +215,7 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 		FbxSkin *pSkinInfo = static_cast<FbxSkin*>(pDeformer);
 
 		//各Boneのウエイト,インデックスを調べ頂点配列に加える
-		for (int i = 0; i < iNumBone; i++) {
+		for (int i = 0; i < m_iNumBone; i++) {
 			FbxCluster *cl = pSkinInfo->GetCluster(i);
 			int iNumIndex = cl->GetControlPointIndicesCount();//このボーンに影響を受ける頂点インデックス数
 			int *piIndex = cl->GetControlPointIndices();     //このボーンに影響を受ける頂点のインデックス配列
@@ -253,13 +249,7 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 		}
 	}
 
-	//ボーンを生成
-	m_iNumBone = iNumBone;
-	Dx12Process::Lock();
-	m_BoneArray = new BONE[iNumBone];
-	m_pLastBoneMatrix = new MATRIX[iNumBone];
-	Dx12Process::Unlock();
-
+	//ボーン設定
 	FbxAMatrix mat;
 
 	for (int i = 0; i < m_iNumBone; i++) {
@@ -284,7 +274,7 @@ void SkinMesh::Vertex_hold() {
 	pvVB_delete_f = FALSE;
 }
 
-HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
+HRESULT SkinMesh::GetBuffer(CHAR* szFileName, float end_frame) {
 	//FBXローダーを初期化
 	if (FAILED(InitFBX(szFileName, 0)))
 	{
@@ -292,44 +282,8 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 		return E_FAIL;
 	}
 
-	vs = dx->pVertexShader_SKIN.Get();
-	ps = dx->pPixelShader_SKIN.Get();
-
-	Dx12Process::Lock();
 	mObjectCB0 = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
 	mObject_BONES = new UploadBuffer<SHADER_GLOBAL_BONES>(dx->md3dDevice.Get(), 1, true);
-	Dx12Process::Unlock();
-
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
-	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
-	slotRootParameter[1].InitAsConstantBufferView(0);
-	slotRootParameter[2].InitAsConstantBufferView(1);
-	slotRootParameter[3].InitAsConstantBufferView(2);
-
-	auto staticSamplers = dx->GetStaticSamplers();
-
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-	//RootSignature生成
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
 
 	fbx[0].end_frame = end_frame;
 	FbxScene *pScene = GetScene(0);//シーン取得
@@ -337,27 +291,21 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 
 	NodeArraypcs = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eMesh);//eMesh数カウント
 	SearchNodeCount(NULL, FbxNodeAttribute::eMesh);//リセット
-	
+
 	//各メッシュへのポインタ配列取得
-	Dx12Process::Lock();
 	m_ppNodeArray = new FbxNode*[NodeArraypcs];
-	Dx12Process::Unlock();
 	for (int i = 0; i < NodeArraypcs; i++) {
 		m_ppNodeArray[i] = SearchNode(pNodeRoot, FbxNodeAttribute::eMesh, i);
 		SearchNode(NULL, FbxNodeAttribute::eMesh, 0);//リセット
 	}
 
 	//事前にメッシュ毎頂点数、ポリゴン数マテリアル数等を調べる
-	Dx12Process::Lock();
 	m_pdwNumVert = new DWORD[NodeArraypcs];
 	MateAllpcs = 0;//マテリアル全数
-	DWORD *m_pMaterialCount = new DWORD[NodeArraypcs];
+	m_pMaterialCount = new DWORD[NodeArraypcs];
 	VerAllpcs = 0;//頂点全数
-	DWORD *pdwNumFace = new DWORD[NodeArraypcs];
-	Dx12Process::Unlock();
-	int *IndexCount34Me;  //4頂点ポリゴン分割前のメッシュ毎のインデックス数
-	int *IndexCount3M;  //4頂点ポリゴン分割後のマテリアル毎のインデックス数
-	
+	pdwNumFace = new DWORD[NodeArraypcs];
+
 	//カウント
 	for (int i = 0; i < NodeArraypcs; i++) {
 		FbxMesh *pFbxMesh = m_ppNodeArray[i]->GetMesh();
@@ -367,16 +315,27 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 		MateAllpcs += m_pMaterialCount[i];           //マテリアル全数カウント
 		pdwNumFace[i] = pFbxMesh->GetPolygonCount();//メッシュ毎ポリゴン数
 	}
-	
+
 	//メッシュ毎4頂点分割前インデックス配列生成
-	Dx12Process::Lock();
 	IndexCount34Me = new int[NodeArraypcs];
 	//マテリアル毎4頂点分割後インデックス配列生成
 	IndexCount3M = new int[MateAllpcs];
-	Dx12Process::Unlock();
+
+	//マテリアル配列生成
+	m_pMaterial = new MY_MATERIAL_S[MateAllpcs];
+
+	//マテリアルコンスタントバッファ
+	mObjectCB1 = new UploadBuffer<SHADER_GLOBAL1>(dx->md3dDevice.Get(), MateAllpcs, true);
+
+	//VBO
+	Vview = std::make_unique<VertexView>();
+	//IBO マテリアル毎に生成する
+	Iview = std::make_unique<IndexView[]>(MateAllpcs);
+
+	pvVB = new MY_VERTEX_S[VerAllpcs];//頂点バッファはそのままの数で確保,不要な頂点が存在してもIndexでアクセスするので問題無し
+
 	//インデックス数計算(ポリゴン1個に付き頂点 2個～5個が存在することが有るが
 	//fbxからIndex配列コピー時に全てコピーするのでそのままの個数をカウントする)
-
 	for (int k = 0; k < NodeArraypcs; k++) {
 		IndexCount34Me[k] = 0;
 		FbxMesh *pFbxMesh = m_ppNodeArray[k]->GetMesh();
@@ -409,13 +368,65 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 		}
 	}
 
-	//マテリアル配列生成
-	Dx12Process::Lock();
-	m_pMaterial = new MY_MATERIAL_S[MateAllpcs];
+	piFaceBuffer = new int*[NodeArraypcs];
+	for (int i = 0; i < NodeArraypcs; i++) {
+		piFaceBuffer[i] = new int[IndexCount34Me[i]];
+	}
 
-	//マテリアルコンスタントバッファ
-	mObjectCB1 = new UploadBuffer<SHADER_GLOBAL1>(dx->md3dDevice.Get(), MateAllpcs, true);
-	Dx12Process::Unlock();
+	pIndex = new int*[MateAllpcs];
+	for (int i = 0; i < MateAllpcs; i++) {
+		pIndex[i] = new int[IndexCount3M[i]];
+	}
+
+	FbxMesh *pmesh = m_ppNodeArray[0]->GetMesh();
+	FbxDeformer *pDeformer = pmesh->GetDeformer(0);
+	FbxSkin *pSkinInfo = static_cast<FbxSkin*>(pDeformer);
+	m_iNumBone = pSkinInfo->GetClusterCount();//どのメッシュからでも同じボーン数が得られているようだ
+	m_ppCluster = new  FbxCluster*[m_iNumBone];//ボーン情報配列
+	m_pClusterName = new char[m_iNumBone * 255];
+
+	//ボーンを生成
+	m_BoneArray = new BONE[m_iNumBone];
+	m_pLastBoneMatrix = new MATRIX[m_iNumBone];
+
+	return S_OK;
+}
+
+void SkinMesh::CreateFromFBX() {
+
+	vs = dx->pVertexShader_SKIN.Get();
+	ps = dx->pPixelShader_SKIN.Get();
+
+	CD3DX12_DESCRIPTOR_RANGE texTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
+	slotRootParameter[1].InitAsConstantBufferView(0);
+	slotRootParameter[2].InitAsConstantBufferView(1);
+	slotRootParameter[3].InitAsConstantBufferView(2);
+
+	auto staticSamplers = dx->GetStaticSamplers();
+
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+		(UINT)staticSamplers.size(), staticSamplers.data(),
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+	if (errorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+	}
+	//RootSignature生成
+	dx->md3dDevice->CreateRootSignature(
+		0,
+		serializedRootSig->GetBufferPointer(),
+		serializedRootSig->GetBufferSize(),
+		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
 
 	//マテリアルの数だけDescriptorを用意する
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
@@ -424,25 +435,12 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
-	//VBO
-	Vview = std::make_unique<VertexView>();
-	//IBO マテリアル毎に生成する
-	Iview = std::make_unique<IndexView[]>(MateAllpcs);
-
-	Dx12Process::Lock();
-	pvVB = new MY_VERTEX_S[VerAllpcs];//頂点バッファはそのままの数で確保,不要な頂点が存在してもIndexでアクセスするので問題無し
-	Dx12Process::Unlock();
-
 	//メッシュ毎に配列格納処理
-	mInd = 0;//マテリアル内カウント
+	int mInd = 0;//マテリアル内カウント
 	DWORD VerArrStart = 0;
 	for (int m = 0; m < NodeArraypcs; m++) {
 		FbxMesh *pFbxMesh = m_ppNodeArray[m]->GetMesh();
 		FbxNode *pNode = pFbxMesh->GetNode();
-		
-		Dx12Process::Lock();
-		int *piFaceBuffer = new int[IndexCount34Me[m]];
-		Dx12Process::Unlock();
 
 		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();//FbxMeshから頂点ローカル座標配列取得, Directxに対してZが逆
 
@@ -454,7 +452,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 		}
 
 		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
-		memcpy(piFaceBuffer, piIndex, sizeof(int) * IndexCount34Me[m]);//コピー
+		memcpy(piFaceBuffer[m], piIndex, sizeof(int) * IndexCount34Me[m]);//コピー
 
 		//法線読み込み
 		FbxVector4 Normal;
@@ -466,10 +464,10 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 
 			//以下の法線読み込みの際GetPolygonVertexNormalでインデックス順で読み込むので
 			//頂点バッファもインデックス順で参照する為にインデックスを取得する
-			iVert0Index = piFaceBuffer[iStartIndex] + VerArrStart;
-			iVert1Index = piFaceBuffer[iStartIndex + 1] + VerArrStart;
-			iVert2Index = piFaceBuffer[iStartIndex + 2] + VerArrStart;
-			if (pcs == 4)iVert3Index = piFaceBuffer[iStartIndex + 3] + VerArrStart;
+			iVert0Index = piFaceBuffer[m][iStartIndex] + VerArrStart;
+			iVert1Index = piFaceBuffer[m][iStartIndex + 1] + VerArrStart;
+			iVert2Index = piFaceBuffer[m][iStartIndex + 2] + VerArrStart;
+			if (pcs == 4)iVert3Index = piFaceBuffer[m][iStartIndex + 3] + VerArrStart;
 
 			if (iVert0Index < 0) continue;
 			pFbxMesh->GetPolygonVertexNormal(i, 0, Normal);//(polyInd, verInd, FbxVector4)
@@ -510,10 +508,10 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 			if (pcs != 3 && pcs != 4)continue;//頂点数3個,4個以外はスキップ
 			int iVert0Index, iVert1Index, iVert2Index, iVert3Index;
 
-			iVert0Index = piFaceBuffer[iStartIndex] + VerArrStart;
-			iVert1Index = piFaceBuffer[iStartIndex + 1] + VerArrStart;
-			iVert2Index = piFaceBuffer[iStartIndex + 2] + VerArrStart;
-			if (pcs == 4)iVert3Index = piFaceBuffer[iStartIndex + 3] + VerArrStart;
+			iVert0Index = piFaceBuffer[m][iStartIndex] + VerArrStart;
+			iVert1Index = piFaceBuffer[m][iStartIndex + 1] + VerArrStart;
+			iVert2Index = piFaceBuffer[m][iStartIndex + 2] + VerArrStart;
+			if (pcs == 4)iVert3Index = piFaceBuffer[m][iStartIndex + 3] + VerArrStart;
 
 			if (iVert0Index < 0) continue;
 			pFbxMesh->GetPolygonVertexUV(i, 0, uvname, UV, UnMap);//(polyInd, verInd, UV_Name, FbxVector2_UV, bool_UnMap)
@@ -564,12 +562,8 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
 				m_pMaterial[mInd].tex_no = GetTexNumber(m_pMaterial[mInd].szTextureName);
 			}
-		
-			int iCount = 0;
-			Dx12Process::Lock();
-			int *pIndex = new int[IndexCount3M[mInd]];//4頂点分割後インデックス配列
-			Dx12Process::Unlock();
 
+			int iCount = 0;
 			int polygon_cnt = 0;
 			for (DWORD k = 0; k < pdwNumFace[m]; k++) {
 				FbxLayerElementMaterial* mat = pFbxMesh->GetLayer(0)->GetMaterials();//レイヤー0のマテリアル取得
@@ -578,32 +572,46 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 				if (pcs != 3 && pcs != 4)continue;//頂点数3個,4個以外はスキップ
 				if (matId == i)//現在処理中のマテリアルと一致した場合以下処理実行(1Meshに2以上のマテリアルが有る場合の処理)
 				{
-					pIndex[iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;//ポリゴンkを構成する0番目の頂点のインデックス番号
-					pIndex[iCount + 1] = pFbxMesh->GetPolygonVertex(k, 1) + VerArrStart;
-					pIndex[iCount + 2] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
+					pIndex[mInd][iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;//ポリゴンkを構成する0番目の頂点のインデックス番号
+					pIndex[mInd][iCount + 1] = pFbxMesh->GetPolygonVertex(k, 1) + VerArrStart;
+					pIndex[mInd][iCount + 2] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
 					iCount += 3;
 
 					//4頂点は{ 0, 1, 2 }, { 0, 2, 3 }で分割するよう処理
 					if (pcs == 4) {
-						pIndex[iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;
-						pIndex[iCount + 1] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
-						pIndex[iCount + 2] = pFbxMesh->GetPolygonVertex(k, 3) + VerArrStart;
+						pIndex[mInd][iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;
+						pIndex[mInd][iCount + 1] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
+						pIndex[mInd][iCount + 2] = pFbxMesh->GetPolygonVertex(k, 3) + VerArrStart;
 						iCount += 3;//4頂点を分割後はインデックスは3頂点の倍
 					}
 					polygon_cnt++;
 				}
 			}
 
-			if (iCount > 0) CreateIndexBuffer(iCount, pIndex, mInd);
-			delete[] pIndex;
+			if (iCount > 0) CreateIndexBuffer(iCount, pIndex[mInd], mInd);
 			m_pMaterial[mInd].dwNumFace = polygon_cnt;//そのマテリアル内のポリゴン数	
 			mInd++;
 		}
-		ARR_DELETE(piFaceBuffer);
 		VerArrStart += m_pdwNumVert[m];
 	}
 
-	for (DWORD i = 0; i < MateAllpcs; i++) {
+	//各一時格納用配列解放
+	for (int i = 0; i < NodeArraypcs; i++) {
+		ARR_DELETE(piFaceBuffer[i]);
+	}
+	ARR_DELETE(piFaceBuffer);
+
+	for (int i = 0; i < MateAllpcs; i++) {
+		ARR_DELETE(pIndex[i]);
+	}
+	ARR_DELETE(pIndex);
+
+	ARR_DELETE(m_pMaterialCount);
+	ARR_DELETE(IndexCount34Me);
+	ARR_DELETE(IndexCount3M);
+	ARR_DELETE(pdwNumFace);
+
+	for (int i = 0; i < MateAllpcs; i++) {
 		SHADER_GLOBAL1 sg;
 		sg.vDiffuse = m_pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
 		mObjectCB1->CopyData(i, sg);
@@ -621,11 +629,7 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	Vview->VertexByteStride = sizeof(MY_VERTEX_S);
 	Vview->VertexBufferByteSize = vbByteSize;
 
-	ARR_DELETE(m_pMaterialCount);
-	ARR_DELETE(IndexCount34Me);
-	ARR_DELETE(IndexCount3M);
-	ARR_DELETE(pdwNumFace);
-	if (pvVB_delete_f)ARR_DELETE(pvVB);
+	if (pvVB_delete_f)ARR_DELETE(pvVB);//使わない場合解放
 
 	//パイプラインステートオブジェクト生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
@@ -662,11 +666,9 @@ HRESULT SkinMesh::CreateFromFBX(CHAR* szFileName,float end_frame) {
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
 
 	GetTexture();
-
-	return S_OK;
 }
 
-HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float end_frame) {
+HRESULT SkinMesh::GetBuffer_Sub(CHAR* szFileName, int ind, float end_frame) {
 	if (ind <= 0) {
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
@@ -689,10 +691,15 @@ HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float en
 	SearchNodeCount(NULL, FbxNodeAttribute::eSkeleton);//リセット
 
 	if (!m_ppSubAnimationBone) {
-		Dx12Process::Lock();
 		m_ppSubAnimationBone = new FbxNode*[(FBX_PCS - 1) * m_iNumBone];
-		Dx12Process::Unlock();
 	}
+	return S_OK;
+}
+
+void SkinMesh::CreateFromFBX_SubAnimation(int ind) {
+
+	FbxScene *pScene = GetScene(ind);//シーン取得
+	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 
 	int loopind = 0;
 	int searchCount = 0;
@@ -709,7 +716,6 @@ HRESULT SkinMesh::CreateFromFBX_SubAnimation(CHAR* szFileName, int ind, float en
 		if (*name2 != ' ')continue;
 		loopind++;
 	}
-	return S_OK;
 }
 
 void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
@@ -883,7 +889,7 @@ void SkinMesh::GetTexture() {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	for (DWORD i = 0; i < MateAllpcs; i++) {
+	for (int i = 0; i < MateAllpcs; i++) {
 		srvDesc.Format = dx->texture[m_pMaterial[i].tex_no]->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = dx->texture[m_pMaterial[i].tex_no]->GetDesc().MipLevels;
 		dx->md3dDevice->CreateShaderResourceView(dx->texture[m_pMaterial[i].tex_no], &srvDesc, hDescriptor);
@@ -942,7 +948,7 @@ bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float
 	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvHeap->GetGPUDescriptorHandleForHeapStart());
-	for (DWORD i = 0; i < MateAllpcs; i++) {
+	for (int i = 0; i < MateAllpcs; i++) {
 		//使用されていないマテリアル対策
 		if (m_pMaterial[i].dwNumFace == 0)
 		{

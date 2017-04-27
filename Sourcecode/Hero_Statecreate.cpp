@@ -107,27 +107,35 @@ Hero::Hero(int no) {
 	sprintf_s(p_att_pass2, sizeof(char) * 50, "./dat/mesh/player%datt/player%d_FBX_att0_deform.fbx", o_no + 1, o_no + 1);
 	sprintf_s(p_att_pass3, sizeof(char) * 51, "./dat/mesh/player%datt/player%d_FBX_magic_deform.fbx", o_no + 1, o_no + 1);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 0);
-	p_att->CreateFromFBX(p_att_pass, frameMaxAtt);
+	p_att->GetBuffer(p_att_pass, frameMaxAtt);
+	p_att->CreateFromFBX();
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 1);
-	p_att->CreateFromFBX_SubAnimation(p_att_pass2, 1, frameMaxAtt0);
-	p_att->ObjCentering(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 2);
-	p_att->CreateFromFBX_SubAnimation(p_att_pass3, 2, frameMaxAtt0);
+	p_att->GetBuffer_Sub(p_att_pass2, 1, frameMaxAtt0);
+	p_att->CreateFromFBX_SubAnimation(1);
+	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 2);
+	p_att->GetBuffer_Sub(p_att_pass3, 2, frameMaxAtt0);
+	p_att->CreateFromFBX_SubAnimation(2);
 	if (o_no == 0) {
 		p_att->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 3);
-		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
+		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
+		p_att->CreateFromFBX_SubAnimation(3);
 		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 4);
-		p_att->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		p_att->CreateFromFBX_SubAnimation(4);
 		Dx12Process::Lock();
 		torchWood = new SkinMesh();
 		Dx12Process::Unlock();
 		torchWood->SetCommandList(HERO_COM);
 		torchWood->SetState(TRUE, TRUE);
 		torchWood->Vertex_hold();
-		torchWood->CreateFromFBX("./dat/mesh/player_walk/player1_FBX_torch.fbx", frameMaxAtt);//0番にはアニメーション入っていない
+		torchWood->GetBuffer("./dat/mesh/player_walk/player1_FBX_torch.fbx", frameMaxAtt);//0番にはアニメーション入っていない
+		torchWood->CreateFromFBX();
 		torchWood->ObjCentering(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 3);
-		torchWood->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
+		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
+		torchWood->CreateFromFBX_SubAnimation(3);
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
-		torchWood->CreateFromFBX_SubAnimation("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		torchWood->CreateFromFBX_SubAnimation(4);
 		Dx12Process::Lock();
 		torchFlame = new PolygonData();
 		Dx12Process::Unlock();
