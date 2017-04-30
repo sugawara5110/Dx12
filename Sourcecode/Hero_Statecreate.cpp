@@ -60,7 +60,6 @@ void Hero::TorchSwitch(bool f) {
 }
 
 Hero::Hero(int no) {
-
 	o_no = no;
 	effect_f = FALSE;
 	tx = ty = 0.0f;
@@ -68,7 +67,6 @@ Hero::Hero(int no) {
 	torchWood = NULL;
 	torchFlame = NULL;
 	torchOn = TRUE;
-
 	p_att = NULL;
 	attOn = attFin = magicAttOn = FALSE;
 	float ofsetthetaZ = 0.0f;
@@ -95,9 +93,7 @@ Hero::Hero(int no) {
 		frameMaxAtt = 2000.0f;
 		break;
 	}
-	Dx12Process::Lock();
 	p_att = new SkinMesh();
-	Dx12Process::Unlock();
 	p_att->SetCommandList(HERO_COM);
 	p_att->SetState(TRUE, TRUE);
 	char p_att_pass[42];
@@ -108,59 +104,69 @@ Hero::Hero(int no) {
 	sprintf_s(p_att_pass3, sizeof(char) * 51, "./dat/mesh/player%datt/player%d_FBX_magic_deform.fbx", o_no + 1, o_no + 1);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 0);
 	p_att->GetBuffer(p_att_pass, frameMaxAtt);
-	p_att->CreateFromFBX();
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 1);
 	p_att->GetBuffer_Sub(p_att_pass2, 1, frameMaxAtt0);
-	p_att->CreateFromFBX_SubAnimation(1);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 2);
 	p_att->GetBuffer_Sub(p_att_pass3, 2, frameMaxAtt0);
-	p_att->CreateFromFBX_SubAnimation(2);
+
 	if (o_no == 0) {
 		p_att->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 3);
 		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
-		p_att->CreateFromFBX_SubAnimation(3);
 		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 4);
 		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
-		p_att->CreateFromFBX_SubAnimation(4);
-		Dx12Process::Lock();
 		torchWood = new SkinMesh();
-		Dx12Process::Unlock();
 		torchWood->SetCommandList(HERO_COM);
 		torchWood->SetState(TRUE, TRUE);
 		torchWood->Vertex_hold();
 		torchWood->GetBuffer("./dat/mesh/player_walk/player1_FBX_torch.fbx", frameMaxAtt);//0番にはアニメーション入っていない
-		torchWood->CreateFromFBX();
 		torchWood->ObjCentering(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 3);
 		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
-		torchWood->CreateFromFBX_SubAnimation(3);
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
 		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
-		torchWood->CreateFromFBX_SubAnimation(4);
-		Dx12Process::Lock();
 		torchFlame = new PolygonData();
-		Dx12Process::Unlock();
 		torchFlame->SetCommandList(HERO_COM);
 		torchFlame->GetVBarray(SQUARE, 1);
-		CreateTorchFlame();
-		torchFlame->TextureInit(128, 128);
-		torchFlame->Create(FALSE, -1, TRUE, TRUE);
 	}
 
 	state.SetCommandList(HERO_COM);
 	state.GetVBarray2D(1);
-	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	meter.SetCommandList(HERO_COM);
 	meter.GetVBarray2D(1);
-	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
-
 	mag.SetCommandList(HERO_COM);
 	mag.GetVBarray(SQUARE, 1);
-	Magiccreate();
-	mag.Create(FALSE, 60, TRUE, TRUE);
 
 	for (int i = 0; i < 4; i++) {
 		effect[i].SetCommandList(HERO_COM);
 		effect[i].GetVBarray(SQUARE, 1);
+	}
+
+	mov_y = 0.0f;
+	mov_x = 0.0f;
+	mov_z = 0.0f;
+	act_f = NORMAL;
+	up = TRUE;
+	count = 0.0f;
+	LA = LA_x = LA_y = 0.0f;
+
+	Statecreate_clr_f = TRUE;
+	Statecreate_r = 1.0f;
+}
+
+void Hero::SetVertex() {
+	p_att->SetVertex();
+	p_att->CreateFromFBX_SubAnimation(1);
+	p_att->CreateFromFBX_SubAnimation(2);
+
+	if (o_no == 0) {
+		p_att->CreateFromFBX_SubAnimation(3);
+		p_att->CreateFromFBX_SubAnimation(4);
+		torchWood->SetVertex();
+		torchWood->CreateFromFBX_SubAnimation(3);
+		torchWood->CreateFromFBX_SubAnimation(4);
+		CreateTorchFlame();
+	}
+	Magiccreate();
+	for (int i = 0; i < 4; i++) {
 		float ver = 25;
 		//左前
 		effect[i].SetVertex(0, 0,
@@ -189,19 +195,22 @@ Hero::Hero(int no) {
 			0.0f, 0.0f, 0.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			1.0f, 1.0f);
+	}
+}
+
+void Hero::CreateHero() {
+	p_att->CreateFromFBX();
+	if (o_no == 0) {
+		torchWood->CreateFromFBX();
+		torchFlame->TextureInit(128, 128);
+		torchFlame->Create(FALSE, -1, TRUE, TRUE);
+	}
+	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	mag.Create(FALSE, 60, TRUE, TRUE);
+	for (int i = 0; i < 4; i++) {
 		effect[i].Create(FALSE, 81 + i, TRUE, TRUE);
 	}
-
-	mov_y = 0.0f;
-	mov_x = 0.0f;
-	mov_z = 0.0f;
-	act_f = NORMAL;
-	up = TRUE;
-	count = 0.0f;
-	LA = LA_x = LA_y = 0.0f;
-
-	Statecreate_clr_f = TRUE;
-	Statecreate_r = 1.0f;
 }
 
 void Hero::Statecreate(bool command_run) {

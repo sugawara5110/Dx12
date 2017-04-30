@@ -67,9 +67,7 @@ Movie::Movie(char *pass) {
 
 	// バッファを用意
 	nBufferSize = am_media_type.lSampleSize;// データサイズ
-	Dx12Process::Lock();
 	pBuffer = new BYTE[nBufferSize];
-	Dx12Process::Unlock();
 
 	//pBuffe x方向1ラインサイズ計算
 	linesize = pVideoInfoHeader->bmiHeader.biWidth * 3;

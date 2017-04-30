@@ -178,9 +178,7 @@ HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
 	while (stSetNewPose_ON);
 	stInitFBX_ON = TRUE;
-	//fbm.Acquire();
 	f = fbx[p].Create(szFileName);
-	//fbm.Release();
 	stInitFBX_ON = FALSE;
 	
 	if (f)return S_OK;
@@ -392,48 +390,7 @@ HRESULT SkinMesh::GetBuffer(CHAR* szFileName, float end_frame) {
 	return S_OK;
 }
 
-void SkinMesh::CreateFromFBX() {
-
-	vs = dx->pVertexShader_SKIN.Get();
-	ps = dx->pPixelShader_SKIN.Get();
-
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
-	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
-	slotRootParameter[1].InitAsConstantBufferView(0);
-	slotRootParameter[2].InitAsConstantBufferView(1);
-	slotRootParameter[3].InitAsConstantBufferView(2);
-
-	auto staticSamplers = dx->GetStaticSamplers();
-
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-	//RootSignature生成
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
-
-	//マテリアルの数だけDescriptorを用意する
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = MateAllpcs;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
+void SkinMesh::SetVertex() {
 
 	//メッシュ毎に配列格納処理
 	int mInd = 0;//マテリアル内カウント
@@ -444,7 +401,7 @@ void SkinMesh::CreateFromFBX() {
 
 		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();//FbxMeshから頂点ローカル座標配列取得, Directxに対してZが逆
 
-		//頂点配列をfbxからコピー
+														  //頂点配列をfbxからコピー
 		for (DWORD i = 0; i < m_pdwNumVert[m]; i++) {
 			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[i][0];//FBXは右手座標系なのでxあるいはｚを反転
 			pvVB[i + VerArrStart].vPos.y = (float)pCoord[i][1];
@@ -454,7 +411,7 @@ void SkinMesh::CreateFromFBX() {
 		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
 		memcpy(piFaceBuffer[m], piIndex, sizeof(int) * IndexCount34Me[m]);//コピー
 
-		//法線読み込み
+																		  //法線読み込み
 		FbxVector4 Normal;
 		for (DWORD i = 0; i < pdwNumFace[m]; i++) {
 			int iStartIndex = pFbxMesh->GetPolygonVertexIndex(i);//ポリゴンを構成する最初のインデックス取得
@@ -547,7 +504,7 @@ void SkinMesh::CreateFromFBX() {
 			m_pMaterial[mInd].Kd.z = (float)d3Diffuse.Get()[2];
 			m_pMaterial[mInd].Kd.w = 1.0f;//透けさせたい場合ここをどうにかする
 
-			//テクスチャー
+										  //テクスチャー
 			FbxProperty lProperty;
 			lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
 			FbxTexture *texture = FbxCast<FbxTexture>(lProperty.GetSrcObject<FbxTexture>(0));
@@ -559,7 +516,7 @@ void SkinMesh::CreateFromFBX() {
 			}
 			else {
 				strcpy_s(m_pMaterial[mInd].szTextureName, pMaterial->GetName());//テクスチャ名が無い場合マテリアル名から
-				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
+																				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
 				m_pMaterial[mInd].tex_no = GetTexNumber(m_pMaterial[mInd].szTextureName);
 			}
 
@@ -619,6 +576,10 @@ void SkinMesh::CreateFromFBX() {
 
 	//スキン情報(ジョイント, ウェイト)
 	ReadSkinInfo(pvVB);
+}
+
+void SkinMesh::CreateFromFBX() {
+
 	//バーテックスバッファーを作成
 	const UINT vbByteSize = (UINT)VerAllpcs * sizeof(MY_VERTEX_S);
 
@@ -630,6 +591,47 @@ void SkinMesh::CreateFromFBX() {
 	Vview->VertexBufferByteSize = vbByteSize;
 
 	if (pvVB_delete_f)ARR_DELETE(pvVB);//使わない場合解放
+
+	vs = dx->pVertexShader_SKIN.Get();
+	ps = dx->pPixelShader_SKIN.Get();
+
+	CD3DX12_DESCRIPTOR_RANGE texTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
+	slotRootParameter[1].InitAsConstantBufferView(0);
+	slotRootParameter[2].InitAsConstantBufferView(1);
+	slotRootParameter[3].InitAsConstantBufferView(2);
+
+	auto staticSamplers = dx->GetStaticSamplers();
+
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+		(UINT)staticSamplers.size(), staticSamplers.data(),
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+	if (errorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+	}
+	//RootSignature生成
+	dx->md3dDevice->CreateRootSignature(
+		0,
+		serializedRootSig->GetBufferPointer(),
+		serializedRootSig->GetBufferSize(),
+		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
+
+	//マテリアルの数だけDescriptorを用意する
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = MateAllpcs;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
 	//パイプラインステートオブジェクト生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
@@ -768,7 +770,6 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 	bool subanm = TRUE;
 	if (ind <= 0 || ind > FBX_PCS - 1)subanm = FALSE;
 
-	//fbm.Acquire();
 	FbxMatrix matf0;
 	if (!subanm) {
 		matf0 = m_ppCluster[0]->GetLink()->EvaluateGlobalTransform(time);
@@ -814,7 +815,6 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 			MatrixMultiply(&m_BoneArray[i].mNewPose, &pose, &tmp);
 		}
 	}
-	//fbm.Release();
 
 	if (frame_end)fbx[ind].current_frame = 0.0f;
 
@@ -907,8 +907,8 @@ int SkinMesh::GetTexNumber(CHAR *fileName) {
 		char str1[50];
 		strcpy(str, dx->texName[i]);
 		strcpy(str1, fileName);
-		int i1 = 0;
-		while (str[i1] != '\0' && str[i1] != '.' && str[i1] == str1[i1++]);
+		int i1 = -1;
+		while (str[++i1] != '\0' && str[i1] != '.' && str[i1] == str1[i1]);
 		if (str[i1] == '.')return i;
 	}
 

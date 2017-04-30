@@ -385,19 +385,18 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 
 	PosOffset(o_no);
 
-	Dx12Process::Lock();
 	en = new PolygonData();
-	Dx12Process::Unlock();
 	en->SetCommandList(ENEMY_COM);
 	en->GetVBarray(CONTROL_POINT, 1);
-	Enemycreate(size_x, size_y);
-	en->Create(TRUE, e, TRUE, TRUE);
 
-	Dx12Process::Lock();
 	mag = new PolygonData();
-	Dx12Process::Unlock();
 	mag->SetCommandList(ENEMY_COM);
 	mag->GetVBarray(SQUARE, 1);
+}
+
+//@Override
+void EnemySide::SetVertex() {
+	Enemycreate(size_x, size_y);
 	//マジック左上
 	mag->SetVertex(0, 0,
 		(float)-35.0f, (float)-35.0f, 2.0f,
@@ -425,6 +424,11 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		0.0f, 0.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f);
+}
+
+//@Override
+void EnemySide::CreateEnemy() {
+	en->Create(TRUE, e_no + 30, TRUE, TRUE);
 	mag->Create(FALSE, 60, TRUE, TRUE);
 }
 

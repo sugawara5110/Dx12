@@ -65,51 +65,186 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		//出口
 		poEXIT.SetCommandList(Map_Com);
 		poEXIT.GetVBarray(SQUARE, 1);
-		Mapcreate_EXIT(400.0f, 0.5f, 100.0f, 100.0f);
-		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
 		poGroundM.SetCommandList(Map_Com);
 		poGroundM.GetVBarray(CONTROL_POINT, 1050);
-		Mapcreate_Ground(&poGroundM, 30, 35, 0.0f, 1.0f);
-		poGroundM.Create(TRUE, 1, TRUE, FALSE);
 		//空メイン
 		poCeilingM.SetCommandList(Map_Com);
 		poCeilingM.GetVBarray(CONTROL_POINT, 1050);
-		Mapcreate_Ceiling(&poCeilingM, 30, 35, 100.0f, 1.0f);
-		poCeilingM.Create(TRUE, 2, TRUE, FALSE);
 		break;
 	case 1:
 		//山
 		mountain.SetCommandList(Map_Com);
 		mountain.SetState(TRUE, TRUE, FALSE);
-		Dx12Process::Lock();
 		mountain.GetBuffer("./dat/mesh/mountain.obj");
-		Dx12Process::Unlock();
-		mountain.CreateMesh();
-		mountain.GetTexture();
 		//地面入り口
 		poGroundF.SetCommandList(Map_Com);
 		poGroundF.GetVBarray(CONTROL_POINT, 6);
-		Mapcreate_Ground(&poGroundF, 2, 3, 2.0f, 1.0f);
-		poGroundF.Create(TRUE, 1, TRUE, FALSE);
 		//空入り口
 		poCeilingF.SetCommandList(Map_Com);
 		poCeilingF.GetVBarray(CONTROL_POINT, 6);
-		Mapcreate_Ceiling(&poCeilingF, 2, 3, 100.0f, 1.0f);
-		poCeilingF.Create(TRUE, 2, TRUE, FALSE);
 		//地面メイン
 		poGroundM.SetCommandList(Map_Com);
 		poGroundM.GetVBarray(CONTROL_POINT, 1600);
-		Mapcreate_Ground(&poGroundM, 40, 40, 0.0f, 1.0f);
-		poGroundM.Create(TRUE, 5, TRUE, FALSE);
 		//空メイン
 		poBackground.SetCommandList(Map_Com);
 		poBackground.GetVBarray(SQUARE, 5);
-		Mapcreate_Background(-3500.0f, 7500.0f);
-		poBackground.Create(FALSE, 6, TRUE, FALSE);
 		//雨
 		poRain.SetCommandList(Map_Com);
 		poRain.GetVBarray(LINE_L, 1);
+		//地面出口
+		poGroundE.SetCommandList(Map_Com);
+		poGroundE.GetVBarray(CONTROL_POINT, 6);
+		//空出口
+		poCeilingE.SetCommandList(Map_Com);
+		poCeilingE.GetVBarray(CONTROL_POINT, 6);
+		break;
+	case 2:
+		//入口
+		poEXIT.SetCommandList(Map_Com);
+		poEXIT.GetVBarray(SQUARE, 1);
+		//地面メイン
+		poGroundM.SetCommandList(Map_Com);
+		poGroundM.GetVBarray(CONTROL_POINT, 1050);
+		//空メイン
+		poCeilingM.SetCommandList(Map_Com);
+		poCeilingM.GetVBarray(CONTROL_POINT, 1050);
+		//地面出口
+		poGroundE.SetCommandList(Map_Com);
+		poGroundE.GetVBarray(CONTROL_POINT, 8);
+		//空出口
+		poCeilingE.SetCommandList(Map_Com);
+		poCeilingE.GetVBarray(CONTROL_POINT, 8);
+		break;
+	case 3:
+		//地面入り口
+		poGroundF.SetCommandList(Map_Com);
+		poGroundF.GetVBarray(CONTROL_POINT, 6);
+		//空入り口
+		poCeilingF.SetCommandList(Map_Com);
+		poCeilingF.GetVBarray(CONTROL_POINT, 6);
+		//地面メイン
+		poGroundM.SetCommandList(Map_Com);
+		poGroundM.GetVBarray(CONTROL_POINT, 900);
+		//空メイン
+		poCeilingM.SetCommandList(Map_Com);
+		poCeilingM.GetVBarray(CONTROL_POINT, 900);
+		break;
+	case 4:
+		//地面メイン
+		poGroundM.SetCommandList(Map_Com);
+		poGroundM.GetVBarray(CONTROL_POINT, 900);
+		//空メイン
+		poCeilingM.SetCommandList(Map_Com);
+		poCeilingM.GetVBarray(CONTROL_POINT, 900);
+		break;
+	}
+
+	Mapfilter(h_p);
+
+	//配置位置ずらし用
+	wood = new OBJPosRandomValue[woodcount];
+	wall1 = new OBJPosRandomValue[squarecount];
+
+	//木
+	if (woodcount > 0) {
+		mWood.SetCommandList(Map_Com);
+		mWood.SetState(TRUE, TRUE, FALSE);
+		mWood.GetBuffer("./dat/mesh/tree.obj");
+	}
+
+	//壁(板)
+	if (squarecount >= 1) {
+		for (int i = 0; i < 3; i++) {
+			poWall1[i].SetCommandList(Map_Com);
+			poWall1[i].GetVBarray(SQUARE, 1);
+		}
+	}
+
+	//壁(ブロック)
+	if (blockcountA >= 1) {
+		poWallA.SetCommandList(Map_Com);
+		poWallA.GetVBarray(CONTROL_POINT, blockcountA);
+	}
+	if (blockcountB >= 1) {
+		poWallB.SetCommandList(Map_Com);
+		poWallB.GetVBarray(CONTROL_POINT, blockcountB);
+	}
+	if (blockcountC >= 1) {
+		poWallC.SetCommandList(Map_Com);
+		poWallC.GetVBarray(CONTROL_POINT, blockcountC);
+	}
+	if (blockcountD >= 1) {
+		poWallD.SetCommandList(Map_Com);
+		poWallD.GetVBarray(CONTROL_POINT, blockcountD);
+	}
+	if (blockcountE >= 1) {
+		poWallE.SetCommandList(Map_Com);
+		poWallE.GetVBarray(CONTROL_POINT, blockcountE);
+	}
+
+	//リカバーポイント
+	if (r_point_count >= 1) {
+		poRecover.SetCommandList(Map_Com);
+		poRecover.GetVBarray(SQUARE, r_point_count);
+		for (int i = 0; i < 12; i++) {
+			poRecoverLine[i].SetCommandList(Map_Com);
+			poRecoverLine[i].GetVBarray(LINE_L, r_point_count);
+		}
+	}
+
+	//動画テクスチャ松明
+	if (mo_count >= 1) {
+		poMo.SetCommandList(Map_Com);
+		poMo.GetBufferBill(lightcount);
+	}
+
+	//動画テクスチャ炎壁
+	if (f_wall_count >= 1) {
+		poF_Wall.SetCommandList(Map_Com);
+		poF_Wall.GetVBarray(CONTROL_POINT, f_wall_count);
+	}
+
+	//ボス出現ポイント
+	if (boss_count >= 1) {
+		poBoss.SetCommandList(Map_Com);
+		poBoss.GetVBarray(SQUARE, boss_count);
+	}
+
+	//エレベーター
+	if (Elevator_count >= 1) {
+		poElevator.SetCommandList(Map_Com);
+		poElevator.GetVBarray(SQUARE, Elevator_count);
+	}
+
+	//ライトポジション構造体確保
+	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);
+	//ポイントライトリセット
+	dx->ResetPointLight();
+}
+
+void Map::SetVertex() {
+	switch (map_no) {
+	case 0:
+		//出口
+		Mapcreate_EXIT(400.0f, 0.5f, 100.0f, 100.0f);
+		//地面メイン
+		Mapcreate_Ground(&poGroundM, 30, 35, 0.0f, 1.0f);
+		//空メイン
+		Mapcreate_Ceiling(&poCeilingM, 30, 35, 100.0f, 1.0f);
+		break;
+	case 1:
+		//山
+		mountain.SetVertex();
+		//地面入り口
+		Mapcreate_Ground(&poGroundF, 2, 3, 2.0f, 1.0f);
+		//空入り口
+		Mapcreate_Ceiling(&poCeilingF, 2, 3, 100.0f, 1.0f);
+		//地面メイン
+		Mapcreate_Ground(&poGroundM, 40, 40, 0.0f, 1.0f);
+		//空メイン
+		Mapcreate_Background(-3500.0f, 7500.0f);
+		//雨
 		poRain.SetVertex(0, 0,
 			0.0f, 0.0f, 1.0f,
 			0.0f, 0.0f, 0.0f,
@@ -121,96 +256,157 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 			0.0f, 0.0f, 0.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			0.0f, 0.0f);
+		//地面出口
+		Mapcreate_Ground(&poGroundE, 2, 3, 2.0f, 1.0f);
+		//空出口
+		Mapcreate_Ceiling(&poCeilingE, 2, 3, 100.0f, 1.0f);
+		break;
+	case 2:
+		//入口
+		Mapcreate_EXIT(-50.0f, -50.0f, 100.0f, 100.0f);
+		//地面メイン
+		Mapcreate_Ground(&poGroundM, 30, 35, 0.0f, 1.0f);
+		//空メイン
+		Mapcreate_Ceiling(&poCeilingM, 30, 35, 200.0f, 1.0f);
+		//地面出口
+		Mapcreate_Ground(&poGroundE, 2, 4, 0.0f, 1.0f);
+		//空出口
+		Mapcreate_Ceiling(&poCeilingE, 2, 4, 200.0f, 1.0f);
+		break;
+	case 3:
+		//地面入り口
+		Mapcreate_Ground(&poGroundF, 2, 3, 0.0f, 1.0f);
+		//空入り口
+		Mapcreate_Ceiling(&poCeilingF, 2, 3, 100.0f, 1.0f);
+		//地面メイン
+		Mapcreate_Ground(&poGroundM, 30, 30, 0.0f, 1.0f);
+		//空メイン
+		Mapcreate_Ceiling(&poCeilingM, 30, 30, 200.0f, 1.0f);
+		break;
+	case 4:
+		//地面メイン
+		Mapcreate_Ground(&poGroundM, 30, 30, 0.0f, 1.0f);
+		//空メイン
+		Mapcreate_Ceiling(&poCeilingM, 30, 30, 800.0f, 1.0f);
+		break;
+	}
+
+	//木
+	if (woodcount > 0) {
+		mWood.SetVertex();
+	}
+
+	//壁(板)
+	if (squarecount >= 1) {
+		for (int i = 0; i < 3; i++) {
+			Mapcreate_Wall1(i);
+		}
+	}
+
+	//壁(ブロック)
+	if (blockcountA >= 1) {
+		Mapcreate_Wall(&poWallA, 49, 52, 100.0f, -1.0f, 1.0f);
+	}
+	if (blockcountB >= 1) {
+		Mapcreate_Wall(&poWallB, 74, 74, 100.0f, -1.0f, 1.0f);
+	}
+	if (blockcountC >= 1) {
+		Mapcreate_Wall(&poWallC, 75, 79, 100.0f, -1.0f, 1.0f);
+	}
+	if (blockcountD >= 1) {
+		Mapcreate_Wall(&poWallD, 76, 76, 100.0f, -2.0f, 2.0f);
+	}
+	if (blockcountE >= 1) {
+		Mapcreate_Wall(&poWallE, 77, 78, 100.0f, -2.0f, 2.0f);
+	}
+
+	//リカバーポイント
+	if (r_point_count >= 1) {
+		Mapcreate_Recover();
+	}
+
+	//動画テクスチャ松明
+	if (mo_count >= 1) {
+		Mapcreate_Ds();
+	}
+
+	//動画テクスチャ炎壁
+	if (f_wall_count >= 1) {
+		Mapcreate_Wall(&poF_Wall, 73, 73, 200.0f, -6.0f, 6.0f);
+	}
+
+	//ボス出現ポイント
+	if (boss_count >= 1) {
+		Mapcreate_BossPoint();
+	}
+
+	//エレベーター
+	if (Elevator_count >= 1) {
+		Mapcreate_Elevator();
+	}
+}
+
+void Map::CreateMap() {
+	switch (map_no) {
+	case 0:
+		//出口
+		poEXIT.Create(FALSE, -1, FALSE, FALSE);
+		//地面メイン
+		poGroundM.Create(TRUE, 1, TRUE, FALSE);
+		//空メイン
+		poCeilingM.Create(TRUE, 2, TRUE, FALSE);
+		break;
+	case 1:
+		//山
+		mountain.CreateMesh();
+		mountain.GetTexture();
+		//地面入り口
+		poGroundF.Create(TRUE, 1, TRUE, FALSE);
+		//空入り口
+		poCeilingF.Create(TRUE, 2, TRUE, FALSE);
+		//地面メイン
+		poGroundM.Create(TRUE, 5, TRUE, FALSE);
+		//空メイン
+		poBackground.Create(FALSE, 6, TRUE, FALSE);
+		//雨
 		poRain.Create(FALSE, -1, FALSE, FALSE);
 		//地面出口
-		poGroundE.SetCommandList(Map_Com);
-		poGroundE.GetVBarray(CONTROL_POINT, 6);
-		Mapcreate_Ground(&poGroundE, 2, 3, 2.0f, 1.0f);
 		poGroundE.Create(TRUE, 12, TRUE, FALSE);
 		//空出口
-		poCeilingE.SetCommandList(Map_Com);
-		poCeilingE.GetVBarray(CONTROL_POINT, 6);
-		Mapcreate_Ceiling(&poCeilingE, 2, 3, 100.0f, 1.0f);
 		poCeilingE.Create(TRUE, 11, TRUE, FALSE);
 		break;
 	case 2:
 		//入口
-		poEXIT.SetCommandList(Map_Com);
-		poEXIT.GetVBarray(SQUARE, 1);
-		Mapcreate_EXIT(-50.0f, -50.0f, 100.0f, 100.0f);
 		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
-		poGroundM.SetCommandList(Map_Com);
-		poGroundM.GetVBarray(CONTROL_POINT, 1050);
-		Mapcreate_Ground(&poGroundM, 30, 35, 0.0f, 1.0f);
 		poGroundM.Create(TRUE, 12, TRUE, FALSE);
 		//空メイン
-		poCeilingM.SetCommandList(Map_Com);
-		poCeilingM.GetVBarray(CONTROL_POINT, 1050);
-		Mapcreate_Ceiling(&poCeilingM, 30, 35, 200.0f, 1.0f);
 		poCeilingM.Create(TRUE, 11, TRUE, FALSE);
 		//地面出口
-		poGroundE.SetCommandList(Map_Com);
-		poGroundE.GetVBarray(CONTROL_POINT, 8);
-		Mapcreate_Ground(&poGroundE, 2, 4, 0.0f, 1.0f);
 		poGroundE.Create(TRUE, 15, TRUE, FALSE);
 		//空出口
-		poCeilingE.SetCommandList(Map_Com);
-		poCeilingE.GetVBarray(CONTROL_POINT, 8);
-		Mapcreate_Ceiling(&poCeilingE, 2, 4, 200.0f, 1.0f);
 		poCeilingE.Create(TRUE, 15, TRUE, FALSE);
 		break;
 	case 3:
 		//地面入り口
-		poGroundF.SetCommandList(Map_Com);
-		poGroundF.GetVBarray(CONTROL_POINT, 6);
-		Mapcreate_Ground(&poGroundF, 2, 3, 0.0f, 1.0f);
 		poGroundF.Create(TRUE, 12, TRUE, FALSE);
 		//空入り口
-		poCeilingF.SetCommandList(Map_Com);
-		poCeilingF.GetVBarray(CONTROL_POINT, 6);
-		Mapcreate_Ceiling(&poCeilingF, 2, 3, 100.0f, 1.0f);
 		poCeilingF.Create(TRUE, 11, TRUE, FALSE);
 		//地面メイン
-		poGroundM.SetCommandList(Map_Com);
-		poGroundM.GetVBarray(CONTROL_POINT, 900);
-		Mapcreate_Ground(&poGroundM, 30, 30, 0.0f, 1.0f);
 		poGroundM.Create(TRUE, 15, TRUE, FALSE);
 		//空メイン
-		poCeilingM.SetCommandList(Map_Com);
-		poCeilingM.GetVBarray(CONTROL_POINT, 900);
-		Mapcreate_Ceiling(&poCeilingM, 30, 30, 200.0f, 1.0f);
 		poCeilingM.Create(TRUE, 15, TRUE, FALSE);
 		break;
 	case 4:
 		//地面メイン
-		poGroundM.SetCommandList(Map_Com);
-		poGroundM.GetVBarray(CONTROL_POINT, 900);
-		Mapcreate_Ground(&poGroundM, 30, 30, 0.0f, 1.0f);
 		poGroundM.Create(TRUE, 27, TRUE, FALSE);
 		//空メイン
-		poCeilingM.SetCommandList(Map_Com);
-		poCeilingM.GetVBarray(CONTROL_POINT, 900);
-		Mapcreate_Ceiling(&poCeilingM, 30, 30, 800.0f, 1.0f);
 		poCeilingM.Create(TRUE, 28, TRUE, FALSE);
 		break;
 	}
 
-	Mapfilter(h_p);
-
-	//配置位置ずらし用
-	Dx12Process::Lock();
-	wood = new OBJPosRandomValue[woodcount];
-	wall1 = new OBJPosRandomValue[squarecount];
-	Dx12Process::Unlock();
-
 	//木
 	if (woodcount > 0) {
-		mWood.SetCommandList(Map_Com);
-		mWood.SetState(TRUE, TRUE, FALSE);
-		Dx12Process::Lock();
-		mWood.GetBuffer("./dat/mesh/tree.obj");
-		Dx12Process::Unlock();
 		mWood.CreateMesh();
 		mWood.GetTexture();
 	}
@@ -218,54 +414,29 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i].SetCommandList(Map_Com);
-			poWall1[i].GetVBarray(SQUARE, 1);
-			Mapcreate_Wall1(i);
 			poWall1[i].Create(TRUE, 4, TRUE, TRUE);
 		}
 	}
 
 	//壁(ブロック)
 	if (blockcountA >= 1) {
-		poWallA.SetCommandList(Map_Com);
-		poWallA.GetVBarray(CONTROL_POINT, blockcountA);
-		Mapcreate_Wall(&poWallA, 49, 52, 100.0f, -1.0f, 1.0f);
 		poWallA.Create(TRUE, 0, TRUE, FALSE);
 	}
 	if (blockcountB >= 1) {
-		poWallB.SetCommandList(Map_Com);
-		poWallB.GetVBarray(CONTROL_POINT, blockcountB);
-		Mapcreate_Wall(&poWallB, 74, 74, 100.0f, -1.0f, 1.0f);
 		poWallB.Create(TRUE, 8, TRUE, FALSE);
 	}
 	if (blockcountC >= 1) {
-		poWallC.SetCommandList(Map_Com);
-		poWallC.GetVBarray(CONTROL_POINT, blockcountC);
-		Mapcreate_Wall(&poWallC, 75, 79, 100.0f, -1.0f, 1.0f);
 		poWallC.Create(TRUE, 11, TRUE, FALSE);
 	}
 	if (blockcountD >= 1) {
-		poWallD.SetCommandList(Map_Com);
-		poWallD.GetVBarray(CONTROL_POINT, blockcountD);
-		Mapcreate_Wall(&poWallD, 76, 76, 100.0f, -2.0f, 2.0f);
 		poWallD.Create(TRUE, 15, TRUE, FALSE);
 	}
 	if (blockcountE >= 1) {
-		poWallE.SetCommandList(Map_Com);
-		poWallE.GetVBarray(CONTROL_POINT, blockcountE);
-		Mapcreate_Wall(&poWallE, 77, 78, 100.0f, -2.0f, 2.0f);
 		poWallE.Create(TRUE, 26, TRUE, FALSE);
 	}
 
 	//リカバーポイント
 	if (r_point_count >= 1) {
-		poRecover.SetCommandList(Map_Com);
-		poRecover.GetVBarray(SQUARE, r_point_count);
-		for (int i = 0; i < 12; i++) {
-			poRecoverLine[i].SetCommandList(Map_Com);
-			poRecoverLine[i].GetVBarray(LINE_L, r_point_count);
-		}
-		Mapcreate_Recover();
 		poRecover.Create(FALSE, 70, TRUE, TRUE);
 		for (int i = 0; i < 12; i++)
 			poRecoverLine[i].Create(FALSE, -1, FALSE, FALSE);
@@ -273,47 +444,27 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
-		poMo.SetCommandList(Map_Com);
-		poMo.GetBufferBill(lightcount);
 		poMo.TextureInit(128, 128);
-		Mapcreate_Ds();
 		poMo.CreateBillboard();
 	}
 
 	//動画テクスチャ炎壁
 	if (f_wall_count >= 1) {
-		poF_Wall.SetCommandList(Map_Com);
-		poF_Wall.GetVBarray(CONTROL_POINT, f_wall_count);
 		poF_Wall.TextureInit(256, 256);
-		Mapcreate_Wall(&poF_Wall, 73, 73, 200.0f, -6.0f, 6.0f);
 		poF_Wall.Create(FALSE, -1, TRUE, TRUE);
 	}
 
 	//ボス出現ポイント
 	if (boss_count >= 1) {
-		poBoss.SetCommandList(Map_Com);
-		poBoss.GetVBarray(SQUARE, boss_count);
-		Mapcreate_BossPoint();
 		poBoss.Create(FALSE, 61, TRUE, TRUE);
 	}
 
 	//エレベーター
 	if (Elevator_count >= 1) {
-		poElevator.SetCommandList(Map_Com);
-		poElevator.GetVBarray(SQUARE, Elevator_count);
-		Mapcreate_Elevator();
 		poElevator.Create(FALSE, 70, TRUE, TRUE);
 	}
 
 	dx->End(Map_Com);
-	dx->RequestSync();
-
-	//ライトポジション構造体確保
-	Dx12Process::Lock();
-	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);
-	Dx12Process::Unlock();
-	//ポイントライトリセット
-	dx->ResetPointLight();
 }
 
 void Map::Mapdraw_Wood() {

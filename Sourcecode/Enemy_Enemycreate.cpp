@@ -92,6 +92,10 @@ void Enemy::Enemycreate(float x, float y){
 		1.0f, 0.0f);
 }
 
+void Enemy::SetVertex(){}
+
+void Enemy::CreateEnemy(){}
+
 void Enemy::AttackAction(){}
 
 void Enemy::DamageAction(){}

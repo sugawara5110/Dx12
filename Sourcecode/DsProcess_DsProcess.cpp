@@ -85,9 +85,7 @@ char *DsProcess::BinaryDecode(char *bpass){
 	strncpy(&decfname[i1++], "1", 1);
 	strncpy(&decfname[i1], "\0", 1);
 
-	Dx12Process::Lock();
 	BGetBuffer(bpass, &binary, &size);
-	Dx12Process::Unlock();
 	Bdecode(bpass, &binary, &size);
 
 	FILE *fp2 = fopen(decfname, "wb");

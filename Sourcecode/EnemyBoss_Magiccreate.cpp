@@ -126,20 +126,14 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	PosOffset(o_no);
 
 	if (t_no == 2) {
-		Dx12Process::Lock();
 		en_boss_att0 = new MeshData();
-		Dx12Process::Unlock();
 		en_boss_att0->SetCommandList(ENEMY_COM);
 		en_boss_att0->SetState(TRUE, TRUE, FALSE);
 		en_boss_att0->GetBuffer("./dat/mesh/boss3.obj");
-		en_boss_att0->CreateMesh();
-		en_boss_att0->GetTexture();
 	}
 
 	if (t_no != 2) {
-		Dx12Process::Lock();
 		en_boss_att = new SkinMesh();
-		Dx12Process::Unlock();
 		en_boss_att->SetCommandList(ENEMY_COM);
 		en_boss_att->SetState(TRUE, TRUE);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
@@ -148,43 +142,52 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		switch (t_no) {
 		case 0:
 			en_boss_att->GetBuffer("./dat/mesh/boss1att/boss1bone.fbx", 600.0f);
-			en_boss_att->CreateFromFBX();
 			en_boss_att->GetBuffer_Sub("./dat/mesh/boss1att/boss1bone_wait.fbx", 1, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(1);
 			en_boss_att->GetBuffer_Sub("./dat/mesh/boss1att/boss1bone_magic.fbx", 2, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(2);
 			break;
 		case 1:
 			en_boss_att->GetBuffer("./dat/mesh/boss2att/boss2bone.fbx", 600.0f);
-			en_boss_att->CreateFromFBX();
 			en_boss_att->GetBuffer_Sub("./dat/mesh/boss2att/boss2bone_wait.fbx", 1, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(1);
 			en_boss_att->GetBuffer_Sub("./dat/mesh/boss2att/boss2bone_magic.fbx", 2, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(2);
 			break;
 		case 3:
 			en_boss_att->GetBuffer("./dat/mesh/boss4att/boss4bone.fbx", 500.0f);
-			en_boss_att->CreateFromFBX();
 			en_boss_att->GetBuffer_Sub("./dat/mesh/boss4att/boss4bone_wait.fbx", 1, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(1);
 			en_boss_att->GetBuffer_Sub("./dat/mesh/boss4att/boss4bone_magic.fbx", 2, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(2);
 			break;
 		case 4:
 			en_boss_att->GetBuffer("./dat/mesh/lastbossatt/lastbossbone.fbx", 500.0f);
-			en_boss_att->CreateFromFBX();
 			en_boss_att->GetBuffer_Sub("./dat/mesh/lastbossatt/lastbossbone_wait.fbx", 1, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(1);
 			en_boss_att->GetBuffer_Sub("./dat/mesh/lastbossatt/lastbossbone_magic.fbx", 2, 200.0f);
-			en_boss_att->CreateFromFBX_SubAnimation(2);
 			break;
 		}
 	}
-	Dx12Process::Lock();
 	mag_boss = new ParticleData();
-	Dx12Process::Unlock();
 	mag_boss->SetCommandList(ENEMY_COM);
 	mag_boss->GetBufferParticle(61, mag_size, 5.0f);
+}
+
+//@Override
+void EnemyBoss::SetVertex() {
+	if (e_no == 2) {
+		en_boss_att0->SetVertex();
+	}
+	if (e_no != 2) {
+		en_boss_att->SetVertex();
+		en_boss_att->CreateFromFBX_SubAnimation(1);
+		en_boss_att->CreateFromFBX_SubAnimation(2);
+	}
+}
+
+//@Override
+void EnemyBoss::CreateEnemy() {
+	if (e_no == 2) {
+		en_boss_att0->CreateMesh();
+		en_boss_att0->GetTexture();
+	}
+	if (e_no != 2) {
+		en_boss_att->CreateFromFBX();
+	}
 	mag_boss->CreateParticle(62);
 }
 

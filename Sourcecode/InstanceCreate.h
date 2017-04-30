@@ -18,6 +18,7 @@ private:
 	static int progress;
 	//初期リソース読み込み
 	static HANDLE *resource_loading_h;
+	static HANDLE *hero_loading_h;
 
 	//Battle生成用パラメータ
 	static HANDLE *battle_loading_h;
@@ -41,31 +42,40 @@ private:
 public:
 	static int GetProgress();
 	static void CreateThread_R();
+	static void CreateThread_H();
 	static void CreateThread_B();
 	static void CreateThread_M();
 
 	static void DeleteThread_R();
+	static void DeleteThread_H();
 	static void DeleteThread_B();
 	static void DeleteThread_M();
 
-	static void HeroCreate();
+	static void HeroGetBuffer();//シングルスレッド使用
+	static void HeroSetVertex();//マルチスレッド使用
+	static bool HeroSet_f();
+	static Hero *HeroCreate();//シングルスレッド使用
 
 	static void ResourceLoad();
-	static Hero *Resource_load_f();
+	static bool Resource_load_f();
 
 	static HANDLE *GetHANDLE_B();
 	static void SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
-	static void BattleCreate();//マルチスレッド以外で使用禁止
+	static void BattleGetBuffer();
+	static void BattleSetVertex();
+	static bool BattleSet_f();
+	static void BattleCreate();
 	static void BattleDelete();
-	static bool BattleCreate_f();
 	static Battle *GetInstance_B();//マルチスレッドで生成する為NULLチェックでは無く終了フラグBattleCreate_f()で生成確認する
 
 	static HANDLE *GetHANDLE_M();
 	static void SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h);
-	static void MapCreate();//マルチスレッド以外で使用禁止(メインループ外は可)
+	static void MapGetBuffer();
+	static void MapSetVertex();
+	static bool MapSet_f();
+	static void MapCreate();
 	static void MapObjSet();
 	static void MapDelete();
-	static bool MapCreate_f();
 	static Map *GetInstance_M();//マルチスレッドで生成する為NULLチェックでは無く終了フラグMapCreate_f()で生成確認する
 
 	static bool CreateBattleIns(Hero *h, Encount encount, int no, int e_nu);
@@ -75,5 +85,6 @@ public:
 #endif
 
 unsigned __stdcall ResourceLoading(void *);
+unsigned __stdcall InstanceLoadingHero(void *);
 unsigned __stdcall InstanceLoadingBattle(void *);
 unsigned __stdcall InstanceLoadingMap(void *);

@@ -66,6 +66,8 @@ public:
 	Enemy(int t_no, int no);
 	Act_fin_flg Enemydraw(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
 	Action Normal_act_get();
+	virtual void SetVertex();
+	virtual void CreateEnemy();
 	virtual bool M_run_flg();//マジック実行フラグ
 	virtual void M_select(int *r, int *r1);//マジック選択
 	bool s_esc();

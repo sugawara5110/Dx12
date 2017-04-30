@@ -151,6 +151,8 @@ public:
 	static int GetBossKilled(int map_no);
 	Map() {}
 	Map(Position::H_Pos *h_p, Hero *hero);
+	void SetVertex();
+	void CreateMap();
 	Encount Mapdraw(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
 	Position::E_Pos *Getposition(int p);
 	Position::H_Pos *Getposition();

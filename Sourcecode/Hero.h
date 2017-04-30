@@ -54,6 +54,8 @@ protected:
 public:
 	Hero(){}
 	Hero(int no);
+	void SetVertex();
+	void CreateHero();
 	void P_DataInput(P_Data *p_dat);
 	void TorchSwitch(bool f);
 	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta);

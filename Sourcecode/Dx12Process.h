@@ -450,6 +450,7 @@ public:
 	void SetCommandList(int no);
 	void SetState(bool alpha, bool blend, bool disp);
 	void GetBuffer(char *FileName);
+	void SetVertex();
 	void CreateMesh();
 	void GetTexture();
 	ID3D12PipelineState *GetPipelineState();
@@ -714,8 +715,6 @@ private:
 	//InitFBX”r‘¼ˆ——p
 	static volatile bool stInitFBX_ON, stSetNewPose_ON;//•À—ñ“Ç‚İ‚İ‚ÉŒã‚Å‰ü‘¢‚·‚é‚â‚è•û•Ï‚¦‚é
 
-	FbxMutex fbm;//Œã‚Åg‚¢•û‚ğ’²‚×‚é¡‚Íg‚Á‚Ä‚È‚¢
-
 	Dx12Process                *dx;
 	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
@@ -800,6 +799,7 @@ public:
 	void SetConnectStep(int ind, float step);
 	void Vertex_hold();
 	HRESULT GetBuffer(CHAR* szFileName, float end_frame);
+	void SetVertex();
 	void CreateFromFBX();
 	HRESULT GetBuffer_Sub(CHAR* szFileName, int ind, float end_frame);
 	void CreateFromFBX_SubAnimation(int ind);

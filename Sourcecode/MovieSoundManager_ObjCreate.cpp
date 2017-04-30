@@ -25,7 +25,6 @@ int MovieSoundManager::map_n;
 
 void MovieSoundManager::ObjInit() {
 
-	Dx12Process::Lock();
 	mo = new Movie();
 	f_wall = new Movie();
 	enemy_so[0] = new Sound_();//ŽG‹›“G‚Í‚¸‚Á‚Æ•ÛŽ‚µ‚Á‚Ï‚È‚µ
@@ -35,7 +34,6 @@ void MovieSoundManager::ObjInit() {
 	magic_so = new Sound_();
 	select_so = new Sound_();
 	enter_so = new Sound_();
-	Dx12Process::Unlock();
 
 	new(mo) Movie("./dat/movie/torch.da");
 	new(f_wall) Movie("./dat/movie/f_wall.da");
@@ -59,9 +57,7 @@ void MovieSoundManager::ObjInit() {
 void MovieSoundManager::ObjCreate_title() {
 
 	if (title_so == NULL) {
-		Dx12Process::Lock();
 		title_so = new Sound_();
-		Dx12Process::Unlock();
 		new(title_so) Sound_("./dat/movie/title.da");
 	}
 }
@@ -75,47 +71,35 @@ void MovieSoundManager::ObjCreate_map(int map_no) {
 	switch (map_no) {
 	case 0:
 		if (dungeon_so[0] == NULL) {
-			Dx12Process::Lock();
 			dungeon_so[0] = new Sound_();
-			Dx12Process::Unlock();
 			new(dungeon_so[0]) Sound_("./dat/movie/dungeon0.da");
 		}
 		break;
 	case 1:
 		if (dungeon_so[1] == NULL) {
-			Dx12Process::Lock();
 			dungeon_so[1] = new Sound_();
-			Dx12Process::Unlock();
 			new(dungeon_so[1]) Sound_("./dat/movie/dungeon1.da");
 		}
 		if (rain_so == NULL) {
-			Dx12Process::Lock();
 			rain_so = new Sound_();
-			Dx12Process::Unlock();
 			new(rain_so) Sound_("./dat/movie/rain.da");
 		}
 		break;
 	case 2:
 		if (dungeon_so[2] == NULL) {
-			Dx12Process::Lock();
 			dungeon_so[2] = new Sound_();
-			Dx12Process::Unlock();
 			new(dungeon_so[2]) Sound_("./dat/movie/dungeon2.da");
 		}
 		break;
 	case 3:
 		if (dungeon_so[3] == NULL) {
-			Dx12Process::Lock();
 			dungeon_so[3] = new Sound_();
-			Dx12Process::Unlock();
 			new(dungeon_so[3]) Sound_("./dat/movie/dungeon3.da");
 		}
 		break;
 	case 4:
 		if (dungeon_so[4] == NULL) {
-			Dx12Process::Lock();
 			dungeon_so[4] = new Sound_();
-			Dx12Process::Unlock();
 			new(dungeon_so[4]) Sound_("./dat/movie/dungeon4.da");
 		}
 		break;
@@ -139,33 +123,23 @@ void MovieSoundManager::ObjDelete_map(){
 void MovieSoundManager::ObjCreate_battle(int n) {
 
 	if (die_so == NULL) {
-		Dx12Process::Lock();
 		die_so = new Sound_();
-		Dx12Process::Unlock();
 		new(die_so) Sound_("./dat/movie/die.da");
 	}
 	if (n == 1 && enemy_so[1] == NULL) {
-		Dx12Process::Lock();
 		enemy_so[1] = new Sound_();
-		Dx12Process::Unlock();
 		new(enemy_so[1]) Sound_("./dat/movie/boss_enemy.da");
 	}
 	if (n == 2 && enemy_so[1] == NULL) {
-		Dx12Process::Lock();
 		enemy_so[1] = new Sound_();
-		Dx12Process::Unlock();
 		new(enemy_so[1]) Sound_("./dat/movie/boss_enemy2.da");
 	}
 	if (n == 3 && enemy_so[1] == NULL) {
-		Dx12Process::Lock();
 		enemy_so[1] = new Sound_();
-		Dx12Process::Unlock();
 		new(enemy_so[1]) Sound_("./dat/movie/lastboss.da");
 	}
 	if (n > 0 && bosslost_so == NULL) {
-		Dx12Process::Lock();
 		bosslost_so = new Sound_();
-		Dx12Process::Unlock();
 		new(bosslost_so) Sound_("./dat/movie/bosslost.da");
 	}
 }
@@ -180,9 +154,7 @@ void MovieSoundManager::ObjDelete_battle(){
 void MovieSoundManager::ObjCreate_ending() {
 
 	if (ending_so == NULL) {
-		Dx12Process::Lock();
 		ending_so = new Sound_();
-		Dx12Process::Unlock();
 		new(ending_so) Sound_("./dat/movie/ending.da");
 	}
 }

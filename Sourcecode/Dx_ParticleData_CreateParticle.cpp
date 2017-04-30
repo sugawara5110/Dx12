@@ -87,9 +87,7 @@ void ParticleData::GetVbColarray(int texture_no, float size, float density) {
 	dx->textureUp[texture_no]->Unmap(0, nullptr);
 
 	//パーティクル配列確保
-	Dx12Process::Lock();
 	P_pos = (PartPos*)malloc(sizeof(PartPos) * ver);
-	Dx12Process::Unlock();
 
 	//ピクセルデータ読み込み
 	dx->textureUp[texture_no]->Map(0, nullptr, reinterpret_cast<void**>(&texResource));

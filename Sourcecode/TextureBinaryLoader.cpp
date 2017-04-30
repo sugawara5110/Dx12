@@ -10,7 +10,6 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 
 	Dx12Process *dx = Dx12Process::GetInstance();
 
-	Dx12Process::Lock();
 	//ƒ}ƒbƒv0
 	dx->TextureGetBuffer("./dat/texture/map/wall1.da", 0);
 	dx->TextureGetBuffer("./dat/texture/map/ground1.da", 1);
@@ -103,8 +102,6 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	dx->TextureGetBuffer("./dat/texture/player/p4/short01_black_diffuse.da", 125);
 	dx->TextureGetBuffer("./dat/texture/player/p4/tshirt_texture_blue.da", 126);
 	dx->TextureGetBuffer("./dat/texture/player/p4/young_darkskinned_female_diffuse.da", 127);
-
-	Dx12Process::Unlock();
 }
 
 void TextureBinaryLoader::TextureBinaryDecodeAll() {

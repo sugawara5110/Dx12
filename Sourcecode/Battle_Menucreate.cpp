@@ -13,8 +13,6 @@
 #include "Hero.h"
 #include <memory.h>
 
-bool Battle::initFin = FALSE;
-
 Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount encount, int no, int e_nu) {
 
 	dx = Dx12Process::GetInstance();
@@ -33,31 +31,8 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	Escape_s = FALSE;
 	E_select.SetCommandList(ENEMY_COM);
 	E_select.GetVBarray(SQUARE, 1);
-	//カーソル左上
-	E_select.SetVertex(0, 0,
-		-25.0f, -25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f);
-	//カーソル右上
-	E_select.SetVertex(1, 4, 1,
-		25.0f, -25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f);
-	//カーソル左下
-	E_select.SetVertex(2, 3, 2,
-		-25.0f, 25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f);
-	//カーソル右下
-	E_select.SetVertex(5, 3,
-		25.0f, 25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 1.0f);
-	E_select.Create(FALSE, -1, FALSE, FALSE);
+	VerSet = FALSE;
+
 	battlefirst = FALSE;
 	CamActOn = FALSE;
 	CamActInd = -1;
@@ -77,9 +52,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	MovieSoundManager::Enemy_sound(TRUE);
 	if (encount == SIDE) {
 		//通常の敵の生成
-		Dx12Process::Lock();
 		enemyside = new EnemySide[e_num];
-		Dx12Process::Unlock();
 		int rnd;
 		//アップキャスト前に初期化
 		for (int i = 0; i < e_num; i++) {
@@ -92,9 +65,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	}
 	if (encount == BOSS) {
 		//ボス生成
-		Dx12Process::Lock();
 		enemyboss = new EnemyBoss[e_num];
-		Dx12Process::Unlock();
 
 		//アップキャスト前に初期化
 		for (int i = 0; i < e_num; i++) {
@@ -113,9 +84,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	E_select_obj = 0;
 	MAG_select = NOSEL;
 	E_MAG_select = NOSEL;
-	Dx12Process::Lock();
 	e_draw = new Draw[e_num];
-	Dx12Process::Unlock();
 	Menucreate();
 
 	for (int i = 0; i < e_num; i++) {
@@ -153,12 +122,51 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 		h_draw[i].R_select = 0;
 		H_drawPos(i);
 	}
-	dx->End(ENEMY_COM);
-	initFin = TRUE;
 }
 
-bool Battle::InitFin() {
-	return initFin;
+void Battle::SetVertex() {
+	//カーソル左上
+	E_select.SetVertex(0, 0,
+		-25.0f, -25.0f, 4.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f);
+	//カーソル右上
+	E_select.SetVertex(1, 4, 1,
+		25.0f, -25.0f, 4.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f);
+	//カーソル左下
+	E_select.SetVertex(2, 3, 2,
+		-25.0f, 25.0f, 4.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f);
+	//カーソル右下
+	E_select.SetVertex(5, 3,
+		25.0f, 25.0f, 4.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f);
+
+	for (int i = 0; i < e_num; i++) {
+		enemy[i].SetVertex();
+	}
+	VerSet = TRUE;
+}
+
+void Battle::CreateBattle() {
+	E_select.Create(FALSE, -1, FALSE, FALSE);
+
+	for (int i = 0; i < e_num; i++) {
+		enemy[i].CreateEnemy();
+	}
+	dx->End(ENEMY_COM);
+}
+
+bool Battle::SetVertexFin() {
+	return VerSet;
 }
 
 void Battle::Menucreate() {
@@ -265,5 +273,4 @@ Battle::~Battle() {
 	MovieSoundManager::ObjDelete_battle();
 	ARR_DELETE(enemy);
 	ARR_DELETE(e_draw);
-	initFin = FALSE;
 }

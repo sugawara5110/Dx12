@@ -57,10 +57,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	DxText::InstanceCreate();
 	//プレイヤー
 	Hero *hero = NULL;
-	//スレッド生成
-	InstanceCreate::CreateThread_R();
+	
 	double i = 300.0;
 	bool down = TRUE;
+
+	//実行中スレッドナンバー
+	int thNo = 0;
 	
 	try {
 		while (1) {
@@ -69,22 +71,50 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				return -1;	//アプリ終了
 			}
 
-			if (hero == NULL)hero = InstanceCreate::Resource_load_f();
-			else {
-				InstanceCreate::DeleteThread_R();
+			bool fin = FALSE;
+			switch (thNo) {
+			case 5:
+				if (InstanceCreate::MapSet_f()) {
+					InstanceCreate::DeleteThread_M();
+					fin = TRUE;
+				}
+				break;
+			case 4:
+				InstanceCreate::CreateThread_M();
+				thNo = 5;
+				break;
+			case 3:
+				if (InstanceCreate::HeroSet_f()) {
+					hero = InstanceCreate::HeroCreate();
+					InstanceCreate::DeleteThread_H();
+					thNo = 4;
+				}
+				break;
+			case 2:
+				InstanceCreate::CreateThread_H();
+				thNo = 3;
+				break;
+			case 1:
+				if (InstanceCreate::Resource_load_f()) {
+					InstanceCreate::DeleteThread_R();
+					thNo = 2;
+				}
+				break;
+			case 0:
+				InstanceCreate::CreateThread_R();
+				thNo = 1;
 				break;
 			}
+			if (fin)break;
 
-			dx->Lock();
 			dx->Sclear();
 			DxText::GetInstance()->BiginDraw();
 			DxText::GetInstance()->UpDateText(L"ＮｏｗＬｏａｄｉｎｇ・・   ％完了", 185.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			DxText::GetInstance()->UpDateValue(InstanceCreate::GetProgress(), 540.0f, (float)i, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			DxText::GetInstance()->EndDraw();
-			dx->Unlock();
-			dx->ReplySync();
+			dx->WaitFenceCurrent();
 			dx->DrawScreen();
-			
+
 			if (down)i += 0.01;
 			if (!down)i -= 0.01;
 			if (i > 320.0)down = FALSE;
@@ -120,9 +150,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int  rnd;
 	T_float tfloat;
 
-	//同期有無切り替え
-	bool sync = TRUE;//通常モード(シングルスレッド)
-
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg))break;
 
@@ -139,10 +166,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					heroInput = TRUE;
 					Map::SetMapNo(statemenu.SetMap_No());
 					for (int i = 0; i < 5; i++)Map::SetBossKilled(i, statemenu.Set_boss_kil(i));
-					sync = FALSE;
 				}
 				title = InstanceCreate::CreateMapIns(statemenu.SetH_Pos(), &hero[0], &map_no);
-				if (!title)sync = TRUE;
 			}
 		}
 
@@ -154,8 +179,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		switch (mapstate) {
 		case CHANGE_MAP:
-			sync = FALSE;
-			if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) { mapstate = NORMAL_MAP; sync = TRUE; }
+			if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) { mapstate = NORMAL_MAP; }
 			break;
 		case RECOV_MAP:
 			for (int i = 0; i < 4; i++) {
@@ -197,11 +221,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				dx->Cameraset(h_posOut.cx, h_posOut.cx2, h_posOut.cy, h_posOut.cy2, h_posOut.cz, h_posOut.cz);
 				hero[0].OBJWalkDraw(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
-				//if(!battle_flg[0])sync = FALSE;
-				battle_flg[0] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
+				if (!battle_flg[1])battle_flg[0] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
 				if (battle_flg[0]) {
 					battle_flg[1] = TRUE;
-					//sync = TRUE;
 				}
 				if (f && battle_flg[1]) {
 					battle_flg[1] = FALSE;
@@ -247,15 +269,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		T_float::GetTime(hWnd);
 		DxText::GetInstance()->EndDraw();
-		
-		switch (sync) {
-		case TRUE://シングルスレッド
-			dx->WaitFencePast();
-			break;
-		case FALSE:
-			dx->ReplySync();
-			break;
-		}
+
+		dx->WaitFencePast();
 		dx->DrawScreen();
 	}
 
