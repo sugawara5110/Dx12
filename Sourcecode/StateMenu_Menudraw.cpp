@@ -167,22 +167,22 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			
 
 			//ラスダン
-			savedata.h_pos.cx1 = 1450.0f;//ボス前
+			/*savedata.h_pos.cx1 = 1450.0f;//ボス前
 			savedata.h_pos.cx2 = 1450.0f;
 			savedata.h_pos.cy1 = 1550.0f;
 			savedata.h_pos.cy2 = 1480.0f;
 			savedata.h_pos.px = 14;
 			savedata.h_pos.py = 15;
 			savedata.h_pos.pz = 6;//ボス前
-			/*savedata.h_pos.cx1 = 1150.0f;
+			savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 2750.0f;
 			savedata.h_pos.cy2 = 2680.0f;
 			savedata.h_pos.px = 11;
 			savedata.h_pos.py = 27;
-			savedata.h_pos.pz = 0;*/
+			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 4;
+			savedata.map_no = 4;*/
 			
 		}
 		if (select == 1) {

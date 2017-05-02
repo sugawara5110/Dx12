@@ -31,7 +31,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	Escape_s = FALSE;
 	E_select.SetCommandList(ENEMY_COM);
 	E_select.GetVBarray(SQUARE, 1);
-	VerSet = FALSE;
+	CreateFin = FALSE;
 
 	battlefirst = FALSE;
 	CamActOn = FALSE;
@@ -153,7 +153,6 @@ void Battle::SetVertex() {
 	for (int i = 0; i < e_num; i++) {
 		enemy[i].SetVertex();
 	}
-	VerSet = TRUE;
 }
 
 void Battle::CreateBattle() {
@@ -163,10 +162,11 @@ void Battle::CreateBattle() {
 		enemy[i].CreateEnemy();
 	}
 	dx->End(ENEMY_COM);
+	CreateFin = TRUE;
 }
 
-bool Battle::SetVertexFin() {
-	return VerSet;
+bool Battle::CreateB_Fin() {
+	return CreateFin;
 }
 
 void Battle::Menucreate() {

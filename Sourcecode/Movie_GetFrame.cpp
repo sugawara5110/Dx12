@@ -98,12 +98,10 @@ int **Movie::GetFrame(int width, int height){
 	pSampleGrabber->GetCurrentBuffer(&nBufferSize, (long *)(pBuffer));
 
 	if (m_pix == NULL){
-		Dx12Process::Lock();
 		m_pix = (int**)malloc(sizeof(int*) * hei);
 		for (int i = 0; i < hei; i++){
 			m_pix[i] = (int*)malloc(sizeof(int) * wid);
 		}
-		Dx12Process::Unlock();
 	}
 
 	//フレームサイズ

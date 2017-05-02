@@ -736,9 +736,7 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 	break;
 	}
 
-	Dx12Process::Lock();
 	mxy.m = (int*)malloc(sizeof(int) * mxy.z * mxy.y * mxy.x);
-	Dx12Process::Unlock();
 
 	//配列コピー
 	for (int k = 0; k < mxy.z; k++){

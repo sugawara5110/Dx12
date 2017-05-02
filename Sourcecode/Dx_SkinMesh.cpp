@@ -545,6 +545,7 @@ void SkinMesh::SetVertex() {
 				}
 			}
 
+			//インデックスバッファ生成1段回目
 			if (iCount > 0) CreateIndexBuffer(iCount, pIndex[mInd], mInd);
 			m_pMaterial[mInd].dwNumFace = polygon_cnt;//そのマテリアル内のポリゴン数	
 			mInd++;
@@ -557,11 +558,6 @@ void SkinMesh::SetVertex() {
 		ARR_DELETE(piFaceBuffer[i]);
 	}
 	ARR_DELETE(piFaceBuffer);
-
-	for (int i = 0; i < MateAllpcs; i++) {
-		ARR_DELETE(pIndex[i]);
-	}
-	ARR_DELETE(pIndex);
 
 	ARR_DELETE(m_pMaterialCount);
 	ARR_DELETE(IndexCount34Me);
@@ -580,7 +576,14 @@ void SkinMesh::SetVertex() {
 
 void SkinMesh::CreateFromFBX() {
 
-	//バーテックスバッファーを作成
+	//インデックスバッファ生成2段回目, 一時格納配列解放
+	for (int i = 0; i < MateAllpcs; i++) {
+		CreateIndexBuffer2(pIndex[i], i);
+		ARR_DELETE(pIndex[i]);
+	}
+	ARR_DELETE(pIndex);
+	
+	//バーテックスバッファー作成
 	const UINT vbByteSize = (UINT)VerAllpcs * sizeof(MY_VERTEX_S);
 
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
@@ -726,12 +729,16 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 
 	D3DCreateBlob(ibByteSize, &Iview[IviewInd].IndexBufferCPU);
 	CopyMemory(Iview[IviewInd].IndexBufferCPU->GetBufferPointer(), pIndex, ibByteSize);
-	Iview[IviewInd].IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
-		mCommandList, pIndex, ibByteSize, Iview[IviewInd].IndexBufferUploader);
-
+	
 	Iview[IviewInd].IndexFormat = DXGI_FORMAT_R32_UINT;
 	Iview[IviewInd].IndexBufferByteSize = ibByteSize;
 	Iview[IviewInd].IndexCount = cnt;
+}
+
+void SkinMesh::CreateIndexBuffer2(int *pIndex, int IviewInd) {
+
+	Iview[IviewInd].IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
+		mCommandList, pIndex, Iview[IviewInd].IndexBufferByteSize, Iview[IviewInd].IndexBufferUploader);
 }
 
 //ボーンを次のポーズ位置にセットする

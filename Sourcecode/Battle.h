@@ -43,7 +43,7 @@ private:
 	bool battlefirst;      //開始直後のカメラ移動完了フラグ
 	bool CamActOn;        //
 	int CamActInd;
-	bool VerSet;
+	bool CreateFin;
 
 	CommandSelect com_select;   //コマンド入力(1ループに付き1体ずつなので1個でok↓も同様)
 	CommandSelect E_com_select;//敵用(テンプレート関数使用の為引数揃える)
@@ -254,7 +254,7 @@ public:
 	Battle(Hero *he, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
 	void SetVertex();
 	void CreateBattle();
-	bool SetVertexFin();
+	bool CreateB_Fin();
 	Result Fight(Hero *he, Directionkey direction, Result result);
 	Position::Bt_H_Pos *GetBtPos(Position::H_Pos *h_p);
 	bool GetH_DM(int element);

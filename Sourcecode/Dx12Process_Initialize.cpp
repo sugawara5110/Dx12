@@ -287,9 +287,12 @@ void Dx12Process::GetTexture() {
 		HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 		HeapProps.CreationNodeMask = 1;
 		HeapProps.VisibleNodeMask = 1;
-		HRESULT hr;
-		hr = dx->md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-			D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&texture[i]));
+
+		if (FAILED(dx->md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
+			D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&texture[i])))) {
+			sprintf(str, "texture[%d]読み込みエラー", (i));
+			throw str;
+		}
 
 		//upload
 		UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture[i], 0, 1);
@@ -313,9 +316,12 @@ void Dx12Process::GetTexture() {
 		BufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		BufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-		dx->md3dDevice->CreateCommittedResource(&HeapPropsUp, D3D12_HEAP_FLAG_NONE,
+		if (FAILED(dx->md3dDevice->CreateCommittedResource(&HeapPropsUp, D3D12_HEAP_FLAG_NONE,
 			&BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr, IID_PPV_ARGS(&textureUp[i]));
+			nullptr, IID_PPV_ARGS(&textureUp[i])))) {
+			sprintf(str, "textureUp[%d]読み込みエラー", (i));
+			throw str;
+		}
 
 		D3D12_RESOURCE_BARRIER BarrierDesc;
 		BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -333,7 +339,6 @@ void Dx12Process::GetTexture() {
 		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
 	}
 	End(COM);
-	WaitFenceCurrent();
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {

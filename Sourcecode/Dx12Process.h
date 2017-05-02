@@ -352,13 +352,16 @@ public:
 		if (isConstantBuffer)//コンスタントバッファの場合
 			mElementByteSize = (sizeof(T) + 255) & ~255;//255を足して255の補数の論理積を取る。(255単位に変換)
 
-		device->CreateCommittedResource(
+		if (FAILED(device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(mElementByteSize * elementCount),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&mUploadBuffer));
+			IID_PPV_ARGS(&mUploadBuffer)))) {
+			char *str = "UploadBufferエラー";
+			throw str;
+		}
 
 		mUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData));
 	}
@@ -768,7 +771,6 @@ private:
 	int AnimLastInd;
 	float BoneConnect;
 
-
 	//共通で使うマネージャー生成(Dx12Processで生成解放を行う)
 	static void CreateManager();
 	static void DeleteManager();
@@ -779,6 +781,7 @@ private:
 	FbxNode *SearchNode(FbxNode *pnode, FbxNodeAttribute::EType SearchType, int Ind);
 	HRESULT InitFBX(CHAR* szFileName, int p);
 	void CreateIndexBuffer(int cnt, int *pIndex, int IviewInd);
+	void CreateIndexBuffer2(int *pIndex, int IviewInd);
 	HRESULT ReadSkinInfo(MY_VERTEX_S *pvVB);
 	MATRIX GetCurrentPoseMatrix(int index);
 	void MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB);

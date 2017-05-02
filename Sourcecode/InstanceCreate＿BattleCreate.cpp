@@ -55,8 +55,8 @@ void InstanceCreate::DeleteThread_R() {
 	WaitForSingleObject(resource_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(resource_loading_h);                 //ハンドルを閉じる
 	resource_loading_h = NULL;
-	MovieSoundManager::ObjInit();
 	Dx12Process::GetInstance()->GetTexture();
+	MovieSoundManager::ObjInit();
 	progress = 30;
 }
 
@@ -70,14 +70,12 @@ void InstanceCreate::DeleteThread_B(){
 	WaitForSingleObject(battle_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(battle_loading_h);                 //ハンドルを閉じる
 	battle_loading_h = NULL;
-	InstanceCreate::BattleCreate();
 }
 
 void InstanceCreate::DeleteThread_M() {
 	WaitForSingleObject(map_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(map_loading_h);                 //ハンドルを閉じる
 	map_loading_h = NULL;
-	InstanceCreate::MapCreate();
 	MapObjSet();//マップのセット
 }
 
@@ -97,19 +95,17 @@ void InstanceCreate::HeroSetVertex() {
 	}
 }
 
-bool InstanceCreate::HeroSet_f() {
-	DWORD th_end;
-	GetExitCodeThread(hero_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return FALSE;
-	return TRUE;
-}
-
-Hero *InstanceCreate::HeroCreate() {
+void InstanceCreate::HeroCreate() {
 	for (int i = 0; i < 4; i++) {
 		he[i].CreateHero();
 	}
 	Dx12Process::GetInstance()->End(HERO_COM);
-	Dx12Process::GetInstance()->WaitFenceCurrent();
+}
+
+Hero *InstanceCreate::HeroCreate_f() {
+	DWORD th_end;
+	GetExitCodeThread(hero_loading_h, &th_end);
+	if (th_end == STILL_ACTIVE)return NULL;
 	return he;
 }
 
@@ -148,12 +144,12 @@ void InstanceCreate::BattleSetVertex() {
 	battle->SetVertex();
 }
 
-bool InstanceCreate::BattleSet_f() {
-	return battle->SetVertexFin();
-}
-
 void InstanceCreate::BattleCreate() {
 	battle->CreateBattle();
+}
+
+bool InstanceCreate::BattleCreate_f() {
+	return battle->CreateB_Fin();
 }
 
 void InstanceCreate::BattleDelete(){
@@ -185,21 +181,20 @@ void InstanceCreate::MapSetVertex() {
 	progress = 90;
 }
 
-bool InstanceCreate::MapSet_f() {
+void InstanceCreate::MapCreate() {
+	map_t->CreateMap();
+	progress = 95;
+}
+
+bool InstanceCreate::MapCreate_f() {
 	DWORD th_end;
 	GetExitCodeThread(map_loading_h, &th_end);
 	if (th_end == STILL_ACTIVE)return FALSE;
 	return TRUE;
 }
 
-void InstanceCreate::MapCreate() {
-	map_t->CreateMap();
-	Dx12Process::GetInstance()->WaitFenceCurrent();
-	MovieSoundManager::ObjCreate_map(Map::GetMapNo());
-	progress = 95;
-}
-
 void InstanceCreate::MapObjSet() {
+	MovieSoundManager::ObjCreate_map(Map::GetMapNo());
 	S_DELETE(map);
 	MovieSoundManager::ObjChange_map();
 	map = map_t;//生成したマップのアドレスを描画用ポインタ変数にコピー
@@ -229,7 +224,7 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 		break;
 
 	case 1:
-		if (BattleSet_f()) {
+		if (BattleCreate_f()) {
 			DeleteThread_B();
 			Dx12Process::GetInstance()->WaitFenceCurrent();
 			th = 0;
@@ -247,7 +242,7 @@ bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no){
 		CreateThread_M();
 		*map_no = Map::GetMapNo();
 	}
-	if (GetHANDLE_M() != NULL && MapSet_f() == TRUE){
+	if (GetHANDLE_M() != NULL && MapCreate_f() == TRUE){
 		DeleteThread_M();
 		return FALSE;
 	}
@@ -261,15 +256,18 @@ unsigned __stdcall ResourceLoading(void *) {
 
 unsigned __stdcall InstanceLoadingHero(void *) {
 	InstanceCreate::HeroSetVertex();
+	InstanceCreate::HeroCreate();
 	return 0;
 }
 
 unsigned __stdcall InstanceLoadingBattle(void *){
 	InstanceCreate::BattleSetVertex();
+	InstanceCreate::BattleCreate();
 	return 0;
 }
 
 unsigned __stdcall InstanceLoadingMap(void *){
 	InstanceCreate::MapSetVertex();
+	InstanceCreate::MapCreate();
 	return 0;
 }
