@@ -8,7 +8,6 @@
 #define Class_DxText_Header
 
 #include "Dx12Process.h"
-#define TEXT_COM 1
 #define STRTEX_MAX_PCS 40
 #define STR_MAX_LENGTH 40
 #define VAL_PCS 10
@@ -22,6 +21,7 @@ private:
 	TCHAR str[STRTEX_MAX_PCS][STR_MAX_LENGTH]; //登録テキスト
 	float f_size[STRTEX_MAX_PCS];              //登録テキストのフォントサイズ
 	int strcnt[STRTEX_MAX_PCS];       //登録テキスト文字数 
+	int comNo;
 	HFONT hFont, oldFont;           //フォント
 	HDC hdc;                       //デバイスコンテキスト
 	int CreateTextNo;              //テキスト作成ターゲット
@@ -50,16 +50,16 @@ private:
 	DxText();
 	~DxText();
 	int CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize);
+	TCHAR *CreateTextValue(int val);
 
 public:
 	static void InstanceCreate();
 	static DxText *GetInstance();
 	static void DeleteInstance();
-	TCHAR *CreateTextValue(int val);
-	void BiginDraw();
+	void SetCommandList(int com_no);
 	void UpDateText(TCHAR *c, float x, float y, float fontsize, VECTOR4 cl);
 	void UpDateValue(int val, float x, float y, float fontsize, int pcs, VECTOR4 cl);
-	void EndDraw();
+	void Draw();
 };
 
 #endif

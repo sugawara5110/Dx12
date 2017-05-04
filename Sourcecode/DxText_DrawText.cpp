@@ -36,10 +36,10 @@ DxText::DxText() {
 
 	dx = Dx12Process::GetInstance();
 
-	dx->Bigin(TEXT_COM);
+	dx->Bigin(0);
 	//文字列用バッファ初期化
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
-		text[i].SetCommandList(TEXT_COM);
+		text[i].SetCommandList(0);
 		text[i].GetVBarray2D(1);
 		text[i].TexOn();
 		text[i].CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
@@ -49,16 +49,17 @@ DxText::DxText() {
 
 	//可変用
 	for (int i = 0; i < VAL_PCS; i++) {
-		value[i].SetCommandList(TEXT_COM);
+		value[i].SetCommandList(0);
 		value[i].GetVBarray2D(1);
 		value[i].TexOn();
 		value[i].CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 		TCHAR *va = CreateTextValue(i);
 		CreateText(value, va, i, 15.0f);
 	}
-	dx->End(TEXT_COM);
+	dx->End(0);
 	dx->WaitFenceCurrent();
 	CreateTextNo = 0;
+	comNo = 0;
 }
 
 DxText::~DxText(){
@@ -157,6 +158,7 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize) {
 		w += GM[cnt].gmCellIncX;
 	}
 
+	p2[texNo].SetCommandList(comNo);
 	p2[texNo].SetText((int)(w * 1.3f), TM[0].tmHeight, count, &TM, &GM, &ptr, &allsize);//1.3は表示範囲幅補正
 
 	delete TM;
@@ -230,6 +232,10 @@ TCHAR *DxText::CreateTextValue(int val){
 	return c;
 }
 
+void DxText::SetCommandList(int com_no) {
+	comNo = com_no;
+}
+
 void DxText::UpDateText(TCHAR *c, float x, float y, float fontsize, VECTOR4 cl) {
 	bool match = FALSE;
 	int texNo = -1;
@@ -297,11 +303,7 @@ void DxText::UpDateValue(int val, float x, float y, float fontsize, int pcs, VEC
 	draw_f = TRUE;
 }
 
-void DxText::BiginDraw() {
-	dx->Bigin(TEXT_COM);
-}
-
-void DxText::EndDraw() {
+void DxText::Draw() {
 
 	if (!draw_f)return;
 
@@ -320,6 +322,7 @@ void DxText::EndDraw() {
 				textInsData[i].s[i1].sizeY
 			);
 		}
+		text[i].SetCommandList(comNo);
 		text[i].InstanceDraw();
 	}
 
@@ -338,9 +341,9 @@ void DxText::EndDraw() {
 				valueInsData[i].s[i1].sizeY
 			);
 		}
+		value[i].SetCommandList(comNo);
 		value[i].InstanceDraw();
 	}
-	dx->End(TEXT_COM);
 	//描画終了したら描画個数リセット
 	for (int i = 0; i < STRTEX_MAX_PCS; i++)textInsData[i].pcs = 0;
 	for (int i = 0; i < VAL_PCS; i++)valueInsData[i].pcs = 0;

@@ -26,6 +26,7 @@ public:
 	EnemySide(int t_no, int no, Position::H_Pos *h_pos, Position::E_Pos *e_pos);
 	//@Override
 	virtual void SetVertex();
+	virtual void SetCommandList(int com_no);
 	virtual void CreateEnemy();
 	virtual bool M_run_flg();//マジック実行フラグ
 	virtual void M_select(int *r, int *r1);//マジック選択

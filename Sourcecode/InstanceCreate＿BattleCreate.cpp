@@ -21,8 +21,8 @@ Battle *InstanceCreate::battle = NULL;
 
 HANDLE *InstanceCreate::map_loading_h = NULL;
 Position::H_Pos *InstanceCreate::h_p = NULL;
-Map *InstanceCreate::map = NULL;
-Map *InstanceCreate::map_t = NULL;
+Map *InstanceCreate::map[2] = { 0 };
+int InstanceCreate::mapInd = 0;
 
 Hero *InstanceCreate::he = NULL;
 
@@ -55,8 +55,8 @@ void InstanceCreate::DeleteThread_R() {
 	WaitForSingleObject(resource_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(resource_loading_h);                 //ハンドルを閉じる
 	resource_loading_h = NULL;
-	Dx12Process::GetInstance()->GetTexture();
 	MovieSoundManager::ObjInit();
+	Dx12Process::GetInstance()->GetTexture(0);
 	progress = 30;
 }
 
@@ -81,7 +81,6 @@ void InstanceCreate::DeleteThread_M() {
 
 void InstanceCreate::HeroGetBuffer() {
 	he = new Hero[4];
-	Dx12Process::GetInstance()->Bigin(HERO_COM);
 	for (int i = 0; i < 4; i++) {
 		new(he + i) Hero(i);//配列をplacement newを使って初期化する
 	}
@@ -96,10 +95,12 @@ void InstanceCreate::HeroSetVertex() {
 }
 
 void InstanceCreate::HeroCreate() {
+	Dx12Process::GetInstance()->Bigin(1);
 	for (int i = 0; i < 4; i++) {
+		he[i].SetCommandList(1);
 		he[i].CreateHero();
 	}
-	Dx12Process::GetInstance()->End(HERO_COM);
+	Dx12Process::GetInstance()->End(1);
 }
 
 Hero *InstanceCreate::HeroCreate_f() {
@@ -145,7 +146,10 @@ void InstanceCreate::BattleSetVertex() {
 }
 
 void InstanceCreate::BattleCreate() {
+	Dx12Process::GetInstance()->Bigin(1);
+	battle->SetCommandList(1);
 	battle->CreateBattle();
+	Dx12Process::GetInstance()->End(1);
 }
 
 bool InstanceCreate::BattleCreate_f() {
@@ -170,19 +174,23 @@ void InstanceCreate::SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h){
 }
 
 void InstanceCreate::MapGetBuffer() {
-	S_DELETE(map_t);
-	map_t = new Map();
-	new(map_t) Map(h_p, he);
+	S_DELETE(map[1 - mapInd]);
+	map[1 - mapInd] = new Map();
+	new(map[1 - mapInd]) Map(h_p, he);
 	progress = 85;
 }
 
 void InstanceCreate::MapSetVertex() {
-	map_t->SetVertex();
+	map[1 - mapInd]->SetVertex();
 	progress = 90;
 }
 
 void InstanceCreate::MapCreate() {
-	map_t->CreateMap();
+	Dx12Process::GetInstance()->Bigin(1);
+	map[1 - mapInd]->SetCommandList(1);
+	map[1 - mapInd]->CreateMap();
+	Dx12Process::GetInstance()->End(1);
+	mapInd = 1 - mapInd;
 	progress = 95;
 }
 
@@ -195,20 +203,21 @@ bool InstanceCreate::MapCreate_f() {
 
 void InstanceCreate::MapObjSet() {
 	MovieSoundManager::ObjCreate_map(Map::GetMapNo());
-	S_DELETE(map);
 	MovieSoundManager::ObjChange_map();
-	map = map_t;//生成したマップのアドレスを描画用ポインタ変数にコピー
-	map_t = NULL;//コピーしたのでNULL設定にする
 	progress = 100;
 }
 
-void InstanceCreate::MapDelete(){
-	S_DELETE(map);
-	S_DELETE(map_t);
+void InstanceCreate::MapDelete() {
+	S_DELETE(map[0]);
+	S_DELETE(map[1]);
+}
+
+void InstanceCreate::InsDelete() {
+	S_DELETE(map[1 - mapInd]);//使用されなくなったobj
 }
 
 Map *InstanceCreate::GetInstance_M(){
-	return map;
+	return map[mapInd];//使用するobj
 }
 
 bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu) {
@@ -226,13 +235,11 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 	case 1:
 		if (BattleCreate_f()) {
 			DeleteThread_B();
-			Dx12Process::GetInstance()->WaitFenceCurrent();
 			th = 0;
 			return TRUE;
 		}
 		break;
 	}
-
 	return FALSE;
 }
 

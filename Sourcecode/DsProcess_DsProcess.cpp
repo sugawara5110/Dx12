@@ -17,7 +17,7 @@ DsProcess::DsProcess(){
 	pBasicAudio = NULL;
 
 	// COM‚ğ‰Šú‰»
-	CoInitialize(NULL);
+	//CoInitialize(NULL);
 
 	// FilterGraph‚ğ¶¬
 	CoCreateInstance(CLSID_FilterGraph,
@@ -113,5 +113,5 @@ DsProcess::~DsProcess(){
 	RELEASE(pGraphBuilder);
 
 	// COMI—¹
-	CoUninitialize();
+	//CoUninitialize();
 }

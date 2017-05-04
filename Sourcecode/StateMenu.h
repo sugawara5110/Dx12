@@ -12,7 +12,6 @@
 #include "DxText.h"
 #define s_MAX_HP (savedata.p_data[i].Vitality * savedata.p_data[i].LV * 2 + 30)
 #define s_MAX_MP (savedata.p_data[i].Magic * savedata.p_data[i].LV + 10)
-#define STATEMENU_COM 6
 
 class StateMenu{
 
@@ -21,6 +20,7 @@ private:
 	PolygonData2D state, s_state, r_state, r_state1;
 	DxText *text;
 	MapMenuSelect menu_select;
+	int comNo;
 	int main_select;
 	int st_select;
 	int re_select;
@@ -55,6 +55,7 @@ public:
 	Position::H_Pos *SetH_Pos();
 	int Set_boss_kil(int i);
 	int SetMap_No();
+	void SetCommandList(int com_no);
 	bool Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction);
 	~StateMenu();
 };

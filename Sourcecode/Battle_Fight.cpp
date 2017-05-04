@@ -26,8 +26,6 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	h_posOut.cz = h_pos.cz;
 	h_posOut.theta = h_pos.theta;
 
-	dx->Bigin(ENEMY_COM);
-
 	//Debug(enemy);
 
 	//戦闘開始直後視点
@@ -93,7 +91,6 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	//GAMEOVER時ループスキップ
 	if (result == DIE) {
 		MovieSoundManager::Die_sound(TRUE);
-		dx->End(ENEMY_COM);
 		return DIE;
 	}
 
@@ -101,7 +98,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 
 	//初期視点終了まで繰り返し
 	if (!battlefirst) {
-		dx->End(ENEMY_COM); return IN_BATTLE;
+		return IN_BATTLE;
 	}
 
 	//敵攻撃パターン決定1体ずつ
@@ -149,7 +146,6 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 		MovieSoundManager::Enemy_soundoff();
 		MovieSoundManager::Die_sound(FALSE);
 		SelectPermissionMove(hero);
-		dx->End(ENEMY_COM);
 		return DIE;
 	}
 
@@ -252,7 +248,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	//エスケープ表示
 	if (Escapedraw() == FALSE) {
 		if (Escape_s == TRUE) {
-			dx->End(ENEMY_COM); return WIN;
+			return WIN;
 		}
 	}
 	//プレイヤー全部メーター貯まってない状態での選択権破棄
@@ -276,11 +272,9 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 		for (int i = 0; i < 4; i++) {
 			hero[i].Act_f_init();
 		}
-		dx->End(ENEMY_COM);
 		return WIN;
 	}
 
-	dx->End(ENEMY_COM);
 	return IN_BATTLE;
 }
 

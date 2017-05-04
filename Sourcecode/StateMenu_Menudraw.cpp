@@ -9,6 +9,14 @@
 #include "Hero.h"
 #include "StateMenu.h"
 
+void StateMenu::SetCommandList(int com_no) {
+	comNo = com_no;
+	state.SetCommandList(comNo);
+	s_state.SetCommandList(comNo);
+	r_state.SetCommandList(comNo);
+	r_state1.SetCommandList(comNo);
+}
+
 bool StateMenu::TitleMenu(Directionkey direction) {
 
 	MovieSoundManager::Title_sound(TRUE);
@@ -317,12 +325,11 @@ int StateMenu::Set_boss_kil(int i){
 }
 
 bool StateMenu::Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {
-	dx->Bigin(STATEMENU_COM);
+	
 	bool m_ref = FALSE;
 	switch (menu_select) {
 	case MAIN:
 		m_ref = Main_Menu(h_p, map_no, boss_killed, hero, direction);
-		dx->End(STATEMENU_COM);
 		return m_ref;
 	case ST:
 		St_Menu(hero, direction);
@@ -334,7 +341,6 @@ bool StateMenu::Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Her
 		Pp_Menu(hero, direction);
 		break;
 	}
-	dx->End(STATEMENU_COM);
 	return TRUE;
 }
 

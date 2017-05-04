@@ -11,8 +11,6 @@
 #include "Position.h"
 #include "Battle.h"
 
-#define HERO_COM 5
-
 //‘O•ûéŒ¾
 class Battle;
 //‘O•ûéŒ¾
@@ -28,6 +26,7 @@ protected:
 	SkinMesh *torchWood;
 	PolygonData *torchFlame;
 	bool torchOn;
+	int comNo;
 
 	PolygonData2D state, meter;
 	PolygonData mag, effect[4];
@@ -55,6 +54,7 @@ public:
 	Hero(){}
 	Hero(int no);
 	void SetVertex();
+	void SetCommandList(int com_no);
 	void CreateHero();
 	void P_DataInput(P_Data *p_dat);
 	void TorchSwitch(bool f);

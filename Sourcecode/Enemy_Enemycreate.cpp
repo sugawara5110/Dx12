@@ -11,6 +11,7 @@ Enemy::Enemy(int t_no, int no) {
 
 	o_no = no;
 	e_no = t_no;
+	comNo = 0;
 	mov_z = 0.0f;
 	mov_y = 0.0f;
 	mov_x = 0.0f;
@@ -25,9 +26,10 @@ Enemy::Enemy(int t_no, int no) {
 	en = NULL;
 	en_boss_att = NULL;
 	attFin = attOn = magicAttOn = FALSE;
+}
 
+void Enemy::EffectGetBuffer() {
 	for (int i = 0; i < 4; i++) {
-		effect[i].SetCommandList(ENEMY_COM);
 		effect[i].GetVBarray(SQUARE, 1);
 		float ver = 25;
 		//¶‘O
@@ -57,8 +59,12 @@ Enemy::Enemy(int t_no, int no) {
 			0.0f, 0.0f, 0.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			1.0f, 1.0f);
-		effect[i].Create(FALSE, 81 + i, TRUE, TRUE);
 	}
+}
+
+void Enemy::EffectCreate() {
+	for (int i = 0; i < 4; i++)
+		effect[i].Create(FALSE, 81 + i, TRUE, TRUE);
 }
 
 void Enemy::Enemycreate(float x, float y){
@@ -93,6 +99,8 @@ void Enemy::Enemycreate(float x, float y){
 }
 
 void Enemy::SetVertex(){}
+
+void Enemy::SetCommandList(int com_no){}
 
 void Enemy::CreateEnemy(){}
 

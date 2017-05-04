@@ -32,7 +32,8 @@ private:
 	//Map生成用パラメータ
 	static HANDLE *map_loading_h;
 	static Position::H_Pos *h_p;
-	static Map *map, *map_t;
+	static Map *map[2];
+	static int mapInd;
 
 	//Heroオブジェクト保持用
 	static Hero *he;
@@ -75,6 +76,7 @@ public:
 	static void MapCreate();
 	static bool MapCreate_f();
 	static void MapObjSet();
+	static void InsDelete();
 	static void MapDelete();
 	static Map *GetInstance_M();//マルチスレッドで生成する為NULLチェックでは無く終了フラグMapCreate_f()で生成確認する
 

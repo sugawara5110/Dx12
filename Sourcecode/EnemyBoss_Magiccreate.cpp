@@ -125,16 +125,16 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 
 	PosOffset(o_no);
 
+	EffectGetBuffer();
+
 	if (t_no == 2) {
 		en_boss_att0 = new MeshData();
-		en_boss_att0->SetCommandList(ENEMY_COM);
 		en_boss_att0->SetState(TRUE, TRUE, FALSE);
 		en_boss_att0->GetBuffer("./dat/mesh/boss3.obj");
 	}
 
 	if (t_no != 2) {
 		en_boss_att = new SkinMesh();
-		en_boss_att->SetCommandList(ENEMY_COM);
 		en_boss_att->SetState(TRUE, TRUE);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 1);
@@ -163,7 +163,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		}
 	}
 	mag_boss = new ParticleData();
-	mag_boss->SetCommandList(ENEMY_COM);
 	mag_boss->GetBufferParticle(61, mag_size, 5.0f);
 }
 
@@ -180,7 +179,17 @@ void EnemyBoss::SetVertex() {
 }
 
 //@Override
+void EnemyBoss::SetCommandList(int com_no) {
+	comNo = com_no;
+	for (int i = 0; i < 4; i++)effect[i].SetCommandList(comNo);
+	if (e_no == 2) en_boss_att0->SetCommandList(comNo);
+	if (e_no != 2) en_boss_att->SetCommandList(comNo);
+	mag_boss->SetCommandList(comNo);
+}
+
+//@Override
 void EnemyBoss::CreateEnemy() {
+	EffectCreate();
 	if (e_no == 2) {
 		en_boss_att0->CreateMesh();
 		en_boss_att0->GetTexture();

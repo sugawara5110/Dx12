@@ -10,8 +10,6 @@
 #include "Parameter.h"
 #include "Position.h"
 
-#define ENEMY_COM 4
-
 //前方宣言
 class Battle;
 //前方宣言
@@ -32,6 +30,7 @@ protected:
 	bool magicAttOn;            //magicアニメーションフラグ
 	ParticleData *mag_boss;    //ボス用
 	float mag_size;           //ボス用
+	int comNo;
 
 	bool esc;//エスケープ可否 TRUE==エスケープ可
 	float mov_z;
@@ -66,7 +65,10 @@ public:
 	Enemy(int t_no, int no);
 	Act_fin_flg Enemydraw(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
 	Action Normal_act_get();
+	void EffectGetBuffer();
+	void EffectCreate();
 	virtual void SetVertex();
+	virtual void SetCommandList(int com_no);
 	virtual void CreateEnemy();
 	virtual bool M_run_flg();//マジック実行フラグ
 	virtual void M_select(int *r, int *r1);//マジック選択

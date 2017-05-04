@@ -6,18 +6,14 @@
 
 #include "Main.h"
 
-void Main::DrawNowLoading() {
+void Main::DrawNowLoading(int com_no) {
 	static double i = 300.0;
 	static bool down = TRUE;
 
-	dx->Sclear();
-	text->BiginDraw();
+	text->SetCommandList(com_no);
 	text->UpDateText(L"ＮｏｗＬｏａｄｉｎｇ・・   ％完了", 185.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(InstanceCreate::GetProgress(), 540.0f, (float)i, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
-	text->EndDraw();
-
-	dx->WaitFenceCurrent();
-	dx->DrawScreen();
+	text->Draw();
 
 	if (down)i += 0.3;
 	if (!down)i -= 0.3;
@@ -61,7 +57,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 			}
 
 			bool fin = FALSE;
-			bool drawF = TRUE;
+			dx->Bigin(0);
 			switch (thNo) {
 			case 5:
 				if (InstanceCreate::MapCreate_f()) {
@@ -88,7 +84,6 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 					InstanceCreate::DeleteThread_R();
 					thNo = 2;
 				}
-				else drawF = FALSE;//このタイミングのみDrawNowLoading()実行しない(エラー出る為, 原因わからず)
 				break;
 			case 0:
 				InstanceCreate::CreateThread_R();
@@ -96,7 +91,12 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 				break;
 			}
 
-			if (drawF)DrawNowLoading();
+			dx->Sclear(0);
+			DrawNowLoading(0);
+
+			dx->End(0);
+			dx->WaitFenceCurrent();
+			dx->DrawScreen();
 
 			if (fin) break;
 		}
@@ -109,13 +109,18 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	}
 
 	control = Control::GetInstance();
+	dx->Bigin(0);
 	statemenu = new StateMenu();
+	dx->End(0);
+	dx->WaitFenceCurrent();
 
 	return TRUE;
 }
 
 void Main::Loop() {
 
+	statemenu->SetCommandList(0);
+	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg))break;
 		UpDate();
@@ -124,9 +129,9 @@ void Main::Loop() {
 
 void Main::UpDate() {
 
-	dx->Sclear();
-	text->BiginDraw();
-
+	dx->Bigin(0);
+	dx->Sclear(0);
+	bool mpDel_f = FALSE;
 	if (title) {
 		if (title_in) {
 			title_in = statemenu->TitleMenu(control->Direction());
@@ -139,18 +144,20 @@ void Main::UpDate() {
 				for (int i = 0; i < 5; i++)Map::SetBossKilled(i, statemenu->Set_boss_kil(i));
 			}
 			title = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
+			if (!title) { mpDel_f = TRUE; mapstate = NORMAL_MAP; }
 		}
 	}
 
-	dx->Bigin(HERO_COM);
-
+	InstanceCreate::GetInstance_M()->SetCommandList(0);
 	encount = InstanceCreate::GetInstance_M()->Mapdraw(&mapstate, control->Direction(TRUE), encount, menu, title, endingflg);
 
 	if (!endingflg && !title && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
-
+	
 	switch (mapstate) {
 	case CHANGE_MAP:
-		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) { mapstate = NORMAL_MAP; }
+		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
+			mpDel_f = TRUE; mapstate = NORMAL_MAP;
+		}
 		break;
 	case RECOV_MAP:
 		for (int i = 0; i < 4; i++) {
@@ -166,6 +173,7 @@ void Main::UpDate() {
 		break;
 	}
 
+	bool btDel_f = FALSE;
 	if (!endingflg && !title && encount != NOENCOUNT && !menu) {
 		if (!battle_flg[2]) {
 			if (encount == SIDE) {
@@ -192,6 +200,7 @@ void Main::UpDate() {
 
 			dx->Cameraset(h_posOut.cx, h_posOut.cx2, h_posOut.cy, h_posOut.cy2, h_posOut.cz, h_posOut.cz);
 			hero[0].OBJWalkDraw(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
+
 			if (!battle_flg[1])battle_flg[0] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
 			if (battle_flg[0]) {
 				battle_flg[1] = TRUE;
@@ -207,12 +216,15 @@ void Main::UpDate() {
 			battle_flg[0] = FALSE;
 		}
 
-		if (battle_flg[2])result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
+		if (battle_flg[2]) {
+			InstanceCreate::GetInstance_B()->SetCommandList(0);
+			result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
+		}
 
 		switch (result) {
 		case WIN:
 			if (battle_flg[2]) {
-				InstanceCreate::BattleDelete();
+				btDel_f = TRUE;
 				battle_flg[2] = FALSE;
 				if (encount == BOSS)Map::SetBossKilled(map_no, 1);//ボス撃破履歴更新
 				encount = NOENCOUNT;
@@ -236,13 +248,22 @@ void Main::UpDate() {
 		break;
 	}
 
-	dx->End(HERO_COM);
-
 	T_float::GetTime(hWnd);
-	DxText::GetInstance()->EndDraw();
+	DxText::GetInstance()->Draw();
 
+	dx->End(0);
 	dx->WaitFencePast();
 	dx->DrawScreen();
+	//battle削除(コマンドリストClose後に削除)
+	if (btDel_f) {
+		InstanceCreate::BattleDelete();
+		btDel_f = FALSE;
+	}
+	//map削除
+	if (mpDel_f) {
+		InstanceCreate::InsDelete();
+		mpDel_f = FALSE;
+	}
 }
 
 Main::~Main() {

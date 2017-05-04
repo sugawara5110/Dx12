@@ -21,16 +21,12 @@
 #define POSX_U1 (posz * mxy.y * mxy.x + posy * mxy.x + (posx + 1))
 #define POSX_D1 (posz * mxy.y * mxy.x + posy * mxy.x + (posx - 1))
 
-#define MAP_COM_1   2
-#define MAP_COM_2   3
-
 class Map{
 
 private:
 	static int map_no_s;    //マップナンバー
 	int map_no;            //オブジェクト内部用マップナンバー
-	static int MapComCurr;   //obj生成時の割り当てコマンドリストナンバー
-	int Map_Com = MAP_COM_2;//現コマンドリストナンバー
+	int comNo;
 	static MapStPos MPos;     //マップスタート位置
 	static int boss_killed[5];//各ボス撃破履歴
 	Dx12Process *dx;
@@ -152,6 +148,7 @@ public:
 	Map() {}
 	Map(Position::H_Pos *h_p, Hero *hero);
 	void SetVertex();
+	void SetCommandList(int com_no);
 	void CreateMap();
 	Encount Mapdraw(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
 	Position::E_Pos *Getposition(int p);

@@ -51,14 +51,14 @@ private:
 	bool title = TRUE;
 	bool title_in = TRUE;
 	bool heroInput = FALSE;
-	Result result = WIN;
+	Result result = IN_BATTLE;
 	MapState mapstate = NORMAL_MAP;
 	Ending *ending = NULL;
 	bool endingflg = FALSE;
 	int  rnd;
 	T_float tfloat;
 
-	void DrawNowLoading();
+	void DrawNowLoading(int com_no);
 
 public:
 	MSG msg;  //メッセージ

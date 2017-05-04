@@ -64,6 +64,7 @@ Hero::Hero(int no) {
 	effect_f = FALSE;
 	tx = ty = 0.0f;
 	tt = 0;
+	comNo = 0;
 	torchWood = NULL;
 	torchFlame = NULL;
 	torchOn = TRUE;
@@ -94,7 +95,6 @@ Hero::Hero(int no) {
 		break;
 	}
 	p_att = new SkinMesh();
-	p_att->SetCommandList(HERO_COM);
 	p_att->SetState(TRUE, TRUE);
 	char p_att_pass[42];
 	char p_att_pass2[50];
@@ -115,7 +115,6 @@ Hero::Hero(int no) {
 		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 4);
 		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
 		torchWood = new SkinMesh();
-		torchWood->SetCommandList(HERO_COM);
 		torchWood->SetState(TRUE, TRUE);
 		torchWood->Vertex_hold();
 		torchWood->GetBuffer("./dat/mesh/player_walk/player1_FBX_torch.fbx", frameMaxAtt);//0番にはアニメーション入っていない
@@ -124,22 +123,14 @@ Hero::Hero(int no) {
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
 		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
 		torchFlame = new PolygonData();
-		torchFlame->SetCommandList(HERO_COM);
 		torchFlame->GetVBarray(SQUARE, 1);
 	}
 
-	state.SetCommandList(HERO_COM);
 	state.GetVBarray2D(1);
-	meter.SetCommandList(HERO_COM);
 	meter.GetVBarray2D(1);
-	mag.SetCommandList(HERO_COM);
 	mag.GetVBarray(SQUARE, 1);
-
-	for (int i = 0; i < 4; i++) {
-		effect[i].SetCommandList(HERO_COM);
+	for (int i = 0; i < 4; i++)
 		effect[i].GetVBarray(SQUARE, 1);
-	}
-
 	mov_y = 0.0f;
 	mov_x = 0.0f;
 	mov_z = 0.0f;
@@ -196,6 +187,20 @@ void Hero::SetVertex() {
 			1.0f, 1.0f, 1.0f, 1.0f,
 			1.0f, 1.0f);
 	}
+}
+
+void Hero::SetCommandList(int com_no) {
+	comNo = com_no;
+	p_att->SetCommandList(comNo);
+	if (o_no == 0) {
+		torchWood->SetCommandList(comNo);
+		torchFlame->SetCommandList(comNo);
+	}
+	state.SetCommandList(comNo);
+	meter.SetCommandList(comNo);
+	mag.SetCommandList(comNo);
+	for (int i = 0; i < 4; i++)
+		effect[i].SetCommandList(comNo);
 }
 
 void Hero::CreateHero() {

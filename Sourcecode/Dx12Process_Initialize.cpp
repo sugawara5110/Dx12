@@ -260,16 +260,14 @@ void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
 	texName[i] = GetNameFromPass(Bpass);
 }
 
-void Dx12Process::GetTexture() {
+void Dx12Process::GetTexture(int com_no) {
 
 	std::unique_ptr<uint8_t[]> decodedData = nullptr;
 	D3D12_SUBRESOURCE_DATA subresource;
 	Microsoft::WRL::ComPtr<ID3D12Resource> t = nullptr;
 
 	char str[50];
-	const int COM = 2;
 
-	Bigin(COM);
 	for (int i = 0; i < TEX_PCS; i++) {
 		if (binary_size[i] == 0)continue;
 
@@ -330,15 +328,14 @@ void Dx12Process::GetTexture() {
 		BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
+		dx_sub[com_no].mCommandList->ResourceBarrier(1, &BarrierDesc);
 
-		UpdateSubresources(dx_sub[COM].mCommandList.Get(), texture[i], textureUp[i], 0, 0, 1, &subresource);
+		UpdateSubresources(dx_sub[com_no].mCommandList.Get(), texture[i], textureUp[i], 0, 0, 1, &subresource);
 
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-		dx_sub[COM].mCommandList->ResourceBarrier(1, &BarrierDesc);
+		dx_sub[com_no].mCommandList->ResourceBarrier(1, &BarrierDesc);
 	}
-	End(COM);
 }
 
 bool Dx12Process::Initialize(HWND hWnd) {
@@ -410,7 +407,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 		//コマンドアロケータ,コマンドリスト生成
 		dx_sub[i].ListCreate();
 	}
-	dx_sub[0].Bigin();
+	
 	requestSync = replySync = syncFin = FALSE;
 
 	//初期化
@@ -501,9 +498,14 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	//深度ステンシルビュー生成
 	md3dDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDsvHeapHeapHandle);
 
+	dx_sub[0].Bigin();
+
 	//深度ステンシルバッファ,リソースバリア共有→深度書き込み
 	dx_sub[0].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+	dx_sub[0].End();
+	WaitFenceCurrent();
 
 	//ビューポート
 	mScreenViewport.TopLeftX = 0;
@@ -530,9 +532,6 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	//ビューポート行列作成(3D座標→2D座標変換に使用)
 	MatrixViewPort(&Vp);
 
-	dx_sub[0].End();
-	WaitFenceCurrent();
-
 	//ポイントライト構造体初期化
 	ResetPointLight();
 
@@ -554,32 +553,28 @@ bool Dx12Process::Initialize(HWND hWnd) {
 	return TRUE;
 }
 
-void Dx12Process::Sclear() {
+void Dx12Process::Sclear(int com_no) {
 
-	dx_sub[0].Bigin();
+	dx_sub[com_no].mCommandList->RSSetViewports(1, &mScreenViewport);
+	dx_sub[com_no].mCommandList->RSSetScissorRects(1, &mScissorRect);
 
-	dx_sub[0].mCommandList->RSSetViewports(1, &mScreenViewport);
-	dx_sub[0].mCommandList->RSSetScissorRects(1, &mScissorRect);
-
-	dx_sub[0].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
+	dx_sub[com_no].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	dx_sub[0].mCommandList->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
+	dx_sub[com_no].mCommandList->ClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
 		mRtvDescriptorSize), DirectX::Colors::Black, 0, nullptr);
-	dx_sub[0].mCommandList->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
+	dx_sub[com_no].mCommandList->ClearDepthStencilView(mDsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	dx_sub[0].mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
+	dx_sub[com_no].mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		mCurrBackBuffer,
 		mRtvDescriptorSize), true, &mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
-	dx_sub[0].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
+	dx_sub[com_no].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	dx_sub[0].End();
 }
 
 void Dx12Process::Bigin(int com_no) {

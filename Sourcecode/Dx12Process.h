@@ -237,8 +237,8 @@ public:
 	bool Initialize(HWND hWnd);
 	void TextureGetBuffer(char *Bpass, int i);
 	void TextureBinaryDecode(char *Bpass, int i);//暗号化済み画像バイナリデコード
-	void GetTexture();
-	void Sclear();
+	void GetTexture(int com_no);
+	void Sclear(int com_no);
 	void Bigin(int com_no);
 	void End(int com_no);
 	void WaitFenceCurrent();//GPU処理そのまま待つ

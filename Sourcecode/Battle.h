@@ -30,6 +30,7 @@ private:
 	Dx12Process *dx;
 	DxText *text;
 	T_float tfloat;
+	int comNo;
 	PolygonData2D command, h_select;//コマンド選択ウインドウ, 回復選択カーソル
 	PolygonData E_select;//敵選択カーソル
 	Enemy *enemy;
@@ -253,6 +254,7 @@ public:
 	Battle() {}
 	Battle(Hero *he, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
 	void SetVertex();
+	void SetCommandList(int com_no);
 	void CreateBattle();
 	bool CreateB_Fin();
 	Result Fight(Hero *he, Directionkey direction, Result result);

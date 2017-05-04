@@ -21,8 +21,6 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 
 	//Debug();
 
-	dx->Bigin(Map_Com);
-
 	//ボス撃破後のマップ,テキスト処理
 	if (mxy.m[POS_CE] == 51 && boss_killed[map_no] == 1) {
 		if (map_no == 3) {
@@ -216,8 +214,6 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 	if (encount == NOENCOUNT && ending == FALSE)HeroDraw(Move_f);//Mov関数からフラグもらうようにする
 
 	MapText(m_tx);
-
-	dx->End(Map_Com);
 
 	return encount;
 }
