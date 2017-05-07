@@ -7,7 +7,7 @@
 #ifndef Class_TextureBinaryLoader_Header
 #define Class_TextureBinaryLoader_Header
 
-#include "Dx12Process.h"
+#include "./Direct3DWrapper/Dx12Process.h"
 
 class TextureBinaryLoader {
 

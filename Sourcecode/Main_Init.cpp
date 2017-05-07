@@ -15,8 +15,8 @@ void Main::DrawNowLoading(int com_no) {
 	text->UpDateValue(InstanceCreate::GetProgress(), 540.0f, (float)i, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->Draw();
 
-	if (down)i += 0.3;
-	if (!down)i -= 0.3;
+	if (down)i += 0.1;
+	if (!down)i -= 0.1;
 	if (i > 320.0)down = FALSE;
 	if (i < 280.0)down = TRUE;
 }
@@ -132,26 +132,35 @@ void Main::UpDate() {
 	dx->Bigin(0);
 	dx->Sclear(0);
 	bool mpDel_f = FALSE;
-	if (title) {
-		if (title_in) {
-			title_in = statemenu->TitleMenu(control->Direction());
+
+	static bool Drawtitle = TRUE;
+	static bool titleOn = TRUE;
+	static int titleSwitch = 0;
+	switch (titleSwitch) {
+	case 0:
+		if (!Drawtitle)titleSwitch = 1;
+		break;
+	case 1:
+		for (int i = 0; i < 4; i++)hero[i].P_DataInput(statemenu->SetP_Data(i));//パラメーターインプット
+		Map::SetMapNo(statemenu->SetMap_No());
+		for (int i = 0; i < 5; i++)Map::SetBossKilled(i, statemenu->Set_boss_kil(i));
+		titleSwitch = 2;
+		break;
+	case 2:
+		titleOn = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
+		if (!titleOn) {
+			mpDel_f = TRUE; mapstate = NORMAL_MAP; titleSwitch = 3;
 		}
-		if (!title_in) {
-			if (heroInput == NULL) {
-				for (int i = 0; i < 4; i++)hero[i].P_DataInput(statemenu->SetP_Data(i));//パラメーターインプット
-				heroInput = TRUE;
-				Map::SetMapNo(statemenu->SetMap_No());
-				for (int i = 0; i < 5; i++)Map::SetBossKilled(i, statemenu->Set_boss_kil(i));
-			}
-			title = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
-			if (!title) { mpDel_f = TRUE; mapstate = NORMAL_MAP; }
-		}
+		break;
 	}
 
-	InstanceCreate::GetInstance_M()->SetCommandList(0);
-	encount = InstanceCreate::GetInstance_M()->Mapdraw(&mapstate, control->Direction(TRUE), encount, menu, title, endingflg);
+	//タイトル表示
+	if (Drawtitle)Drawtitle = statemenu->TitleMenu(control->Direction());
 
-	if (!endingflg && !title && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
+	InstanceCreate::GetInstance_M()->SetCommandList(0);
+	encount = InstanceCreate::GetInstance_M()->Mapdraw(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
+
+	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
 	
 	switch (mapstate) {
 	case CHANGE_MAP:
@@ -174,8 +183,16 @@ void Main::UpDate() {
 	}
 
 	bool btDel_f = FALSE;
-	if (!endingflg && !title && encount != NOENCOUNT && !menu) {
-		if (!battle_flg[2]) {
+	static int battleSwitch = 0;
+	static bool posget = FALSE;
+	static bool btLoad[2] = { FALSE };
+	static Position::H_Pos *h_posIn = NULL;
+	static Position::H_Pos h_posOut, h_posOut2;
+	static Position::mapxy *mxy = NULL;
+	static int rnd = 0;
+	if (encount != NOENCOUNT) {
+		switch (battleSwitch) {
+		case 0:
 			if (encount == SIDE) {
 				int LV = (hero[0].s_LV() + hero[1].s_LV() + hero[2].s_LV() + hero[3].s_LV()) / 4;
 				//レベルによって敵出現数制限
@@ -185,53 +202,52 @@ void Main::UpDate() {
 				if ((map_no + 1) * 7 < LV)rnd = rand() % 4;
 			}
 			else rnd = 0;
-
-			if (!posget[0]) {
-				h_posIn = InstanceCreate::GetInstance_M()->Getposition();
-				mxy = InstanceCreate::GetInstance_M()->Getmap();
-				posget[0] = TRUE;
-			}
-
-			bool f = Position::CamAdvance(h_posIn, &h_posOut, &h_posOut2, tfloat.Add(0.2f), mxy, encount);
-			if (!posget[1]) {
+			//現ポジション取得
+			h_posIn = InstanceCreate::GetInstance_M()->Getposition();
+			mxy = InstanceCreate::GetInstance_M()->Getmap();
+			battleSwitch = 1;
+			break;
+		case 1:
+			//視点切り替え, 完了時TRUE
+			btLoad[0] = Position::CamAdvance(h_posIn, &h_posOut, &h_posOut2, tfloat.Add(0.2f), mxy, encount);
+			if (!posget) {
+				//戦闘後ポジション取得, セット
 				InstanceCreate::GetInstance_M()->Setposition(&h_posOut2);
-				posget[1] = TRUE;
+				posget = TRUE;
 			}
-
+			//視点切り替え
 			dx->Cameraset(h_posOut.cx, h_posOut.cx2, h_posOut.cy, h_posOut.cy2, h_posOut.cz, h_posOut.cz);
+			//視点切り替え中obj
 			hero[0].OBJWalkDraw(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
-
-			if (!battle_flg[1])battle_flg[0] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
-			if (battle_flg[0]) {
-				battle_flg[1] = TRUE;
-			}
-			if (f && battle_flg[1]) {
-				battle_flg[1] = FALSE;
-				battle_flg[2] = TRUE;
-				Position::H_Pos *h = NULL;
+			//battleInstance生成, 完了時TRUE
+			if (!btLoad[1])btLoad[1] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
+			//視点切り替え,battleInstance生成終了
+			if (btLoad[0] && btLoad[1]) {
+				btLoad[0] = FALSE;
+				btLoad[1] = FALSE;
+				Position::H_Pos *h = NULL;//↓の初期化用
 				Position::CamAdvance(h, NULL, NULL, 0, NULL, encount);//初期化
-				posget[0] = FALSE;
-				posget[1] = FALSE;
-			}
-			battle_flg[0] = FALSE;
-		}
-
-		if (battle_flg[2]) {
-			InstanceCreate::GetInstance_B()->SetCommandList(0);
-			result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
-		}
-
-		switch (result) {
-		case WIN:
-			if (battle_flg[2]) {
-				btDel_f = TRUE;
-				battle_flg[2] = FALSE;
-				if (encount == BOSS)Map::SetBossKilled(map_no, 1);//ボス撃破履歴更新
-				encount = NOENCOUNT;
+				posget = FALSE;
+				battleSwitch = 2;
 			}
 			break;
-		case DIE:
-			DxText::GetInstance()->UpDateText(L"ＧＡＭＥＯＶＥＲ", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+		case 2:
+			//battle表示
+			InstanceCreate::GetInstance_B()->SetCommandList(0);
+			result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
+
+			switch (result) {
+			case WIN:
+				btDel_f = TRUE;
+				if (encount == BOSS)Map::SetBossKilled(map_no, 1);//ボス撃破履歴更新
+				encount = NOENCOUNT;
+				result = IN_BATTLE;
+				battleSwitch = 0;
+				break;
+			case DIE:
+				DxText::GetInstance()->UpDateText(L"ＧＡＭＥＯＶＥＲ", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+				break;
+			}
 			break;
 		}
 	}

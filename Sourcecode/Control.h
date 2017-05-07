@@ -7,7 +7,8 @@
 #ifndef Class_Control_Header
 #define Class_Control_Header
 
-#include "Dx12Process.h"
+#include "./Direct3DWrapper/Dx12Process.h"
+#include "Enum.h"
 
 class Control{
 

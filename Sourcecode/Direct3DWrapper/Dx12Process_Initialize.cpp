@@ -7,13 +7,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Dx12Process.h"
 #include <WindowsX.h>
-#include "Shader2D.h"
-#include "Shader3D.h"
-#include "ShaderDisp.h"
-#include "ShaderMesh.h"
-#include "ShaderMesh_D.h"
-#include "ShaderParticle.h"
-#include "ShaderSkinMesh.h"
+#include "./Shader/Shader2D.h"
+#include "./Shader/Shader3D.h"
+#include "./Shader/ShaderDisp.h"
+#include "./Shader/ShaderMesh.h"
+#include "./Shader/ShaderMesh_D.h"
+#include "./Shader/ShaderParticle.h"
+#include "./Shader/ShaderSkinMesh.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -252,11 +252,11 @@ void Dx12Process::CreateShaderByteCode() {
 }
 
 void Dx12Process::TextureGetBuffer(char *Bpass, int i) {
-	BGetBuffer(Bpass, &binary_ch[i], &binary_size[i]);
+	DxBGetBuffer(Bpass, &binary_ch[i], &binary_size[i]);
 }
 
 void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
-	Bdecode(Bpass, &binary_ch[i], &binary_size[i]);
+	DxBdecode(Bpass, &binary_ch[i], &binary_size[i]);
 	texName[i] = GetNameFromPass(Bpass);
 }
 

@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Win.h"
-#include "Dx12Process.h"
-#include "DxText.h"
+#include "./Direct3DWrapper/Dx12Process.h"
+#include "./Direct3DWrapper//DxText.h"
 #include "Map.h"
 #include "Control.h"
 #include "InstanceCreate.h"
@@ -26,42 +26,36 @@
 class Main {
 
 private:
-	HWND hWnd;//ウィンドウハンドル
-	
+	//ウィンドウハンドル
+	HWND hWnd;
 	//DirectX12ラッパー
 	Dx12Process *dx;
 	//文字入力
 	DxText *text;
 	//プレイヤー
 	Hero *hero = NULL;
-
-	//Loop内で使用する変数
-	bool battle_flg[3] = { FALSE, FALSE, FALSE };
-	Position::H_Pos *h_posIn = NULL;
-	Position::H_Pos h_posOut, h_posOut2;
-	Position::mapxy *mxy = NULL;
-	bool posget[2] = { FALSE, FALSE };
-
+	//入力
 	Control *control;
-	int map_no = 0;
-
+	//メニュー
 	StateMenu *statemenu;
-	Encount encount = NOENCOUNT;
-	bool menu = FALSE;
-	bool title = TRUE;
-	bool title_in = TRUE;
-	bool heroInput = FALSE;
-	Result result = IN_BATTLE;
-	MapState mapstate = NORMAL_MAP;
+	//エンディング
 	Ending *ending = NULL;
 	bool endingflg = FALSE;
-	int  rnd;
+	//時間
 	T_float tfloat;
 
+	//その他Loop内で使用する変数
+	int map_no = 0;
+	MapState mapstate = NORMAL_MAP;
+	Encount encount = NOENCOUNT;
+	Result result = IN_BATTLE;
+	bool menu = FALSE;
+	
 	void DrawNowLoading(int com_no);
 
 public:
-	MSG msg;  //メッセージ
+	//メッセージ
+	MSG msg;  
 
 	bool Init(HINSTANCE hInstance, int nCmdShow);
 	void Loop();

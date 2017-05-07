@@ -16,15 +16,15 @@
 #include <windows.h>
 #include <wrl.h>//Microsoft::WRL
 #include "DxStruct.h"
-#include "Enum.h"
+#include "DxEnum.h"
 #include <dxgi1_4.h>
 #include <d3d12.h>
-#include "d3dx12.h"
+#include "./MicroSoftLibrary/d3dx12.h"
 #include <d3d10_1.h>
 #include <D3Dcompiler.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
-#include "WICTextureLoader12.h"
+#include "./MicroSoftLibrary/WICTextureLoader12.h"
 #include <memory>
 #include <stdlib.h>
 #include <string>
@@ -801,10 +801,12 @@ public:
 	void ObjOffset(float x, float y, float z, float thetaZ, float thetaY, float thetaX, int ind);
 	void SetConnectStep(int ind, float step);
 	void Vertex_hold();
-	HRESULT GetBuffer(CHAR* szFileName, float end_frame);
+	HRESULT GetFbx(CHAR* szFileName);
+	void GetBuffer(float end_frame);
 	void SetVertex();
 	void CreateFromFBX();
-	HRESULT GetBuffer_Sub(CHAR* szFileName, int ind, float end_frame);
+	HRESULT GetFbxSub(CHAR* szFileName, int ind);
+	HRESULT GetBuffer_Sub(int ind, float end_frame);
 	void CreateFromFBX_SubAnimation(int ind);
 	bool Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 	bool Draw(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);

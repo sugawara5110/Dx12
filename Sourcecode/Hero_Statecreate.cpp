@@ -103,25 +103,33 @@ Hero::Hero(int no) {
 	sprintf_s(p_att_pass2, sizeof(char) * 50, "./dat/mesh/player%datt/player%d_FBX_att0_deform.fbx", o_no + 1, o_no + 1);
 	sprintf_s(p_att_pass3, sizeof(char) * 51, "./dat/mesh/player%datt/player%d_FBX_magic_deform.fbx", o_no + 1, o_no + 1);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 0);
-	p_att->GetBuffer(p_att_pass, frameMaxAtt);
+	p_att->GetFbx(p_att_pass);
+	p_att->GetBuffer(frameMaxAtt);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 1);
-	p_att->GetBuffer_Sub(p_att_pass2, 1, frameMaxAtt0);
+	p_att->GetFbxSub(p_att_pass2, 1);
+	p_att->GetBuffer_Sub(1, frameMaxAtt0);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 2);
-	p_att->GetBuffer_Sub(p_att_pass3, 2, frameMaxAtt0);
+	p_att->GetFbxSub(p_att_pass3, 2);
+	p_att->GetBuffer_Sub(2, frameMaxAtt0);
 
 	if (o_no == 0) {
 		p_att->ObjCentering(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 3);
-		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
+		p_att->GetFbxSub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3);
+		p_att->GetBuffer_Sub(3, frameMaxWalk);
 		p_att->ObjOffset(0.0f, 0.0f, 10.0f, 90.0f, 0.0f, 0.0f, 4);
-		p_att->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		p_att->GetFbxSub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4);
+		p_att->GetBuffer_Sub(4, frameMaxWait);
 		torchWood = new SkinMesh();
 		torchWood->SetState(TRUE, TRUE);
 		torchWood->Vertex_hold();
-		torchWood->GetBuffer("./dat/mesh/player_walk/player1_FBX_torch.fbx", frameMaxAtt);//0番にはアニメーション入っていない
+		torchWood->GetFbx("./dat/mesh/player_walk/player1_FBX_torch.fbx");
+		torchWood->GetBuffer(frameMaxAtt);//0番にはアニメーション入っていない
 		torchWood->ObjCentering(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 3);
-		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3, frameMaxWalk);
+		torchWood->GetFbxSub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3);
+		torchWood->GetBuffer_Sub(3, frameMaxWalk);
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
-		torchWood->GetBuffer_Sub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4, frameMaxWait);
+		torchWood->GetFbxSub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4);
+		torchWood->GetBuffer_Sub(4, frameMaxWait);
 		torchFlame = new PolygonData();
 		torchFlame->GetVBarray(SQUARE, 1);
 	}

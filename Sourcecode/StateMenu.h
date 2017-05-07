@@ -9,7 +9,8 @@
 
 #include "MovieSoundManager.h"
 #include "Position.h"
-#include "DxText.h"
+#include "./Direct3DWrapper/DxText.h"
+#include "Enum.h"
 #define s_MAX_HP (savedata.p_data[i].Vitality * savedata.p_data[i].LV * 2 + 30)
 #define s_MAX_MP (savedata.p_data[i].Magic * savedata.p_data[i].LV + 10)
 

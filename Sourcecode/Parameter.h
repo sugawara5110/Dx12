@@ -7,8 +7,9 @@
 #ifndef Class_Parameter_Header
 #define Class_Parameter_Header
 
-#include "DxText.h"
+#include "./Direct3DWrapper/DxText.h"
 #include "MovieSoundManager.h"
+#include "Enum.h"
 #define MAX_HP (p_data.Vitality * p_data.LV * 2 + 30)
 #define MAX_MP (p_data.Magic * p_data.LV + 10)
 

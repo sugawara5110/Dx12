@@ -9,7 +9,8 @@
 
 #include "MovieSoundManager.h"
 #include "Position.h"
-#include "DxText.h"
+#include "./Direct3DWrapper/DxText.h"
+#include "Enum.h"
 
 #define METER_MAX 25000
 #define DrawYMAX -160

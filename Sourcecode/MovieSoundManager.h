@@ -7,8 +7,9 @@
 #ifndef Class_MovieSoundManager_Header
 #define Class_MovieSoundManager_Header
 
-#include "Movie.h"
-#include "Sound_.h"
+#include "./Direct3DWrapper/Dx12Process.h"
+#include "./DirectShowWrapper/Movie.h"
+#include "./DirectShowWrapper/Sound_.h"
 
 class MovieSoundManager{
 

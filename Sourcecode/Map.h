@@ -9,11 +9,12 @@
 
 #include "MovieSoundManager.h"
 #include "Position.h"
-#include "DxText.h"
+#include "./Direct3DWrapper/DxText.h"
 #include "Hero.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <TCHAR.h>
+#include "Enum.h"
 
 #define POS_CE  (posz * mxy.y * mxy.x + posy * mxy.x + posx)
 #define POSY_U1 (posz * mxy.y * mxy.x + (posy + 1) * mxy.x + posx)

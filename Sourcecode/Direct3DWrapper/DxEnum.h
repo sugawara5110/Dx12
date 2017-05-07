@@ -1,26 +1,24 @@
 //*****************************************************************************************//
 //**                                                                                     **//
-//**                   　　　　　　      Endingクラス                                    **//
+//**                   　　　	           列挙型                                        **//
 //**                                                                                     **//
 //*****************************************************************************************//
 
-#ifndef Class_Ending_Header
-#define Class_Ending_Header
+#ifndef Class_DxEnum_Header
+#define Class_DxEnum_Header
 
-#include "MovieSoundManager.h"
-#include "./Direct3DWrapper/DxText.h"
+enum PrimitiveType{
+	SQUARE,
+	POINt,
+	LINE_S,
+	LINE_L,
+	CONTROL_POINT
+};
 
-class Ending{
-
-private:
-	Dx12Process *dx;
-	DxText *text;
-	float str_y;
-
-public:
-	Ending();
-	void StaffRoll();
-	~Ending();
+enum ComListState {
+	USED,
+	OPEN,
+	CLOSE
 };
 
 #endif

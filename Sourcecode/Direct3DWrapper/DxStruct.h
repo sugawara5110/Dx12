@@ -7,7 +7,7 @@
 #ifndef Class_DxStruct_Header
 #define Class_DxStruct_Header
 
-#include "Function.h"
+#include "DxFunction.h"
 
 #define LIGHT_PCS 150
 #define LIGHT_PCS_init 8

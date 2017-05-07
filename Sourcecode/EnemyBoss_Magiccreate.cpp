@@ -141,24 +141,36 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 2);
 		switch (t_no) {
 		case 0:
-			en_boss_att->GetBuffer("./dat/mesh/boss1att/boss1bone.fbx", 600.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/boss1att/boss1bone_wait.fbx", 1, 200.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/boss1att/boss1bone_magic.fbx", 2, 200.0f);
+			en_boss_att->GetFbx("./dat/mesh/boss1att/boss1bone.fbx");
+			en_boss_att->GetBuffer(600.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/boss1att/boss1bone_wait.fbx", 1);
+			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/boss1att/boss1bone_magic.fbx", 2);
+			en_boss_att->GetBuffer_Sub(2, 200.0f);
 			break;
 		case 1:
-			en_boss_att->GetBuffer("./dat/mesh/boss2att/boss2bone.fbx", 600.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/boss2att/boss2bone_wait.fbx", 1, 200.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/boss2att/boss2bone_magic.fbx", 2, 200.0f);
+			en_boss_att->GetFbx("./dat/mesh/boss2att/boss2bone.fbx");
+			en_boss_att->GetBuffer(600.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/boss2att/boss2bone_wait.fbx", 1);
+			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/boss2att/boss2bone_magic.fbx", 2);
+			en_boss_att->GetBuffer_Sub(2, 200.0f);
 			break;
 		case 3:
-			en_boss_att->GetBuffer("./dat/mesh/boss4att/boss4bone.fbx", 500.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/boss4att/boss4bone_wait.fbx", 1, 200.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/boss4att/boss4bone_magic.fbx", 2, 200.0f);
+			en_boss_att->GetFbx("./dat/mesh/boss4att/boss4bone.fbx");
+			en_boss_att->GetBuffer(500.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/boss4att/boss4bone_wait.fbx", 1);
+			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/boss4att/boss4bone_magic.fbx", 2);
+			en_boss_att->GetBuffer_Sub(2, 200.0f);
 			break;
 		case 4:
-			en_boss_att->GetBuffer("./dat/mesh/lastbossatt/lastbossbone.fbx", 500.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/lastbossatt/lastbossbone_wait.fbx", 1, 200.0f);
-			en_boss_att->GetBuffer_Sub("./dat/mesh/lastbossatt/lastbossbone_magic.fbx", 2, 200.0f);
+			en_boss_att->GetFbx("./dat/mesh/lastbossatt/lastbossbone.fbx");
+			en_boss_att->GetBuffer(500.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/lastbossatt/lastbossbone_wait.fbx", 1);
+			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetFbxSub("./dat/mesh/lastbossatt/lastbossbone_magic.fbx", 2);
+			en_boss_att->GetBuffer_Sub(2, 200.0f);
 			break;
 		}
 	}

@@ -16,9 +16,6 @@ DsProcess::DsProcess(){
 	pMediaPosition = NULL;
 	pBasicAudio = NULL;
 
-	// COMÇèâä˙âª
-	//CoInitialize(NULL);
-
 	// FilterGraphÇê∂ê¨
 	CoCreateInstance(CLSID_FilterGraph,
 		NULL,
@@ -85,8 +82,8 @@ char *DsProcess::BinaryDecode(char *bpass){
 	strncpy(&decfname[i1++], "1", 1);
 	strncpy(&decfname[i1], "\0", 1);
 
-	BGetBuffer(bpass, &binary, &size);
-	Bdecode(bpass, &binary, &size);
+	DsBGetBuffer(bpass, &binary, &size);
+	DsBdecode(bpass, &binary, &size);
 
 	FILE *fp2 = fopen(decfname, "wb");
 
@@ -101,17 +98,14 @@ char *DsProcess::BinaryDecode(char *bpass){
 	return decfname;
 }
 
-DsProcess::~DsProcess(){
+DsProcess::~DsProcess() {
 
-	RELEASE(pBasicAudio);
-	RELEASE(pMediaPosition);
-	RELEASE(pMediaControl);
-	RELEASE(pVideoWindow);
+	D_RELEASE(pBasicAudio);
+	D_RELEASE(pMediaPosition);
+	D_RELEASE(pMediaControl);
+	D_RELEASE(pVideoWindow);
 	//âï˙ÇÃèáî‘ÇÃä÷åWÇ≈Ç±Ç±Ç…ãLèq
-	RELEASE(pSampleGrabber);
-	RELEASE(pSampleGrabberFilter);
-	RELEASE(pGraphBuilder);
-
-	// COMèIóπ
-	//CoUninitialize();
+	D_RELEASE(pSampleGrabber);
+	D_RELEASE(pSampleGrabberFilter);
+	D_RELEASE(pGraphBuilder);
 }

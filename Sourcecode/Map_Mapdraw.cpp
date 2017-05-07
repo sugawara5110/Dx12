@@ -32,12 +32,12 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 	}
 
 	bool Move_f = FALSE;
-	if (*mapstate == NORMAL_MAP && ending == FALSE && title == FALSE && encount == NOENCOUNT && menu == FALSE) {
+	if (*mapstate == NORMAL_MAP && !ending && !title && encount == NOENCOUNT && !menu) {
 		encount = Move(mapstate, direction);
 		if (direction == UP || direction == DOWN)Move_f = TRUE;
 	}
-	if (ending == FALSE && title == FALSE && encount == NOENCOUNT)MovieSoundManager::Dungeon_sound(TRUE, map_no); else MovieSoundManager::Dungeon_soundoff(map_no);
-	if (title == FALSE && map_no == 1)MovieSoundManager::Rain_sound(TRUE);
+	if (!ending && !title && encount == NOENCOUNT)MovieSoundManager::Dungeon_sound(TRUE, map_no); else MovieSoundManager::Dungeon_soundoff(map_no);
+	if (map_no == 1)MovieSoundManager::Rain_sound(TRUE);
 
 	//視点
 	float cx = cax1 + cax1 - cax2;
@@ -61,9 +61,9 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 		pr = 0.00015f;
 		pg = 0.0002f;
 		pb = 0.0002f;
-		fr = -1.0f;
-		fg = -1.0f;
-		fb = -1.0f;
+		fr = -0.8f;
+		fg = -0.8f;
+		fb = -0.8f;
 	}
 	if (map_no == 1) {
 		mainlight = FALSE;
@@ -211,7 +211,7 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 	}
 
 	he->TorchSwitch(mainlight);
-	if (encount == NOENCOUNT && ending == FALSE)HeroDraw(Move_f);//Mov関数からフラグもらうようにする
+	if (encount == NOENCOUNT && !ending)HeroDraw(Move_f);//Mov関数からフラグもらうようにする
 
 	MapText(m_tx);
 

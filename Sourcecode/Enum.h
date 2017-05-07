@@ -7,7 +7,7 @@
 #ifndef Class_Enum_Header
 #define Class_Enum_Header
 
-enum Directionkey{
+enum Directionkey {
 	TWOPRESS,
 	NOTPRESS,
 	LEFT,
@@ -18,13 +18,13 @@ enum Directionkey{
 	CANCEL
 };
 
-enum Result{
+enum Result {
 	WIN,
 	IN_BATTLE,
 	DIE
 };
 
-enum Action{
+enum Action {
 	NORMAL,
 	MOVE,
 	ATTACK,
@@ -34,20 +34,20 @@ enum Action{
 	RECOVER
 };
 
-enum Act_fin_flg{
+enum Act_fin_flg {
 	AT_FIN,
 	LOST_FIN,
 	NOT_FIN
 };
 
-enum MenuSelect{
+enum MenuSelect {
 	MAIN_M,
 	AT_M,
 	MAG_AT_M,
 	MAG_RE_M
 };
 
-enum MapMenuSelect{
+enum MapMenuSelect {
 	MAIN,
 	ST,
 	RE,
@@ -55,7 +55,7 @@ enum MapMenuSelect{
 	CAN
 };
 
-enum CommandSelect{
+enum CommandSelect {
 	NOSELECT,
 	OTHER,
 	ATT,
@@ -64,46 +64,32 @@ enum CommandSelect{
 	CANCEL_M
 };
 
-enum MagicSelect{
+enum MagicSelect {
 	FLAME,
 	HEAL,
 	RECOV,
 	NOSEL
 };
 
-enum PrimitiveType{
-	SQUARE,
-	POINt,
-	LINE_S,
-	LINE_L,
-	CONTROL_POINT
-};
-
-enum ComListState {
-	USED,
-	OPEN,
-	CLOSE
-};
-
-enum Encount{
+enum Encount {
 	NOENCOUNT,
 	SIDE,
 	BOSS
 };
 
-enum MapState{
+enum MapState {
 	NORMAL_MAP,
 	RECOV_MAP,
 	CHANGE_MAP
 };
 
-enum MapStPos{
+enum MapStPos {
 	POS_ST,
 	POS_EN1,
 	POS_EN2
 };
 
-enum TemplateType{
+enum TemplateType {
 	E_ATT,
 	H_ATT
 };

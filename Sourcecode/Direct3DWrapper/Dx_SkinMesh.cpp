@@ -176,11 +176,11 @@ HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
 	static bool f = FALSE;
 
-	while (stSetNewPose_ON);
 	stInitFBX_ON = TRUE;
+	while (stSetNewPose_ON);//アニメーション中の場合終了まで待つ
 	f = fbx[p].Create(szFileName);
 	stInitFBX_ON = FALSE;
-	
+
 	if (f)return S_OK;
 	return E_FAIL;
 }
@@ -272,14 +272,18 @@ void SkinMesh::Vertex_hold() {
 	pvVB_delete_f = FALSE;
 }
 
-HRESULT SkinMesh::GetBuffer(CHAR* szFileName, float end_frame) {
+HRESULT SkinMesh::GetFbx(CHAR* szFileName) {
 	//FBXローダーを初期化
 	if (FAILED(InitFBX(szFileName, 0)))
 	{
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
 	}
+	return S_OK;
+}
 
+void SkinMesh::GetBuffer(float end_frame) {
+	
 	mObjectCB0 = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
 	mObject_BONES = new UploadBuffer<SHADER_GLOBAL_BONES>(dx->md3dDevice.Get(), 1, true);
 
@@ -386,8 +390,6 @@ HRESULT SkinMesh::GetBuffer(CHAR* szFileName, float end_frame) {
 	//ボーンを生成
 	m_BoneArray = new BONE[m_iNumBone];
 	m_pLastBoneMatrix = new MATRIX[m_iNumBone];
-
-	return S_OK;
 }
 
 void SkinMesh::SetVertex() {
@@ -673,7 +675,7 @@ void SkinMesh::CreateFromFBX() {
 	GetTexture();
 }
 
-HRESULT SkinMesh::GetBuffer_Sub(CHAR* szFileName, int ind, float end_frame) {
+HRESULT SkinMesh::GetFbxSub(CHAR* szFileName, int ind) {
 	if (ind <= 0) {
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
@@ -683,7 +685,11 @@ HRESULT SkinMesh::GetBuffer_Sub(CHAR* szFileName, int ind, float end_frame) {
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
 	}
+	return S_OK;
+}
 
+HRESULT SkinMesh::GetBuffer_Sub(int ind, float end_frame) {
+	
 	FbxScene *pScene = GetScene(ind);//シーン取得
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 	fbx[ind].end_frame = end_frame;
@@ -744,10 +750,9 @@ void SkinMesh::CreateIndexBuffer2(int *pIndex, int IviewInd) {
 //ボーンを次のポーズ位置にセットする
 bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 
-	while (stInitFBX_ON);
 	stSetNewPose_ON = TRUE;
+	if (stInitFBX_ON) { stSetNewPose_ON = FALSE; return FALSE; }//FBX初期化中はアニメーションしない
 	if (AnimLastInd == -1)AnimLastInd = ind;//最初に描画するアニメーション番号で初期化
-
 	bool ind_change = FALSE;
 	if (AnimLastInd != ind) {//アニメーションが切り替わった
 		ind_change = TRUE; AnimLastInd = ind;
@@ -930,7 +935,7 @@ bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float
 
 	bool frame_end = FALSE;
 	dx->MatrixMap(mObjectCB0, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	if (ti != -1.0f && !stInitFBX_ON) { if (SetNewPoseMatrices(ti, ind)) frame_end = TRUE; }
+	if (ti != -1.0f)frame_end = SetNewPoseMatrices(ti, ind);
 	MatrixMap_Bone(mObject_BONES);
 
 	mCommandList->SetPipelineState(mPSO.Get());

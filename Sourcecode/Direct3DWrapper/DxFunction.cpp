@@ -4,7 +4,7 @@
 //**                                                                                     **//
 //*****************************************************************************************//
 
-#include "Function.h"
+#include "DxFunction.h"
 
 void MatrixIdentity(MATRIX *mat){
 	mat->_11 = 1.0f; mat->_12 = 0.0f; mat->_13 = 0.0f; mat->_14 = 0.0f;
@@ -391,7 +391,7 @@ void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t) {
 	}
 	*/
 
-void BGetBuffer(char *bpass, char **binary, int *size) {
+void DxBGetBuffer(char *bpass, char **binary, int *size) {
 
 	FILE *fp = fopen(bpass, "rb");
 
@@ -402,7 +402,7 @@ void BGetBuffer(char *bpass, char **binary, int *size) {
 	fclose(fp);
 }
 
-void Bdecode(char *bpass, char **binary, int *size) {
+void DxBdecode(char *bpass, char **binary, int *size) {
 
 	//•œ†ƒR[ƒh«
 	FILE *fp = fopen(bpass, "rb");

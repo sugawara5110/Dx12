@@ -4,8 +4,8 @@
 //**                                                                                     **//
 //*****************************************************************************************//
 
-#ifndef Function_Header
-#define Function_Header
+#ifndef DxFunction_Header
+#define DxFunction_Header
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <math.h>
@@ -110,8 +110,8 @@ float VectorDot(VECTOR3 *in1, VECTOR3 *in2);
 //線形補間
 void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t);
 //バイナリ用バッファ取得
-void BGetBuffer(char *bpass, char **binary, int *size);
+void DxBGetBuffer(char *bpass, char **binary, int *size);
 //暗号化済みバイナリ復号
-void Bdecode(char *bpass, char **binary, int *size);
+void DxBdecode(char *bpass, char **binary, int *size);
 
 #endif

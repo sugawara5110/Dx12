@@ -8,9 +8,11 @@
 #define Class_DsProcess_Header
 
 #define _CRT_SECURE_NO_WARNINGS
-#include "Dx12Process.h"
 #include <dshow.h>
 #include <qedit.h>
+#include "DsFunction.h"
+
+#define D_RELEASE(p)    if(p){p->Release();  p=NULL;}
 
 #pragma comment(lib,"strmiids.lib")
 #pragma comment(lib,"quartz.lib")
@@ -34,6 +36,9 @@ protected:
 
 public:
 	virtual ~DsProcess();
+	
+	static void ComInitialize(){ CoInitialize(NULL); }//DirectXŽg‚í‚È‚¢ŽžŽg—p
+	static void ComUninitialize(){ CoUninitialize(); }
 };
 
 #endif
