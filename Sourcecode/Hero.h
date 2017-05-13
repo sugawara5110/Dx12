@@ -19,12 +19,12 @@ class Hero:public Parameter{
 
 protected:
 	int o_no;//オブジェクトナンバー
-	SkinMesh *p_att;        //アタックアニメーション用
+	SkinMesh *p_att = NULL;
 	bool attOn, attFin;    //attアニメーション中
 	bool magicAttOn;      //マジックアニメーション中
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
-	SkinMesh *torchWood;
-	PolygonData *torchFlame;
+	SkinMesh *torchWood = NULL;    //o_no==0用
+	PolygonData *torchFlame = NULL;//o_no==0用
 	bool torchOn;
 	int comNo;
 
@@ -48,7 +48,7 @@ protected:
 	void Statecreate(bool command_run);
 	void Metercreate(float me);
 	void Magiccreate();
-	bool Effectdraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos);
+	bool EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos);
 
 public:
 	Hero(){}
@@ -58,9 +58,10 @@ public:
 	void CreateHero();
 	void P_DataInput(P_Data *p_dat);
 	void TorchSwitch(bool f);
-	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta);
-	void OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, bool walkOn);//walkOnはMapクラスから操作
-	Act_fin_flg Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun);
+	void OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta);
+	void OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta, bool walkOn);//walkOnはMapクラスから操作
+	Act_fin_flg HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun);
+	void Draw();
 	Action Normal_act_get();
 	void Act_f_init();
 	virtual ~Hero();

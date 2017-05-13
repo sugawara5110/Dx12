@@ -316,9 +316,11 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	MovieSoundManager::Magic_sound(TRUE);
 	if (count == 0.0f) {
 		magicAttOn = TRUE;
-		mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+		mag_boss->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
 	}
-	if (count != 0.0f)mag_boss->Draw(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
+	if (count != 0.0f) {
+		mag_boss->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
+	}
 	dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 500.0f, mag_size * 100.0f, 2.0f, TRUE);
 
 	if ((count += m) > 900) {
@@ -331,10 +333,16 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 }
 
 //@Override
-void EnemyBoss::ObjDraw(float x, float y, float z, float r, float g, float b, float theta) {
-	if (attOn)attFin = en_boss_att->Draw(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
-	if (magicAttOn)en_boss_att->Draw(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
-	if (!attOn && !magicAttOn) en_boss_att->Draw(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {
+	if (attOn) {
+		attFin = en_boss_att->Update(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	}
+	if (magicAttOn) {
+		en_boss_att->Update(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	}
+	if (!attOn && !magicAttOn) {
+		en_boss_att->Update(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+	}
 }
 
 //@Override
@@ -350,7 +358,9 @@ bool EnemyBoss::M_run_flg(){
 		break;
 	case 1:
 		if (p_data.MP < p_data.FlameATT_LV * 4)return FALSE;
-		return TRUE;
+		rnd = rand() % M_run_flg_rnd;
+		if (rnd == 1)return TRUE;
+		else return FALSE;
 		break;
 	case 2:
 		if (p_data.MP < p_data.FlameATT_LV * 4)return FALSE;

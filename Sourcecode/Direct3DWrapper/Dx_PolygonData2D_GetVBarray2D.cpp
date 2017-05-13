@@ -59,15 +59,34 @@ void PolygonData2D::SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float
 	ins_no++;
 }
 
-void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize) {
+void PolygonData2D::SetTextParameter(int width, int height, int textCount,
+	TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize) {
+
+	Twidth = width;
+	Theight = height;
+	Tcount = textCount;
+	Tm = new TEXTMETRIC[Tcount]();
+	memcpy(Tm, *TM, sizeof(TEXTMETRIC)*Tcount);
+	Gm = new GLYPHMETRICS[Tcount]();
+	memcpy(Gm, *GM, sizeof(GLYPHMETRICS)*Tcount);
+	Allsize = new DWORD[Tcount]();
+	memcpy(Allsize, *allsize, sizeof(DWORD)*Tcount);
+	Ptr = new BYTE[Allsize[Tcount - 1]]();
+	memcpy(Ptr, *ptr, sizeof(BYTE)*Allsize[Tcount - 1]);
+	CreateTextOn = TRUE;
+}
+
+void PolygonData2D::SetText() {
+
+	if (!CreateTextOn)return;
 
 	RELEASE(texture);
 	RELEASE(textureUp);
 
 	D3D12_RESOURCE_DESC texDesc = {};
 	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texDesc.Width = width;
-	texDesc.Height = height;
+	texDesc.Width = Twidth;
+	texDesc.Height = Theight;
 	texDesc.DepthOrArraySize = 1;
 	texDesc.MipLevels = 1;
 	texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -141,10 +160,10 @@ void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **T
 	textureUp->Map(0, nullptr, reinterpret_cast<void**>(&texResource));
 	BYTE* pBits = (BYTE*)texResource.pData;
 	texResource.RowPitch = footprint.Footprint.RowPitch;
-	memset(pBits, 0, texResource.RowPitch * height);//0埋め
-	for (int cnt = 0; cnt < textCount; cnt++) {
+	memset(pBits, 0, texResource.RowPitch * Theight);//0埋め
+	for (int cnt = 0; cnt < Tcount; cnt++) {
 
-		UINT temp = texResource.RowPitch / textCount / 4;
+		UINT temp = texResource.RowPitch / Tcount / 4;
 		UINT s_rowPitch = temp * 4;
 		UINT offset1 = s_rowPitch * cnt;//4の倍数になっている事
 
@@ -152,10 +171,10 @@ void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **T
 		// iOfs_x, iOfs_y : 書き出し位置(左上)
 		// iBmp_w, iBmp_h : フォントビットマップの幅高
 		// Level : α値の段階 (GGO_GRAY4_BITMAPなので17段階)
-		int iOfs_x = (*GM)[cnt].gmptGlyphOrigin.x;
-		int iOfs_y = (*TM)[cnt].tmAscent - (*GM)[cnt].gmptGlyphOrigin.y;
-		int iBmp_w = (*GM)[cnt].gmBlackBoxX + (4 - ((*GM)[cnt].gmBlackBoxX % 4)) % 4;
-		int iBmp_h = (*GM)[cnt].gmBlackBoxY;
+		int iOfs_x = Gm[cnt].gmptGlyphOrigin.x;
+		int iOfs_y = Tm[cnt].tmAscent - Gm[cnt].gmptGlyphOrigin.y;
+		int iBmp_w = Gm[cnt].gmBlackBoxX + (4 - (Gm[cnt].gmBlackBoxX % 4)) % 4;
+		int iBmp_h = Gm[cnt].gmBlackBoxY;
 		int Level = 17;
 		int x, y;
 		DWORD Alpha, Color;
@@ -164,9 +183,9 @@ void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **T
 			for (x = iOfs_x; x < iOfs_x + iBmp_w; x++) {
 				int offset2;
 				if (cnt == 0)offset2 = 0; else {
-					offset2 = (*allsize)[cnt - 1];
+					offset2 = Allsize[cnt - 1];
 				}
-				Alpha = (255 * (*ptr)[(x - iOfs_x + iBmp_w * (y - iOfs_y)) + offset2]) / (Level - 1);
+				Alpha = (255 * Ptr[(x - iOfs_x + iBmp_w * (y - iOfs_y)) + offset2]) / (Level - 1);
 				Color = 0x00ffffff | (Alpha << 24);
 				memcpy((BYTE*)pBits + texResource.RowPitch * y + 4 * x + offset1, &Color, sizeof(DWORD));
 			}
@@ -196,6 +215,13 @@ void PolygonData2D::SetText(int width, int height, int textCount, TEXTMETRIC **T
 	srvDesc.Format = texture->GetDesc().Format;
 	srvDesc.Texture2D.MipLevels = texture->GetDesc().MipLevels;
 	dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
+
+	ARR_DELETE(Tm);
+	ARR_DELETE(Gm);
+	ARR_DELETE(Ptr);
+	ARR_DELETE(Allsize);
+
+	CreateTextOn = FALSE;
 }
 
 ID3D12PipelineState *PolygonData2D::GetPipelineState() {
@@ -356,21 +382,23 @@ void PolygonData2D::Create(bool blend, bool alpha) {
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
 }
 
-void PolygonData2D::InstanceDraw() {
+void PolygonData2D::InstanceUpdate() {
 	mObjectCB->CopyData(0, cb);
-	DrawParts();
+	UpOn = TRUE;
 }
 
-void PolygonData2D::Draw(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
-	Draw(x, y, 0.0f, r, g, b, a, sizeX, sizeY);
+void PolygonData2D::Update(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
+	Update(x, y, 0.0f, r, g, b, a, sizeX, sizeY);
 }
 
-void PolygonData2D::Draw(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
+void PolygonData2D::Update(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
 	SetConstBf(mObjectCB, x, y, z, r, g, b, a, sizeX, sizeY);
-	DrawParts();
+	UpOn = TRUE;
 }
 
-void PolygonData2D::DrawParts() {
+void PolygonData2D::Draw() {
+
+	if (!UpOn)return;//アップデート無い場合描画処理しない
 
 	mCommandList->SetPipelineState(mPSO.Get());
 
@@ -405,6 +433,7 @@ void PolygonData2D::DrawParts() {
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	ins_no = 0;
+	UpOn = FALSE;
 }
 
 

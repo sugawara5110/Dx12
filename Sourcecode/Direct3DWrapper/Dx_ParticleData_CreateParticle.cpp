@@ -337,8 +337,7 @@ void ParticleData::CreateBillboard() {
 	CreatePartsDraw(-1);
 }
 
-void ParticleData::DrawParts0(float x, float y, float z, float theta, float size, bool init, float speed, bool tex) {
-	MatrixMap(mObjectCB, x, y, z, theta, size, init, speed, tex);
+void ParticleData::DrawParts0() {
 
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
@@ -396,30 +395,44 @@ void ParticleData::DrawParts2() {
 	mCommandList->DrawInstanced(ver, 1, 0, 0);
 }
 
-void ParticleData::Draw(float x, float y, float z, float theta, float size, bool init, float speed) {
-
+void ParticleData::Update(float x, float y, float z, float theta, float size, bool init, float speed) {
 	//一回のinit == TRUE で二つのstreamOutを初期化
 	if (init == TRUE) { streamInitcount = 1; }
 	else {
 		if (streamInitcount > 2) { streamInitcount = 0; }
 		if (streamInitcount != 0) { init = TRUE; streamInitcount++; }
 	}
+	MatrixMap(mObjectCB, x, y, z, theta, size, init, speed, texpar_on | m_on);
+	UpOn = TRUE;
+}
 
-	DrawParts0(x, y, z, theta, size, init, speed, texpar_on | m_on);
+void ParticleData::Draw() {
+
+	if (!UpOn)return;//アップデート無い場合描画処理しない
+	DrawParts0();
 	DrawParts1();
 	if (firstDraw)DrawParts2();
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	firstDraw = TRUE;
+	UpOn = FALSE;
 }
 
-void ParticleData::DrawBillboard(float size) {
-	DrawParts0(0, 0, 0, 0, size, TRUE, 1.0f, texpar_on | m_on);
+void ParticleData::Update(float size) {
+	MatrixMap(mObjectCB, 0, 0, 0, 0, size, TRUE, 1.0f, texpar_on | m_on);
+	UpOn = TRUE;
+}
+
+void ParticleData::DrawBillboard() {
+
+	if (!UpOn)return;//アップデート無い場合描画処理しない
+	DrawParts0();
 	DrawParts2();
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	UpOn = FALSE;
 }
 
 void ParticleData::TextureInit(int width, int height) {

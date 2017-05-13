@@ -22,7 +22,7 @@ CommandSelect Battle::Menu_main(Hero *hero, int i, Directionkey direction) {
 	float g[5];
 	r[0] = r[1] = r[2] = r[3] = r[4] = 1.0f;
 	g[0] = g[1] = g[2] = g[3] = g[4] = 1.0f;
-	command.Draw(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	command.Update(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	switch (h_draw[i].M_select) {
 	case 0:
@@ -126,7 +126,7 @@ CommandSelect Battle::Menu_AT(int i, Directionkey direction){
 
 	float r, b;
 	Cursor_e(h_draw[i].A_select, &r, &b);
-	E_select.InstanceDraw(r, b, 0.0f, 0.0f);
+	E_select.InstanceUpdate(r, b, 0.0f, 0.0f);
 
 	switch (direction){
 	case LEFT:
@@ -173,7 +173,7 @@ CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction){
 			Cursor_e(i1, &r, &b);//‘S‘Ì‘I‘ð(h_draw[i].A_select == 4)
 		}
 	}
-	E_select.InstanceDraw(r, b, 0.0f, 0.0f);
+	E_select.InstanceUpdate(r, b, 0.0f, 0.0f);
 
 	switch (direction){
 	case LEFT:
@@ -229,7 +229,7 @@ CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction){
 		}
 	}
 	else Cursor_h(h_draw[i].MA_select);
-	h_select.InstanceDraw();
+	h_select.InstanceUpdate();
 
 	switch (direction){
 	case LEFT:

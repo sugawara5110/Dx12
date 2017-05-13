@@ -324,7 +324,7 @@ int StateMenu::Set_boss_kil(int i){
 	return savedata.boss_kil[i];
 }
 
-bool StateMenu::Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {
+bool StateMenu::MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {
 	
 	bool m_ref = FALSE;
 	switch (menu_select) {
@@ -342,6 +342,13 @@ bool StateMenu::Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Her
 		break;
 	}
 	return TRUE;
+}
+
+void StateMenu::Draw() {
+	state.Draw();
+	s_state.Draw();
+	r_state.Draw();
+	r_state1.Draw();
 }
 
 bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {

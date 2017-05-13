@@ -927,16 +927,27 @@ int SkinMesh::GetTexNumber(CHAR *fileName) {
 	return -1;
 }
 
-bool SkinMesh::Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
-	return Draw(0, time, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size);
+
+
+bool SkinMesh::Update(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
+	return Update(0, time, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size);
 }
 
-bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
+bool SkinMesh::Update(int ind, float ti, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
 
 	bool frame_end = FALSE;
 	dx->MatrixMap(mObjectCB0, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (ti != -1.0f)frame_end = SetNewPoseMatrices(ti, ind);
 	MatrixMap_Bone(mObject_BONES);
+
+	dx->ins_no = 0;
+	UpOn = TRUE;
+	return frame_end;
+}
+
+void SkinMesh::Draw() {
+
+	if (!UpOn)return;//アップデート無い場合描画処理しない
 
 	mCommandList->SetPipelineState(mPSO.Get());
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
@@ -972,7 +983,8 @@ bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float
 		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);//デスクリプタヒープのアドレス位置オフセットで次のテクスチャを読み込ませる
 
 		mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB0->Resource()->GetGPUVirtualAddress());
-		mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB1->Resource()->GetGPUVirtualAddress() + 256 * i);
+		UINT mElementByteSize = (sizeof(SHADER_GLOBAL1) + 255) & ~255;
+		mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB1->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
 		mCommandList->SetGraphicsRootConstantBufferView(3, mObject_BONES->Resource()->GetGPUVirtualAddress());
 
 		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, 1, 0, 0, 0);
@@ -981,9 +993,7 @@ bool SkinMesh::Draw(int ind, float ti, float x, float y, float z, float r, float
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-	dx->ins_no = 0;
-
-	return frame_end;
+	UpOn = FALSE;
 }
 
 

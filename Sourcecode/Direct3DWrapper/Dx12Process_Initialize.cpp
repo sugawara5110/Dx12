@@ -82,11 +82,8 @@ Dx12Process::~Dx12Process() {
 	SkinMesh::DeleteManager();
 
 	for (int i = 0; i < TEX_PCS; i++) {
-		if (binary_ch[i] == NULL)continue;
-		free(binary_ch[i]);
-		binary_ch[i] = NULL;
-		RELEASE(texture[i]);
-		RELEASE(textureUp[i]);
+		if (!texture[i])RELEASE(texture[i]);
+		if (!textureUp[i])RELEASE(textureUp[i]);
 	}
 }
 
@@ -276,6 +273,8 @@ void Dx12Process::GetTexture(int com_no) {
 			sprintf(str, "テクスチャ№%d読み込みエラー", (i));
 			throw str;
 		}
+		free(binary_ch[i]);
+		binary_ch[i] = NULL;
 		D3D12_RESOURCE_DESC texDesc;
 		texDesc = t->GetDesc();
 
@@ -702,9 +701,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Dx12Process::CreateDefaultBuffer(
 	//デフォルトバッファ,リソースバリアコピーされる側→アップロード
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(),
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
-
-	//コマンドリストが作成されない場合でもコピーは実行される
-	//コピーが実行された後uploadBufferはリリースされる
 
 	return defaultBuffer;
 }

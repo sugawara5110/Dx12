@@ -31,23 +31,18 @@ int InstanceCreate::GetProgress() {
 }
 
 void InstanceCreate::CreateThread_R(){
-	TextureBinaryLoader::TextureGetBufferAll();
-	progress = 10;
 	resource_loading_h = (HANDLE*)_beginthreadex(NULL, 0, ResourceLoading, NULL, 0, NULL);
 }
 
 void InstanceCreate::CreateThread_H() {
-	InstanceCreate::HeroGetBuffer();
 	hero_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingHero, NULL, 0, NULL);
 }
 
 void InstanceCreate::CreateThread_B(){
-	InstanceCreate::BattleGetBuffer();
 	battle_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingBattle, NULL, 0, NULL);
 }
 
 void InstanceCreate::CreateThread_M(){
-	InstanceCreate::MapGetBuffer();
 	map_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingMap, NULL, 0, NULL);
 }
 
@@ -85,14 +80,14 @@ void InstanceCreate::HeroGetBuffer() {
 	he = new Hero[4];
 	for (int i = 0; i < 4; i++) {
 		new(he + i) Hero(i);//”z—ñ‚ðplacement new‚ðŽg‚Á‚Ä‰Šú‰»‚·‚é
+		progress += 10;
 	}
-	progress += 10;
 }
 
 void InstanceCreate::HeroSetVertex() {
 	for (int i = 0; i < 4; i++) {
 		he[i].SetVertex();
-		progress += 10;
+		progress += 2;
 	}
 }
 
@@ -113,6 +108,8 @@ Hero *InstanceCreate::HeroCreate_f() {
 }
 
 void InstanceCreate::ResourceLoad() {
+	TextureBinaryLoader::TextureGetBufferAll();
+	progress = 10;
 	TextureBinaryLoader::TextureBinaryDecodeAll();
 }
 
@@ -263,18 +260,21 @@ unsigned __stdcall ResourceLoading(void *) {
 }
 
 unsigned __stdcall InstanceLoadingHero(void *) {
+	InstanceCreate::HeroGetBuffer();
 	InstanceCreate::HeroSetVertex();
 	InstanceCreate::HeroCreate();
 	return 0;
 }
 
 unsigned __stdcall InstanceLoadingBattle(void *){
+	InstanceCreate::BattleGetBuffer();
 	InstanceCreate::BattleSetVertex();
 	InstanceCreate::BattleCreate();
 	return 0;
 }
 
 unsigned __stdcall InstanceLoadingMap(void *){
+	InstanceCreate::MapGetBuffer();
 	InstanceCreate::MapSetVertex();
 	InstanceCreate::MapCreate();
 	return 0;

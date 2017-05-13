@@ -55,6 +55,7 @@ DxText::DxText() {
 		value[i].CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 		TCHAR *va = CreateTextValue(i);
 		CreateText(value, va, i, 15.0f);
+		value[i].SetText();
 	}
 	dx->End(0);
 	dx->WaitFenceCurrent();
@@ -159,7 +160,7 @@ int DxText::CreateText(PolygonData2D *p2, TCHAR *c, int texNo, float fontsize) {
 	}
 
 	p2[texNo].SetCommandList(comNo);
-	p2[texNo].SetText((int)(w * 1.3f), TM[0].tmHeight, count, &TM, &GM, &ptr, &allsize);//1.3は表示範囲幅補正
+	p2[texNo].SetTextParameter((int)(w * 1.3f), TM[0].tmHeight, count, &TM, &GM, &ptr, &allsize);//1.3は表示範囲幅補正
 
 	delete TM;
 	TM = NULL;
@@ -309,6 +310,8 @@ void DxText::Draw() {
 
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
 		if (textInsData[i].pcs == 0) continue;
+		text[i].SetCommandList(comNo);
+		text[i].SetText();
 		int i1;
 		for (i1 = 0; i1 < textInsData[i].pcs; i1++) {
 			text[i].InstancedSetConstBf(
@@ -322,8 +325,8 @@ void DxText::Draw() {
 				textInsData[i].s[i1].sizeY
 			);
 		}
-		text[i].SetCommandList(comNo);
-		text[i].InstanceDraw();
+		text[i].InstanceUpdate();
+		text[i].Draw();
 	}
 
 	for (int i = 0; i < VAL_PCS; i++) {
@@ -342,7 +345,8 @@ void DxText::Draw() {
 			);
 		}
 		value[i].SetCommandList(comNo);
-		value[i].InstanceDraw();
+		value[i].InstanceUpdate();
+		value[i].Draw();
 	}
 	//描画終了したら描画個数リセット
 	for (int i = 0; i < STRTEX_MAX_PCS; i++)textInsData[i].pcs = 0;

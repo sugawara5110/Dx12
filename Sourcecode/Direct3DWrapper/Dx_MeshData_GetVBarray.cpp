@@ -461,17 +461,23 @@ void MeshData::InstancedMap(float x, float y, float z, float thetaZ, float theta
 	dx->InstancedMap(x, y, z, thetaZ, thetaY, thetaX, size);
 }
 
-void MeshData::InstanceDraw(float r, float g, float b, float disp) {
+void MeshData::InstanceUpdate(float r, float g, float b, float disp) {
 	dx->MatrixMap2(mObjectCB, r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
-	DrawParts();
+	insNum = dx->ins_no;
+	dx->ins_no = 0;
+	UpOn = TRUE;
 }
 
-void MeshData::Draw(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
+void MeshData::Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
 	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
-	DrawParts();
+	insNum = dx->ins_no;
+	dx->ins_no = 0;
+	UpOn = TRUE;
 }
 
-void MeshData::DrawParts() {
+void MeshData::Draw() {
+
+	if (!UpOn)return;//アップデート無い場合描画処理しない
 
 	mCommandList->SetPipelineState(mPSO.Get());
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
@@ -503,13 +509,14 @@ void MeshData::DrawParts() {
 		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);//デスクリプタヒープのアドレス位置オフセットで次のテクスチャを読み込ませる
 
 		mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
-		mCommandList->SetGraphicsRootConstantBufferView(2, mObject_MESHCB->Resource()->GetGPUVirtualAddress() + 256 * i);
+		UINT mElementByteSize = (sizeof(CONSTANT_BUFFER_MESH) + 255) & ~255;
+		mCommandList->SetGraphicsRootConstantBufferView(2, mObject_MESHCB->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
 
-		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, dx->ins_no, 0, 0, 0);
+		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, insNum, 0, 0, 0);
 	}
 
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-	dx->ins_no = 0;
+	UpOn = FALSE;
 }

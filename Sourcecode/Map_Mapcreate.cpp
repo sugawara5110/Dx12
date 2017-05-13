@@ -457,7 +457,7 @@ void Map::CreateMap() {
 	}
 }
 
-void Map::Mapdraw_Wood() {
+void Map::Mapupdate_Wood() {
 
 	int p = 0;
 	for (int k3 = 0; k3 < mxy.z; k3++) {
@@ -475,12 +475,20 @@ void Map::Mapdraw_Wood() {
 			}
 		}
 	}
-	mWood.InstanceDraw(0, 0, 0, 0.3f);
+	mWood.InstanceUpdate(0, 0, 0, 0.3f);
+}
+
+void Map::Mapdraw_Wood() {
+	mWood.Draw();
+}
+
+void Map::Mapupdate_Mountain() {
+	mountain.InstancedMap(-1500.0f, 2000.0f, 0, 0, 0, 0, 500.0f);
+	mountain.Update(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0.3f);
 }
 
 void Map::Mapdraw_Mountain() {
-	mountain.InstancedMap(-1500.0f, 2000.0f, 0, 0, 0, 0, 500.0f);
-	mountain.Draw(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0.3f);
+	mountain.Draw();
 }
 
 void Map::Mapcreate_Wall1(int i){
@@ -513,7 +521,7 @@ void Map::Mapcreate_Wall1(int i){
 		1.0f, 1.0f);
 }
 
-void Map::Mapdraw_Wall1() {
+void Map::Mapupdate_Wall1() {
 
 	int p = 0;
 	for (int k3 = 0; k3 < mxy.z; k3++) {
@@ -527,7 +535,11 @@ void Map::Mapdraw_Wall1() {
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i].InstanceDraw(0, 0, 0, 0);
+	for (int i = 0; i < 3; i++)poWall1[i].InstanceUpdate(0, 0, 0, 0);
+}
+
+void Map::Mapdraw_Wall1() {
+	for (int i = 0; i < 3; i++)poWall1[i].Draw();
 }
 
 void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2){
@@ -974,7 +986,7 @@ void Map::Mapcreate_Background(float st, float end){
 		5.0f, 0.0f);
 }
 
-void Map::Mapdraw_Rain() {
+void Map::Mapupdate_Rain() {
 
 	int x, y;
 	for (int i = 0; i < 148; i++) {
@@ -982,7 +994,11 @@ void Map::Mapdraw_Rain() {
 		y = rand() % 500;
 		poRain.InstancedMap(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f, 0.0f, (float)(rand() % 300));
 	}
-	poRain.InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f);
+	poRain.InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+void Map::Mapdraw_Rain() {
+	poRain.Draw();
 }
 
 void Map::Mapcreate_Recover() {
@@ -1047,7 +1063,7 @@ void Map::Mapcreate_Recover() {
 	}
 }
 
-void Map::Mapdraw_Recover() {
+void Map::Mapupdate_Recover() {
 
 	for (float j = 0.0f; j < 12.0f; j++) {
 		for (float i1 = 0.0f; i1 < 120.0f; i1++) {
@@ -1057,10 +1073,17 @@ void Map::Mapdraw_Recover() {
 			int rnd = rand() % 20;
 			poRecoverLine[(int)j].InstancedMapSize3(line_x, line_y, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
 		}
-		poRecoverLine[(int)j].InstanceDraw(0.0f, 0.0f, 0.0f, 0.0f);
+		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 	dx->PointLightPosSet(7, recovPosX, recovPosY, 2.0f, 0.2f, 0.8f, 0.2f, 1.0f, 100.0f, 10.0f, 2.0f, TRUE);
-	poRecover.Draw(0, 0, 4.0f, 0, 0, 0, 0, 0);
+	poRecover.Update(0, 0, 4.0f, 0, 0, 0, 0, 0);
+}
+
+void Map::Mapdraw_Recover() {
+	for (float j = 0.0f; j < 12.0f; j++) {
+		poRecoverLine[(int)j].Draw();
+	}
+	poRecover.Draw();
 }
 
 void Map::Mapcreate_Ds() {
@@ -1091,7 +1114,7 @@ void Map::Mapcreate_Ds() {
 	}
 }
 
-void Map::Mapdraw_Ds() {
+void Map::Mapupdate_Ds() {
 
 	int licnt = 0;
 	for (int k3 = 0; k3 < mxy.z; k3++) {
@@ -1186,7 +1209,11 @@ void Map::Mapdraw_Ds() {
 		loopcount++;
 	}
 
-	poMo.DrawBillboard(20.0f);
+	poMo.Update(20.0f);
+}
+
+void Map::Mapdraw_Ds() {
+	poMo.DrawBillboard();
 }
 
 void Map::Mapcreate_BossPoint(){

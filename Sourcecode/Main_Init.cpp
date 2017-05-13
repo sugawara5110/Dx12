@@ -129,8 +129,6 @@ void Main::Loop() {
 
 void Main::UpDate() {
 
-	dx->Bigin(0);
-	dx->Sclear(0);
 	bool mpDel_f = FALSE;
 
 	static bool Drawtitle = TRUE;
@@ -158,10 +156,10 @@ void Main::UpDate() {
 	if (Drawtitle)Drawtitle = statemenu->TitleMenu(control->Direction());
 
 	InstanceCreate::GetInstance_M()->SetCommandList(0);
-	encount = InstanceCreate::GetInstance_M()->Mapdraw(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
+	encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
 
 	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
-	
+
 	switch (mapstate) {
 	case CHANGE_MAP:
 		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
@@ -176,7 +174,7 @@ void Main::UpDate() {
 		break;
 	case NORMAL_MAP:
 		if (menu) {
-			menu = statemenu->Menudraw(InstanceCreate::GetInstance_M()->Getposition(),
+			menu = statemenu->MenuUpdate(InstanceCreate::GetInstance_M()->Getposition(),
 				map_no, Map::GetBossKilled(), hero, control->Direction());
 		}
 		break;
@@ -218,7 +216,7 @@ void Main::UpDate() {
 			//視点切り替え
 			dx->Cameraset(h_posOut.cx, h_posOut.cx2, h_posOut.cy, h_posOut.cy2, h_posOut.cz, h_posOut.cz);
 			//視点切り替え中obj
-			hero[0].OBJWalkDraw(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
+			hero[0].OBJWalkUpdate(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
 			//battleInstance生成, 完了時TRUE
 			if (!btLoad[1])btLoad[1] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
 			//視点切り替え,battleInstance生成終了
@@ -234,7 +232,7 @@ void Main::UpDate() {
 		case 2:
 			//battle表示
 			InstanceCreate::GetInstance_B()->SetCommandList(0);
-			result = InstanceCreate::GetInstance_B()->Fight(hero, control->Direction(), result);
+			result = InstanceCreate::GetInstance_B()->FightUpdate(hero, control->Direction(), result);
 
 			switch (result) {
 			case WIN:
@@ -265,11 +263,18 @@ void Main::UpDate() {
 	}
 
 	T_float::GetTime(hWnd);
-	DxText::GetInstance()->Draw();
 
+	dx->Bigin(0);
+	dx->Sclear(0);
+	InstanceCreate::GetInstance_M()->MapDraw();
+	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw();
+	for (int i = 0; i < 4; i++)hero[i].Draw();
+	statemenu->Draw();
+	DxText::GetInstance()->Draw();
 	dx->End(0);
 	dx->WaitFencePast();
 	dx->DrawScreen();
+
 	//battle削除(コマンドリストClose後に削除)
 	if (btDel_f) {
 		InstanceCreate::BattleDelete();

@@ -38,22 +38,22 @@ StateMenu::StateMenu() {
 
 void StateMenu::Menucreate() {
 	state.InstancedSetConstBf(0.0f, 0.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.7f, 500.0f, 430.0f);
-	state.Draw(5.0f, 5.0f, 0.8f, 0.6f, 0.6f, 0.6f, 0.7f, 490.0f, 420.0f);
+	state.Update(5.0f, 5.0f, 0.8f, 0.6f, 0.6f, 0.6f, 0.7f, 490.0f, 420.0f);
 }
 
 void StateMenu::St_create() {
 	s_state.InstancedSetConstBf(110.0f, 0.0f, 0.7f, 1.0f, 1.0f, 1.0f, 0.7f, 390.0f, 430.0f);
-	s_state.Draw(115.0f, 5.0f, 0.6f, 0.6f, 0.6f, 0.6f, 0.7f, 380.0f, 420.0f);
+	s_state.Update(115.0f, 5.0f, 0.6f, 0.6f, 0.6f, 0.6f, 0.7f, 380.0f, 420.0f);
 }
 
 void StateMenu::Re_create() {
 	r_state.InstancedSetConstBf(0.0f, 0.0f, 0.7f, 1.0f, 1.0f, 1.0f, 0.7f, 110.0f, 430.0f);
-	r_state.Draw(5.0f, 5.0f, 0.6f, 0.6f, 0.6f, 0.6f, 0.7f, 100.0f, 420.0f);
+	r_state.Update(5.0f, 5.0f, 0.6f, 0.6f, 0.6f, 0.6f, 0.7f, 100.0f, 420.0f);
 }
 
 void StateMenu::Re_create1() {
 	r_state1.InstancedSetConstBf(0.0f, 150.0f, 0.5f, 1.0f, 1.0f, 1.0f, 0.7f, 135.0f, 280.0f);
-	r_state1.Draw(5.0f, 155.0f, 0.4f, 0.6f, 0.6f, 0.6f, 0.7f, 125.0f, 270.0f);
+	r_state1.Update(5.0f, 155.0f, 0.4f, 0.6f, 0.6f, 0.6f, 0.7f, 125.0f, 270.0f);
 }
 
 StateMenu::~StateMenu(){

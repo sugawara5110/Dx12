@@ -262,3 +262,4 @@ void MovieSoundManager::Select_sound(bool repeat){
 void MovieSoundManager::Enter_sound(bool repeat){
 	enter_so->sound(repeat, -500);
 }
+

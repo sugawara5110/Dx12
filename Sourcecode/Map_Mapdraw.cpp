@@ -7,17 +7,27 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Map.h"
 
-void Map::MapdrawObj(){
-	if (woodcount > 0)Mapdraw_Wood();
-	if (squarecount >= 1)Mapdraw_Wall1();
-	if (blockcountA >= 1)poWallA.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-	if (blockcountB >= 1)poWallB.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-	if (blockcountC >= 1)poWallC.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-	if (blockcountD >= 1)poWallD.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
-	if (blockcountE >= 1)poWallE.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
+void Map::MapUpdateObj() {
+	if (woodcount > 0)Mapupdate_Wood();
+	if (squarecount >= 1)Mapupdate_Wall1();
+	if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+	if (blockcountE >= 1)poWallE.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
 }
 
-Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending) {
+void Map::MapdrawObj() {
+	Mapdraw_Wood();
+	Mapdraw_Wall1();
+	poWallA.Draw();
+	poWallB.Draw();
+	poWallC.Draw();
+	poWallD.Draw();
+	poWallE.Draw();
+}
+
+Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending) {
 
 	//Debug();
 
@@ -99,127 +109,153 @@ Encount Map::Mapdraw(MapState *mapstate, Directionkey direction, Encount encount
 	dx->SetDirectionLight(TRUE);
 	//フォグoff
 	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
-	if (map_no == 4)dx->PointLightPosSet(1, 1450.0f, 1000.0f, 650.0f, 0.4f, 0.4f, 0.8f, 1.0f, 150.0f, 80.0f, 2.0f, TRUE);
+	if (map_no == 4)dx->PointLightPosSet(1, 1450.0f, 900.0f, 650.0f, 0.4f, 0.4f, 0.8f, 1.0f, 150.0f, 80.0f, 2.0f, TRUE);
 
 	switch (map_no) {
 	case 0:
 		//出口光源
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f * btr, 0.1f * btr, 0.1f * btr, 1.5f, 0.5f);
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 200.0f, 50.0f, 2.0f, TRUE);
-		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		poCeilingM.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		poEXIT.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		MapdrawObj();
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		poEXIT.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		MapUpdateObj();
 		if (mo_count >= 1) {
-			poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
-			Mapdraw_Ds();
+			Mapupdate_Ds();
 		}
-		if (r_point_count >= 1)Mapdraw_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
+		if (r_point_count >= 1)Mapupdate_Recover();
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 1:
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, TRUE);
-		poGroundF.Draw(1100, 3500, 0, 0, 0, 0, 0, 0);
-		poCeilingF.Draw(1100, 3500, 0, 0, 0, 0, 0, 0);
-		poGroundE.Draw(900, 200, 0, 0, 0, 0, 0, 0);
-		poCeilingE.Draw(900, 200, 0, 0, 0, 0, 0, 0);
-		if (blockcountA >= 1)poWallA.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		if (blockcountC >= 1)poWallC.Draw(0, 0, 0, 0, 0, 0, 0, 0);
+		poGroundF.Update(1100, 3500, 0, 0, 0, 0, 0, 0);
+		poCeilingF.Update(1100, 3500, 0, 0, 0, 0, 0, 0);
+		poGroundE.Update(900, 200, 0, 0, 0, 0, 0, 0);
+		poCeilingE.Update(900, 200, 0, 0, 0, 0, 0, 0);
+		if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0);
 		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
 		if (f_wall_count >= 1) {
-			poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256), 0xff, 0xff, 0xff, 255);
-			poF_Wall.Draw(0, 0, 0, 0, 0, 0, 0, 6.0f);
+			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 6.0f);
 		}
 		if (mo_count >= 1) {
-			poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
-			Mapdraw_Ds();
+			Mapupdate_Ds();
 		}
 		dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
-		if (r_point_count >= 1)Mapdraw_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
+		if (r_point_count >= 1)Mapupdate_Recover();
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 800.0f, 0.17f, TRUE);
-		poBackground.Draw(0, 0, -3500, or , og, ob, 0, 0);
+		poBackground.Update(0, 0, -3500, or , og, ob, 0, 0);
 		dx->Fog(1.0f, 1.0f, 1.0f, 100.0f, 0.4f, TRUE);
-		Mapdraw_Mountain();
+		Mapupdate_Mountain();
 		dx->Fog(1.0f, 1.0f, 1.0f, 3.0f, 0.4f, TRUE);
-		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		if (woodcount > 0)Mapdraw_Wood();
-		if (squarecount >= 1)Mapdraw_Wall1();
-		if (blockcountB >= 1)poWallB.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		Mapdraw_Rain();
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (woodcount > 0)Mapupdate_Wood();
+		if (squarecount >= 1)Mapupdate_Wall1();
+		if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		Mapupdate_Rain();
 		break;
 	case 2:
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f * btr, 0.15f * btr, 0.15f * btr, 1.5f, 0.5f);
-		poEXIT.Draw(150.0f, 3930.0f, 0, 0, 0, 0, 180.0f, 0);
+		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 180.0f, 0);
 		//入口光源
 		dx->PointLightPosSet(2, 150.0f, 3980.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, TRUE);
-		poGroundM.Draw(0, 500, 0, 0, 0, 0, 0, 0);
-		poCeilingM.Draw(0, 500, 0, 0, 0, 0, 0, 0);
-		poGroundE.Draw(100, 100, 0, 0, 0, 0, 0, 4.0f);
-		poCeilingE.Draw(100, 100, 0, 0, 0, 0, 0, 4.0f);
-		MapdrawObj();
+		poGroundM.Update(0, 500, 0, 0, 0, 0, 0, 0);
+		poCeilingM.Update(0, 500, 0, 0, 0, 0, 0, 0);
+		poGroundE.Update(100, 100, 0, 0, 0, 0, 0, 4.0f);
+		poCeilingE.Update(100, 100, 0, 0, 0, 0, 0, 4.0f);
+		MapUpdateObj();
 		if (f_wall_count >= 1) {
-			poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256), 0xff, 0xff, 0xff, 255);
-			poF_Wall.Draw(0, 0, 0, 0, 0, 0, 0, 20.0f);
+			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 20.0f);
 		}
 		if (mo_count >= 1) {
-			poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
-			Mapdraw_Ds();
+			Mapupdate_Ds();
 		}
-		if (r_point_count >= 1)Mapdraw_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
+		if (r_point_count >= 1)Mapupdate_Recover();
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 3:
 		//とりあえずOK後で光源設定する
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f, 1.5f, 0.5f);
-		poGroundF.Draw(200, 3000, 0, 0, 0, 0, 0, 0);
-		poCeilingF.Draw(200, 2990, 0, 0, 0, 0, 0, 0);
-		if (blockcountC >= 1)poWallC.Draw(0, 0, 0, 0, 0, 0, 0, 0);
+		poGroundF.Update(200, 3000, 0, 0, 0, 0, 0, 0);
+		poCeilingF.Update(200, 2990, 0, 0, 0, 0, 0, 0);
+		if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0);
 		if (mo_count >= 1) {
-			poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
-			Mapdraw_Ds();
+			Mapupdate_Ds();
 		}
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f, 1.0f, 1.0f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
-		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		poCeilingM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		if (blockcountD >= 1)poWallD.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
 		if (f_wall_count >= 1) {
-			poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256), 0xff, 0xff, 0xff, 255);
-			poF_Wall.Draw(0, 0, 0, 0, 0, 0, 0, 20.0f);
+			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 20.0f);
 		}
-		if (r_point_count >= 1)Mapdraw_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
+		if (r_point_count >= 1)Mapupdate_Recover();
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 4:
 		//入り口に何か細工する予定
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f * btr, 0.25f * btr, 0.25f * btr, 1.5f, 0.5f);
 		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
-		poGroundM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		poCeilingM.Draw(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		MapdrawObj();
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		MapUpdateObj();
 		if (mo_count >= 1) {
-			poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
-			Mapdraw_Ds();
+			Mapupdate_Ds();
 		}
-		if (r_point_count >= 1)Mapdraw_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Draw(0, 0, 0, 0, 0, 0, 0, 0);
-		if (Elevator_count >= 1)poElevator.Draw(0, 0, 4.0f, 0, 0, 0, 0, 0);
+		if (r_point_count >= 1)Mapupdate_Recover();
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (Elevator_count >= 1)poElevator.Update(0, 0, 4.0f, 0, 0, 0, 0, 0);
 		break;
 	}
 
 	he->TorchSwitch(mainlight);
-	if (encount == NOENCOUNT && !ending)HeroDraw(Move_f);//Mov関数からフラグもらうようにする
+	if (encount == NOENCOUNT && !ending)HeroUpdate(Move_f);//Mov関数からフラグもらうようにする
 
 	MapText(m_tx);
+
+	UpOn = TRUE;
 
 	return encount;
 }
 
-void Map::HeroDraw(bool mf) {
-	if (he)he->OBJWalkDraw(cax1, cay1, (float)posz * 100.0f + elevator_step, 0, 0, 0, src_theta, mf);
+void Map::MapDraw() {
+
+	if (!UpOn)return;
+
+	poGroundM.Draw();
+	poCeilingM.Draw();
+	poEXIT.Draw();
+	poGroundF.Draw();
+	poCeilingF.Draw();
+	poGroundE.Draw();
+	poCeilingE.Draw();
+	poBackground.Draw();
+	poBoss.Draw();
+	poElevator.Draw();
+	MapdrawObj();
+	Mapdraw_Recover();
+	Mapdraw_Mountain();
+	Mapdraw_Rain();
+
+	if (mo_count >= 1) {
+		poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
+		Mapdraw_Ds();
+	}
+
+	if (f_wall_count >= 1) {
+		poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256), 0xff, 0xff, 0xff, 255);
+		poF_Wall.Draw();
+	}
+
+	UpOn = FALSE;
+}
+
+void Map::HeroUpdate(bool mf) {
+	if (he)he->OBJWalkUpdate(cax1, cay1, (float)posz * 100.0f + elevator_step, 0, 0, 0, src_theta, mf);
 }
 
 Position::E_Pos *Map::Getposition(int p){

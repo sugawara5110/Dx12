@@ -34,6 +34,7 @@ private:
 	DxText *text;
 	T_float tfloat;
 	Position::mapxy mxy;
+	bool UpOn = FALSE;
 
 	struct LightPos{
 		float x, y, z;
@@ -98,29 +99,36 @@ private:
 	void Debug();
 	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int *cnt);
 	void Mapfilter(Position::H_Pos *h_p);
+	void Mapupdate_Wood();
 	void Mapdraw_Wood();
+	void Mapupdate_Mountain();
 	void Mapdraw_Mountain();
 	void Mapcreate_Wall1(int i);
+	void Mapupdate_Wall1();
 	void Mapdraw_Wall1();
 	void Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2);
 	void Mapcreate_Ground(PolygonData *pd, int pcsx, int pcsy, float height, float adjust);
 	void Mapcreate_Ceiling(PolygonData *pd, int pcsx, int pcsy, float height, float adjust);
 	void Mapcreate_Background(float st, float end);
+	void Mapupdate_Rain();
 	void Mapdraw_Rain();
 	void Mapcreate_Recover();
+	void Mapupdate_Recover();
 	void Mapdraw_Recover();
 	void Mapcreate_Ds();
+	void Mapupdate_Ds();
 	void Mapdraw_Ds();
 	void Mapcreate_BossPoint();
 	void Mapcreate_Elevator();
 	void Mapcreate_EXIT(float x, float y, float z, float xsize);
+	void MapUpdateObj();
 	void MapdrawObj();
 	bool MoveUpCond(int Ind);
 	bool MoveDownCond(int Ind);
 	Encount Move(MapState *mapstate, Directionkey direction);
 	void MapText(TCHAR str[30]);
 	bool ViewCulling(float obj_x, float obj_y, float obj_z);
-	void HeroDraw(bool mf);
+	void HeroUpdate(bool mf);
 	bool CollisionDetection(float in_y, float in_x, Directionkey dir);
 
 	//ŽlŽÌŒÜ“ü
@@ -151,7 +159,8 @@ public:
 	void SetVertex();
 	void SetCommandList(int com_no);
 	void CreateMap();
-	Encount Mapdraw(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
+	Encount MapUpdate(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
+	void MapDraw();
 	Position::E_Pos *Getposition(int p);
 	Position::H_Pos *Getposition();
 	void Setposition(Position::H_Pos *pos);

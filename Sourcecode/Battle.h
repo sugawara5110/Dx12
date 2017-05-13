@@ -46,6 +46,7 @@ private:
 	bool CamActOn;        //
 	int CamActInd;
 	bool CreateFin;
+	bool UpOn = FALSE;
 
 	CommandSelect com_select;   //コマンド入力(1ループに付き1体ずつなので1個でok↓も同様)
 	CommandSelect E_com_select;//敵用(テンプレート関数使用の為引数揃える)
@@ -258,7 +259,8 @@ public:
 	void SetCommandList(int com_no);
 	void CreateBattle();
 	bool CreateB_Fin();
-	Result Fight(Hero *he, Directionkey direction, Result result);
+	Result FightUpdate(Hero *he, Directionkey direction, Result result);
+	void FightDraw();
 	Position::Bt_H_Pos *GetBtPos(Position::H_Pos *h_p);
 	bool GetH_DM(int element);
 	bool GetH_RCV(int element);

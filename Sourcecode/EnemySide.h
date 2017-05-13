@@ -19,7 +19,7 @@ protected:
 	virtual void RecoverAction();
 	virtual bool LostAction(float x, float y, float z);
 	virtual bool Magiccreate(float x, float y, float z);
-	virtual void ObjDraw(float x, float y, float z, float r, float g, float b, float theta);
+	virtual void ObjUpdate(float x, float y, float z, float r, float g, float b, float theta);
 
 public:
 	EnemySide() {}

@@ -14,7 +14,7 @@
 class Battle;
 //前方宣言
 
-class Enemy :public Parameter{
+class Enemy :public Parameter {
 
 protected:
 	int o_no;//オブジェクトナンバー
@@ -22,13 +22,16 @@ protected:
 	float pos_offset;//ボス位置オフセット
 	Position::H_Pos *h_pos;
 	Position::E_Pos *e_pos;
-	PolygonData *en, *mag, effect[4];
+	PolygonData *en = NULL;//SideEnemy使用
+	PolygonData *mag = NULL;//SideEnemy使用
+	PolygonData effect[4];//エフェクト
+
 	int effect_no = 0;
-	MeshData *en_boss_att0;       //boss2のみ使用
-	SkinMesh *en_boss_att;       //ボスアニメーション
+	MeshData *en_boss_att0 = NULL;//boss2のみ使用
+	SkinMesh *en_boss_att = NULL;//ボスアニメーション
 	bool attOn, attFin;         //attアニメーション中
 	bool magicAttOn;            //magicアニメーションフラグ
-	ParticleData *mag_boss;    //ボス用
+	ParticleData *mag_boss = NULL;//ボス用
 	float mag_size;           //ボス用
 	int comNo;
 
@@ -56,14 +59,15 @@ protected:
 	virtual void RecoverAction();
 	virtual bool LostAction(float x, float y, float z);
 	virtual bool Magiccreate(float x, float y, float z);
-	virtual void ObjDraw(float x, float y, float z, float r, float g, float b, float theta);
-	bool Effectdraw(Battle *battle, int *E_select_obj);
+	virtual void ObjUpdate(float x, float y, float z, float r, float g, float b, float theta);
+	bool EffectUpdate(Battle *battle, int *E_select_obj);
 	void PosOffset(int o_no);
 
 public:
 	Enemy() {}
 	Enemy(int t_no, int no);
-	Act_fin_flg Enemydraw(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
+	Act_fin_flg EnemyUpdate(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
+	void Draw();
 	Action Normal_act_get();
 	void EffectGetBuffer();
 	void EffectCreate();

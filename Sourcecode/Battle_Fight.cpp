@@ -15,7 +15,7 @@
 #include "Battle.h"
 #include "Hero.h"
 
-Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
+Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 
 	Position::H_Pos h_posOut;//視点変換後用
 	//視点初期値
@@ -55,7 +55,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	//敵表示
 	for (int i = 0; i < e_num; i++) {
 		if (e_draw[i].LOST_fin == FALSE) {//敵側はLOST_fin==TRUE状態だと表示されないようにする
-			act = enemy[i].Enemydraw(this, &E_select_obj, e_draw[i].action, e_draw[i].Magrun);
+			act = enemy[i].EnemyUpdate(this, &E_select_obj, e_draw[i].action, e_draw[i].Magrun);
 			switch (act) {
 			case AT_FIN://敵側攻撃,回復終了
 				ValueDraw<Enemy>(enemy, h_draw, e_draw, 4, e_num);//フラグ, action = DAMAGE or RECOVER
@@ -73,7 +73,7 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 	for (int i = 0; i < 4; i++)if (hero[i].Dieflg() == TRUE)h_draw[i].action = LOST;
 	//プレイヤーステータス表示
 	for (int i = 0; i < 4; i++) {
-		act = hero[i].Statedraw(this, &select_obj, &h_pos, e_pos, h_draw[i].AGmeter / METER_MAX, h_draw[i].command_run, h_draw[i].action, h_draw[i].Magrun);
+		act = hero[i].HeroUpdate(this, &select_obj, &h_pos, e_pos, h_draw[i].AGmeter / METER_MAX, h_draw[i].command_run, h_draw[i].action, h_draw[i].Magrun);
 		switch (act) {
 		case AT_FIN://プレイヤー側攻撃,回復終了
 			ValueDraw<Hero>(hero, e_draw, h_draw, e_num, 4);//フラグ, action = DAMAGE or RECOVER
@@ -275,7 +275,17 @@ Result Battle::Fight(Hero *hero, Directionkey direction, Result result) {
 		return WIN;
 	}
 
+	UpOn = TRUE;
 	return IN_BATTLE;
+}
+
+void Battle::FightDraw() {
+	if (!UpOn)return;
+	command.Draw();
+	h_select.Draw();
+	E_select.Draw();
+	for (int i = 0; i < e_num; i++)enemy[i].Draw();
+	UpOn = FALSE;
 }
 
 Position::Bt_H_Pos *Battle::GetBtPos(Position::H_Pos *h_p){

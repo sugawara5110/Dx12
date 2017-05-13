@@ -10,11 +10,11 @@
 #include <time.h>
 #include "Hero.h"
 
-void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta) {
-	p_att->Draw(3, -1.0f, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta) {
+	p_att->Update(3, -1.0f, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 }
 
-void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, float theta, bool walkOn) {
+void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta, bool walkOn) {
 
 	VECTOR3 v3;
 	int i;
@@ -27,17 +27,16 @@ void Hero::OBJWalkDraw(float x, float y, float z, float r, float g, float b, flo
 		//ˆÚ“®
 		i = 3;
 	}
-	p_att->Draw(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+	p_att->Update(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 	if (torchOn) {
-		torchWood->Draw(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+		torchWood->Update(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
 		v3 = torchWood->GetVertexPosition(6, 2.0f, -3.0f, -2.0f, theta, 0, 0, 2.0f);
-		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
 		dx->PointLightPosSet(0, v3.x + x, v3.y + y, v3.z + z, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, TRUE);
-		torchFlame->Draw(v3.x + x, v3.y + y, v3.z + z, r, g, b, theta, 0.0f);
+		torchFlame->Update(v3.x + x, v3.y + y, v3.z + z, r, g, b, theta, 0.0f);
 	}
 }
 
-Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun) {
+Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun) {
 
 	static bool clr_f = TRUE;
 	static float r = 1.0f;
@@ -91,7 +90,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		}
 		if (effect_f == TRUE) {
 			effect_no = 0;
-			if (Effectdraw(battle, select_obj, h_pos, e_pos) == FALSE) {
+			if (EffectUpdate(battle, select_obj, h_pos, e_pos) == FALSE) {
 				effect_f = FALSE;
 				act_f = NORMAL;
 				return AT_FIN;
@@ -102,7 +101,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 		m = tfloat.Add(0.15f);
 		float mx, my;
 		MovieSoundManager::Magic_sound(TRUE);
-		mag.Draw(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, count += m, 0);
+		mag.Update(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, count += m, 0);
 		VECTOR3 p3;
 		p3.as(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 20.0f);
 		PolygonData2D::Pos2DCompute(&p3);
@@ -138,7 +137,7 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 			effect_f = TRUE;
 		}
 		if (effect_f == TRUE) {
-			if (Effectdraw(battle, select_obj, h_pos, e_pos) == FALSE) {
+			if (EffectUpdate(battle, select_obj, h_pos, e_pos) == FALSE) {
 				effect_f = FALSE;
 				act_f = NORMAL;
 				return AT_FIN;
@@ -202,15 +201,15 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 	m = tfloat.Add(2.0f);
 	if (Dieflg() == TRUE)m = 0.0f;
 	if (attOn) {
-		attFin = p_att->Draw(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+		attFin = p_att->Update(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 	}
 	if (magicAttOn) {
-		p_att->Draw(2, m * 0.3f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+		p_att->Update(2, m * 0.3f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 	}
 	if (!attOn && !magicAttOn) {
-		p_att->Draw(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+		p_att->Update(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 	}
-
+	
 	Statecreate(command_run);
 	text->UpDateText(L"Žúl‚m‚", x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(o_no, x + 60.0f, 470.0f, 15.0f, 1, { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -239,6 +238,19 @@ Act_fin_flg Hero::Statedraw(Battle *battle, int *select_obj, Position::H_Pos *h_
 	if (act_f == LOST && LA == 90)return LOST_FIN;
 	//LOSTˆÈŠO
 	return NOT_FIN;
+}
+
+void Hero::Draw() {
+	p_att->Draw();
+	state.Draw();
+	meter.Draw();
+	mag.Draw();
+	for (int i = 0; i < 4; i++)effect[i].Draw();
+	if (torchWood) {
+		torchWood->Draw();
+		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
+		torchFlame->Draw();
+	}
 }
 
 void Hero::Act_f_init(){

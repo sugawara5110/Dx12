@@ -171,8 +171,8 @@ private:
 	char  *binary_ch[TEX_PCS] = { 0 };    //デコード後バイナリ
 	int   binary_size[TEX_PCS] = { 0 };  //バイナリサイズ
 	char  *texName[TEX_PCS] = { 0 };
-	ID3D12Resource *texture[TEX_PCS];
-	ID3D12Resource *textureUp[TEX_PCS];
+	ID3D12Resource *texture[TEX_PCS] = { 0 };
+	ID3D12Resource *textureUp[TEX_PCS] = { 0 };
 
 	static Dx12Process *dx;//クラス内でオブジェクト生成し使いまわす
 
@@ -409,7 +409,7 @@ private:
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
 	std::unique_ptr<IndexView[]> Iview = nullptr;
-			
+
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;//パイプラインOBJ
 
 	int              MaterialCount = 0;//マテリアル数
@@ -421,6 +421,8 @@ private:
 	VECTOR3 *pvCoord;
 	VECTOR3 *pvNormal;
 	VECTOR2 *pvTexture;
+	int insNum = 0;
+	bool UpOn = FALSE;
 
 	struct MY_MATERIAL {
 		CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
@@ -433,7 +435,7 @@ private:
 			ZeroMemory(this, sizeof(MY_MATERIAL));
 			tex_no = -1;
 		}
-		~MY_MATERIAL(){}
+		~MY_MATERIAL() {}
 	};
 	MY_MATERIAL* pMaterial;
 
@@ -445,7 +447,6 @@ private:
 
 	void LoadMaterialFromFile(char *FileName, MY_MATERIAL **ppMaterial);
 	void GetShaderByteCode(bool disp);
-	void DrawParts();
 
 public:
 	MeshData();
@@ -458,9 +459,13 @@ public:
 	void GetTexture();
 	ID3D12PipelineState *GetPipelineState();
 	//木./dat/mesh/tree.obj
+	//複数Update
 	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
-	void InstanceDraw(float r, float g, float b, float disp);
-	void Draw(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp);
+	void InstanceUpdate(float r, float g, float b, float disp);
+	//単体Update
+	void Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp);
+	//描画
+	void Draw();
 };
 
 //*********************************PolygonDataクラス*************************************//
@@ -470,7 +475,7 @@ class PolygonData {
 private:
 	//ポインタで受け取る
 	Dx12Process *dx;
-	ID3D12GraphicsCommandList  *mCommandList;   
+	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
 	ID3DBlob                   *ps = nullptr;
@@ -491,10 +496,12 @@ private:
 	ID3D12Resource *texture = NULL;
 	ID3D12Resource *textureUp = NULL;
 	//movie_on
-	bool           m_on = FALSE;
+	bool   m_on = FALSE;
 	//テクスチャ番号(通常テクスチャ用)
-	int            t_no = -1;
-	
+	int    t_no = -1;
+	int    insNum = 0;
+	bool   UpOn = FALSE;
+
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	D3D12_TEXTURE_COPY_LOCATION dest, src;
 
@@ -510,7 +517,6 @@ private:
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
 	void GetShaderByteCode(bool light, int tNo);
-	void DrawParts();
 
 public:
 	PolygonData();
@@ -534,11 +540,12 @@ public:
 	void InstancedMap(float x, float y, float z, float theta);
 	void InstancedMap(float x, float y, float z, float theta, float size);
 	void InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ);
-	void InstanceDraw(float r, float g, float b, float disp);
-	void InstanceDraw(float r, float g, float b, float disp, float px, float py, float mx, float my);
-	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp);
-	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
-	void Draw(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
+	void InstanceUpdate(float r, float g, float b, float disp);
+	void InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my);
+	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp);
+	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
+	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
+	void Draw();
 };
 
 //*********************************PolygonData2Dクラス*************************************//
@@ -572,14 +579,24 @@ private:
 	ID3D12Resource *texture = NULL;
 	ID3D12Resource *textureUp = NULL;
 	bool tex_on = FALSE;
+	//SetTextParameter
+	int Twidth;
+	int Theight;
+	int Tcount;
+	TEXTMETRIC *Tm;
+	GLYPHMETRICS *Gm;
+	BYTE *Ptr;
+	DWORD *Allsize;
+	bool CreateTextOn = FALSE;
 
 	CONSTANT_BUFFER2D cb;
-	int               ins_no = 0;
+	int  ins_no = 0;
+	bool UpOn = FALSE;
 
 	void GetShaderByteCode();
 	void SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
-	void SetText(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize);//DxText classでしか使わない
-	void DrawParts();
+	void SetTextParameter(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize);
+	void SetText();//DxText classでしか使わない
 
 public:
 	MY_VERTEX2         *d2varray;  //頂点配列
@@ -597,9 +614,10 @@ public:
 	void Create(bool blend, bool alpha);
 	void InstancedSetConstBf(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
 	void InstancedSetConstBf(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
-	void InstanceDraw();
-	void Draw(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
-	void Draw(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
+	void InstanceUpdate();
+	void Update(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
+	void Draw();
 };
 
 class T_float {
@@ -646,8 +664,9 @@ private:
 	ID3D12Resource *texture = NULL;
 	ID3D12Resource *textureUp = NULL;
 	//movie_on
-	bool           m_on = FALSE;
-	bool           texpar_on = FALSE;
+	bool m_on = FALSE;
+	bool texpar_on = FALSE;
+	bool UpOn = FALSE;
 
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
@@ -667,7 +686,7 @@ private:
 	void CreateVbObj();
 	void CreatePartsCom();
 	void CreatePartsDraw(int texpar);
-	void DrawParts0(float x, float y, float z, float theta, float size, bool init, float speed, bool tex);
+	void DrawParts0();
 	void DrawParts1();
 	void DrawParts2();
 
@@ -683,9 +702,11 @@ public:
 		float r, float g, float b, float a);
 	void CreateParticle(int texpar);//パーティクル1個のテクスチャナンバー
 	void CreateBillboard();//ver個の四角形を生成
-	void Draw(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
+	void Update(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
+	void Draw();
 	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
-	void DrawBillboard(float size);
+	void Update(float size);
+	void DrawBillboard();
 };
 
 //*********************************SkinMeshクラス*************************************//
@@ -725,6 +746,7 @@ private:
 	ID3DBlob                   *ps = nullptr;
 	bool alpha = FALSE;
 	bool blend = FALSE;
+	bool UpOn = FALSE;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
@@ -808,8 +830,9 @@ public:
 	HRESULT GetFbxSub(CHAR* szFileName, int ind);
 	HRESULT GetBuffer_Sub(int ind, float end_frame);
 	void CreateFromFBX_SubAnimation(int ind);
-	bool Draw(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
-	bool Draw(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	bool Update(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	bool Update(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	void Draw();
 	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scale);
 };
 

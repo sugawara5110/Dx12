@@ -57,7 +57,8 @@ public:
 	int Set_boss_kil(int i);
 	int SetMap_No();
 	void SetCommandList(int com_no);
-	bool Menudraw(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction);
+	bool MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction);
+	void Draw();
 	~StateMenu();
 };
 

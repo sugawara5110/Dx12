@@ -11,7 +11,7 @@
 #include "Enemy.h"
 #include "Battle.h"
 
-Act_fin_flg Enemy::Enemydraw(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun) {
+Act_fin_flg Enemy::EnemyUpdate(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun) {
 
 	//MOVE,LOST以外のアクション中にMOVE,LOST以外のアクション発生時の初期化
 	if (action != NORMAL && action != MOVE && action != LOST) {
@@ -60,7 +60,7 @@ Act_fin_flg Enemy::Enemydraw(Battle *battle, int *E_select_obj, Action action, M
 		AttackAction();
 		if (effect_f == TRUE) {
 			effect_no = 0;
-			if (Effectdraw(battle, E_select_obj) == FALSE) {
+			if (EffectUpdate(battle, E_select_obj) == FALSE) {
 				effect_f = FALSE;
 				act_f = normal_action;
 				return AT_FIN;
@@ -103,7 +103,7 @@ Act_fin_flg Enemy::Enemydraw(Battle *battle, int *E_select_obj, Action action, M
 			}
 			effect_f = TRUE;
 		}
-		if (effect_f == TRUE && Effectdraw(battle, E_select_obj) == FALSE) {
+		if (effect_f == TRUE && EffectUpdate(battle, E_select_obj) == FALSE) {
 			effect_f = FALSE;
 			act_f = normal_action;
 			return AT_FIN;
@@ -125,9 +125,25 @@ Act_fin_flg Enemy::Enemydraw(Battle *battle, int *E_select_obj, Action action, M
 		break;
 	}
 	dx->P_ShadowBright(0.3f);
-	ObjDraw(e_pos[o_no].x + mov_x, e_pos[o_no].y + mov_y, e_pos[o_no].z + mov_z, cr, cg, cb, e_pos[o_no].theta);
+	ObjUpdate(e_pos[o_no].x + mov_x, e_pos[o_no].y + mov_y, e_pos[o_no].z + mov_z, cr, cg, cb, e_pos[o_no].theta);
 
 	return NOT_FIN;
+}
+
+void Enemy::Draw() {
+	//SideEnemy
+	if (en) {
+		en->Draw();
+		mag->Draw();
+	}
+	//Boss2
+	if (en_boss_att0)en_boss_att0->Draw();
+	//Boss 0,1,3,4
+	if (en_boss_att)en_boss_att->Draw();
+	//BossMag
+	if (mag_boss)mag_boss->Draw();
+	//エフェクト
+	for (int i = 0; i < 4; i++)effect[i].Draw();
 }
 
 Action Enemy::Normal_act_get(){
