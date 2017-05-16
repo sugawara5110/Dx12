@@ -21,7 +21,6 @@ private:
 	TCHAR str[STRTEX_MAX_PCS][STR_MAX_LENGTH]; //登録テキスト
 	float f_size[STRTEX_MAX_PCS];              //登録テキストのフォントサイズ
 	int strcnt[STRTEX_MAX_PCS];       //登録テキスト文字数 
-	int comNo;
 	HFONT hFont, oldFont;           //フォント
 	HDC hdc;                       //デバイスコンテキスト
 	int CreateTextNo;              //テキスト作成ターゲット
@@ -56,10 +55,10 @@ public:
 	static void InstanceCreate();
 	static DxText *GetInstance();
 	static void DeleteInstance();
-	void SetCommandList(int com_no);
 	void UpDateText(TCHAR *c, float x, float y, float fontsize, VECTOR4 cl);
 	void UpDateValue(int val, float x, float y, float fontsize, int pcs, VECTOR4 cl);
-	void Draw();
+	void UpDate();
+	void Draw(int com_no);
 };
 
 #endif

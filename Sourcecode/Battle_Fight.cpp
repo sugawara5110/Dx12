@@ -16,7 +16,7 @@
 #include "Hero.h"
 
 Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
-
+	
 	Position::H_Pos h_posOut;//視点変換後用
 	//視点初期値
 	h_posOut.cx = h_pos.cx;//視点
@@ -272,20 +272,18 @@ Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 		for (int i = 0; i < 4; i++) {
 			hero[i].Act_f_init();
 		}
+		command.DrawOff();
 		return WIN;
 	}
 
-	UpOn = TRUE;
 	return IN_BATTLE;
 }
 
-void Battle::FightDraw() {
-	if (!UpOn)return;
+void Battle::FightDraw(Encount enc) {
 	command.Draw();
 	h_select.Draw();
 	E_select.Draw();
-	for (int i = 0; i < e_num; i++)enemy[i].Draw();
-	UpOn = FALSE;
+	for (int i = 0; i < e_num; i++)enemy[i].Draw(enc);
 }
 
 Position::Bt_H_Pos *Battle::GetBtPos(Position::H_Pos *h_p){

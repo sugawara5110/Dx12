@@ -148,9 +148,11 @@ CommandSelect Battle::Menu_AT(int i, Directionkey direction){
 	case ENTER:
 		MovieSoundManager::Enter_sound(FALSE);
 		select_obj = h_draw[i].A_select;
+		E_select.DrawOff();
 		return ATT;
 		break;
 	case CANCEL:
+		E_select.DrawOff();
 		return CANCEL_M;
 		break;
 	}
@@ -207,10 +209,12 @@ CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction){
 	case ENTER:
 		MovieSoundManager::Enter_sound(FALSE);
 		select_obj = h_draw[i].MA_select;
+		E_select.DrawOff();
 		return MAG;
 		break;
 	case CANCEL:
 		MovieSoundManager::Select_sound(FALSE);
+		E_select.DrawOff();
 		return CANCEL_M;
 		break;
 	}
@@ -259,10 +263,12 @@ CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction){
 		MovieSoundManager::Enter_sound(FALSE);
 		if (MAG_select == HEAL && h_draw[i].MA_select != 4 && hero[h_draw[i].MA_select].Dieflg() == TRUE)break;
 		select_obj = h_draw[i].MA_select;
+		h_select.DrawOff();
 		return MAG;
 		break;
 	case CANCEL:
 		MovieSoundManager::Select_sound(FALSE);
+		h_select.DrawOff();
 		return CANCEL_M;
 		break;
 	}

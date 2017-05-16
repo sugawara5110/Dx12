@@ -44,23 +44,39 @@ private:
 	//時間
 	T_float tfloat;
 
+	static Main *main;
+
 	//その他Loop内で使用する変数
 	int map_no = 0;
 	MapState mapstate = NORMAL_MAP;
 	Encount encount = NOENCOUNT;
 	Result result = IN_BATTLE;
 	bool menu = FALSE;
+	int battleSwitch = 0;
+	bool mpDel_f = FALSE;
+	bool btDel_f = FALSE;
+	HANDLE *update_h;
 	
 	void DrawNowLoading(int com_no);
+	void CreateThreadUpdate();
+	void DeleteThreadUpdate();
 
 public:
 	//メッセージ
 	MSG msg;  
+	volatile bool UpDateThreadLoop = TRUE;
+
+	static Main *GetInstance();
+	static void DeleteInstance();
 
 	bool Init(HINSTANCE hInstance, int nCmdShow);
 	void Loop();
 	void UpDate();
+	void Draw();
+	void ObjDel();
 	~Main();
 };
+
+unsigned __stdcall UpDateThread(void *);
 
 #endif

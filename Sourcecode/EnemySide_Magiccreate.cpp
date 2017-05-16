@@ -538,6 +538,7 @@ bool EnemySide::Magiccreate(float x, float y, float z) {
 	float m = tfloat.Add(0.15f);
 	if ((count += m) > 100) {
 		count = 0.0f;
+		mag->DrawOff();
 		return FALSE;
 	}
 	return TRUE;

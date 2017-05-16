@@ -328,6 +328,7 @@ bool Hero::EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos,
 		tt = 0;
 		if ((tx += px) + px > 1.0f) {
 			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, FALSE);
+			for (int i = 0; i < 4; i++)effect[i].DrawOff();
 			tx = 0; return FALSE;
 		}
 	}

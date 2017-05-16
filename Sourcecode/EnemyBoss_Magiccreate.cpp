@@ -327,6 +327,7 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 		count = 0.0f;
 		magicAttOn = FALSE;//最終フレームで止めたままにするので終わるタイミングまでOnのまま
 		dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 1000.0f, 100.0f, 2.0f, FALSE);
+		mag_boss->DrawOff();
 		return FALSE;
 	}
 	return TRUE;
@@ -334,6 +335,10 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 
 //@Override
 void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {
+	if (e_no == 2) {
+		en_boss_att0->Update(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0);
+		return;
+	}
 	if (attOn) {
 		attFin = en_boss_att->Update(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
 	}

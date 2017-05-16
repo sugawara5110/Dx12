@@ -61,7 +61,7 @@ public:
 	void OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta);
 	void OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta, bool walkOn);//walkOn‚ÍMapƒNƒ‰ƒX‚©‚ç‘€ì
 	Act_fin_flg HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun);
-	void Draw();
+	void Draw(Encount enc, bool ending);
 	Action Normal_act_get();
 	void Act_f_init();
 	virtual ~Hero();

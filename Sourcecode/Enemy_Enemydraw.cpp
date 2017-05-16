@@ -130,20 +130,37 @@ Act_fin_flg Enemy::EnemyUpdate(Battle *battle, int *E_select_obj, Action action,
 	return NOT_FIN;
 }
 
-void Enemy::Draw() {
-	//SideEnemy
-	if (en) {
-		en->Draw();
-		mag->Draw();
+void Enemy::Draw(Encount enc) {
+	if (enc == NOENCOUNT) {
+		//SideEnemy
+		if (en) {
+			en->DrawOff();
+			mag->DrawOff();
+		}
+		//Boss2
+		if (en_boss_att0)en_boss_att0->DrawOff();
+		//Boss 0,1,3,4
+		if (en_boss_att)en_boss_att->DrawOff();
+		//BossMag
+		if (mag_boss)mag_boss->DrawOff();
+		//エフェクト
+		for (int i = 0; i < 4; i++)effect[i].DrawOff();
 	}
-	//Boss2
-	if (en_boss_att0)en_boss_att0->Draw();
-	//Boss 0,1,3,4
-	if (en_boss_att)en_boss_att->Draw();
-	//BossMag
-	if (mag_boss)mag_boss->Draw();
-	//エフェクト
-	for (int i = 0; i < 4; i++)effect[i].Draw();
+	else {
+		//SideEnemy
+		if (en) {
+			en->Draw();
+			mag->Draw();
+		}
+		//Boss2
+		if (en_boss_att0)en_boss_att0->Draw();
+		//Boss 0,1,3,4
+		if (en_boss_att)en_boss_att->Draw();
+		//BossMag
+		if (mag_boss)mag_boss->Draw();
+		//エフェクト
+		for (int i = 0; i < 4; i++)effect[i].Draw();
+	}
 }
 
 Action Enemy::Normal_act_get(){

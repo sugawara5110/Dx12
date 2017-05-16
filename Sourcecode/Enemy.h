@@ -67,7 +67,7 @@ public:
 	Enemy() {}
 	Enemy(int t_no, int no);
 	Act_fin_flg EnemyUpdate(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
-	void Draw();
+	void Draw(Encount enc);
 	Action Normal_act_get();
 	void EffectGetBuffer();
 	void EffectCreate();

@@ -68,7 +68,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		break;
 	case 1:
 		//山
-		mountain.SetState(TRUE, TRUE, FALSE);
+		mountain.SetState(TRUE, TRUE, FALSE);//3角形化必要
 		mountain.GetBuffer("./dat/mesh/mountain.obj");
 		//地面入り口
 		poGroundF.GetVBarray(CONTROL_POINT, 6);
@@ -475,7 +475,7 @@ void Map::Mapupdate_Wood() {
 			}
 		}
 	}
-	mWood.InstanceUpdate(0, 0, 0, 0.3f);
+	mWood.InstanceUpdate(0, 0, 0, 0.2f);
 }
 
 void Map::Mapdraw_Wood() {
@@ -484,7 +484,7 @@ void Map::Mapdraw_Wood() {
 
 void Map::Mapupdate_Mountain() {
 	mountain.InstancedMap(-1500.0f, 2000.0f, 0, 0, 0, 0, 500.0f);
-	mountain.Update(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0.3f);
+	mountain.Update(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0);
 }
 
 void Map::Mapdraw_Mountain() {

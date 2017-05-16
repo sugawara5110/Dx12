@@ -194,10 +194,7 @@ private:
 	DirectionLight dlight;
 	Fog fog;
 
-	CONSTANT_BUFFER cb;
 	int  ins_no = 0;
-
-	static std::mutex mtx;
 
 	Dx12Process() {}//外部からのオブジェクト生成禁止
 	Dx12Process(const Dx12Process &obj) {}     // コピーコンストラクタ禁止
@@ -213,16 +210,16 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(LPSTR szFileName, size_t size, LPSTR szFuncName, LPSTR szProfileName);
 
-	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
+	void InstancedMap(CONSTANT_BUFFER *cb, float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
 
-	void InstancedMapSize3(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ);
+	void InstancedMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ);
 
-	void MatrixMap2(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float r, float g, float b, float disp, float px, float py, float mx, float my);
+	void MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, float disp, float px, float py, float mx, float my);
 
-	void MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+	void MatrixMap(CONSTANT_BUFFER *cb, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my);
 
-	void MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+	void MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 	void WaitFence(int fence);
 	char *GetNameFromPass(char *pass);
@@ -231,8 +228,6 @@ public:
 	static void InstanceCreate();
 	static Dx12Process *GetInstance();
 	static void DeleteInstance();
-	static void Lock() { mtx.lock(); }
-	static void Unlock() { mtx.unlock(); }
 
 	bool Initialize(HWND hWnd);
 	void TextureGetBuffer(char *Bpass, int i);
@@ -404,7 +399,16 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
-	UploadBuffer<CONSTANT_BUFFER_MESH> *mObject_MESHCB = nullptr;//マテリアル渡し用
+	UploadBuffer<CONSTANT_BUFFER_MESH> *mObject_MESHCB = nullptr;//マテリアル渡し用(1回しか更新しない)
+	//UpLoad用
+	CONSTANT_BUFFER cb[2];
+	int sw = 0;//↑切り替え
+    //UpLoadカウント
+	int upCount = 0;
+	//初回Up終了
+	bool UpOn = FALSE;
+	//DrawOn
+	bool DrawOn = FALSE;
 
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
@@ -422,7 +426,6 @@ private:
 	VECTOR3 *pvNormal;
 	VECTOR2 *pvTexture;
 	int insNum = 0;
-	bool UpOn = FALSE;
 
 	struct MY_MATERIAL {
 		CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
@@ -445,8 +448,13 @@ private:
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
+	static std::mutex mtx;
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
+
 	void LoadMaterialFromFile(char *FileName, MY_MATERIAL **ppMaterial);
 	void GetShaderByteCode(bool disp);
+	void CbSwap();
 
 public:
 	MeshData();
@@ -465,6 +473,7 @@ public:
 	//単体Update
 	void Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp);
 	//描画
+	void DrawOff();
 	void Draw();
 };
 
@@ -487,6 +496,14 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
+	CONSTANT_BUFFER cb[2];
+	int sw = 0;
+	//UpLoadカウント
+	int upCount = 0;
+	//初回Up終了
+	bool UpOn = FALSE;
+	//DrawOn
+	bool DrawOn = FALSE;
 
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
@@ -500,7 +517,6 @@ private:
 	//テクスチャ番号(通常テクスチャ用)
 	int    t_no = -1;
 	int    insNum = 0;
-	bool   UpOn = FALSE;
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	D3D12_TEXTURE_COPY_LOCATION dest, src;
@@ -516,7 +532,12 @@ private:
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
+	static std::mutex mtx;
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
+
 	void GetShaderByteCode(bool light, int tNo);
+	void CbSwap();
 
 public:
 	PolygonData();
@@ -545,6 +566,7 @@ public:
 	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp);
 	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
 	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
+	void DrawOff();
 	void Draw();
 };
 
@@ -568,6 +590,14 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB = nullptr;
+	CONSTANT_BUFFER2D cb2[2];
+	int sw = 0;
+	//UpLoadカウント
+	int upCount = 0;
+	//初回Up終了
+	bool UpOn = FALSE;
+	//DrawOn
+	bool DrawOn = FALSE;
 
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
@@ -589,14 +619,17 @@ private:
 	DWORD *Allsize;
 	bool CreateTextOn = FALSE;
 
-	CONSTANT_BUFFER2D cb;
 	int  ins_no = 0;
-	bool UpOn = FALSE;
+
+	static std::mutex mtx;
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
 
 	void GetShaderByteCode();
-	void SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
+	void SetConstBf(CONSTANT_BUFFER2D *cb2, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
 	void SetTextParameter(int width, int height, int textCount, TEXTMETRIC **TM, GLYPHMETRICS **GM, BYTE **ptr, DWORD **allsize);
 	void SetText();//DxText classでしか使わない
+	void CbSwap();
 
 public:
 	MY_VERTEX2         *d2varray;  //頂点配列
@@ -617,6 +650,7 @@ public:
 	void InstanceUpdate();
 	void Update(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY);
 	void Update(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY);
+	void DrawOff();
 	void Draw();
 };
 
@@ -656,6 +690,14 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB = nullptr;
+	CONSTANT_BUFFER_P cbP[2];
+	int sw = 0;
+	//UpLoadカウント
+	int upCount = 0;
+	//初回Up終了
+	bool UpOn = FALSE;
+	//DrawOn
+	bool DrawOn = FALSE;
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	D3D12_TEXTURE_COPY_LOCATION dest, src;
@@ -666,7 +708,6 @@ private:
 	//movie_on
 	bool m_on = FALSE;
 	bool texpar_on = FALSE;
-	bool UpOn = FALSE;
 
 	//頂点バッファOBJ
 	std::unique_ptr<VertexView> Vview = nullptr;
@@ -680,8 +721,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_com = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_draw = nullptr;
 
+	static std::mutex mtx;
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
+
 	void GetShaderByteCode();
-	void MatrixMap(UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB, float x, float y, float z, float theta, float size, bool init, float speed, bool tex);
+	void MatrixMap(CONSTANT_BUFFER_P *cb_p, float x, float y, float z, float theta, float size, bool init, float speed, bool tex);
 	void GetVbColarray(int texture_no, float size, float density);
 	void CreateVbObj();
 	void CreatePartsCom();
@@ -689,6 +734,7 @@ private:
 	void DrawParts0();
 	void DrawParts1();
 	void DrawParts2();
+	void CbSwap();
 
 public:
 	ParticleData();
@@ -703,6 +749,7 @@ public:
 	void CreateParticle(int texpar);//パーティクル1個のテクスチャナンバー
 	void CreateBillboard();//ver個の四角形を生成
 	void Update(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
+	void DrawOff();
 	void Draw();
 	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
 	void Update(float size);
@@ -746,7 +793,6 @@ private:
 	ID3DBlob                   *ps = nullptr;
 	bool alpha = FALSE;
 	bool blend = FALSE;
-	bool UpOn = FALSE;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
@@ -755,6 +801,15 @@ private:
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB0 = nullptr;
 	UploadBuffer<SHADER_GLOBAL1> *mObjectCB1 = nullptr;
 	UploadBuffer<SHADER_GLOBAL_BONES> *mObject_BONES = nullptr;
+	CONSTANT_BUFFER cb[2];
+	SHADER_GLOBAL_BONES sgb[2];
+	int sw = 0;
+	//UpLoadカウント
+	int upCount = 0;
+	//初回Up終了
+	bool UpOn = FALSE;
+	//DrawOn
+	bool DrawOn = FALSE;
 
 	std::unique_ptr<VertexView> Vview = nullptr;
 	std::unique_ptr<IndexView[]> Iview = nullptr;
@@ -797,6 +852,10 @@ private:
 	static void CreateManager();
 	static void DeleteManager();
 
+	static std::mutex mtx;
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
+
 	void DestroyFBX();
 	FbxScene* GetScene(int p);
 	int SearchNodeCount(FbxNode *pnode, FbxNodeAttribute::EType SearchType);
@@ -806,11 +865,12 @@ private:
 	void CreateIndexBuffer2(int *pIndex, int IviewInd);
 	HRESULT ReadSkinInfo(MY_VERTEX_S *pvVB);
 	MATRIX GetCurrentPoseMatrix(int index);
-	void MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB);
+	void MatrixMap_Bone(SHADER_GLOBAL_BONES *sbB);
 	void GetTexture();
 	int GetTexNumber(CHAR *fileName);
 	bool SetNewPoseMatrices(float time, int ind);
 	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
+	void CbSwap();
 
 public:
 	SkinMesh();
@@ -832,6 +892,7 @@ public:
 	void CreateFromFBX_SubAnimation(int ind);
 	bool Update(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
 	bool Update(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	void DrawOff();
 	void Draw();
 	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scale);
 };

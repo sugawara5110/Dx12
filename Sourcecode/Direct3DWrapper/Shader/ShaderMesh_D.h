@@ -173,13 +173,16 @@ char *ShaderMesh_D =
 //テクスチャ有の場合
 "   if(g_Tex_f.x == 1.0f)\n"
 "   {\n"
-//ローカル法線の方向にhei分頂点移動
-"      output.Pos.xyz += hei * patch[0].Nor;\n"
+//ローカル法線の方向にhei分頂点移動, ポリゴンが切れるのでパッチの端は移動させない
+"      if(UV.x != 1.0f && UV.x != 0.0f && UV.y != 1.0f && UV.y != 0.0f && UV.z != 1.0f && UV.z != 0.0f)\n"
+"      {\n"
+"         output.Pos.xyz += hei * patch[0].Nor;\n"
+"      }\n"
 //画像から法線計算用ベクトル生成
 "      nor = g_texColor.SampleLevel(g_samLinear, uv, 0) * 2 - 1;\n"
 //画像から生成したベクトルにローカル法線を足し法線ベクトルとする
 "      float3 nor1;\n"
-"      nor1 = nor.xyz + patchL[0].Nor;\n"
+"      nor1 = nor.xyz + patch[0].Nor;\n"
 "      nor.xyz = nor1;\n"
 "   }\n"
 

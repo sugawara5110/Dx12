@@ -139,8 +139,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 1;*/
 			
-			/*
-			savedata.h_pos.cx1 = 150.0f;//ボス前
+			
+			/*savedata.h_pos.cx1 = 150.0f;//ボス前
 			savedata.h_pos.cx2 = 150.0f;
 			savedata.h_pos.cy1 = 1250.0f;
 			savedata.h_pos.cy2 = 1180.0f;
@@ -154,8 +154,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 37;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 2;
-			*/
+			savedata.map_no = 2;*/
+			
 			
 			/*savedata.h_pos.cx1 = 450.0f;//ボス前
 			savedata.h_pos.cx2 = 450.0f;
@@ -175,22 +175,22 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			
 
 			//ラスダン
-			/*savedata.h_pos.cx1 = 1450.0f;//ボス前
+			savedata.h_pos.cx1 = 1450.0f;//ボス前
 			savedata.h_pos.cx2 = 1450.0f;
 			savedata.h_pos.cy1 = 1550.0f;
 			savedata.h_pos.cy2 = 1480.0f;
 			savedata.h_pos.px = 14;
 			savedata.h_pos.py = 15;
 			savedata.h_pos.pz = 6;//ボス前
-			savedata.h_pos.cx1 = 1150.0f;
+			/*savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 2750.0f;
 			savedata.h_pos.cy2 = 2680.0f;
 			savedata.h_pos.px = 11;
 			savedata.h_pos.py = 27;
-			savedata.h_pos.pz = 0;
+			savedata.h_pos.pz = 0;*/
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 4;*/
+			savedata.map_no = 4;
 			
 		}
 		if (select == 1) {
@@ -488,6 +488,7 @@ bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, He
 		break;
 	case CANCEL:
 		MovieSoundManager::Select_sound(FALSE);
+		state.DrawOff();
 		return FALSE;
 	}
 
@@ -562,6 +563,7 @@ void StateMenu::St_Menu(Hero *hero, Directionkey direction) {
 	case CANCEL:
 		MovieSoundManager::Select_sound(FALSE);
 		menu_select = MAIN;
+		state.DrawOff();
 		break;
 	}
 }
@@ -727,9 +729,12 @@ void StateMenu::Re_Menu(Hero *hero, Directionkey direction) {
 		}
 		if (re_select1 != -1) {
 			re_select1 = -1;
+			r_state1.DrawOff();
 			break;
 		}
 		menu_select = MAIN;
+		s_state.DrawOff();
+		r_state.DrawOff();
 		break;
 	}
 
@@ -822,6 +827,8 @@ void StateMenu::Pp_Menu(Hero *hero, Directionkey direction) {
 			break;
 		}
 		menu_select = MAIN;
+		s_state.DrawOff();
+		r_state.DrawOff();
 		break;
 	}
 

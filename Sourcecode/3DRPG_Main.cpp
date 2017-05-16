@@ -18,9 +18,11 @@
 //-------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-	Main main;
-	main.Init(hInstance, nCmdShow);
-	main.Loop();
+	Main *main = Main::GetInstance();
 
-	return (int)main.msg.wParam;
+	main->Init(hInstance, nCmdShow);
+	main->Loop();
+
+	Main::DeleteInstance();
+	return (int)main->msg.wParam;
 }

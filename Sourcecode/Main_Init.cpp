@@ -6,19 +6,47 @@
 
 #include "Main.h"
 
+Main *Main::main = NULL;
+
+Main *Main::GetInstance() {
+
+	if (main != NULL)return main;
+	main = new Main();
+	return main;
+}
+
+void Main::DeleteInstance() {
+
+	if (main != NULL) {
+		delete main;
+		main = NULL;
+	}
+}
+
 void Main::DrawNowLoading(int com_no) {
 	static double i = 300.0;
 	static bool down = TRUE;
 
-	text->SetCommandList(com_no);
 	text->UpDateText(L"ＮｏｗＬｏａｄｉｎｇ・・   ％完了", 185.0f, (float)i, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(InstanceCreate::GetProgress(), 540.0f, (float)i, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
-	text->Draw();
+	text->UpDate();
+	text->Draw(com_no);
 
 	if (down)i += 0.1;
 	if (!down)i -= 0.1;
 	if (i > 320.0)down = FALSE;
 	if (i < 280.0)down = TRUE;
+}
+
+void Main::CreateThreadUpdate() {
+	update_h = (HANDLE*)_beginthreadex(NULL, 0, UpDateThread, NULL, 0, NULL);
+}
+
+void Main::DeleteThreadUpdate() {
+	UpDateThreadLoop = FALSE;
+	WaitForSingleObject(update_h, INFINITE);//スレッドが終了するまで待つ
+	CloseHandle(update_h);                 //ハンドルを閉じる
+	update_h = NULL;
 }
 
 bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
@@ -114,6 +142,8 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	dx->End(0);
 	dx->WaitFenceCurrent();
 
+	//CreateThreadUpdate();
+
 	return TRUE;
 }
 
@@ -123,13 +153,15 @@ void Main::Loop() {
 	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg))break;
+
+		T_float::GetTime(hWnd);
 		UpDate();
+		Draw();
+		ObjDel();
 	}
 }
 
 void Main::UpDate() {
-
-	bool mpDel_f = FALSE;
 
 	static bool Drawtitle = TRUE;
 	static bool titleOn = TRUE;
@@ -155,7 +187,6 @@ void Main::UpDate() {
 	//タイトル表示
 	if (Drawtitle)Drawtitle = statemenu->TitleMenu(control->Direction());
 
-	InstanceCreate::GetInstance_M()->SetCommandList(0);
 	encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
 
 	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
@@ -180,8 +211,6 @@ void Main::UpDate() {
 		break;
 	}
 
-	bool btDel_f = FALSE;
-	static int battleSwitch = 0;
 	static bool posget = FALSE;
 	static bool btLoad[2] = { FALSE };
 	static Position::H_Pos *h_posIn = NULL;
@@ -262,19 +291,24 @@ void Main::UpDate() {
 		break;
 	}
 
-	T_float::GetTime(hWnd);
+	DxText::GetInstance()->UpDate();
+}
 
+void Main::Draw() {
 	dx->Bigin(0);
 	dx->Sclear(0);
+	InstanceCreate::GetInstance_M()->SetCommandList(0);
 	InstanceCreate::GetInstance_M()->MapDraw();
-	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw();
-	for (int i = 0; i < 4; i++)hero[i].Draw();
+	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw(encount);
+	for (int i = 0; i < 4; i++)hero[i].Draw(encount, ending);
 	statemenu->Draw();
-	DxText::GetInstance()->Draw();
+	DxText::GetInstance()->Draw(0);
 	dx->End(0);
 	dx->WaitFencePast();
 	dx->DrawScreen();
+}
 
+void Main::ObjDel() {
 	//battle削除(コマンドリストClose後に削除)
 	if (btDel_f) {
 		InstanceCreate::BattleDelete();
@@ -288,6 +322,7 @@ void Main::UpDate() {
 }
 
 Main::~Main() {
+	//DeleteThreadUpdate();
 	Control::DeleteInstance();
 	S_DELETE(statemenu);
 	MovieSoundManager::ObjDelete();
@@ -297,4 +332,11 @@ Main::~Main() {
 	S_DELETE(ending);
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
+}
+
+unsigned __stdcall UpDateThread(void *) {
+	while (Main::GetInstance()->UpDateThreadLoop) {
+		Main::GetInstance()->UpDate();
+	}
+	return 0;
 }

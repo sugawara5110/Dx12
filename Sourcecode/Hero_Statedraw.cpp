@@ -34,6 +34,10 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 		dx->PointLightPosSet(0, v3.x + x, v3.y + y, v3.z + z, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, TRUE);
 		torchFlame->Update(v3.x + x, v3.y + y, v3.z + z, r, g, b, theta, 0.0f);
 	}
+	else {
+		torchWood->DrawOff();
+		torchFlame->DrawOff();
+	}
 }
 
 Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun) {
@@ -132,6 +136,7 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 			magicAttOn = FALSE;
 			if (H_Magrun == NOSEL) {
 				act_f = NORMAL;
+				mag.DrawOff();
 				return AT_FIN;
 			}
 			effect_f = TRUE;
@@ -140,6 +145,7 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 			if (EffectUpdate(battle, select_obj, h_pos, e_pos) == FALSE) {
 				effect_f = FALSE;
 				act_f = NORMAL;
+				mag.DrawOff();
 				return AT_FIN;
 			}
 		}
@@ -240,16 +246,33 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 	return NOT_FIN;
 }
 
-void Hero::Draw() {
-	p_att->Draw();
-	state.Draw();
-	meter.Draw();
-	mag.Draw();
-	for (int i = 0; i < 4; i++)effect[i].Draw();
-	if (torchWood) {
-		torchWood->Draw();
-		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
-		torchFlame->Draw();
+void Hero::Draw(Encount enc, bool ending) {
+	if (ending) {
+		p_att->DrawOff();
+		return;
+	}
+	if (enc == NOENCOUNT) {
+		if (o_no == 0)p_att->Draw(); else {
+			p_att->DrawOff();
+		}
+		if (torchWood) {//o_no==0ˆÈŠO‚ÍNULL‚É‚È‚Á‚Ä‚é
+			torchWood->Draw();
+			torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
+			torchFlame->Draw();
+		}
+		state.DrawOff();
+		meter.DrawOff();
+	}
+	else {
+		p_att->Draw();
+		state.Draw();
+		meter.Draw();
+		mag.Draw();
+		for (int i = 0; i < 4; i++)effect[i].Draw();
+		if (torchWood) {
+			torchWood->DrawOff();
+			torchFlame->DrawOff();
+		}
 	}
 }
 

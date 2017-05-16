@@ -6,6 +6,8 @@
 
 #include "Dx12Process.h"
 
+std::mutex PolygonData2D::mtx;
+
 void PolygonData2D::Pos2DCompute(VECTOR3 *p){
 	MATRIX VP, VP_VP;
 	//入力3D座標から変換行列取得
@@ -44,18 +46,17 @@ void PolygonData2D::InstancedSetConstBf(float x, float y, float r, float g, floa
 
 void PolygonData2D::InstancedSetConstBf(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
 
-	cb.Pos[ins_no].as(x, y, z, 0.0f);
-	cb.Color[ins_no].as(r, g, b, a);
-	cb.sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
+	cb2[sw].Pos[ins_no].as(x, y, z, 0.0f);
+	cb2[sw].Color[ins_no].as(r, g, b, a);
+	cb2[sw].sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
 	ins_no++;
 }
 
-void PolygonData2D::SetConstBf(UploadBuffer<CONSTANT_BUFFER2D> *mObjectCB, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
+void PolygonData2D::SetConstBf(CONSTANT_BUFFER2D *cb, float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
 
-	cb.Pos[ins_no].as(x, y, z, 0.0f);
-	cb.Color[ins_no].as(r, g, b, a);
-	cb.sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
-	mObjectCB->CopyData(0, cb);
+	cb->Pos[ins_no].as(x, y, z, 0.0f);
+	cb->Color[ins_no].as(r, g, b, a);
+	cb->sizeXY[ins_no].as(sizeX, sizeY, 0.0f, 0.0f);
 	ins_no++;
 }
 
@@ -382,9 +383,19 @@ void PolygonData2D::Create(bool blend, bool alpha) {
 	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
 }
 
+void PolygonData2D::CbSwap() {
+	Lock();
+	if (!UpOn) {
+		upCount++;
+		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
+	}
+	sw = 1 - sw;//cbスワップ
+	Unlock();
+	DrawOn = TRUE;
+}
+
 void PolygonData2D::InstanceUpdate() {
-	mObjectCB->CopyData(0, cb);
-	UpOn = TRUE;
+	CbSwap();
 }
 
 void PolygonData2D::Update(float x, float y, float r, float g, float b, float a, float sizeX, float sizeY) {
@@ -392,13 +403,21 @@ void PolygonData2D::Update(float x, float y, float r, float g, float b, float a,
 }
 
 void PolygonData2D::Update(float x, float y, float z, float r, float g, float b, float a, float sizeX, float sizeY) {
-	SetConstBf(mObjectCB, x, y, z, r, g, b, a, sizeX, sizeY);
-	UpOn = TRUE;
+	SetConstBf(&cb2[sw], x, y, z, r, g, b, a, sizeX, sizeY);
+	CbSwap();
+}
+
+void PolygonData2D::DrawOff() {
+	DrawOn = FALSE;
 }
 
 void PolygonData2D::Draw() {
 
-	if (!UpOn)return;//アップデート無い場合描画処理しない
+	if (!UpOn | !DrawOn)return;
+
+	Lock();
+	mObjectCB->CopyData(0, cb2[1 - sw]);
+	Unlock();
 
 	mCommandList->SetPipelineState(mPSO.Get());
 
@@ -433,7 +452,6 @@ void PolygonData2D::Draw() {
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	ins_no = 0;
-	UpOn = FALSE;
 }
 
 

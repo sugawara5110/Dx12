@@ -34,7 +34,6 @@ private:
 	DxText *text;
 	T_float tfloat;
 	Position::mapxy mxy;
-	bool UpOn = FALSE;
 
 	struct LightPos{
 		float x, y, z;

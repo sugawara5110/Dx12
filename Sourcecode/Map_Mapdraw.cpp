@@ -217,14 +217,10 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 
 	MapText(m_tx);
 
-	UpOn = TRUE;
-
 	return encount;
 }
 
 void Map::MapDraw() {
-
-	if (!UpOn)return;
 
 	poGroundM.Draw();
 	poCeilingM.Draw();
@@ -250,8 +246,6 @@ void Map::MapDraw() {
 		poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256), 0xff, 0xff, 0xff, 255);
 		poF_Wall.Draw();
 	}
-
-	UpOn = FALSE;
 }
 
 void Map::HeroUpdate(bool mf) {

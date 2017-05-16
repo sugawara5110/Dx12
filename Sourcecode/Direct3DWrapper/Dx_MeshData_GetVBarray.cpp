@@ -6,6 +6,8 @@
 
 #include "Dx12Process.h"
 
+std::mutex MeshData::mtx;
+
 MeshData::MeshData() {
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
@@ -108,7 +110,7 @@ void MeshData::SetState(bool al, bool bl, bool di) {
 	disp = di;
 	if (disp) {
 		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
-		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST;
+		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
 	}
 	else {
 		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -458,26 +460,45 @@ void MeshData::GetTexture() {
 }
 
 void MeshData::InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size) {
-	dx->InstancedMap(x, y, z, thetaZ, thetaY, thetaX, size);
+	dx->InstancedMap(&cb[sw], x, y, z, thetaZ, thetaY, thetaX, size);
+}
+
+void MeshData::CbSwap() {
+	Lock();
+	if (!UpOn) {
+		upCount++;
+		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
+	}
+	sw = 1 - sw;//cbスワップ
+	Unlock();
+	DrawOn = TRUE;
 }
 
 void MeshData::InstanceUpdate(float r, float g, float b, float disp) {
-	dx->MatrixMap2(mObjectCB, r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+	dx->MatrixMap2(&cb[sw], r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 	insNum = dx->ins_no;
 	dx->ins_no = 0;
-	UpOn = TRUE;
+	CbSwap();
 }
 
 void MeshData::Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
-	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 	insNum = dx->ins_no;
 	dx->ins_no = 0;
-	UpOn = TRUE;
+	CbSwap();
+}
+
+void MeshData::DrawOff() {
+	DrawOn = FALSE;
 }
 
 void MeshData::Draw() {
 
-	if (!UpOn)return;//アップデート無い場合描画処理しない
+	if (!UpOn | !DrawOn)return;
+
+	Lock();
+	mObjectCB->CopyData(0, cb[1 - sw]);
+	Unlock();
 
 	mCommandList->SetPipelineState(mPSO.Get());
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
@@ -517,6 +538,4 @@ void MeshData::Draw() {
 
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	UpOn = FALSE;
 }

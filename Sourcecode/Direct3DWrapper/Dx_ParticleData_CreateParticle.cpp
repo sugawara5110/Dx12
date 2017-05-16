@@ -6,6 +6,8 @@
 
 #include "Dx12Process.h"
 
+std::mutex ParticleData::mtx;
+
 ParticleData::ParticleData() {
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
@@ -36,24 +38,22 @@ void ParticleData::GetShaderByteCode() {
 	ps = dx->pPixelShader_P.Get();
 }
 
-void ParticleData::MatrixMap(UploadBuffer<CONSTANT_BUFFER_P> *mObjectCB, float x, float y, float z, float theta, float size, bool init, float speed, bool tex) {
+void ParticleData::MatrixMap(CONSTANT_BUFFER_P *cb, float x, float y, float z, float theta, float size, bool init, float speed, bool tex) {
 	MATRIX mov;
 	MATRIX rot;
 	MATRIX world;
-	CONSTANT_BUFFER_P cb;
 
 	MatrixRotationZ(&rot, theta);
 	MatrixTranslation(&mov, x, y, z);
 	MatrixMultiply(&world, &rot, &mov);
-	MatrixMultiply(&cb.WV, &world, &dx->mView);
-	cb.Proj = dx->mProj;
-	MatrixTranspose(&cb.WV);
-	MatrixTranspose(&cb.Proj);
-	cb.size.x = size;
-	if (init)cb.size.y = 1.0f; else cb.size.y = 0.0f;
-	cb.size.z = speed;
-	if (tex)cb.size.w = 1.0f; else cb.size.w = 0.0f;
-	mObjectCB->CopyData(0, cb);
+	MatrixMultiply(&cb->WV, &world, &dx->mView);
+	cb->Proj = dx->mProj;
+	MatrixTranspose(&cb->WV);
+	MatrixTranspose(&cb->Proj);
+	cb->size.x = size;
+	if (init)cb->size.y = 1.0f; else cb->size.y = 0.0f;
+	cb->size.z = speed;
+	if (tex)cb->size.w = 1.0f; else cb->size.w = 0.0f;
 }
 
 void ParticleData::GetVbColarray(int texture_no, float size, float density) {
@@ -395,6 +395,17 @@ void ParticleData::DrawParts2() {
 	mCommandList->DrawInstanced(ver, 1, 0, 0);
 }
 
+void ParticleData::CbSwap() {
+	Lock();
+	if (!UpOn) {
+		upCount++;
+		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
+	}
+	sw = 1 - sw;//cbスワップ
+	Unlock();
+	DrawOn = TRUE;
+}
+
 void ParticleData::Update(float x, float y, float z, float theta, float size, bool init, float speed) {
 	//一回のinit == TRUE で二つのstreamOutを初期化
 	if (init == TRUE) { streamInitcount = 1; }
@@ -402,13 +413,22 @@ void ParticleData::Update(float x, float y, float z, float theta, float size, bo
 		if (streamInitcount > 2) { streamInitcount = 0; }
 		if (streamInitcount != 0) { init = TRUE; streamInitcount++; }
 	}
-	MatrixMap(mObjectCB, x, y, z, theta, size, init, speed, texpar_on | m_on);
-	UpOn = TRUE;
+	MatrixMap(&cbP[sw], x, y, z, theta, size, init, speed, texpar_on | m_on);
+	CbSwap();
+}
+
+void ParticleData::DrawOff() {
+	DrawOn = FALSE;
 }
 
 void ParticleData::Draw() {
 
-	if (!UpOn)return;//アップデート無い場合描画処理しない
+	if (!UpOn | !DrawOn)return;
+
+	Lock();
+	mObjectCB->CopyData(0, cbP[1 - sw]);
+	Unlock();
+
 	DrawParts0();
 	DrawParts1();
 	if (firstDraw)DrawParts2();
@@ -416,23 +436,26 @@ void ParticleData::Draw() {
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	firstDraw = TRUE;
-	UpOn = FALSE;
 }
 
 void ParticleData::Update(float size) {
-	MatrixMap(mObjectCB, 0, 0, 0, 0, size, TRUE, 1.0f, texpar_on | m_on);
-	UpOn = TRUE;
+	MatrixMap(&cbP[sw], 0, 0, 0, 0, size, TRUE, 1.0f, texpar_on | m_on);
+	CbSwap();
 }
 
 void ParticleData::DrawBillboard() {
 
-	if (!UpOn)return;//アップデート無い場合描画処理しない
+	if (!UpOn | !DrawOn)return;
+
+	Lock();
+	mObjectCB->CopyData(0, cbP[1 - sw]);
+	Unlock();
+
 	DrawParts0();
 	DrawParts2();
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-	UpOn = FALSE;
 }
 
 void ParticleData::TextureInit(int width, int height) {

@@ -7,6 +7,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Dx12Process.h"
 
+std::mutex PolygonData::mtx;
+
 PolygonData::PolygonData() {
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
@@ -389,26 +391,37 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 }
 
 void PolygonData::InstancedMap(float x, float y, float z, float theta) {
-	dx->InstancedMap(x, y, z, theta, 0, 0, 1.0f);
+	dx->InstancedMap(&cb[sw], x, y, z, theta, 0, 0, 1.0f);
 }
 
 void PolygonData::InstancedMap(float x, float y, float z, float theta, float size) {
-	dx->InstancedMap(x, y, z, theta, 0, 0, size);
+	dx->InstancedMap(&cb[sw], x, y, z, theta, 0, 0, size);
 }
 
 void PolygonData::InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ) {
-	dx->InstancedMapSize3(x, y, z, theta, 0, 0, sizeX, sizeY, sizeZ);
+	dx->InstancedMapSize3(&cb[sw], x, y, z, theta, 0, 0, sizeX, sizeY, sizeZ);
 }
 
 void PolygonData::InstanceUpdate(float r, float g, float b, float disp) {
 	InstanceUpdate(r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
+void PolygonData::CbSwap() {
+	Lock();
+	if (!UpOn) {
+		upCount++;
+		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
+	}
+	sw = 1 - sw;//cbスワップ
+	Unlock();
+	DrawOn = TRUE;
+}
+
 void PolygonData::InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my) {
-	dx->MatrixMap2(mObjectCB, r, g, b, disp, px, py, mx, my);
+	dx->MatrixMap2(&cb[sw], r, g, b, disp, px, py, mx, my);
 	insNum = dx->ins_no;
 	dx->ins_no = 0;
-	UpOn = TRUE;
+	CbSwap();
 }
 
 void PolygonData::Update(float x, float y, float z, float r, float g, float b, float theta, float disp) {
@@ -420,15 +433,23 @@ void  PolygonData::Update(float x, float y, float z, float r, float g, float b, 
 }
 
 void PolygonData::Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my) {
-	dx->MatrixMap(mObjectCB, x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
 	insNum = dx->ins_no;
 	dx->ins_no = 0;
-	UpOn = TRUE;
+	CbSwap();
+}
+
+void PolygonData::DrawOff() {
+	DrawOn = FALSE;
 }
 
 void PolygonData::Draw() {
 
-	if (!UpOn)return;//アップデート無い場合描画処理しない
+	if (!UpOn | !DrawOn)return;
+
+	Lock();
+	mObjectCB->CopyData(0, cb[1 - sw]);
+	Unlock();
 
 	mCommandList->SetPipelineState(mPSO.Get());
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
@@ -461,6 +482,4 @@ void PolygonData::Draw() {
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	UpOn = FALSE;
 }

@@ -54,7 +54,6 @@ void Dx12Process_sub::End() {
 }
 
 Dx12Process *Dx12Process::dx = NULL;
-std::mutex Dx12Process::mtx;
 
 void Dx12Process::InstanceCreate() {
 
@@ -730,16 +729,17 @@ ComPtr<ID3DBlob> Dx12Process::CompileShader(LPSTR szFileName, size_t size, LPSTR
 	hr = D3DCompile(szFileName, size, NULL, NULL, NULL, szFuncName, szProfileName,
 		D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION, 0, &byteCode, &errors);
 
-	//エラー処理をどうするか
+	if (errors != nullptr)
+		OutputDebugStringA((char*)errors->GetBufferPointer());
 
 	return byteCode;
 }
 
-void  Dx12Process::InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size) {
-	InstancedMapSize3(x, y, z, thetaZ, thetaY, thetaX, size, size, size);
+void  Dx12Process::InstancedMap(CONSTANT_BUFFER *cb, float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size) {
+	InstancedMapSize3(cb, x, y, z, thetaZ, thetaY, thetaX, size, size, size);
 }
 
-void Dx12Process::InstancedMapSize3(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ) {
+void Dx12Process::InstancedMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ) {
 
 	if (ins_no > INSTANCE_PCS_3D - 1)ins_no--;
 	MATRIX mov;
@@ -762,41 +762,40 @@ void Dx12Process::InstancedMapSize3(float x, float y, float z, float thetaZ, flo
 	MatrixMultiply(&world, &scro, &mov);
 
 	//ワールド、カメラ、射影行列、等
-	cb.World[ins_no] = world;
+	cb->World[ins_no] = world;
 	MatrixMultiply(&WV, &world, &mView);
-	MatrixMultiply(&cb.WVP[ins_no], &WV, &mProj);
-	MatrixTranspose(&cb.World[ins_no]);
-	MatrixTranspose(&cb.WVP[ins_no]);
+	MatrixMultiply(&cb->WVP[ins_no], &WV, &mProj);
+	MatrixTranspose(&cb->World[ins_no]);
+	MatrixTranspose(&cb->WVP[ins_no]);
 	ins_no++;
 }
 
-void Dx12Process::MatrixMap2(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float r, float g, float b, float disp, float px, float py, float mx, float my) {
+void Dx12Process::MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, float disp, float px, float py, float mx, float my) {
 
-	cb.C_Pos.as(posX, posY, posZ, 0.0f);
-	cb.AddObjColor.as(r, g, b, 0.0f);
-	cb.pShadowLow_Lpcs.as(plight.ShadowLow_val, (float)plight.LightPcs, 0.0f, 0.0f);
-	memcpy(cb.pLightPos, plight.LightPos, sizeof(VECTOR4) * LIGHT_PCS);
-	memcpy(cb.pLightColor, plight.LightColor, sizeof(VECTOR4) * LIGHT_PCS);
-	memcpy(cb.pLightst, plight.Lightst, sizeof(VECTOR4) * LIGHT_PCS);
-	cb.dDirection = dlight.Direction;
-	cb.dLightColor = dlight.LightColor;
-	cb.dLightst = dlight.Lightst;
-	cb.FogAmo_Density.as(fog.Amount, fog.Density, fog.on_off, 0.0f);
-	cb.FogColor = fog.FogColor;
+	cb->C_Pos.as(posX, posY, posZ, 0.0f);
+	cb->AddObjColor.as(r, g, b, 0.0f);
+	cb->pShadowLow_Lpcs.as(plight.ShadowLow_val, (float)plight.LightPcs, 0.0f, 0.0f);
+	memcpy(cb->pLightPos, plight.LightPos, sizeof(VECTOR4) * LIGHT_PCS);
+	memcpy(cb->pLightColor, plight.LightColor, sizeof(VECTOR4) * LIGHT_PCS);
+	memcpy(cb->pLightst, plight.Lightst, sizeof(VECTOR4) * LIGHT_PCS);
+	cb->dDirection = dlight.Direction;
+	cb->dLightColor = dlight.LightColor;
+	cb->dLightst = dlight.Lightst;
+	cb->FogAmo_Density.as(fog.Amount, fog.Density, fog.on_off, 0.0f);
+	cb->FogColor = fog.FogColor;
 	if (disp == 0.0f)disp = 3.0f;
-	cb.DispAmount.as(disp, 0.0f, 0.0f, 0.0f);
-	cb.pXpYmXmY.as(px, py, mx, my);
-	mObjectCB->CopyData(0, cb);
+	cb->DispAmount.as(disp, 0.0f, 0.0f, 0.0f);
+	cb->pXpYmXmY.as(px, py, mx, my);
 }
 
-void Dx12Process::MatrixMap(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+void Dx12Process::MatrixMap(CONSTANT_BUFFER *cb, float x, float y, float z,
 	float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my) {
 
-	MatrixMapSize3(mObjectCB, x, y, z, r, g, b, thetaZ, thetaY, thetaX,
+	MatrixMapSize3(cb, x, y, z, r, g, b, thetaZ, thetaY, thetaX,
 		size, size, size, disp, px, py, mx, my);
 }
 
-void Dx12Process::MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float x, float y, float z,
+void Dx12Process::MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
 	float r, float g, float b, float thetaZ, float thetaY, float thetaX,
 	float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my) {
 
@@ -820,12 +819,12 @@ void Dx12Process::MatrixMapSize3(UploadBuffer<CONSTANT_BUFFER> *mObjectCB, float
 	MatrixMultiply(&scro, &rotZYX, &scale);
 	MatrixMultiply(&world, &scro, &mov);
 
-	cb.World[ins_no] = world;
+	cb->World[ins_no] = world;
 	MatrixMultiply(&WV, &world, &mView);
-	MatrixMultiply(&cb.WVP[ins_no], &WV, &mProj);
-	MatrixTranspose(&cb.World[ins_no]);
-	MatrixTranspose(&cb.WVP[ins_no]);
-	MatrixMap2(mObjectCB, r, g, b, disp, px, py, mx, my);
+	MatrixMultiply(&cb->WVP[ins_no], &WV, &mProj);
+	MatrixTranspose(&cb->World[ins_no]);
+	MatrixTranspose(&cb->WVP[ins_no]);
+	MatrixMap2(cb, r, g, b, disp, px, py, mx, my);
 	ins_no++;
 }
 

@@ -271,6 +271,7 @@ Encount Map::Move(MapState *mapstate, Directionkey direction) {
 	//ボスポイント到達
 	if (mxy.m[POS_CE] == 51 && boss_p_f == FALSE) {
 		boss_p_f = TRUE;//何度もreturn BOSS出さない
+		poBoss.DrawOff();
 		return BOSS;
 	}
 	else if (mxy.m[POS_CE] != 51)boss_p_f = FALSE;//ボスポイント離れたらFALSEにする

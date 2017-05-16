@@ -84,9 +84,9 @@ public:
 	static bool CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no);
 };
 
-#endif
-
 unsigned __stdcall ResourceLoading(void *);
 unsigned __stdcall InstanceLoadingHero(void *);
 unsigned __stdcall InstanceLoadingBattle(void *);
 unsigned __stdcall InstanceLoadingMap(void *);
+
+#endif

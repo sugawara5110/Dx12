@@ -15,6 +15,8 @@
 
 using namespace std;
 
+mutex SkinMesh::mtx;
+
 volatile bool SkinMesh::stInitFBX_ON = FALSE;
 volatile bool SkinMesh::stSetNewPose_ON = FALSE;
 
@@ -883,15 +885,14 @@ VECTOR3 SkinMesh::GetVertexPosition(int verNum, float adjustZ, float adjustY, fl
 	return ret;
 }
 
-void SkinMesh::MatrixMap_Bone(UploadBuffer<SHADER_GLOBAL_BONES> *CB) {
-	SHADER_GLOBAL_BONES sg;
+void SkinMesh::MatrixMap_Bone(SHADER_GLOBAL_BONES *sgb) {
+
 	for (int i = 0; i < m_iNumBone; i++)
 	{
 		MATRIX mat = GetCurrentPoseMatrix(i);
 		MatrixTranspose(&mat);
-		sg.mBone[i] = mat;
+		sgb->mBone[i] = mat;
 	}
-	CB->CopyData(0, sg);
 }
 
 void SkinMesh::GetTexture() {
@@ -927,7 +928,16 @@ int SkinMesh::GetTexNumber(CHAR *fileName) {
 	return -1;
 }
 
-
+void SkinMesh::CbSwap() {
+	Lock();
+	if (!UpOn) {
+		upCount++;
+		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
+	}
+	sw = 1 - sw;//cbスワップ
+	Unlock();
+	DrawOn = TRUE;
+}
 
 bool SkinMesh::Update(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
 	return Update(0, time, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size);
@@ -936,18 +946,27 @@ bool SkinMesh::Update(float time, float x, float y, float z, float r, float g, f
 bool SkinMesh::Update(int ind, float ti, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size) {
 
 	bool frame_end = FALSE;
-	dx->MatrixMap(mObjectCB0, x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (ti != -1.0f)frame_end = SetNewPoseMatrices(ti, ind);
-	MatrixMap_Bone(mObject_BONES);
+	MatrixMap_Bone(&sgb[sw]);
 
 	dx->ins_no = 0;
-	UpOn = TRUE;
+	CbSwap();
 	return frame_end;
+}
+
+void SkinMesh::DrawOff() {
+	DrawOn = FALSE;
 }
 
 void SkinMesh::Draw() {
 
-	if (!UpOn)return;//アップデート無い場合描画処理しない
+	if (!UpOn | !DrawOn)return;
+
+	Lock();
+	mObjectCB0->CopyData(0, cb[1 - sw]);
+	mObject_BONES->CopyData(0, sgb[1 - sw]);
+	Unlock();
 
 	mCommandList->SetPipelineState(mPSO.Get());
 	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
@@ -992,8 +1011,6 @@ void SkinMesh::Draw() {
 
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	UpOn = FALSE;
 }
 
 
