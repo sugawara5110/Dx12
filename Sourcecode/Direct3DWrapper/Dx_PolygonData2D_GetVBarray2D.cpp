@@ -390,6 +390,8 @@ void PolygonData2D::CbSwap() {
 		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
 	}
 	sw = 1 - sw;//cbスワップ
+	insNum = ins_no;
+	ins_no = 0;
 	Unlock();
 	DrawOn = TRUE;
 }
@@ -446,12 +448,11 @@ void PolygonData2D::Draw() {
 	mCommandList->SetGraphicsRootDescriptorTable(0, mSrvHeap->GetGPUDescriptorHandleForHeapStart());
 	mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
 
-	mCommandList->DrawIndexedInstanced(Iview->IndexCount, ins_no, 0, 0, 0);
+	mCommandList->DrawIndexedInstanced(Iview->IndexCount, insNum, 0, 0, 0);
 
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-	ins_no = 0;
 }
 
 

@@ -470,21 +470,19 @@ void MeshData::CbSwap() {
 		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
 	}
 	sw = 1 - sw;//cbスワップ
+	insNum = dx->ins_no;
+	dx->ins_no = 0;
 	Unlock();
 	DrawOn = TRUE;
 }
 
 void MeshData::InstanceUpdate(float r, float g, float b, float disp) {
 	dx->MatrixMap2(&cb[sw], r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
-	insNum = dx->ins_no;
-	dx->ins_no = 0;
 	CbSwap();
 }
 
 void MeshData::Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
 	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
-	insNum = dx->ins_no;
-	dx->ins_no = 0;
 	CbSwap();
 }
 

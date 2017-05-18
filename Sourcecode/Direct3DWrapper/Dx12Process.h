@@ -175,6 +175,7 @@ private:
 	ID3D12Resource *textureUp[TEX_PCS] = { 0 };
 
 	static Dx12Process *dx;//クラス内でオブジェクト生成し使いまわす
+	static std::mutex mtx;
 
 	MATRIX      mProj;
 	MATRIX      mView;
@@ -228,6 +229,9 @@ public:
 	static void InstanceCreate();
 	static Dx12Process *GetInstance();
 	static void DeleteInstance();
+
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
 
 	bool Initialize(HWND hWnd);
 	void TextureGetBuffer(char *Bpass, int i);
@@ -620,6 +624,7 @@ private:
 	bool CreateTextOn = FALSE;
 
 	int  ins_no = 0;
+	int  insNum = 0;//Drawで読み込み用
 
 	static std::mutex mtx;
 	static void Lock() { mtx.lock(); }
@@ -661,9 +666,11 @@ private:
 	static DWORD time_fps;//FPS計測用
 	static int frame;    //FPS計測使用
 	static char str[50];//ウインドウ枠文字表示使用
+	static float adj;
 
 public:
 	static void GetTime(HWND hWnd);//常に実行
+	static void AddAdjust(float ad);//1.0fが標準
 	float Add(float f);
 };
 
@@ -717,6 +724,7 @@ private:
 	int svInd = 0;
 	bool firstDraw = FALSE;
 	int  streamInitcount = 0;
+	bool parInit = FALSE;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_com = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_draw = nullptr;
@@ -726,7 +734,8 @@ private:
 	static void Unlock() { mtx.unlock(); }
 
 	void GetShaderByteCode();
-	void MatrixMap(CONSTANT_BUFFER_P *cb_p, float x, float y, float z, float theta, float size, bool init, float speed, bool tex);
+	void MatrixMap(CONSTANT_BUFFER_P *cb_p, float x, float y, float z, float theta, float size, float speed, bool tex);
+	void MatrixMap2(CONSTANT_BUFFER_P *cb_p, bool init);
 	void GetVbColarray(int texture_no, float size, float density);
 	void CreateVbObj();
 	void CreatePartsCom();
@@ -784,7 +793,7 @@ private:
 	static FbxManager *m_pSdkManager;
 	static FbxImporter *m_pImporter;
 	//InitFBX排他処理用
-	static volatile bool stInitFBX_ON, stSetNewPose_ON;//並列読み込みに後で改造する時やり方変える
+	static volatile bool stInitFBX_ON, stSetNewPose_ON;
 
 	Dx12Process                *dx;
 	ID3D12GraphicsCommandList  *mCommandList;

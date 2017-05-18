@@ -77,6 +77,7 @@ CommandSelect Battle::Menu_main(Hero *hero, int i, Directionkey direction) {
 		break;
 	case ENTER:
 		MovieSoundManager::Enter_sound(FALSE);
+		command.DrawOff();
 		switch (h_draw[i].M_select) {
 		case 0:
 			return ATT;

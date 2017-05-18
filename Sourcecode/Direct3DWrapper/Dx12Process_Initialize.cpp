@@ -54,6 +54,7 @@ void Dx12Process_sub::End() {
 }
 
 Dx12Process *Dx12Process::dx = NULL;
+std::mutex Dx12Process::mtx;
 
 void Dx12Process::InstanceCreate() {
 
@@ -928,6 +929,7 @@ DWORD T_float::time = 0;
 DWORD T_float::time_fps = 0;//FPS計測用
 int T_float::frame = 0;     //FPS計測使用
 char T_float::str[50];     //ウインドウ枠文字表示使用
+float T_float::adj = 1.0f;
 
 void T_float::GetTime(HWND hWnd) {
 	time = timeGetTime() - f;
@@ -947,9 +949,14 @@ void T_float::GetTime(HWND hWnd) {
 	}
 }
 
+void T_float::AddAdjust(float ad) {
+	adj = ad;
+}
+
 float T_float::Add(float f) {
-	float r = ((float)time * f) / 2.0f;
+	float r = ((float)time * f) / 2.0f * adj;
 	if (r <= 0.0f)return 0.01f;
+	if (r >= 1000000.0f)return 1000000.0f;
 	return r;
 }
 

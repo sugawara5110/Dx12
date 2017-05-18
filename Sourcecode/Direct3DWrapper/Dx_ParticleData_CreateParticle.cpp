@@ -38,7 +38,7 @@ void ParticleData::GetShaderByteCode() {
 	ps = dx->pPixelShader_P.Get();
 }
 
-void ParticleData::MatrixMap(CONSTANT_BUFFER_P *cb, float x, float y, float z, float theta, float size, bool init, float speed, bool tex) {
+void ParticleData::MatrixMap(CONSTANT_BUFFER_P *cb, float x, float y, float z, float theta, float size, float speed, bool tex) {
 	MATRIX mov;
 	MATRIX rot;
 	MATRIX world;
@@ -51,9 +51,12 @@ void ParticleData::MatrixMap(CONSTANT_BUFFER_P *cb, float x, float y, float z, f
 	MatrixTranspose(&cb->WV);
 	MatrixTranspose(&cb->Proj);
 	cb->size.x = size;
-	if (init)cb->size.y = 1.0f; else cb->size.y = 0.0f;
 	cb->size.z = speed;
 	if (tex)cb->size.w = 1.0f; else cb->size.w = 0.0f;
+}
+
+void ParticleData::MatrixMap2(CONSTANT_BUFFER_P *cb, bool init) {
+	if (init)cb->size.y = 1.0f; else cb->size.y = 0.0f;
 }
 
 void ParticleData::GetVbColarray(int texture_no, float size, float density) {
@@ -407,13 +410,8 @@ void ParticleData::CbSwap() {
 }
 
 void ParticleData::Update(float x, float y, float z, float theta, float size, bool init, float speed) {
-	//ˆê‰ñ‚Ìinit == TRUE ‚Å“ñ‚Â‚ÌstreamOut‚ð‰Šú‰»
-	if (init == TRUE) { streamInitcount = 1; }
-	else {
-		if (streamInitcount > 2) { streamInitcount = 0; }
-		if (streamInitcount != 0) { init = TRUE; streamInitcount++; }
-	}
-	MatrixMap(&cbP[sw], x, y, z, theta, size, init, speed, texpar_on | m_on);
+	parInit = init;
+	MatrixMap(&cbP[sw], x, y, z, theta, size, speed, texpar_on | m_on);
 	CbSwap();
 }
 
@@ -425,7 +423,15 @@ void ParticleData::Draw() {
 
 	if (!UpOn | !DrawOn)return;
 
+	bool init = parInit;
+	//ˆê‰ñ‚Ìinit == TRUE ‚Å“ñ‚Â‚ÌstreamOut‚ð‰Šú‰»
+	if (init == TRUE) { streamInitcount = 1; }
+	else {
+		if (streamInitcount > 2) { streamInitcount = 0; }
+		if (streamInitcount != 0) { init = TRUE; streamInitcount++; }
+	}
 	Lock();
+	MatrixMap2(&cbP[1 - sw], init);
 	mObjectCB->CopyData(0, cbP[1 - sw]);
 	Unlock();
 
@@ -439,7 +445,7 @@ void ParticleData::Draw() {
 }
 
 void ParticleData::Update(float size) {
-	MatrixMap(&cbP[sw], 0, 0, 0, 0, size, TRUE, 1.0f, texpar_on | m_on);
+	MatrixMap(&cbP[sw], 0, 0, 0, 0, size, 1.0f, texpar_on | m_on);
 	CbSwap();
 }
 
@@ -448,6 +454,7 @@ void ParticleData::DrawBillboard() {
 	if (!UpOn | !DrawOn)return;
 
 	Lock();
+	MatrixMap2(&cbP[1 - sw], TRUE);
 	mObjectCB->CopyData(0, cbP[1 - sw]);
 	Unlock();
 

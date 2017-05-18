@@ -192,7 +192,10 @@ FbxScene *SkinMesh::GetScene(int p) {
 }
 
 void SkinMesh::DestroyFBX() {
+	stInitFBX_ON = TRUE;
+	while (stSetNewPose_ON);//アニメーション中の場合終了まで待つ
 	ARR_DELETE(fbx);
+	stInitFBX_ON = FALSE;
 }
 
 HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
@@ -935,6 +938,7 @@ void SkinMesh::CbSwap() {
 		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
 	}
 	sw = 1 - sw;//cbスワップ
+	dx->ins_no = 0;
 	Unlock();
 	DrawOn = TRUE;
 }
@@ -949,8 +953,6 @@ bool SkinMesh::Update(int ind, float ti, float x, float y, float z, float r, flo
 	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (ti != -1.0f)frame_end = SetNewPoseMatrices(ti, ind);
 	MatrixMap_Bone(&sgb[sw]);
-
-	dx->ins_no = 0;
 	CbSwap();
 	return frame_end;
 }

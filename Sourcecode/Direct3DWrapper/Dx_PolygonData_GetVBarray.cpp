@@ -413,14 +413,14 @@ void PolygonData::CbSwap() {
 		if (upCount > 1)UpOn = TRUE;//cb,2要素初回更新終了
 	}
 	sw = 1 - sw;//cbスワップ
+	insNum = dx->ins_no;
+	dx->ins_no = 0;
 	Unlock();
 	DrawOn = TRUE;
 }
 
 void PolygonData::InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my) {
 	dx->MatrixMap2(&cb[sw], r, g, b, disp, px, py, mx, my);
-	insNum = dx->ins_no;
-	dx->ins_no = 0;
 	CbSwap();
 }
 
@@ -434,8 +434,6 @@ void  PolygonData::Update(float x, float y, float z, float r, float g, float b, 
 
 void PolygonData::Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my) {
 	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
-	insNum = dx->ins_no;
-	dx->ins_no = 0;
 	CbSwap();
 }
 

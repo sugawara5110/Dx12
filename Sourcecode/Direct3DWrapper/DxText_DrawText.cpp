@@ -303,7 +303,7 @@ void DxText::UpDate() {
 	if (!draw_f)return;
 
 	for (int i = 0; i < STRTEX_MAX_PCS; i++) {
-		if (textInsData[i].pcs == 0) continue;
+		if (textInsData[i].pcs == 0) { text[i].DrawOff(); continue; }
 		int i1;
 		for (i1 = 0; i1 < textInsData[i].pcs; i1++) {
 			text[i].InstancedSetConstBf(
@@ -321,7 +321,7 @@ void DxText::UpDate() {
 	}
 
 	for (int i = 0; i < VAL_PCS; i++) {
-		if (valueInsData[i].pcs == 0)continue;
+		if (valueInsData[i].pcs == 0) { value[i].DrawOff(); continue; }
 		int i1;
 		for (i1 = 0; i1 < valueInsData[i].pcs; i1++) {
 			value[i].InstancedSetConstBf(

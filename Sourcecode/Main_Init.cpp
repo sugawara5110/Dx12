@@ -142,7 +142,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	dx->End(0);
 	dx->WaitFenceCurrent();
 
-	//CreateThreadUpdate();
+	CreateThreadUpdate();
 
 	return TRUE;
 }
@@ -155,9 +155,13 @@ void Main::Loop() {
 		if (!DispatchMSG(&msg))break;
 
 		T_float::GetTime(hWnd);
-		UpDate();
 		Draw();
 		ObjDel();
+		loopCount[0]++;
+		if (loopCount[0] > 100) {
+			T_float::AddAdjust(loopCount[0] / loopCount[1]);
+			loopCount[0] = loopCount[1] = 0.0f;
+		}
 	}
 }
 
@@ -300,7 +304,9 @@ void Main::Draw() {
 	InstanceCreate::GetInstance_M()->SetCommandList(0);
 	InstanceCreate::GetInstance_M()->MapDraw();
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw(encount);
-	for (int i = 0; i < 4; i++)hero[i].Draw(encount, ending);
+	for (int i = 0; i < 4; i++) {
+		hero[i].Draw(encount, ending);
+	}
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
 	dx->End(0);
@@ -322,7 +328,7 @@ void Main::ObjDel() {
 }
 
 Main::~Main() {
-	//DeleteThreadUpdate();
+	DeleteThreadUpdate();
 	Control::DeleteInstance();
 	S_DELETE(statemenu);
 	MovieSoundManager::ObjDelete();
@@ -336,7 +342,9 @@ Main::~Main() {
 
 unsigned __stdcall UpDateThread(void *) {
 	while (Main::GetInstance()->UpDateThreadLoop) {
+
 		Main::GetInstance()->UpDate();
+		Main::GetInstance()->loopCount[1]++;
 	}
 	return 0;
 }

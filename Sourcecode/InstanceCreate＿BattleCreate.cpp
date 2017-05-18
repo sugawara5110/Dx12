@@ -134,10 +134,9 @@ void InstanceCreate::SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Pos
 }
 
 void InstanceCreate::BattleGetBuffer() {
-	if (battle == NULL) {
-		battle = new Battle();
-		new(battle)Battle(he, e_po, h_po, encount_d, no_d, e_nu_d);
-	}
+	S_DELETE(battle);
+	battle = new Battle();
+	new(battle)Battle(he, e_po, h_po, encount_d, no_d, e_nu_d);
 }
 
 void InstanceCreate::BattleSetVertex() {

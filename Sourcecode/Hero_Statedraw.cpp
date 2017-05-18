@@ -224,6 +224,7 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 	text->UpDateText(L"ÇlÇo", x - 5.0f, 510.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(p_data.MP, x + 25.0f, 510.0f, 15.0f, 5, { 1.0f, 1.0f, 1.0f, 1.0f });
 	if (p_data.HP <= 0) {
+		meter.DrawOff();
 		text->UpDateText(L"êÌì¨ïsî\", x, 525.0f, 25.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
 		return NOT_FIN;
 	}
@@ -235,6 +236,7 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 		else {
 			if ((r += m) >= 1.0f)clr_f = TRUE;
 		}
+		meter.DrawOff();
 		text->UpDateText(L"ó’êÌë‘ê®", x, 525.0f, 25.0f, { 1.0f, 1.0f, 1.0f, r });
 		return NOT_FIN;
 	}
