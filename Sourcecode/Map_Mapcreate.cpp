@@ -357,43 +357,43 @@ void Map::CreateMap() {
 		//空入り口
 		poCeilingF.Create(TRUE, 2, TRUE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, 5, TRUE, FALSE);
+		poGroundM.Create(TRUE, 4, TRUE, FALSE);
 		//空メイン
-		poBackground.Create(FALSE, 6, TRUE, FALSE);
+		poBackground.Create(FALSE, 5, TRUE, FALSE);
 		//雨
 		poRain.Create(FALSE, -1, FALSE, FALSE);
 		//地面出口
-		poGroundE.Create(TRUE, 12, TRUE, FALSE);
+		poGroundE.Create(TRUE, 10, TRUE, FALSE);
 		//空出口
-		poCeilingE.Create(TRUE, 11, TRUE, FALSE);
+		poCeilingE.Create(TRUE, 9, TRUE, FALSE);
 		break;
 	case 2:
 		//入口
 		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, 12, TRUE, FALSE);
+		poGroundM.Create(TRUE, 10, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, 11, TRUE, FALSE);
+		poCeilingM.Create(TRUE, 9, TRUE, FALSE);
 		//地面出口
-		poGroundE.Create(TRUE, 15, TRUE, FALSE);
+		poGroundE.Create(TRUE, 11, TRUE, FALSE);
 		//空出口
-		poCeilingE.Create(TRUE, 15, TRUE, FALSE);
+		poCeilingE.Create(TRUE, 11, TRUE, FALSE);
 		break;
 	case 3:
 		//地面入り口
-		poGroundF.Create(TRUE, 12, TRUE, FALSE);
+		poGroundF.Create(TRUE, 10, TRUE, FALSE);
 		//空入り口
-		poCeilingF.Create(TRUE, 11, TRUE, FALSE);
+		poCeilingF.Create(TRUE, 9, TRUE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, 15, TRUE, FALSE);
+		poGroundM.Create(TRUE, 11, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, 15, TRUE, FALSE);
+		poCeilingM.Create(TRUE, 11, TRUE, FALSE);
 		break;
 	case 4:
 		//地面メイン
-		poGroundM.Create(TRUE, 27, TRUE, FALSE);
+		poGroundM.Create(TRUE, 12, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, 28, TRUE, FALSE);
+		poCeilingM.Create(TRUE, 13, TRUE, FALSE);
 		break;
 	}
 
@@ -406,7 +406,7 @@ void Map::CreateMap() {
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i].Create(TRUE, 4, TRUE, TRUE);
+			poWall1[i].Create(TRUE, 3, TRUE, TRUE);
 		}
 	}
 
@@ -415,21 +415,21 @@ void Map::CreateMap() {
 		poWallA.Create(TRUE, 0, TRUE, FALSE);
 	}
 	if (blockcountB >= 1) {
-		poWallB.Create(TRUE, 8, TRUE, FALSE);
+		poWallB.Create(TRUE, 6, TRUE, FALSE);
 	}
 	if (blockcountC >= 1) {
-		poWallC.Create(TRUE, 11, TRUE, FALSE);
+		poWallC.Create(TRUE, 9, TRUE, FALSE);
 	}
 	if (blockcountD >= 1) {
-		poWallD.Create(TRUE, 15, TRUE, FALSE);
+		poWallD.Create(TRUE, 11, TRUE, FALSE);
 	}
 	if (blockcountE >= 1) {
-		poWallE.Create(TRUE, 26, TRUE, FALSE);
+		poWallE.Create(TRUE, 11, TRUE, FALSE);
 	}
 
 	//リカバーポイント
 	if (r_point_count >= 1) {
-		poRecover.Create(FALSE, 70, TRUE, TRUE);
+		poRecover.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);
 		for (int i = 0; i < 12; i++)
 			poRecoverLine[i].Create(FALSE, -1, FALSE, FALSE);
 	}
@@ -448,12 +448,12 @@ void Map::CreateMap() {
 
 	//ボス出現ポイント
 	if (boss_count >= 1) {
-		poBoss.Create(FALSE, 61, TRUE, TRUE);
+		poBoss.Create(FALSE, dx->GetTexNumber("boss_magic.jpg"), TRUE, TRUE);
 	}
 
 	//エレベーター
 	if (Elevator_count >= 1) {
-		poElevator.Create(FALSE, 70, TRUE, TRUE);
+		poElevator.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);
 	}
 }
 

@@ -10,7 +10,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <dshow.h>
 #include <qedit.h>
-#include "DsFunction.h"
 
 #define D_RELEASE(p)    if(p){p->Release();  p=NULL;}
 
@@ -29,16 +28,17 @@ protected:
 	REFTIME time2;                   //動画の全再生時間
 	REFTIME time1;                  //動画の現再生位置
 	IBasicAudio *pBasicAudio;      //インターフェース,オーディオ ストリームのボリュームとバランスを制御
+	static bool fileDelF;
 
 	DsProcess();
 	void BSTR_Convert(char *fname, BSTR *bstr);
-	char *BinaryDecode(char *bpass);
 
 public:
 	virtual ~DsProcess();
 	
 	static void ComInitialize(){ CoInitialize(NULL); }//DirectX使わない時使用
 	static void ComUninitialize(){ CoUninitialize(); }
+	static void FileDeleteOnReleaseAfter() { fileDelF = TRUE; }//ファイル使用後ファイルを削除したい場合
 };
 
 #endif

@@ -220,9 +220,10 @@ void Hero::CreateHero() {
 	}
 	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
-	mag.Create(FALSE, 60, TRUE, TRUE);
+	mag.Create(FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
+	int ef = dx->GetTexNumber("h_att.jpg");
 	for (int i = 0; i < 4; i++) {
-		effect[i].Create(FALSE, 81 + i, TRUE, TRUE);
+		effect[i].Create(FALSE, ef + i, TRUE, TRUE);
 	}
 }
 

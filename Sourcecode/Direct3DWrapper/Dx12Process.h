@@ -23,14 +23,14 @@
 #include <d3d10_1.h>
 #include <D3Dcompiler.h>
 #include <DirectXColors.h>
-#include <DirectXCollision.h>
+//#include <DirectXCollision.h>
 #include "./MicroSoftLibrary/WICTextureLoader12.h"
-#include <memory>
+//#include <memory>
 #include <stdlib.h>
 #include <string>
 #include <vector>
 #include <array>
-#include <unordered_map>
+//#include <unordered_map>
 #include <assert.h>
 #include <Process.h>
 #include <fbxsdk.h>
@@ -42,7 +42,6 @@
 #pragma comment(lib, "dxgi.lib")
 
 #define COM_NO        7
-#define TEX_PCS       130
 
 //前方宣言
 template<typename T>
@@ -168,11 +167,10 @@ private:
 	int mClientHeight = WINDOW_HEIGHT;
 
 	//テクスチャ
-	char  *binary_ch[TEX_PCS] = { 0 };    //デコード後バイナリ
-	int   binary_size[TEX_PCS] = { 0 };  //バイナリサイズ
-	char  *texName[TEX_PCS] = { 0 };
-	ID3D12Resource *texture[TEX_PCS] = { 0 };
-	ID3D12Resource *textureUp[TEX_PCS] = { 0 };
+	Texture *tex = NULL;//外部からアドレスが渡される
+	int texNum = 0;    //配列数
+	ID3D12Resource **texture = nullptr;
+	ID3D12Resource **textureUp = nullptr;
 
 	static Dx12Process *dx;//クラス内でオブジェクト生成し使いまわす
 	static std::mutex mtx;
@@ -223,7 +221,6 @@ private:
 	void MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 	void WaitFence(int fence);
-	char *GetNameFromPass(char *pass);
 	
 public:
 	static void InstanceCreate();
@@ -234,9 +231,10 @@ public:
 	static void Unlock() { mtx.unlock(); }
 
 	bool Initialize(HWND hWnd);
-	void TextureGetBuffer(char *Bpass, int i);
-	void TextureBinaryDecode(char *Bpass, int i);//暗号化済み画像バイナリデコード
-	void GetTexture(int com_no);
+	char *GetNameFromPass(char *pass);//パスからファイル名を抽出
+	void SetTextureBinary(Texture *tex, int size);//外部で生成したデコード済みバイナリ配列のポインタと配列数をセットする,解放は外部で
+	int GetTexNumber(CHAR *fileName);//リソースとして登録済みのテクスチャ配列番号をファイル名から取得
+	void GetTexture(int com_no);//デコード済みのバイナリからリソースの生成
 	void Sclear(int com_no);
 	void Bigin(int com_no);
 	void End(int com_no);
@@ -513,7 +511,7 @@ private:
 	std::unique_ptr<VertexView> Vview = nullptr;
 	std::unique_ptr<IndexView> Iview = nullptr;
 
-	//テクスチャ保持(directshow用)
+	//テクスチャ保持(SetTextureMPixel用)
 	ID3D12Resource *texture = NULL;
 	ID3D12Resource *textureUp = NULL;
 	//movie_on
@@ -876,7 +874,6 @@ private:
 	MATRIX GetCurrentPoseMatrix(int index);
 	void MatrixMap_Bone(SHADER_GLOBAL_BONES *sbB);
 	void GetTexture();
-	int GetTexNumber(CHAR *fileName);
 	bool SetNewPoseMatrices(float time, int ind);
 	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
 	void CbSwap();

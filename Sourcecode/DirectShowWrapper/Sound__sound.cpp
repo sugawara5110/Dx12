@@ -7,11 +7,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Sound_.h"
 
-Sound_::Sound_(char *pass) {
-
-	char *fname = NULL;
-
-	fname = BinaryDecode(pass);
+Sound_::Sound_(char *fname) {
 
 	BSTR bstr;
 	BSTR_Convert(fname, &bstr);
@@ -30,7 +26,7 @@ Sound_::Sound_(char *pass) {
 	//ストリームの時間幅を取得(最初に1回取得すればok)
 	pMediaPosition->get_Duration(&time2);
 
-	remove(fname);//ファイル削除。解放後削除されてる
+	if (fileDelF)remove(fname);//削除フラグOn:ファイル削除。解放されると削除されてる
 }
 
 void Sound_::sound(bool repeat, long volume){

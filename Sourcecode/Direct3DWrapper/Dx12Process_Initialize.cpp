@@ -81,10 +81,12 @@ Dx12Process::~Dx12Process() {
 
 	SkinMesh::DeleteManager();
 
-	for (int i = 0; i < TEX_PCS; i++) {
+	for (int i = 0; i < texNum; i++) {
 		if (!texture[i])RELEASE(texture[i]);
 		if (!textureUp[i])RELEASE(textureUp[i]);
 	}
+	ARR_DELETE(texture);
+	ARR_DELETE(textureUp);
 }
 
 void Dx12Process::WaitFence(int fence) {
@@ -248,16 +250,33 @@ void Dx12Process::CreateShaderByteCode() {
 	pPixelShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "PSBaseColor", "ps_5_0");
 }
 
-void Dx12Process::TextureGetBuffer(char *Bpass, int i) {
-	DxBGetBuffer(Bpass, &binary_ch[i], &binary_size[i]);
+void Dx12Process::SetTextureBinary(Texture *texture, int size) {
+	texNum = size;
+	tex = texture;
 }
 
-void Dx12Process::TextureBinaryDecode(char *Bpass, int i) {
-	DxBdecode(Bpass, &binary_ch[i], &binary_size[i]);
-	texName[i] = GetNameFromPass(Bpass);
+int Dx12Process::GetTexNumber(CHAR *fileName) {
+
+	fileName = GetNameFromPass(fileName);
+
+	for (int i = 0; i < texNum; i++) {
+		if (tex[i].texName == '\0')continue;
+		char str[50];
+		char str1[50];
+		strcpy(str, tex[i].texName);
+		strcpy(str1, fileName);
+		int i1 = -1;
+		while (str[++i1] != '\0' && str[i1] != '.' && str[i1] == str1[i1]);
+		if (str[i1] == '.')return i;
+	}
+
+	return -1;
 }
 
 void Dx12Process::GetTexture(int com_no) {
+
+	texture = new ID3D12Resource*[texNum];
+	textureUp = new ID3D12Resource*[texNum];
 
 	std::unique_ptr<uint8_t[]> decodedData = nullptr;
 	D3D12_SUBRESOURCE_DATA subresource;
@@ -265,16 +284,15 @@ void Dx12Process::GetTexture(int com_no) {
 
 	char str[50];
 
-	for (int i = 0; i < TEX_PCS; i++) {
-		if (binary_size[i] == 0)continue;
+	for (int i = 0; i < texNum; i++) {
+		if (tex[i].binary_size == 0)continue;
 
 		if (FAILED(DirectX::LoadWICTextureFromMemory(md3dDevice.Get(),
-			(uint8_t*)binary_ch[i], binary_size[i], &t, decodedData, subresource))) {
+			(uint8_t*)tex[i].binary_ch, tex[i].binary_size, &t, decodedData, subresource))) {
 			sprintf(str, "テクスチャ№%d読み込みエラー", (i));
 			throw str;
 		}
-		free(binary_ch[i]);
-		binary_ch[i] = NULL;
+
 		D3D12_RESOURCE_DESC texDesc;
 		texDesc = t->GetDesc();
 

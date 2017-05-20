@@ -21,6 +21,7 @@
 #include "StateMenu.h"
 #include <Process.h>
 #include "Ending.h"
+#include "TextureBinaryLoader.h"
 #pragma comment(lib,"winmm.lib")
 
 class Main {

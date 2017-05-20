@@ -63,8 +63,9 @@ void Enemy::EffectGetBuffer() {
 }
 
 void Enemy::EffectCreate() {
+	int ef = dx->GetTexNumber("h_att.jpg");
 	for (int i = 0; i < 4; i++)
-		effect[i].Create(FALSE, 81 + i, TRUE, TRUE);
+		effect[i].Create(FALSE, ef + i, TRUE, TRUE);
 }
 
 void Enemy::Enemycreate(float x, float y){

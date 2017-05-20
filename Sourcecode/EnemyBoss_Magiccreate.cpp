@@ -175,7 +175,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		}
 	}
 	mag_boss = new ParticleData();
-	mag_boss->GetBufferParticle(61, mag_size, 5.0f);
+	mag_boss->GetBufferParticle(dx->GetTexNumber("boss_magic.jpg"), mag_size, 5.0f);
 }
 
 //@Override
@@ -209,7 +209,7 @@ void EnemyBoss::CreateEnemy() {
 	if (e_no != 2) {
 		en_boss_att->CreateFromFBX();
 	}
-	mag_boss->CreateParticle(62);
+	mag_boss->CreateParticle(dx->GetTexNumber("particle.jpg"));
 }
 
 //@Override

@@ -172,4 +172,11 @@ struct SHADER_GLOBAL_BONES {
 	}
 };
 
+//テクスチャ管理
+struct Texture {
+	char  *binary_ch = NULL; //デコード後バイナリ
+	int   binary_size = 0;  //バイナリサイズ
+	char  *texName = NULL; //ファイル名
+};
+
 #endif

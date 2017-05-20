@@ -6,6 +6,8 @@
 
 #include "DsProcess.h"
 
+bool DsProcess::fileDelF = FALSE;
+
 DsProcess::DsProcess(){
 
 	pGraphBuilder = NULL;
@@ -63,39 +65,6 @@ void DsProcess::BSTR_Convert(char *fname, BSTR *bstr){
 		*bstr,      //RenderFileÇÃà¯êîÇ…égÇ§
 		bstrlen
 		);
-}
-
-char *DsProcess::BinaryDecode(char *bpass){
-
-	static char decfname[64];
-	int size = 0;
-	char *binary = NULL;
-
-	int i1 = 0;
-	do{
-		strncpy(&decfname[i1], &bpass[i1], 1);
-		i1++;
-	} while (bpass[i1] != '.');
-	strncpy(&decfname[i1++], ".", 1);
-	strncpy(&decfname[i1++], "d", 1);
-	strncpy(&decfname[i1++], "a", 1);
-	strncpy(&decfname[i1++], "1", 1);
-	strncpy(&decfname[i1], "\0", 1);
-
-	DsBGetBuffer(bpass, &binary, &size);
-	DsBdecode(bpass, &binary, &size);
-
-	FILE *fp2 = fopen(decfname, "wb");
-
-	for (int i = 0; i < size + 1; i++){
-		fputc(binary[i], fp2);
-	}
-
-	fclose(fp2);
-	free(binary);
-	binary = NULL;
-
-	return decfname;
 }
 
 DsProcess::~DsProcess() {

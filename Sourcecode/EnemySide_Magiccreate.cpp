@@ -15,11 +15,12 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	size_x = 50.0f;
 	size_y = 50.0f;
 	//t_no=敵№
+	int etex = dx->GetTexNumber("enemy1.jpg");
 	int e;
 	switch (t_no) {
 		//マップ0
 	case 0:
-		e = 30;
+		e = etex;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 1;
 		p_data.Attack = 1;
@@ -38,7 +39,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_y = 20.0f;
 		break;
 	case 1:
-		e = 31;
+		e = etex + 1;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 1;
 		p_data.Attack = 2;
@@ -57,7 +58,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_y = 35.0f;
 		break;
 	case 2:
-		e = 32;
+		e = etex + 2;
 		normal_action = MOVE;
 		M_run_flg_rnd = 3;
 		p_data.Attack = 3;
@@ -76,7 +77,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_y = 35.0f;
 		break;
 	case 3:
-		e = 33;
+		e = etex + 3;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 3;
 		p_data.Attack = 7;
@@ -96,7 +97,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		break;
 		//マップ1
 	case 4:
-		e = 34;
+		e = etex + 4;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 3;
 		p_data.Attack = 7;
@@ -113,7 +114,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 5:
-		e = 35;
+		e = etex + 5;
 		normal_action = MOVE;
 		M_run_flg_rnd = 3;
 		p_data.Attack = 9;
@@ -130,7 +131,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 6:
-		e = 36;
+		e = etex + 6;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 3;
 		p_data.Attack = 10;
@@ -147,7 +148,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 7:
-		e = 37;
+		e = etex + 7;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 16;
@@ -165,7 +166,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		break;
 		//マップ2
 	case 8:
-		e = 38;
+		e = etex + 8;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 17;
@@ -182,7 +183,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 9:
-		e = 39;
+		e = etex + 9;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 1;
 		p_data.Attack = 27;
@@ -199,7 +200,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 10:
-		e = 40;
+		e = etex + 10;
 		normal_action = MOVE;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 20;
@@ -216,7 +217,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 11:
-		e = 41;
+		e = etex + 11;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 1;
 		p_data.Attack = 28;
@@ -236,7 +237,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		break;
 		//マップ3
 	case 12:
-		e = 42;
+		e = etex + 12;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 24;
@@ -255,7 +256,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_y = 45.0f;
 		break;
 	case 13:
-		e = 43;
+		e = etex + 13;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 1;
 		p_data.Attack = 39;
@@ -274,7 +275,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_y = 50.0f;
 		break;
 	case 14:
-		e = 44;
+		e = etex + 14;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 28;
@@ -291,7 +292,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 100;
 		break;
 	case 15:
-		e = 45;
+		e = etex + 15;
 		normal_action = MOVE;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 30;
@@ -309,7 +310,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		break;
 		//マップ4(ラスト)
 	case 16:
-		e = 46;
+		e = etex + 16;
 		normal_action = MOVE;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 32;
@@ -326,7 +327,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 200;
 		break;
 	case 17:
-		e = 47;
+		e = etex + 17;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 30;
@@ -343,7 +344,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 10;
 		break;
 	case 18:
-		e = 48;
+		e = etex + 18;
 		normal_action = MOVE;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 33;
@@ -360,7 +361,7 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		p_data.Rpoint = 400;
 		break;
 	case 19:
-		e = 49;
+		e = etex + 19;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 50;
@@ -438,8 +439,8 @@ void EnemySide::SetCommandList(int com_no) {
 //@Override
 void EnemySide::CreateEnemy() {
 	EffectCreate();
-	en->Create(TRUE, e_no + 30, TRUE, TRUE);
-	mag->Create(FALSE, 60, TRUE, TRUE);
+	en->Create(TRUE, e_no + dx->GetTexNumber("enemy1.jpg"), TRUE, TRUE);
+	mag->Create(FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
 }
 
 //@Override

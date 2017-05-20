@@ -12,11 +12,17 @@
 class TextureBinaryLoader {
 
 private:
-	TextureBinaryLoader(){}
+	static Texture *tex;
+	static int texNum;
+
+	TextureBinaryLoader() {}
+	static void TextureGetBuffer(char *Bpass);
+	static void TextureBinaryDecode(char *Bpass);//暗号化済み画像バイナリデコード
 
 public:
 	static void TextureGetBufferAll();
 	static void TextureBinaryDecodeAll();
+	static void DeleteTextureBinary();
 };
 
 #endif

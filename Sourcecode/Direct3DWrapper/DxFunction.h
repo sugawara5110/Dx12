@@ -109,9 +109,5 @@ void VectorCross(VECTOR3 *out, VECTOR3 *in1, VECTOR3 *in2);
 float VectorDot(VECTOR3 *in1, VECTOR3 *in2);
 //線形補間
 void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t);
-//バイナリ用バッファ取得
-void DxBGetBuffer(char *bpass, char **binary, int *size);
-//暗号化済みバイナリ復号
-void DxBdecode(char *bpass, char **binary, int *size);
 
 #endif

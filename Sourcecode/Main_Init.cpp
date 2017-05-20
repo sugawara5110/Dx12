@@ -336,6 +336,7 @@ Main::~Main() {
 	InstanceCreate::MapDelete();
 	ARR_DELETE(hero);
 	S_DELETE(ending);
+	TextureBinaryLoader::DeleteTextureBinary();
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }

@@ -7,7 +7,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Movie.h"
 
-Movie::Movie(char *pass) {
+Movie::Movie(char *fname) {
 
 	pVideoInfoHeader = NULL;
 	nBufferSize = NULL;
@@ -37,10 +37,6 @@ Movie::Movie(char *pass) {
 
 	// GraphにSampleGrabber Filterを追加
 	pGraphBuilder->AddFilter(pSampleGrabberFilter, L"Sample Grabber");
-
-	char *fname = NULL;
-
-	fname = BinaryDecode(pass);//松明
 
 	BSTR bstr;
 	BSTR_Convert(fname, &bstr);
@@ -77,7 +73,7 @@ Movie::Movie(char *pass) {
 	//ストリームの時間幅を取得(最初に1回取得すればok)
 	pMediaPosition->get_Duration(&time2);
 
-	remove(fname);//ファイル削除。解放されると削除されてる
+	if (fileDelF)remove(fname);//削除フラグOn:ファイル削除。解放されると削除されてる
 }
 
 int **Movie::GetFrame(int width, int height){

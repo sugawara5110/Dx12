@@ -66,7 +66,7 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 			MaterialCount++;
 		}
 	}
-	
+
 	MY_MATERIAL* pMaterial = new MY_MATERIAL[MaterialCount]();
 
 	//本読み込み	
@@ -95,8 +95,7 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 		if (strcmp(key, "map_Kd") == 0)
 		{
 			sscanf_s(&line[7], "%s", &pMaterial[iMCount].TextureName, sizeof(pMaterial[iMCount].TextureName));
-			//Dx12クラス内から使用するテクスチャーナンバー取得(atoi 数値文字列をint型変換)
-			pMaterial[iMCount].tex_no = atoi(pMaterial[iMCount].TextureName);
+			pMaterial[iMCount].tex_no = dx->GetTexNumber(pMaterial[iMCount].TextureName);
 		}
 	}
 	fclose(fp);

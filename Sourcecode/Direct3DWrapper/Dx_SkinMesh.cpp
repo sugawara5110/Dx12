@@ -519,12 +519,12 @@ void SkinMesh::SetVertex() {
 				FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(texture);
 				strcpy_s(m_pMaterial[mInd].szTextureName, fileTexture->GetFileName());
 				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
-				m_pMaterial[mInd].tex_no = GetTexNumber(m_pMaterial[mInd].szTextureName);
+				m_pMaterial[mInd].tex_no = dx->GetTexNumber(m_pMaterial[mInd].szTextureName);
 			}
 			else {
 				strcpy_s(m_pMaterial[mInd].szTextureName, pMaterial->GetName());//テクスチャ名が無い場合マテリアル名から
 																				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
-				m_pMaterial[mInd].tex_no = GetTexNumber(m_pMaterial[mInd].szTextureName);
+				m_pMaterial[mInd].tex_no = dx->GetTexNumber(m_pMaterial[mInd].szTextureName);
 			}
 
 			int iCount = 0;
@@ -911,24 +911,6 @@ void SkinMesh::GetTexture() {
 		dx->md3dDevice->CreateShaderResourceView(dx->texture[m_pMaterial[i].tex_no], &srvDesc, hDescriptor);
 		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
 	}
-}
-
-int SkinMesh::GetTexNumber(CHAR *fileName) {
-
-	fileName = dx->GetNameFromPass(fileName);
-
-	for (int i = 0; i < TEX_PCS; i++) {
-		if (dx->texName[i] == '\0')continue;
-		char str[50];
-		char str1[50];
-		strcpy(str, dx->texName[i]);
-		strcpy(str1, fileName);
-		int i1 = -1;
-		while (str[++i1] != '\0' && str[i1] != '.' && str[i1] == str1[i1]);
-		if (str[i1] == '.')return i;
-	}
-
-	return -1;
 }
 
 void SkinMesh::CbSwap() {

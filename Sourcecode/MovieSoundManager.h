@@ -28,6 +28,7 @@ private:
 	static int map_n;//dungeon_so[5]添え字
 	
 	MovieSoundManager(){}
+	static char *binaryDecode(char *bpass);//ファイルのデコード,生成,ファイル名を返す
 
 public:
 	static void ObjInit();

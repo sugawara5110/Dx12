@@ -4,7 +4,9 @@
 //**                                ObjCreateä÷êî                                        **//
 //*****************************************************************************************//
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "MovieSoundManager.h"
+#include "Decode.h"
 
 Movie *MovieSoundManager::mo;
 Movie *MovieSoundManager::f_wall;
@@ -23,7 +25,42 @@ Sound_ *MovieSoundManager::ending_so;
 Sound_ *MovieSoundManager::bosslost_so;
 int MovieSoundManager::map_n;
 
+char *MovieSoundManager::binaryDecode(char *bpass) {
+
+	static char decfname[64];
+	int size = 0;
+	char *binary = NULL;
+
+	int i1 = 0;
+	do {
+		strncpy(&decfname[i1], &bpass[i1], 1);
+		i1++;
+	} while (bpass[i1] != '.');
+	strncpy(&decfname[i1++], ".", 1);
+	strncpy(&decfname[i1++], "d", 1);
+	strncpy(&decfname[i1++], "a", 1);
+	strncpy(&decfname[i1++], "1", 1);
+	strncpy(&decfname[i1], "\0", 1);
+
+	BinaryGetBuffer(bpass, &binary, &size);
+	BinaryDecode(bpass, &binary, &size);
+
+	FILE *fp2 = fopen(decfname, "wb");
+
+	for (int i = 0; i < size + 1; i++) {
+		fputc(binary[i], fp2);
+	}
+
+	fclose(fp2);
+	free(binary);
+	binary = NULL;
+
+	return decfname;
+}
+
 void MovieSoundManager::ObjInit() {
+
+	DsProcess::FileDeleteOnReleaseAfter();
 
 	mo = new Movie();
 	f_wall = new Movie();
@@ -35,22 +72,22 @@ void MovieSoundManager::ObjInit() {
 	select_so = new Sound_();
 	enter_so = new Sound_();
 
-	new(mo) Movie("./dat/movie/torch.da");
-	new(f_wall) Movie("./dat/movie/f_wall.da");
+	new(mo) Movie(binaryDecode("./dat/movie/torch.da"));
+	new(f_wall) Movie(binaryDecode("./dat/movie/f_wall.da"));
 	for (int i = 0; i < 5; i++)dungeon_so[i] = NULL;
 	rain_so = NULL;
-	new(enemy_so[0]) Sound_("./dat/movie/side_enemy.da");//éGãõìGÇÕÇ∏Ç¡Ç∆ï€éùÇµÇ¡ÇœÇ»Çµ
+	new(enemy_so[0]) Sound_(binaryDecode("./dat/movie/side_enemy.da"));//éGãõìGÇÕÇ∏Ç¡Ç∆ï€éùÇµÇ¡ÇœÇ»Çµ
 	enemy_so[1] = NULL;
 	bosslost_so = NULL;
 	title_so = NULL;
 	die_so = NULL;
 	ending_so = NULL;
-	new(att_so) Sound_("./dat/movie/att.da");
-	new(flame_so) Sound_("./dat/movie/flame.da");
-	new(heal_so) Sound_("./dat/movie/heal.da");
-	new(magic_so) Sound_("./dat/movie/magic.da");
-	new(select_so) Sound_("./dat/movie/select.da");
-	new(enter_so) Sound_("./dat/movie/enter.da");
+	new(att_so) Sound_(binaryDecode("./dat/movie/att.da"));
+	new(flame_so) Sound_(binaryDecode("./dat/movie/flame.da"));
+	new(heal_so) Sound_(binaryDecode("./dat/movie/heal.da"));
+	new(magic_so) Sound_(binaryDecode("./dat/movie/magic.da"));
+	new(select_so) Sound_(binaryDecode("./dat/movie/select.da"));
+	new(enter_so) Sound_(binaryDecode("./dat/movie/enter.da"));
 	map_n = 0;
 }
 
@@ -58,7 +95,7 @@ void MovieSoundManager::ObjCreate_title() {
 
 	if (title_so == NULL) {
 		title_so = new Sound_();
-		new(title_so) Sound_("./dat/movie/title.da");
+		new(title_so) Sound_(binaryDecode("./dat/movie/title.da"));
 	}
 }
 
@@ -72,35 +109,35 @@ void MovieSoundManager::ObjCreate_map(int map_no) {
 	case 0:
 		if (dungeon_so[0] == NULL) {
 			dungeon_so[0] = new Sound_();
-			new(dungeon_so[0]) Sound_("./dat/movie/dungeon0.da");
+			new(dungeon_so[0]) Sound_(binaryDecode("./dat/movie/dungeon0.da"));
 		}
 		break;
 	case 1:
 		if (dungeon_so[1] == NULL) {
 			dungeon_so[1] = new Sound_();
-			new(dungeon_so[1]) Sound_("./dat/movie/dungeon1.da");
+			new(dungeon_so[1]) Sound_(binaryDecode("./dat/movie/dungeon1.da"));
 		}
 		if (rain_so == NULL) {
 			rain_so = new Sound_();
-			new(rain_so) Sound_("./dat/movie/rain.da");
+			new(rain_so) Sound_(binaryDecode("./dat/movie/rain.da"));
 		}
 		break;
 	case 2:
 		if (dungeon_so[2] == NULL) {
 			dungeon_so[2] = new Sound_();
-			new(dungeon_so[2]) Sound_("./dat/movie/dungeon2.da");
+			new(dungeon_so[2]) Sound_(binaryDecode("./dat/movie/dungeon2.da"));
 		}
 		break;
 	case 3:
 		if (dungeon_so[3] == NULL) {
 			dungeon_so[3] = new Sound_();
-			new(dungeon_so[3]) Sound_("./dat/movie/dungeon3.da");
+			new(dungeon_so[3]) Sound_(binaryDecode("./dat/movie/dungeon3.da"));
 		}
 		break;
 	case 4:
 		if (dungeon_so[4] == NULL) {
 			dungeon_so[4] = new Sound_();
-			new(dungeon_so[4]) Sound_("./dat/movie/dungeon4.da");
+			new(dungeon_so[4]) Sound_(binaryDecode("./dat/movie/dungeon4.da"));
 		}
 		break;
 	}
@@ -124,23 +161,23 @@ void MovieSoundManager::ObjCreate_battle(int n) {
 
 	if (die_so == NULL) {
 		die_so = new Sound_();
-		new(die_so) Sound_("./dat/movie/die.da");
+		new(die_so) Sound_(binaryDecode("./dat/movie/die.da"));
 	}
 	if (n == 1 && enemy_so[1] == NULL) {
 		enemy_so[1] = new Sound_();
-		new(enemy_so[1]) Sound_("./dat/movie/boss_enemy.da");
+		new(enemy_so[1]) Sound_(binaryDecode("./dat/movie/boss_enemy.da"));
 	}
 	if (n == 2 && enemy_so[1] == NULL) {
 		enemy_so[1] = new Sound_();
-		new(enemy_so[1]) Sound_("./dat/movie/boss_enemy2.da");
+		new(enemy_so[1]) Sound_(binaryDecode("./dat/movie/boss_enemy2.da"));
 	}
 	if (n == 3 && enemy_so[1] == NULL) {
 		enemy_so[1] = new Sound_();
-		new(enemy_so[1]) Sound_("./dat/movie/lastboss.da");
+		new(enemy_so[1]) Sound_(binaryDecode("./dat/movie/lastboss.da"));
 	}
 	if (n > 0 && bosslost_so == NULL) {
 		bosslost_so = new Sound_();
-		new(bosslost_so) Sound_("./dat/movie/bosslost.da");
+		new(bosslost_so) Sound_(binaryDecode("./dat/movie/bosslost.da"));
 	}
 }
 
@@ -155,7 +192,7 @@ void MovieSoundManager::ObjCreate_ending() {
 
 	if (ending_so == NULL) {
 		ending_so = new Sound_();
-		new(ending_so) Sound_("./dat/movie/ending.da");
+		new(ending_so) Sound_(binaryDecode("./dat/movie/ending.da"));
 	}
 }
 
