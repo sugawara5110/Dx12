@@ -17,12 +17,14 @@ private:
 
 	TextureBinaryLoader() {}
 	static void TextureGetBuffer(char *Bpass);
-	static void TextureBinaryDecode(char *Bpass);//暗号化済み画像バイナリデコード
+	static void TextureBinaryDecode(char *Bpass);
+	static void TextureBinaryDecode(char *Bpass, bool UpKeep);//暗号化済み画像バイナリデコード
 
 public:
 	static void TextureGetBufferAll();
 	static void TextureBinaryDecodeAll();
 	static void DeleteTextureBinary();
+	static void DeleteTextureStruct();
 };
 
 #endif

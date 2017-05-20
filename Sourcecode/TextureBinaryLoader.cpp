@@ -16,8 +16,13 @@ void TextureBinaryLoader::TextureGetBuffer(char *Bpass) {
 }
 
 void TextureBinaryLoader::TextureBinaryDecode(char *Bpass) {
+	TextureBinaryDecode(Bpass, FALSE);
+}
+
+void TextureBinaryLoader::TextureBinaryDecode(char *Bpass, bool UpKeep) {
 	BinaryDecode(Bpass, &tex[texNum].binary_ch, &tex[texNum].binary_size);
 	tex[texNum].texName = Dx12Process::GetInstance()->GetNameFromPass(Bpass);
+	tex[texNum].UpKeep = UpKeep;
 	texNum++;
 }
 
@@ -174,7 +179,7 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	//魔方陣通常
 	TextureBinaryDecode("./dat/texture/magic/side_magic.da");
 	//魔方陣ボス
-	TextureBinaryDecode("./dat/texture/magic/boss_magic.da");
+	TextureBinaryDecode("./dat/texture/magic/boss_magic.da", TRUE);
 	TextureBinaryDecode("./dat/texture/magic/particle.da");
 	//回復ポイント
 	TextureBinaryDecode("./dat/texture/magic/recover.da");
@@ -225,5 +230,8 @@ void TextureBinaryLoader::DeleteTextureBinary() {
 		free(tex[i].binary_ch);
 		tex[i].binary_ch = NULL;
 	}
+}
+
+void TextureBinaryLoader::DeleteTextureStruct() {
 	ARR_DELETE(tex);
 }

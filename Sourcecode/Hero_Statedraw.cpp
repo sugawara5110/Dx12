@@ -105,7 +105,7 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 		m = tfloat.Add(0.15f);
 		float mx, my;
 		MovieSoundManager::Magic_sound(TRUE);
-		mag.Update(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, count += m, 0);
+		mag.Update(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 5.0f, 0, 0, 0, count += m, 0);
 		VECTOR3 p3;
 		p3.as(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 20.0f);
 		PolygonData2D::Pos2DCompute(&p3);

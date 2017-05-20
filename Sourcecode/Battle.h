@@ -48,6 +48,7 @@ private:
 	bool CreateFin;
 
 	CommandSelect com_select;   //コマンド入力(1ループに付き1体ずつなので1個でok↓も同様)
+	bool          comDraw;
 	CommandSelect E_com_select;//敵用(テンプレート関数使用の為引数揃える)
 	MagicSelect MAG_select;   //選択したマジック
 	MagicSelect E_MAG_select;//敵用

@@ -235,6 +235,7 @@ public:
 	void SetTextureBinary(Texture *tex, int size);//外部で生成したデコード済みバイナリ配列のポインタと配列数をセットする,解放は外部で
 	int GetTexNumber(CHAR *fileName);//リソースとして登録済みのテクスチャ配列番号をファイル名から取得
 	void GetTexture(int com_no);//デコード済みのバイナリからリソースの生成
+	void UpTextureRelease();
 	void Sclear(int com_no);
 	void Bigin(int com_no);
 	void End(int com_no);

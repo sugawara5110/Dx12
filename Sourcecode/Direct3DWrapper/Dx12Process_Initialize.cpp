@@ -82,8 +82,8 @@ Dx12Process::~Dx12Process() {
 	SkinMesh::DeleteManager();
 
 	for (int i = 0; i < texNum; i++) {
-		if (!texture[i])RELEASE(texture[i]);
-		if (!textureUp[i])RELEASE(textureUp[i]);
+		RELEASE(texture[i]);
+		RELEASE(textureUp[i]);
 	}
 	ARR_DELETE(texture);
 	ARR_DELETE(textureUp);
@@ -352,6 +352,13 @@ void Dx12Process::GetTexture(int com_no) {
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
 		dx_sub[com_no].mCommandList->ResourceBarrier(1, &BarrierDesc);
+	}
+}
+
+void Dx12Process::UpTextureRelease() {
+	for (int i = 0; i < texNum; i++) {
+		if (tex[i].binary_size == 0 || tex[i].UpKeep)continue;
+		RELEASE(textureUp[i]);
 	}
 }
 

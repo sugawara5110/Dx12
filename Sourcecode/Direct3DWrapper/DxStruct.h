@@ -177,6 +177,7 @@ struct Texture {
 	char  *binary_ch = NULL; //デコード後バイナリ
 	int   binary_size = 0;  //バイナリサイズ
 	char  *texName = NULL; //ファイル名
+	bool  UpKeep = FALSE; //Upload後Up用バッファを保持するか
 };
 
 #endif

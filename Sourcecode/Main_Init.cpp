@@ -104,6 +104,8 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 				}
 				break;
 			case 2:
+				TextureBinaryLoader::DeleteTextureBinary();
+				Dx12Process::GetInstance()->UpTextureRelease();
 				InstanceCreate::CreateThread_H();
 				thNo = 3;
 				break;
@@ -317,11 +319,13 @@ void Main::Draw() {
 void Main::ObjDel() {
 	//battle削除(コマンドリストClose後に削除)
 	if (btDel_f) {
+		dx->WaitFenceCurrent();
 		InstanceCreate::BattleDelete();
 		btDel_f = FALSE;
 	}
 	//map削除
 	if (mpDel_f) {
+		dx->WaitFenceCurrent();
 		InstanceCreate::InsDelete();
 		mpDel_f = FALSE;
 	}
@@ -336,7 +340,7 @@ Main::~Main() {
 	InstanceCreate::MapDelete();
 	ARR_DELETE(hero);
 	S_DELETE(ending);
-	TextureBinaryLoader::DeleteTextureBinary();
+	TextureBinaryLoader::DeleteTextureStruct();
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }

@@ -23,6 +23,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	memcpy(&h_pos, h_po, sizeof(Position::H_Pos));//ポジションアドレス
 	b_pos = GetBtPos(&h_pos);//アドレスで渡す
 	command.GetVBarray2D(1);
+	comDraw = TRUE;//全敵HP0時コマンド表示をオフにする
 	h_select.GetVBarray2D(1);
 	Escape_f = 0;
 	Escape_s = FALSE;

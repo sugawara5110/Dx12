@@ -163,7 +163,7 @@ Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 	//コマンド入力
 	//行動中(time_stop_flg == TRUE)でも選択可能状態に入ってる場合は選択のみ実行できる
 	//コマンド入力後,行動終(time_stop_flg == FALSE)になるまでは↓に入れない(com_select != NOSELECTの為)
-	if (com_select == NOSELECT || com_select == OTHER) {
+	if (comDraw && (com_select == NOSELECT || com_select == OTHER)) {
 		for (int i = 0; i < 4; i++) {
 			com_select = H_AT_select(hero, i, direction);
 			if (com_select != NOSELECT)break;
@@ -256,6 +256,15 @@ Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 		SelectPermissionMove(hero);
 	}
 
+	//全敵HP0
+	if (enemy[0].Dieflg() == TRUE &&
+		(e_pos[1].element == FALSE || enemy[1].Dieflg() == TRUE) &&
+		(e_pos[2].element == FALSE || enemy[2].Dieflg() == TRUE) &&
+		(e_pos[3].element == FALSE || enemy[3].Dieflg() == TRUE)) {
+		comDraw = FALSE;
+		command.DrawOff();
+	}
+
 	//敵全滅→Exp処理
 	if (e_draw[0].LOST_fin == TRUE &&
 		(e_pos[1].element == FALSE || e_draw[1].LOST_fin == TRUE) &&
@@ -272,7 +281,6 @@ Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 		for (int i = 0; i < 4; i++) {
 			hero[i].Act_f_init();
 		}
-		command.DrawOff();
 		return WIN;
 	}
 
