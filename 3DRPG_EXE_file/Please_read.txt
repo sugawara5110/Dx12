@@ -1,0 +1,27 @@
+※このアプリケーションは開発中です。
+
+動作環境
+・Directx12
+・3Dがいくらか動かせる程度のスペック
+・メモリは最初のリソース読み込み時Max800MB使用します。それ以外は400MB程度
+
+
+主人公レベルはMaxになっています
+3DRPG_Map1Boss.exe        マップ1ボス前からスタートします。
+3DRPG_Map1Start.exe       通常のスタート位置からのスタートです。
+datファイル　             リソースファイルが入ってます。
+
+
+※This application is under  development
+
+Operating environment
+・Directx12
+・Can move 3D somewhat
+・memory 800MB～400MB
+
+
+The main character is Level Max
+3DRPG_Map1Boss.exe     Map 1 Start from before boss. 
+3DRPG_Map1Start.exe    It is a start from the normal start position.
+dat file               have the resource file.
+
