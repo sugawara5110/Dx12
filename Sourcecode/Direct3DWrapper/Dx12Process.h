@@ -53,6 +53,7 @@ class PolygonData2D;
 class ParticleData;
 class SkinMesh;
 class DxText;
+class Wave;
 //前方宣言
 
 class Dx12Process_sub {
@@ -64,6 +65,7 @@ private:
 	friend PolygonData2D;
 	friend ParticleData;
 	friend SkinMesh;
+	friend Wave;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCmdListAlloc[2];
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
@@ -84,6 +86,7 @@ private:
 	friend ParticleData;
 	friend SkinMesh;
 	friend Dx12Process_sub;
+	friend Wave;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
 	Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
@@ -111,10 +114,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pGeometryShader_PSO = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pGeometryShader_P = nullptr;
 
+	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_DISP = nullptr;
 
+	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISP = nullptr;
@@ -126,6 +131,7 @@ private:
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_3D;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_2D;
 
+	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_SKIN = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_PSO = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_P = nullptr;
@@ -139,6 +145,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2DTC = nullptr;
 
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH_D = nullptr;
@@ -150,6 +157,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_BC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_2D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_2DTC = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader_Wave = nullptr;
 
 	//サンプラ
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
@@ -742,7 +751,7 @@ private:
 	void DrawParts0();
 	void DrawParts1();
 	void DrawParts2();
-	void CbSwap();
+	void CbSwap(bool init);
 
 public:
 	ParticleData();
@@ -906,5 +915,88 @@ public:
 
 //エラーメッセージ
 void ErrorMessage(char *E_mes);
+
+class Wave {
+
+private:
+	Dx12Process *dx;
+	ID3D12GraphicsCommandList  *mCommandList;
+	int                        com_no = 0;
+	ID3DBlob                   *cs = nullptr;
+	ID3DBlob                   *vs = nullptr;
+	ID3DBlob                   *ps = nullptr;
+	ID3DBlob                   *hs = nullptr;
+	ID3DBlob                   *ds = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignatureCom = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignatureDraw = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
+
+	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
+	UploadBuffer<CONSTANT_BUFFER_WAVE> *mObjectCB_WAVE = nullptr;
+	CONSTANT_BUFFER cb[2];
+	CONSTANT_BUFFER_WAVE cbw;
+	int sw = 0;
+	//UpLoadカウント
+	int upCount = 0;
+	//初回Up終了
+	bool UpOn = FALSE;
+	//DrawOn
+	bool DrawOn = FALSE;
+
+	std::unique_ptr<VertexView> Vview = nullptr;
+	std::unique_ptr<IndexView> Iview = nullptr;
+
+	//テクスチャ番号(通常テクスチャ用)
+	int    t_no = -1;
+	int    insNum = 0;
+
+	int div;//分割数
+
+	Vertex         *d3varray;  //頂点配列
+	std::uint16_t  *d3varrayI;//頂点インデックス
+	int            ver;      //頂点個数
+	int            verI;    //頂点インデックス
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSOCom = nullptr;//パイプラインOBJ
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSODraw = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mInputBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mInputUploadBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mOutputBuffer = nullptr;
+
+	static std::mutex mtx;
+	static void Lock() { mtx.lock(); }
+	static void Unlock() { mtx.unlock(); }
+
+	void GetShaderByteCode();
+	void ComCreate();
+	void DrawCreate(int texNo, bool blend, bool alpha);
+	void CbSwap();
+	void Compute();
+	void DrawSub();
+
+public:
+	Wave();
+	void SetCommandList(int no);
+	~Wave();
+	void GetVBarray(int v);
+	void Create(int texNo, bool blend, bool alpha, float waveHeight, float divide);
+	//順番:左上左下右下右上
+	void SetVertex(int i,
+		float vx, float vy, float vz,
+		float nx, float ny, float nz,
+		float r, float g, float b, float a,
+		float u, float v);
+	void InstancedMap(float x, float y, float z, float theta);
+	void InstancedMap(float x, float y, float z, float theta, float size);
+	void InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ);
+	void InstanceUpdate(float r, float g, float b, float disp);
+	void InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my);
+	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp);
+	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
+	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
+	void DrawOff();
+	void Draw();
+};
 
 #endif

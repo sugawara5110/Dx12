@@ -162,6 +162,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 180.0f, 0);
 		//“üŒûŒõŒ¹
 		dx->PointLightPosSet(2, 150.0f, 3980.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, TRUE);
+		MapupdateWave();
 		poGroundM.Update(0, 500, 0, 0, 0, 0, 0, 0);
 		poCeilingM.Update(0, 500, 0, 0, 0, 0, 0, 0);
 		poGroundE.Update(100, 100, 0, 0, 0, 0, 0, 4.0f);
@@ -236,6 +237,7 @@ void Map::MapDraw() {
 	Mapdraw_Recover();
 	Mapdraw_Mountain();
 	Mapdraw_Rain();
+	wav.Draw();//ƒuƒŒƒ“ƒh‚·‚é‚Ì‚ÅÅŒã‚Ì•û‚É
 
 	if (mo_count >= 1) {
 		poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);

@@ -14,6 +14,8 @@
 #include "./Shader/ShaderMesh_D.h"
 #include "./Shader/ShaderParticle.h"
 #include "./Shader/ShaderSkinMesh.h"
+#include "./Shader/ShaderWaveCom.h"
+#include "./Shader/ShaderWaveDraw.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -179,7 +181,7 @@ void Dx12Process::CreateShaderByteCode() {
 	pGeometryShader_PSO = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point_SO", "gs_5_0");
 
 	//パーティクル頂点インプットレイアウトを定義
-	pVertexLayout_P = 
+	pVertexLayout_P =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "POSITION", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -234,6 +236,12 @@ void Dx12Process::CreateShaderByteCode() {
 	pPixelShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "PSDispL", "ps_5_0");
 	pHullShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "HSDispL", "hs_5_0");
 	pDomainShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "DSDispL", "ds_5_0");
+	//Wave
+	pComputeShader_Wave = dx->CompileShader(ShaderWaveCom, strlen(ShaderWaveCom), "CS", "cs_5_0");
+	pVertexShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "VSWave", "vs_5_0");
+	pPixelShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "PSWave", "ps_5_0");
+	pHullShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "HSWave", "hs_5_0");
+	pDomainShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "DSWave", "ds_5_0");
 
 	//2Dレイアウト
 	pVertexLayout_2D =

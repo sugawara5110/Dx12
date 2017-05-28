@@ -86,6 +86,7 @@ private:
 	};
 	OBJPosRandomValue *wood, *wall1;
 	
+	Wave wav;
 	MeshData mWood, mountain;
 	PolygonData poWallA, poWallB, poWallC, poWallD, poWallE, poWall1[3], poF_Wall,
 		poGroundF, poCeilingF, poGroundM, poCeilingM, poGroundE, poCeilingE,
@@ -98,6 +99,7 @@ private:
 	void Debug();
 	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int *cnt);
 	void Mapfilter(Position::H_Pos *h_p);
+	void MapupdateWave();
 	void Mapupdate_Wood();
 	void Mapdraw_Wood();
 	void Mapupdate_Mountain();

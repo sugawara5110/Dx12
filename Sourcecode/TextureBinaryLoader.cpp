@@ -45,6 +45,7 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	//マップ2
 	TextureGetBuffer("./dat/texture/map/ceiling3_wall3.da");
 	TextureGetBuffer("./dat/texture/map/ground3.da");
+	TextureGetBuffer("./dat/texture/map/wave.da");
 	//マップ3
 	TextureGetBuffer("./dat/texture/map/ceiling4_ground4.da");
 	//マップ4
@@ -142,6 +143,7 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	//マップ2
 	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3.da");
 	TextureBinaryDecode("./dat/texture/map/ground3.da");
+	TextureBinaryDecode("./dat/texture/map/wave.da");
 	//マップ3
 	TextureBinaryDecode("./dat/texture/map/ceiling4_ground4.da");
 	//マップ4

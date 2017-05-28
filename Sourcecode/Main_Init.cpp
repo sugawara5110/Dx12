@@ -304,11 +304,11 @@ void Main::Draw() {
 	dx->Bigin(0);
 	dx->Sclear(0);
 	InstanceCreate::GetInstance_M()->SetCommandList(0);
-	InstanceCreate::GetInstance_M()->MapDraw();
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw(encount);
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
 	}
+	InstanceCreate::GetInstance_M()->MapDraw();
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
 	dx->End(0);

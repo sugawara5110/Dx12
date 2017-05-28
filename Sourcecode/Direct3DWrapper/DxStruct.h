@@ -180,4 +180,15 @@ struct Texture {
 	bool  UpKeep = FALSE; //Upload後Up用バッファを保持するか
 };
 
+//Wave
+struct WaveData
+{
+	float sinWave;
+	float theta;
+};
+
+struct CONSTANT_BUFFER_WAVE {
+	VECTOR4 wHei_divide;//x:waveHeight, y:分割数
+};
+
 #endif
