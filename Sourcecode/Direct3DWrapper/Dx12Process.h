@@ -208,7 +208,7 @@ private:
 	Dx12Process(const Dx12Process &obj) {}     // コピーコンストラクタ禁止
 	void operator=(const Dx12Process& obj) {};// 代入演算子禁止
 	~Dx12Process();
-	
+
 	void CreateShaderByteCode();
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
@@ -230,7 +230,7 @@ private:
 	void MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
 		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 	void WaitFence(int fence);
-	
+
 public:
 	static void InstanceCreate();
 	static Dx12Process *GetInstance();
@@ -415,7 +415,7 @@ private:
 	//UpLoad用
 	CONSTANT_BUFFER cb[2];
 	int sw = 0;//↑切り替え
-    //UpLoadカウント
+	//UpLoadカウント
 	int upCount = 0;
 	//初回Up終了
 	bool UpOn = FALSE;
@@ -670,15 +670,18 @@ public:
 class T_float {
 
 private:
-	static DWORD f, time;
-	static DWORD time_fps;//FPS計測用
-	static int frame;    //FPS計測使用
+	static DWORD f[2], time[2];
+	static DWORD time_fps[2];//FPS計測用
+	static int frame[2];    //FPS計測使用
+	static int up;
 	static char str[50];//ウインドウ枠文字表示使用
 	static float adj;
 
 public:
 	static void GetTime(HWND hWnd);//常に実行
+	static void GetTimeUp(HWND hWnd);//常に実行
 	static void AddAdjust(float ad);//1.0fが標準
+	static int GetUps();
 	float Add(float f);
 };
 
@@ -779,7 +782,7 @@ class SkinMesh_sub {
 
 private:
 	friend SkinMesh;
-	
+
 	FbxScene *m_pmyScene = NULL;
 	float end_frame, current_frame;
 
@@ -853,7 +856,7 @@ private:
 	//ボーン
 	int m_iNumBone;
 	BONE *m_BoneArray;
-	
+
 	//FBX
 	SkinMesh_sub *fbx;
 	FbxCluster **m_ppCluster;//ボーン情報

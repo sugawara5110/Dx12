@@ -288,7 +288,7 @@ HRESULT SkinMesh::GetFbx(CHAR* szFileName) {
 }
 
 void SkinMesh::GetBuffer(float end_frame) {
-	
+
 	mObjectCB0 = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
 	mObject_BONES = new UploadBuffer<SHADER_GLOBAL_BONES>(dx->md3dDevice.Get(), 1, true);
 
@@ -589,7 +589,7 @@ void SkinMesh::CreateFromFBX() {
 		ARR_DELETE(pIndex[i]);
 	}
 	ARR_DELETE(pIndex);
-	
+
 	//バーテックスバッファー作成
 	const UINT vbByteSize = (UINT)VerAllpcs * sizeof(MY_VERTEX_S);
 
@@ -694,7 +694,7 @@ HRESULT SkinMesh::GetFbxSub(CHAR* szFileName, int ind) {
 }
 
 HRESULT SkinMesh::GetBuffer_Sub(int ind, float end_frame) {
-	
+
 	FbxScene *pScene = GetScene(ind);//シーン取得
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 	fbx[ind].end_frame = end_frame;
@@ -740,7 +740,7 @@ void SkinMesh::CreateIndexBuffer(int cnt, int *pIndex, int IviewInd) {
 
 	D3DCreateBlob(ibByteSize, &Iview[IviewInd].IndexBufferCPU);
 	CopyMemory(Iview[IviewInd].IndexBufferCPU->GetBufferPointer(), pIndex, ibByteSize);
-	
+
 	Iview[IviewInd].IndexFormat = DXGI_FORMAT_R32_UINT;
 	Iview[IviewInd].IndexBufferByteSize = ibByteSize;
 	Iview[IviewInd].IndexCount = cnt;
@@ -836,10 +836,12 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 	if (frame_end)fbx[ind].current_frame = 0.0f;
 
 	if (BoneConnect != -1.0f) {
-		for (int i = 0; i < m_iNumBone; i++) {
-			StraightLinear(&m_BoneArray[i].mNewPose, &m_pLastBoneMatrix[i], &m_BoneArray[i].mNewPose, BoneConnect += (ti / fbx[ind].connect_step));
+		if (fbx[ind].connect_step <= 0.0f || BoneConnect > 1.0f)BoneConnect = -1.0f;
+		else {
+			for (int i = 0; i < m_iNumBone; i++) {
+				StraightLinear(&m_BoneArray[i].mNewPose, &m_pLastBoneMatrix[i], &m_BoneArray[i].mNewPose, BoneConnect += (ti / fbx[ind].connect_step));
+			}
 		}
-		if (BoneConnect >= 1.0f)BoneConnect = -1.0f;
 	}
 	stSetNewPose_ON = FALSE;
 	return frame_end;

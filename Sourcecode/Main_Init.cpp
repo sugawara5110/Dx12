@@ -159,15 +159,13 @@ void Main::Loop() {
 		T_float::GetTime(hWnd);
 		Draw();
 		ObjDel();
-		loopCount[0]++;
-		if (loopCount[0] > 100) {
-			T_float::AddAdjust(loopCount[0] / loopCount[1]);
-			loopCount[0] = loopCount[1] = 0.0f;
-		}
 	}
 }
 
 void Main::UpDate() {
+
+	T_float::GetTimeUp(hWnd);
+	T_float::AddAdjust(0.8f);
 
 	static bool Drawtitle = TRUE;
 	static bool titleOn = TRUE;
@@ -185,7 +183,7 @@ void Main::UpDate() {
 	case 2:
 		titleOn = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
 		if (!titleOn) {
-			mpDel_f = TRUE; mapstate = NORMAL_MAP; titleSwitch = 3;
+			mapstate = NORMAL_MAP; titleSwitch = 3; mpDel_f = TRUE;
 		}
 		break;
 	}
@@ -200,7 +198,7 @@ void Main::UpDate() {
 	switch (mapstate) {
 	case CHANGE_MAP:
 		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
-			mpDel_f = TRUE; mapstate = NORMAL_MAP;
+			mapstate = NORMAL_MAP; mpDel_f = TRUE;
 		}
 		break;
 	case RECOV_MAP:
@@ -266,16 +264,15 @@ void Main::UpDate() {
 			break;
 		case 2:
 			//battle•\Ž¦
-			InstanceCreate::GetInstance_B()->SetCommandList(0);
 			result = InstanceCreate::GetInstance_B()->FightUpdate(hero, control->Direction(), result);
 
 			switch (result) {
 			case WIN:
-				btDel_f = TRUE;
 				if (encount == BOSS)Map::SetBossKilled(map_no, 1);//ƒ{ƒXŒ‚”j—š—ðXV
 				encount = NOENCOUNT;
 				result = IN_BATTLE;
 				battleSwitch = 0;
+				btDel_f = TRUE;
 				break;
 			case DIE:
 				DxText::GetInstance()->UpDateText(L"‚f‚`‚l‚d‚n‚u‚d‚q", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -303,7 +300,6 @@ void Main::UpDate() {
 void Main::Draw() {
 	dx->Bigin(0);
 	dx->Sclear(0);
-	InstanceCreate::GetInstance_M()->SetCommandList(0);
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw(encount);
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
@@ -349,7 +345,6 @@ unsigned __stdcall UpDateThread(void *) {
 	while (Main::GetInstance()->UpDateThreadLoop) {
 
 		Main::GetInstance()->UpDate();
-		Main::GetInstance()->loopCount[1]++;
 	}
 	return 0;
 }

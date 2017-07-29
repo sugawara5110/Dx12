@@ -6,7 +6,7 @@
 
 #include "Hero.h"
 
-void Hero::P_DataInput(P_Data *p_dat){
+void Hero::P_DataInput(P_Data *p_dat) {
 	p_data.Attack = p_dat->Attack;
 	p_data.Magic = p_dat->Magic;
 	p_data.Agility = p_dat->Agility;
@@ -266,7 +266,7 @@ void Hero::Metercreate(float me) {
 	meter.Update(x + 3.0f, 541.0f, 0.0f, 1.0f, 0.5f, 0.0f, 1.0f, 114.0f * me, 6.0f);
 }
 
-void Hero::Magiccreate(){
+void Hero::Magiccreate() {
 
 	//マジック左上
 	mag.SetVertex(0, 0,
@@ -396,7 +396,7 @@ bool Hero::EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos,
 	return TRUE;
 }
 
-Hero::~Hero(){
+Hero::~Hero() {
 	S_DELETE(torchWood);
 	S_DELETE(torchFlame);
 	S_DELETE(p_att);

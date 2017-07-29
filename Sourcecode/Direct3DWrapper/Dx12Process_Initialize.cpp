@@ -123,11 +123,15 @@ void Dx12Process::WaitFence(int fence) {
 }
 
 void Dx12Process::WaitFenceCurrent() {
+	Lock();
 	WaitFence(0);
+	Unlock();
 }
 
 void Dx12Process::WaitFencePast() {
+	Lock();
 	WaitFence(1);
+	Unlock();
 }
 
 void Dx12Process::RequestSync() {
@@ -439,7 +443,7 @@ bool Dx12Process::Initialize(HWND hWnd) {
 		//コマンドアロケータ,コマンドリスト生成
 		dx_sub[i].ListCreate();
 	}
-	
+
 	requestSync = replySync = syncFin = FALSE;
 
 	//初期化
@@ -957,24 +961,25 @@ char *Dx12Process::GetNameFromPass(char *pass) {
 }
 
 //移動量一定化
-DWORD T_float::f = timeGetTime();
-DWORD T_float::time = 0;
-DWORD T_float::time_fps = 0;//FPS計測用
-int T_float::frame = 0;     //FPS計測使用
+DWORD T_float::f[2] = { timeGetTime() };
+DWORD T_float::time[2] = { 0 };
+DWORD T_float::time_fps[2] = { 0 };//FPS計測用
+int T_float::frame[2] = { 0 };     //FPS計測使用
+int T_float::up = 0;
 char T_float::str[50];     //ウインドウ枠文字表示使用
 float T_float::adj = 1.0f;
 
 void T_float::GetTime(HWND hWnd) {
-	time = timeGetTime() - f;
-	f = timeGetTime();
+	time[0] = timeGetTime() - f[0];
+	f[0] = timeGetTime();
 
 	//FPS計測
-	frame++;
-	sprintf(str, "     Ctrl:決定  Delete:キャンセル  fps=%d", frame);
-	if (timeGetTime() - time_fps > 1000)
+	frame[0]++;
+	sprintf(str, "     Ctrl:決定  Delete:キャンセル  fps=%d  ups=%d", frame[0], up);
+	if (timeGetTime() - time_fps[0] > 1000)
 	{
-		time_fps = timeGetTime();
-		frame = 0;
+		time_fps[0] = timeGetTime();
+		frame[0] = 0;
 		char Name[100] = { 0 };
 		GetClassNameA(hWnd, Name, sizeof(Name));
 		strcat(Name, str);
@@ -982,12 +987,30 @@ void T_float::GetTime(HWND hWnd) {
 	}
 }
 
+void T_float::GetTimeUp(HWND hWnd) {
+	time[1] = timeGetTime() - f[1];
+	f[1] = timeGetTime();
+
+	//UPS計測
+	frame[1]++;
+	if (timeGetTime() - time_fps[1] > 1000)
+	{
+		time_fps[1] = timeGetTime();
+		up = frame[1];
+		frame[1] = 0;
+	}
+}
+
 void T_float::AddAdjust(float ad) {
 	adj = ad;
 }
 
+int T_float::GetUps() {
+	return up;
+}
+
 float T_float::Add(float f) {
-	float r = ((float)time * f) / 2.0f * adj;
+	float r = ((float)time[1] * f) / 2.0f * adj;
 	if (r <= 0.0f)return 0.01f;
 	if (r >= 1000000.0f)return 1000000.0f;
 	return r;

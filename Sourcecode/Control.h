@@ -8,15 +8,17 @@
 #define Class_Control_Header
 
 #include "./Direct3DWrapper/Dx12Process.h"
+#include "./Direct3DWrapper//DxText.h"
 #include "Enum.h"
 
-class Control{
+class Control {
 
 private:
 	static Control *co;
 	Directionkey keydownhistory;
 	Directionkey directionkey;
-	Directionkey directionkey2;
+	Directionkey directionkey2[2];
+	int keyOffCount;
 
 	Control();
 

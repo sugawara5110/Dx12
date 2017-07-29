@@ -13,10 +13,12 @@ Control *Control::GetInstance() {
 	return co;
 }
 
-Control::Control(){
+Control::Control() {
 
 	keydownhistory = NOTPRESS;
 	directionkey = NOTPRESS;
+	directionkey2[2] = { NOTPRESS };
+	keyOffCount = 0;
 }
 
 void Control::DeleteInstance() {
@@ -60,44 +62,59 @@ void Control::Input(UINT msg, WPARAM wParam) {
 		directionkey = NOTPRESS;
 		break;
 	}
-	directionkey2 = directionkey;
 }
 
-Directionkey Control::Direction(){
+Directionkey Control::Direction() {
 
-	switch (directionkey){
+	directionkey2[0] = directionkey;
+	switch (directionkey2[0]) {
 
 	case LEFT:
-		if (keydownhistory == LEFT)directionkey = TWOPRESS;
+		if (keydownhistory == LEFT)directionkey2[0] = TWOPRESS;
 		else keydownhistory = LEFT;
 		break;
 	case RIGHT:
-		if (keydownhistory == RIGHT)directionkey = TWOPRESS;
+		if (keydownhistory == RIGHT)directionkey2[0] = TWOPRESS;
 		else keydownhistory = RIGHT;
 		break;
 	case UP:
-		if (keydownhistory == UP)directionkey = TWOPRESS;
+		if (keydownhistory == UP)directionkey2[0] = TWOPRESS;
 		else keydownhistory = UP;
 		break;
 	case DOWN:
-		if (keydownhistory == DOWN)directionkey = TWOPRESS;
+		if (keydownhistory == DOWN)directionkey2[0] = TWOPRESS;
 		else keydownhistory = DOWN;
 		break;
 	case ENTER:
-		if (keydownhistory == ENTER)directionkey = TWOPRESS;
+		if (keydownhistory == ENTER)directionkey2[0] = TWOPRESS;
 		else keydownhistory = ENTER;
 		break;
 	case CANCEL:
-		if (keydownhistory == CANCEL)directionkey = TWOPRESS;
+		if (keydownhistory == CANCEL)directionkey2[0] = TWOPRESS;
 		else keydownhistory = CANCEL;
 		break;
 	case NOTPRESS:
 		keydownhistory = NOTPRESS;
 		break;
 	}
-	return directionkey;
+	return directionkey2[0];
 }
 
-Directionkey Control::Direction(bool f){
-	return directionkey2;
+Directionkey Control::Direction(bool f) {
+
+	//DxText::GetInstance()->UpDateValue(directionkey2[1], 400, 400, 30.0f, 5, { 0.3f, 1.0f, 0.3f, 1.0f });
+
+	Directionkey dir = directionkey;
+
+	if (dir == NOTPRESS) { keyOffCount++; }
+	else {
+		directionkey2[1] = dir; keyOffCount = 0;
+	}
+
+	if (keyOffCount >= T_float::GetUps() / 10) {
+		directionkey2[1] = NOTPRESS;
+		keyOffCount = 0;
+	}
+
+	return directionkey2[1];
 }

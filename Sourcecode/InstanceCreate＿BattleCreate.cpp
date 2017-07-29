@@ -65,6 +65,8 @@ void InstanceCreate::DeleteThread_B(){
 	WaitForSingleObject(battle_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(battle_loading_h);                 //ハンドルを閉じる
 	battle_loading_h = NULL;
+	Dx12Process::GetInstance()->WaitFenceCurrent();
+	battle->SetCommandList(0);
 }
 
 void InstanceCreate::DeleteThread_M() {
@@ -72,6 +74,7 @@ void InstanceCreate::DeleteThread_M() {
 	CloseHandle(map_loading_h);                 //ハンドルを閉じる
 	map_loading_h = NULL;
 	Dx12Process::GetInstance()->WaitFenceCurrent();
+	map[1 - mapInd]->SetCommandList(0);
 	mapInd = 1 - mapInd;
 	MapObjSet();//マップのセット
 }

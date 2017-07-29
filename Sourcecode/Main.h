@@ -66,8 +66,7 @@ public:
 	//メッセージ
 	MSG msg;  
 	volatile bool UpDateThreadLoop = TRUE;
-	volatile float loopCount[2] = { 0 };
-
+	
 	static Main *GetInstance();
 	static void DeleteInstance();
 
