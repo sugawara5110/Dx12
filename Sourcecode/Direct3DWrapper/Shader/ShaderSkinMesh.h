@@ -71,7 +71,6 @@ char *ShaderSkinMesh =
 "    float4 wPos : POSITION;\n"
 "    float3 Nor  : NORMAL;\n"
 "    float2 Tex  : TEXCOORD;\n"
-"    float4 Col  : COLOR0;\n"
 "};\n"
 
 //指定した番号のボーンのポーズ行列を返す　サブ関数（バーテックスシェーダーで使用）
@@ -127,7 +126,6 @@ char *ShaderSkinMesh =
 "    output.wPos = mul(vSkinned.Pos, g_World[0]);\n"
 "    output.Nor = mul(vSkinned.Nor, (float3x3)g_World[0]);\n"
 "    output.Tex = input.Tex;\n"
-"    output.Col = g_Diffuse;\n"
 
 "    return output;\n"
 "}\n"
@@ -141,7 +139,7 @@ char *ShaderSkinMesh =
 //テクスチャ
 "    float4 T = g_texColor.Sample(g_samLinear, input.Tex);\n"
 //基本カラー
-"    float4 C = input.Col;\n"
+"    float4 C = g_Diffuse;\n"
 
 //フォグ計算
 "    float fd;\n"//距離
@@ -156,8 +154,6 @@ char *ShaderSkinMesh =
 "       }\n"
 "    }\n"
 
-//アルファ値退避
-"    float a = C.w;\n"
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 
 //ライト計算
@@ -194,7 +190,7 @@ char *ShaderSkinMesh =
 "    }\n"
 
 "    float4 color;\n"
-"    color = float4(Col, a) * T + g_ObjCol;\n"
+"    color = float4(Col, 1.0f) * T + g_ObjCol;\n"
 "    return color;\n"
 "}\n";
 //****************************************メッシュピクセル**********************************************************//

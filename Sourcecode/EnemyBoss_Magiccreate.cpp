@@ -265,34 +265,34 @@ void EnemyBoss::AttackAction() {
 }
 
 //@Override
-void EnemyBoss::DamageAction(){
+void EnemyBoss::DamageAction() {
 
 	float m = tfloat.Add(0.01f);
-	if (cg < -0.9f){
+	if (cg < -0.9f) {
 		cg = cb = 0.0f;
 		act_f = normal_action;
 	}
-	else{
+	else {
 		cg -= m;
 		cb -= m;
 	}
 }
 
 //@Override
-void EnemyBoss::RecoverActionInit(){
+void EnemyBoss::RecoverActionInit() {
 	cr = cg = cb = -1.0f;
 	act_f = RECOVER;
 }
 
 //@Override
-void EnemyBoss::RecoverAction(){
+void EnemyBoss::RecoverAction() {
 
 	float m = tfloat.Add(0.01f);
-	if (cr > -0.1f){
+	if (cr > -0.1f) {
 		cr = cg = cb = 0.0f;
 		act_f = normal_action;
 	}
-	else{
+	else {
 		cr += m;
 		cg += m;
 		cb += m;
@@ -300,11 +300,11 @@ void EnemyBoss::RecoverAction(){
 }
 
 //@Override
-bool EnemyBoss::LostAction(float x, float y, float z){
+bool EnemyBoss::LostAction(float x, float y, float z) {
 
 	float m = tfloat.Add(0.02f);
 	MovieSoundManager::Bosslost_sound(TRUE);
-	if ((mov_z -= m) < -150.0f){
+	if ((mov_z -= m) < -150.0f) {
 		mov_z = 0.0f; return TRUE;
 	}
 	return FALSE;
@@ -336,25 +336,25 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 //@Override
 void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {
 	if (e_no == 2) {
-		en_boss_att0->Update(x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f, 0);
+		en_boss_att0->Update(x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, 0);
 		return;
 	}
 	if (attOn) {
-		attFin = en_boss_att->Update(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+		attFin = en_boss_att->Update(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f);
 	}
 	if (magicAttOn) {
-		en_boss_att->Update(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+		en_boss_att->Update(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f);
 	}
 	if (!attOn && !magicAttOn) {
-		en_boss_att->Update(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, theta, 0, 0, size_x * 0.5f);
+		en_boss_att->Update(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f);
 	}
 }
 
 //@Override
-bool EnemyBoss::M_run_flg(){
+bool EnemyBoss::M_run_flg() {
 
 	int rnd;
-	switch (e_no){
+	switch (e_no) {
 	case 0:
 		if (p_data.MP < p_data.FlameATT_LV * 4)return FALSE;
 		rnd = rand() % M_run_flg_rnd;
@@ -388,35 +388,35 @@ bool EnemyBoss::M_run_flg(){
 }
 
 //@Override
-void EnemyBoss::M_select(int *r, int *r1){
+void EnemyBoss::M_select(int *r, int *r1) {
 
 	//マジック選択 *r = 0:Flame, 1:Healing, 2:Recover 
 	//全体 *r1 = 0 単体 *r1 = 1
-	switch (e_no){
+	switch (e_no) {
 	case 0:
 		*r = 0;
 		*r1 = 1;
 		break;
 	case 1:
-		if ((double)p_data.HP / s_MHP() < 0.5){
+		if ((double)p_data.HP / s_MHP() < 0.5) {
 			*r = 1; *r1 = 1; break;
 		}
 		*r = 0; *r1 = rand() % 2;
 		break;
 	case 2:
-		if ((double)p_data.HP / s_MHP() < 0.3){
+		if ((double)p_data.HP / s_MHP() < 0.3) {
 			*r = 1; *r1 = 1; break;
 		}
 		*r = 0; *r1 = rand() % 2;
 		break;
 	case 3:
-		if ((double)p_data.HP / s_MHP() < 0.2){
+		if ((double)p_data.HP / s_MHP() < 0.2) {
 			*r = 1; *r1 = 1; break;
 		}
 		*r = 0; *r1 = rand() % 2;
 		break;
 	case 4:
-		if ((double)p_data.HP / s_MHP() < 0.2){
+		if ((double)p_data.HP / s_MHP() < 0.2) {
 			*r = 1; *r1 = 1; break;
 		}
 		*r = 0; *r1 = rand() % 2;
@@ -424,7 +424,7 @@ void EnemyBoss::M_select(int *r, int *r1){
 	}
 }
 
-EnemyBoss::~EnemyBoss(){
+EnemyBoss::~EnemyBoss() {
 	S_DELETE(mag_boss);
 	S_DELETE(en_boss_att0);
 	S_DELETE(en_boss_att);

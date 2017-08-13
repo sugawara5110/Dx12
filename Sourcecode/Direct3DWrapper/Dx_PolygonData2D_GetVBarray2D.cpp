@@ -423,18 +423,9 @@ void PolygonData2D::Draw() {
 
 	mCommandList->SetPipelineState(mPSO.Get());
 
-	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
-
 	//mSwapChainBuffer PRESENT→RENDER_TARGET
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	//レンダーターゲットのセット
-	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		dx->mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		dx->mCurrBackBuffer,
-		dx->mRtvDescriptorSize), true, &dx->mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);//テクスチャ無しの場合このままで良いのやら・・エラーは無し

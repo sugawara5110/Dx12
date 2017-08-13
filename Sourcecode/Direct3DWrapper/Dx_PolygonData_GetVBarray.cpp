@@ -13,6 +13,7 @@ PolygonData::PolygonData() {
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	d3varray = NULL;
+	d3varrayBC = NULL;
 	d3varrayI = NULL;
 }
 
@@ -24,6 +25,8 @@ void PolygonData::SetCommandList(int no) {
 PolygonData::~PolygonData() {
 	free(d3varray);
 	d3varray = NULL;
+	free(d3varrayBC);
+	d3varrayBC = NULL;
 	free(d3varrayI);
 	d3varrayI = NULL;
 	S_DELETE(mObjectCB);
@@ -38,26 +41,39 @@ ID3D12PipelineState *PolygonData::GetPipelineState() {
 void PolygonData::SetVertex(int I1, int I2, int i,
 	float vx, float vy, float vz,
 	float nx, float ny, float nz,
-	float r, float g, float b, float a,
 	float u, float v) {
 	d3varrayI[I1] = i;
 	d3varrayI[I2] = i;
 	d3varray[i].Pos.as(vx, vy, vz);
 	d3varray[i].normal.as(nx, ny, nz);
-	d3varray[i].color.as((FLOAT)r, (FLOAT)g, (FLOAT)b, (FLOAT)a);
 	d3varray[i].tex.as(u, v);
 }
 
 void PolygonData::SetVertex(int I1, int i,
 	float vx, float vy, float vz,
 	float nx, float ny, float nz,
-	float r, float g, float b, float a,
 	float u, float v) {
 	d3varrayI[I1] = i;
 	d3varray[i].Pos.as(vx, vy, vz);
 	d3varray[i].normal.as(nx, ny, nz);
-	d3varray[i].color.as((FLOAT)r, (FLOAT)g, (FLOAT)b, (FLOAT)a);
 	d3varray[i].tex.as(u, v);
+}
+
+void PolygonData::SetVertexBC(int I1, int I2, int i,
+	float vx, float vy, float vz,
+	float r, float g, float b, float a) {
+	d3varrayI[I1] = i;
+	d3varrayI[I2] = i;
+	d3varrayBC[i].Pos.as(vx, vy, vz);
+	d3varrayBC[i].color.as(r, g, b, a);
+}
+
+void PolygonData::SetVertexBC(int I1, int i,
+	float vx, float vy, float vz,
+	float r, float g, float b, float a) {
+	d3varrayI[I1] = i;
+	d3varrayBC[i].Pos.as(vx, vy, vz);
+	d3varrayBC[i].color.as(r, g, b, a);
 }
 
 void PolygonData::GetVBarray(PrimitiveType type, int v) {
@@ -94,6 +110,7 @@ void PolygonData::GetVBarray(PrimitiveType type, int v) {
 	}
 
 	d3varray = (Vertex*)malloc(sizeof(Vertex) * ver);
+	d3varrayBC = (VertexBC*)malloc(sizeof(VertexBC) * ver);
 	d3varrayI = (std::uint16_t*)malloc(sizeof(std::uint16_t) * verI);
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
 	Vview = std::make_unique<VertexView>();
@@ -320,22 +337,35 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 		dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
 	}
 
-	const UINT vbByteSize = ver * sizeof(Vertex);
+	UINT VertexSize;
+	if (tNo == -1 && !m_on)
+		VertexSize = sizeof(VertexBC);
+	else
+		VertexSize = sizeof(Vertex);
+
+	const UINT vbByteSize = VertexSize * ver;
 	const UINT ibByteSize = verI * sizeof(std::uint16_t);
 
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
-	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), d3varray, vbByteSize);
+	if (tNo == -1 && !m_on)
+		CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), d3varrayBC, vbByteSize);
+	else
+		CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), d3varray, vbByteSize);
 
 	D3DCreateBlob(ibByteSize, &Iview->IndexBufferCPU);
 	CopyMemory(Iview->IndexBufferCPU->GetBufferPointer(), d3varrayI, ibByteSize);
 
-	Vview->VertexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
-		mCommandList, d3varray, vbByteSize, Vview->VertexBufferUploader);
+	if (tNo == -1 && !m_on)
+		Vview->VertexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
+			mCommandList, d3varrayBC, vbByteSize, Vview->VertexBufferUploader);
+	else
+		Vview->VertexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
+			mCommandList, d3varray, vbByteSize, Vview->VertexBufferUploader);
 
 	Iview->IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
 		mCommandList, d3varrayI, ibByteSize, Iview->IndexBufferUploader);
 
-	Vview->VertexByteStride = sizeof(Vertex);
+	Vview->VertexByteStride = VertexSize;
 	Vview->VertexBufferByteSize = vbByteSize;
 	Iview->IndexFormat = DXGI_FORMAT_R16_UINT;
 	Iview->IndexBufferByteSize = ibByteSize;
@@ -344,7 +374,10 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 	//パイプラインステートオブジェクト生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	psoDesc.InputLayout = { dx->pVertexLayout_3D.data(), (UINT)dx->pVertexLayout_3D.size() };
+	if (tNo == -1 && !m_on)
+		psoDesc.InputLayout = { dx->pVertexLayout_3DBC.data(), (UINT)dx->pVertexLayout_3DBC.size() };
+	else
+		psoDesc.InputLayout = { dx->pVertexLayout_3D.data(), (UINT)dx->pVertexLayout_3D.size() };
 	psoDesc.pRootSignature = mRootSignature.Get();
 	psoDesc.VS =
 	{
@@ -402,8 +435,8 @@ void PolygonData::InstancedMapSize3(float x, float y, float z, float theta, floa
 	dx->InstancedMapSize3(&cb[sw], x, y, z, theta, 0, 0, sizeX, sizeY, sizeZ);
 }
 
-void PolygonData::InstanceUpdate(float r, float g, float b, float disp) {
-	InstanceUpdate(r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+void PolygonData::InstanceUpdate(float r, float g, float b, float a, float disp) {
+	InstanceUpdate(r, g, b, a, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void PolygonData::CbSwap() {
@@ -419,21 +452,21 @@ void PolygonData::CbSwap() {
 	DrawOn = TRUE;
 }
 
-void PolygonData::InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my) {
-	dx->MatrixMap2(&cb[sw], r, g, b, disp, px, py, mx, my);
+void PolygonData::InstanceUpdate(float r, float g, float b, float a, float disp, float px, float py, float mx, float my) {
+	dx->MatrixMap2(&cb[sw], r, g, b, a, disp, px, py, mx, my);
 	CbSwap();
 }
 
-void PolygonData::Update(float x, float y, float z, float r, float g, float b, float theta, float disp) {
-	Update(x, y, z, r, g, b, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+void PolygonData::Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp) {
+	Update(x, y, z, r, g, b, a, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void  PolygonData::Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size) {
-	Update(x, y, z, r, g, b, theta, disp, size, 1.0f, 1.0f, 1.0f, 1.0f);
+void  PolygonData::Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size) {
+	Update(x, y, z, r, g, b, a, theta, disp, size, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void PolygonData::Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my) {
-	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
+void PolygonData::Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size, float px, float py, float mx, float my) {
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, a, theta, 0, 0, size, disp, px, py, mx, my);
 	CbSwap();
 }
 
@@ -450,18 +483,10 @@ void PolygonData::Draw() {
 	Unlock();
 
 	mCommandList->SetPipelineState(mPSO.Get());
-	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
 
 	//mSwapChainBuffer PRESENT→RENDER_TARGET
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	//レンダーターゲットのセット
-	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		dx->mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		dx->mCurrBackBuffer,
-		dx->mRtvDescriptorSize), true, &dx->mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);//テクスチャ無しの場合このままで良いのやら・・エラーは無し

@@ -402,28 +402,24 @@ void EnemySide::SetVertex() {
 	mag->SetVertex(0, 0,
 		(float)-35.0f, (float)-35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//マジック右上
 	mag->SetVertex(1, 4, 1,
 		(float)35.0f, (float)-35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 0.0f);
 
 	//マジック左下
 	mag->SetVertex(2, 3, 2,
 		(float)-35.0f, (float)35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f);
 
 	//マジック右下
 	mag->SetVertex(5, 3,
 		(float)35.0f, (float)35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f);
 }
 
@@ -444,36 +440,36 @@ void EnemySide::CreateEnemy() {
 }
 
 //@Override
-void EnemySide::AttackAction(){
+void EnemySide::AttackAction() {
 	float m = tfloat.Add(0.15f);
-	if (effect_f == FALSE){
-		if (e_pos[o_no].theta >= 338.0f || e_pos[o_no].theta <= 22.0f){
+	if (effect_f == FALSE) {
+		if (e_pos[o_no].theta >= 338.0f || e_pos[o_no].theta <= 22.0f) {
 			if (zoom == TRUE && (mov_y += m) > 30.0f)zoom = FALSE;
-			if (zoom == FALSE && (mov_y -= m) < 0.0f){
+			if (zoom == FALSE && (mov_y -= m) < 0.0f) {
 				zoom = TRUE;
 				mov_y = 0.0f;
 				effect_f = TRUE;
 			}
 		}
-		if (e_pos[o_no].theta >= 68.0f && e_pos[o_no].theta <= 112.0f){
+		if (e_pos[o_no].theta >= 68.0f && e_pos[o_no].theta <= 112.0f) {
 			if (zoom == TRUE && (mov_x -= m) < -30.0f)zoom = FALSE;
-			if (zoom == FALSE && (mov_x += m) > 0.0f){
+			if (zoom == FALSE && (mov_x += m) > 0.0f) {
 				zoom = TRUE;
 				mov_y = 0.0f;
 				effect_f = TRUE;
 			}
 		}
-		if (e_pos[o_no].theta >= 158.0f && e_pos[o_no].theta <= 202.0f){
+		if (e_pos[o_no].theta >= 158.0f && e_pos[o_no].theta <= 202.0f) {
 			if (zoom == TRUE && (mov_y -= m) < -30.0f)zoom = FALSE;
-			if (zoom == FALSE && (mov_y += m) > 0.0f){
+			if (zoom == FALSE && (mov_y += m) > 0.0f) {
 				zoom = TRUE;
 				mov_y = 0.0f;
 				effect_f = TRUE;
 			}
 		}
-		if (e_pos[o_no].theta >= 248.0f && e_pos[o_no].theta <= 292.0f){
+		if (e_pos[o_no].theta >= 248.0f && e_pos[o_no].theta <= 292.0f) {
 			if (zoom == TRUE && (mov_x += m) > 30.0f)zoom = FALSE;
-			if (zoom == FALSE && (mov_x -= m) < 0.0f){
+			if (zoom == FALSE && (mov_x -= m) < 0.0f) {
 				zoom = TRUE;
 				mov_y = 0.0f;
 				effect_f = TRUE;
@@ -482,10 +478,10 @@ void EnemySide::AttackAction(){
 	}
 }
 
-void EnemySide::DamageAction(){
+void EnemySide::DamageAction() {
 
 	float m = tfloat.Add(0.05f);
-	if ((count += m) < 10){
+	if ((count += m) < 10) {
 		int rnd = rand() % 20;
 		rnd -= 10;
 		mov_x = (float)rnd;
@@ -504,26 +500,26 @@ void EnemySide::DamageAction(){
 }
 
 //@Override
-void EnemySide::RecoverActionInit(){
+void EnemySide::RecoverActionInit() {
 	mov_z = -50.0f;
 	act_f = RECOVER;
 }
 
 //@Override
-void EnemySide::RecoverAction(){
+void EnemySide::RecoverAction() {
 
 	float m = tfloat.Add(0.03f);
-	if ((mov_z += m) > 0.0f){
+	if ((mov_z += m) > 0.0f) {
 		mov_z = 0.0f;
 		act_f = normal_action;
 	}
 }
 
 //@Override
-bool EnemySide::LostAction(float x, float y, float z){
+bool EnemySide::LostAction(float x, float y, float z) {
 
 	float m = tfloat.Add(0.2f);
-	if ((mov_z -= m) < -100.0f){
+	if ((mov_z -= m) < -100.0f) {
 		//↓LOST中はひたすらLOSTフラグが入ってくるので0より下がらないようにする。
 		//act_fもそのまま
 		mov_z = 0.0f; return TRUE;
@@ -535,7 +531,7 @@ bool EnemySide::LostAction(float x, float y, float z){
 bool EnemySide::Magiccreate(float x, float y, float z) {
 
 	MovieSoundManager::Magic_sound(TRUE);
-	mag->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, 0, 0, 0, count, 0);
+	mag->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, 0, 0, 0, 0, count, 0);
 	float m = tfloat.Add(0.15f);
 	if ((count += m) > 100) {
 		count = 0.0f;
@@ -547,11 +543,11 @@ bool EnemySide::Magiccreate(float x, float y, float z) {
 
 //@Override
 void EnemySide::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {
-	en->Update(x, y, z, r, g, b, theta, 0);
+	en->Update(x, y, z, r, g, b, 0.0f, theta, 0);
 }
 
 //@Override
-bool EnemySide::M_run_flg(){
+bool EnemySide::M_run_flg() {
 
 	int rnd = rand() % M_run_flg_rnd;
 	if (rnd == 1)return TRUE;
@@ -559,20 +555,20 @@ bool EnemySide::M_run_flg(){
 }
 
 //@Override
-void EnemySide::M_select(int *r, int *r1){
+void EnemySide::M_select(int *r, int *r1) {
 
 	//マジック選択 ランダム数 0:Flame, 1:Healing, 2:Recover 
-	if (GetFlameATT_LV() != 0){
+	if (GetFlameATT_LV() != 0) {
 		if (GetHealing_LV() != 0 && GetRecover_LV() != 0)*r = rand() % 3;
 		if (GetHealing_LV() != 0 && GetRecover_LV() == 0)*r = rand() % 2;
-		if (GetHealing_LV() == 0 && GetRecover_LV() != 0){
+		if (GetHealing_LV() == 0 && GetRecover_LV() != 0) {
 			*r = rand() % 2;
 			if (*r == 1)*r = 2;
 		}
 		if (GetHealing_LV() == 0 && GetRecover_LV() == 0)*r = 0;
 	}
-	if (GetHealing_LV() != 0){
-		if (GetFlameATT_LV() == 0 && GetRecover_LV() != 0){
+	if (GetHealing_LV() != 0) {
+		if (GetFlameATT_LV() == 0 && GetRecover_LV() != 0) {
 			*r = rand() % 2;
 			if (*r == 0)*r = 1;
 			else *r = 2;
@@ -585,7 +581,7 @@ void EnemySide::M_select(int *r, int *r1){
 	*r1 = rand() % 2;
 }
 
-EnemySide::~EnemySide(){
+EnemySide::~EnemySide() {
 	S_DELETE(mag);
 	S_DELETE(en);
 }

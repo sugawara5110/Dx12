@@ -10,11 +10,11 @@
 void Map::MapUpdateObj() {
 	if (woodcount > 0)Mapupdate_Wood();
 	if (squarecount >= 1)Mapupdate_Wall1();
-	if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0);
-	if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0);
-	if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0);
-	if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
-	if (blockcountE >= 1)poWallE.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+	if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
+	if (blockcountE >= 1)poWallE.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
 }
 
 void Map::MapdrawObj() {
@@ -116,100 +116,100 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		//oŒûŒõŒ¹
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f * btr, 0.1f * btr, 0.1f * btr, 1.5f, 0.5f);
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 200.0f, 50.0f, 2.0f, TRUE);
-		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0);
-		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0);
-		poEXIT.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+		poEXIT.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		MapUpdateObj();
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 1:
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, TRUE);
-		poGroundF.Update(1100, 3500, 0, 0, 0, 0, 0, 0);
-		poCeilingF.Update(1100, 3500, 0, 0, 0, 0, 0, 0);
-		poGroundE.Update(900, 200, 0, 0, 0, 0, 0, 0);
-		poCeilingE.Update(900, 200, 0, 0, 0, 0, 0, 0);
-		if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0);
-		if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		poGroundF.Update(1100, 3500, 0, 0, 0, 0, 0, 0, 0);
+		poCeilingF.Update(1100, 3500, 0, 0, 0, 0, 0, 0, 0);
+		poGroundE.Update(900, 200, 0, 0, 0, 0, 0, 0, 0);
+		poCeilingE.Update(900, 200, 0, 0, 0, 0, 0, 0, 0);
+		if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+		if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
 		if (f_wall_count >= 1) {
-			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 6.0f);
+			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 0, 6.0f);
 		}
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 800.0f, 0.17f, TRUE);
-		poBackground.Update(0, 0, -3500, or , og, ob, 0, 0);
+		poBackground.Update(0, 0, -3500, or , og, ob, 0, 0, 0);
 		dx->Fog(1.0f, 1.0f, 1.0f, 100.0f, 0.4f, TRUE);
 		Mapupdate_Mountain();
 		dx->Fog(1.0f, 1.0f, 1.0f, 3.0f, 0.4f, TRUE);
-		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		if (woodcount > 0)Mapupdate_Wood();
 		if (squarecount >= 1)Mapupdate_Wall1();
-		if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		Mapupdate_Rain();
 		break;
 	case 2:
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f * btr, 0.15f * btr, 0.15f * btr, 1.5f, 0.5f);
-		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 180.0f, 0);
+		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 0, 180.0f, 0);
 		//“üŒûŒõŒ¹
 		dx->PointLightPosSet(2, 150.0f, 3980.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, TRUE);
 		MapupdateWave();
-		poGroundM.Update(0, 500, 0, 0, 0, 0, 0, 0);
-		poCeilingM.Update(0, 500, 0, 0, 0, 0, 0, 0);
-		poGroundE.Update(100, 100, 0, 0, 0, 0, 0, 4.0f);
-		poCeilingE.Update(100, 100, 0, 0, 0, 0, 0, 4.0f);
+		poGroundM.Update(0, 500, 0, 0, 0, 0, 0, 0, 0);
+		poCeilingM.Update(0, 500, 0, 0, 0, 0, 0, 0, 0);
+		poGroundE.Update(100, 100, 0, 0, 0, 0, 0, 0, 4.0f);
+		poCeilingE.Update(100, 100, 0, 0, 0, 0, 0, 0, 4.0f);
 		MapUpdateObj();
 		if (f_wall_count >= 1) {
-			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 20.0f);
+			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 0, 20.0f);
 		}
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 3:
 		//‚Æ‚è‚ ‚¦‚¸OKŒã‚ÅŒõŒ¹Ý’è‚·‚é
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f, 1.5f, 0.5f);
-		poGroundF.Update(200, 3000, 0, 0, 0, 0, 0, 0);
-		poCeilingF.Update(200, 2990, 0, 0, 0, 0, 0, 0);
-		if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		poGroundF.Update(200, 3000, 0, 0, 0, 0, 0, 0, 0);
+		poCeilingF.Update(200, 2990, 0, 0, 0, 0, 0, 0, 0);
+		if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f, 1.0f, 1.0f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
-		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
+		if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
 		if (f_wall_count >= 1) {
-			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 20.0f);
+			poF_Wall.Update(0, 0, 0, 0, 0, 0, 0, 0, 20.0f);
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 4:
 		//“ü‚èŒû‚É‰½‚©×H‚·‚é—\’è
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f * btr, 0.25f * btr, 0.25f * btr, 1.5f, 0.5f);
 		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
-		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
-		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
+		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
 		MapUpdateObj();
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0);
-		if (Elevator_count >= 1)poElevator.Update(0, 0, 4.0f, 0, 0, 0, 0, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+		if (Elevator_count >= 1)poElevator.Update(0, 0, 4.0f, 0, 0, 0, 0, 0, 0);
 		break;
 	}
 
@@ -254,15 +254,15 @@ void Map::HeroUpdate(bool mf) {
 	if (he)he->OBJWalkUpdate(cax1, cay1, (float)posz * 100.0f + elevator_step, 0, 0, 0, src_theta, mf);
 }
 
-Position::E_Pos *Map::Getposition(int p){
+Position::E_Pos *Map::Getposition(int p) {
 
-	if (src_theta == 0 || src_theta == 360){
+	if (src_theta == 0 || src_theta == 360) {
 		e_pos[0].theta = 0.0f;
 		e_pos[0].element = TRUE;
 		e_pos[0].x = cax1 + (int)(sin(0.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].y = cay1 - (int)(cos(0.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].z = posz * 100.0f;
-		if (p > 0 && posy - 2 >= 0 && posx - 1 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy - 2) * mxy.x + (posx - 1)] == 48){
+		if (p > 0 && posy - 2 >= 0 && posx - 1 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy - 2) * mxy.x + (posx - 1)] == 48) {
 			e_pos[1].theta = 338.0f;
 			e_pos[1].element = TRUE;
 			e_pos[1].x = cax1 + (int)(sin(338.0f * 3.14f / 180.0f) * 200.0f);
@@ -270,7 +270,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[1].z = posz * 100.0f;
 		}
 		else e_pos[1].element = FALSE;
-		if (p > 1 && posy - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy - 2) * mxy.x + posx] == 48){
+		if (p > 1 && posy - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy - 2) * mxy.x + posx] == 48) {
 			e_pos[2].theta = 0.0f;
 			e_pos[2].element = TRUE;
 			e_pos[2].x = cax1 + (int)(sin(0.0f * 3.14f / 180.0f) * 200.0f);
@@ -278,7 +278,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[2].z = posz * 100.0f;
 		}
 		else e_pos[2].element = FALSE;
-		if (p > 2 && posy - 2 >= 0 && posx + 1 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy - 2) * mxy.x + (posx + 1)] == 48){
+		if (p > 2 && posy - 2 >= 0 && posx + 1 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy - 2) * mxy.x + (posx + 1)] == 48) {
 			e_pos[3].theta = 22.0f;
 			e_pos[3].element = TRUE;
 			e_pos[3].x = cax1 + (int)(sin(22.0f * 3.14f / 180.0f) * 200.0f);
@@ -288,13 +288,13 @@ Position::E_Pos *Map::Getposition(int p){
 		else e_pos[3].element = FALSE;
 	}
 
-	if (src_theta == 90){
+	if (src_theta == 90) {
 		e_pos[0].theta = 90.0f;
 		e_pos[0].element = TRUE;
 		e_pos[0].x = cax1 + (int)(sin(90.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].y = cay1 - (int)(cos(90.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].z = posz * 100.0f;
-		if (p > 0 && posy - 1 >= 0 && posx + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy - 1) * mxy.x + (posx + 2)] == 48){
+		if (p > 0 && posy - 1 >= 0 && posx + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy - 1) * mxy.x + (posx + 2)] == 48) {
 			e_pos[1].theta = 68.0f;
 			e_pos[1].element = TRUE;
 			e_pos[1].x = cax1 + (int)(sin(68.0f * 3.14f / 180.0f) * 200.0f);
@@ -302,7 +302,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[1].z = posz * 100.0f;
 		}
 		else e_pos[1].element = FALSE;
-		if (p > 1 && posx + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + posy * mxy.x + (posx + 2)] == 48){
+		if (p > 1 && posx + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + posy * mxy.x + (posx + 2)] == 48) {
 			e_pos[2].theta = 90.0f;
 			e_pos[2].element = TRUE;
 			e_pos[2].x = cax1 + (int)(sin(90.0f * 3.14f / 180.0f) * 200.0f);
@@ -310,7 +310,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[2].z = posz * 100.0f;
 		}
 		else e_pos[2].element = FALSE;
-		if (p > 2 && posy + 1 <= 29 && posx + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy + 1) * mxy.x + (posx + 2)] == 48){
+		if (p > 2 && posy + 1 <= 29 && posx + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy + 1) * mxy.x + (posx + 2)] == 48) {
 			e_pos[3].theta = 112.0f;
 			e_pos[3].element = TRUE;
 			e_pos[3].x = cax1 + (int)(sin(112.0f * 3.14f / 180.0f) * 200.0f);
@@ -320,13 +320,13 @@ Position::E_Pos *Map::Getposition(int p){
 		else e_pos[3].element = FALSE;
 	}
 
-	if (src_theta == 180){
+	if (src_theta == 180) {
 		e_pos[0].theta = 180.0f;
 		e_pos[0].element = TRUE;
 		e_pos[0].x = cax1 + (int)(sin(180.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].y = cay1 - (int)(cos(180.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].z = posz * 100.0f;
-		if (p > 0 && posy + 2 <= 29 && posx + 1 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy + 2) * mxy.x + (posx + 1)] == 48){
+		if (p > 0 && posy + 2 <= 29 && posx + 1 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy + 2) * mxy.x + (posx + 1)] == 48) {
 			e_pos[1].theta = 158.0f;
 			e_pos[1].element = TRUE;
 			e_pos[1].x = cax1 + (int)(sin(158.0f * 3.14f / 180.0f) * 200.0f);
@@ -334,7 +334,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[1].z = posz * 100.0f;
 		}
 		else e_pos[1].element = FALSE;
-		if (p > 1 && posy + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy + 2) * mxy.x + posx] == 48){
+		if (p > 1 && posy + 2 <= 29 && mxy.m[posz * mxy.y * mxy.x + (posy + 2) * mxy.x + posx] == 48) {
 			e_pos[2].theta = 180.0f;
 			e_pos[2].element = TRUE;
 			e_pos[2].x = cax1 + (int)(sin(180.0f * 3.14f / 180.0f) * 200.0f);
@@ -342,7 +342,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[2].z = posz * 100.0f;
 		}
 		else e_pos[2].element = FALSE;
-		if (p > 2 && posy + 2 <= 29 && posx - 1 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy + 2) * mxy.x + (posx - 1)] == 48){
+		if (p > 2 && posy + 2 <= 29 && posx - 1 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy + 2) * mxy.x + (posx - 1)] == 48) {
 			e_pos[3].theta = 202.0f;
 			e_pos[3].element = TRUE;
 			e_pos[3].x = cax1 + (int)(sin(202.0f * 3.14f / 180.0f) * 200.0f);
@@ -352,13 +352,13 @@ Position::E_Pos *Map::Getposition(int p){
 		else e_pos[3].element = FALSE;
 	}
 
-	if (src_theta == 270){
+	if (src_theta == 270) {
 		e_pos[0].theta = 270.0f;
 		e_pos[0].element = TRUE;
 		e_pos[0].x = cax1 + (int)(sin(270.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].y = cay1 - (int)(cos(270.0f * 3.14f / 180.0f) * 100.0f);
 		e_pos[0].z = posz * 100.0f;
-		if (p > 0 && posy + 1 <= 29 && posx - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy + 1) * mxy.x + (posx - 2)] == 48){
+		if (p > 0 && posy + 1 <= 29 && posx - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy + 1) * mxy.x + (posx - 2)] == 48) {
 			e_pos[1].theta = 248.0f;
 			e_pos[1].element = TRUE;
 			e_pos[1].x = cax1 + (int)(sin(248.0f * 3.14f / 180.0f) * 200.0f);
@@ -366,7 +366,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[1].z = posz * 100.0f;
 		}
 		else e_pos[1].element = FALSE;
-		if (p > 1 && posx - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + posy * mxy.x + (posx - 2)] == 48){
+		if (p > 1 && posx - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + posy * mxy.x + (posx - 2)] == 48) {
 			e_pos[2].theta = 270.0f;
 			e_pos[2].element = TRUE;
 			e_pos[2].x = cax1 + (int)(sin(270.0f * 3.14f / 180.0f) * 200.0f);
@@ -374,7 +374,7 @@ Position::E_Pos *Map::Getposition(int p){
 			e_pos[2].z = posz * 100.0f;
 		}
 		else e_pos[2].element = FALSE;
-		if (p > 2 && posy - 1 >= 0 && posx - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy - 1) * mxy.x + (posx - 2)] == 48){
+		if (p > 2 && posy - 1 >= 0 && posx - 2 >= 0 && mxy.m[posz * mxy.y * mxy.x + (posy - 1) * mxy.x + (posx - 2)] == 48) {
 			e_pos[3].theta = 292.0f;
 			e_pos[3].element = TRUE;
 			e_pos[3].x = cax1 + (int)(sin(292.0f * 3.14f / 180.0f) * 200.0f);
@@ -386,7 +386,7 @@ Position::E_Pos *Map::Getposition(int p){
 	return e_pos;
 }
 
-Position::H_Pos *Map::Getposition(){
+Position::H_Pos *Map::Getposition() {
 
 	h_pos.cx1 = cax1;
 	h_pos.cx2 = cax2;
@@ -399,7 +399,7 @@ Position::H_Pos *Map::Getposition(){
 	h_pos.cx = cax1 + cax1 - cax2;
 	h_pos.cy = cay1 + cay1 - cay2;
 	h_pos.cz = posz * 100.0f + 40.0f;
-	
+
 	return &h_pos;
 }
 

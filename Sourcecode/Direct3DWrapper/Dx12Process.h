@@ -129,6 +129,7 @@ private:
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_P;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_MESH;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_3D;
+	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_3DBC;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_2D;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_Wave = nullptr;
@@ -222,13 +223,13 @@ private:
 
 	void InstancedMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ);
 
-	void MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, float disp, float px, float py, float mx, float my);
+	void MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, float a, float disp, float px, float py, float mx, float my);
 
 	void MatrixMap(CONSTANT_BUFFER *cb, float x, float y, float z,
-		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my);
+		float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my);
 
 	void MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
-		float r, float g, float b, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
+		float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my);
 	void WaitFence(int fence);
 
 public:
@@ -481,9 +482,9 @@ public:
 	//木./dat/mesh/tree.obj
 	//複数Update
 	void InstancedMap(float x, float y, float z, float thetaZ, float thetaY, float thetaX, float size);
-	void InstanceUpdate(float r, float g, float b, float disp);
+	void InstanceUpdate(float r, float g, float b, float a, float disp);
 	//単体Update
-	void Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size, float disp);
 	//描画
 	void DrawOff();
 	void Draw();
@@ -537,6 +538,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;
 
 	Vertex         *d3varray;  //頂点配列
+	VertexBC       *d3varrayBC;//頂点配列基本色
 	std::uint16_t  *d3varrayI;//頂点インデックス
 	int            ver;      //頂点個数
 	int            verI;    //頂点インデックス
@@ -563,21 +565,25 @@ public:
 	void SetVertex(int I1, int I2, int i,
 		float vx, float vy, float vz,
 		float nx, float ny, float nz,
-		float r, float g, float b, float a,
 		float u, float v);
 	void SetVertex(int I1, int i,
 		float vx, float vy, float vz,
 		float nx, float ny, float nz,
-		float r, float g, float b, float a,
 		float u, float v);
+	void SetVertexBC(int I1, int I2, int i,
+		float vx, float vy, float vz,
+		float r, float g, float b, float a);
+	void SetVertexBC(int I1, int i,
+		float vx, float vy, float vz,
+		float r, float g, float b, float a);
 	void InstancedMap(float x, float y, float z, float theta);
 	void InstancedMap(float x, float y, float z, float theta, float size);
 	void InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ);
-	void InstanceUpdate(float r, float g, float b, float disp);
-	void InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my);
-	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp);
-	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
-	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
+	void InstanceUpdate(float r, float g, float b, float a, float disp);
+	void InstanceUpdate(float r, float g, float b, float a, float disp, float px, float py, float mx, float my);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size, float px, float py, float mx, float my);
 	void DrawOff();
 	void Draw();
 };
@@ -909,8 +915,8 @@ public:
 	HRESULT GetFbxSub(CHAR* szFileName, int ind);
 	HRESULT GetBuffer_Sub(int ind, float end_frame);
 	void CreateFromFBX_SubAnimation(int ind);
-	bool Update(float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
-	bool Update(int ind, float time, float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size);
+	bool Update(float time, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size);
+	bool Update(int ind, float time, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size);
 	void DrawOff();
 	void Draw();
 	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scale);
@@ -988,16 +994,15 @@ public:
 	void SetVertex(int i,
 		float vx, float vy, float vz,
 		float nx, float ny, float nz,
-		float r, float g, float b, float a,
 		float u, float v);
 	void InstancedMap(float x, float y, float z, float theta);
 	void InstancedMap(float x, float y, float z, float theta, float size);
 	void InstancedMapSize3(float x, float y, float z, float theta, float sizeX, float sizeY, float sizeZ);
-	void InstanceUpdate(float r, float g, float b, float disp);
-	void InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my);
-	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp);
-	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size);
-	void Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my);
+	void InstanceUpdate(float r, float g, float b, float a, float disp);
+	void InstanceUpdate(float r, float g, float b, float a, float disp, float px, float py, float mx, float my);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size);
+	void Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size, float px, float py, float mx, float my);
 	void DrawOff();
 	void Draw();
 };

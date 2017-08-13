@@ -42,7 +42,6 @@ char *ShaderDisp =
 "{\n"
 "    float3 Pos        : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
 "};\n"
@@ -51,7 +50,6 @@ char *ShaderDisp =
 "{\n"
 "    float3 Pos        : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
 "};\n"
@@ -66,7 +64,6 @@ char *ShaderDisp =
 "{\n"
 "    float3 Pos        : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
 "};\n"
@@ -75,7 +72,6 @@ char *ShaderDisp =
 "{\n"
 "	 float3 Pos        : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
 "};\n"
@@ -85,7 +81,6 @@ char *ShaderDisp =
 "    float4 Pos  : SV_POSITION;\n"
 "    float4 wPos : POSITION;\n"
 "    float3 Nor  : NORMAL;\n"
-"    float4 Col  : COLOR;\n"
 "    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
@@ -94,30 +89,27 @@ char *ShaderDisp =
 "	 float4 Pos  : SV_POSITION;\n"
 "    float4 wPos : POSITION;\n"
 "    float3 Nor  : NORMAL;\n"
-"    float4 Col  : COLOR;\n"
 "    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
 //*********************************************頂点シェーダー*******************************************************************//
 //ライト有
-"VS_OUTPUT_TCL VSDispL(float3 Pos : POSITION, float3 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
+"VS_OUTPUT_TCL VSDispL(float3 Pos : POSITION, float3 Nor : NORMAL, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TCL output = (VS_OUTPUT_TCL)0;\n"
 "    output.Pos = Pos;\n"
 "    output.Nor = Nor;\n"
-"    output.Col = Col;\n"
 "    output.Tex = Tex;\n"
 "    output.instanceID = instanceID;\n"
 "    return output;\n"
 "}\n"
 
 //ライト無
-"VS_OUTPUT_TC VSDisp(float3 Pos : POSITION, float3 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
+"VS_OUTPUT_TC VSDisp(float3 Pos : POSITION, float3 Nor : NORMAL, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TC output = (VS_OUTPUT_TC)0;\n"
 "    output.Pos = Pos;\n"
 "    output.Nor = Nor;\n"
-"    output.Col = Col;\n"
 "    output.Tex = Tex;\n"
 "    output.instanceID = instanceID;\n"
 "    return output;\n"
@@ -197,7 +189,6 @@ char *ShaderDisp =
 "	HS_OUTPUT_TCL output;\n"
 "	output.Pos = ipL[cpidL].Pos;\n"
 "	output.Nor = ipL[cpidL].Nor;\n"
-"	output.Col = ipL[cpidL].Col;\n"
 "	output.Tex = ipL[cpidL].Tex;\n"
 "   output.instanceID = ipL[cpidL].instanceID;\n"
 "	return output;\n"
@@ -214,7 +205,6 @@ char *ShaderDisp =
 "	HS_OUTPUT_TC output;\n"
 "	output.Pos = ip[cpid].Pos;\n"
 "	output.Nor = ip[cpid].Nor;\n"
-"	output.Col = ip[cpid].Col;\n"
 "	output.Tex = ip[cpid].Tex;\n"
 "   output.instanceID = ip[cpid].instanceID;\n"
 "	return output;\n"
@@ -227,9 +217,6 @@ char *ShaderDisp =
 "DS_OUTPUT_TCL DSDispL(HS_CONSTANT_OUTPUT InL, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT_TCL, 4> patchL)\n"
 "{\n"
 "	DS_OUTPUT_TCL output;\n"
-
-//カラー取り出し
-"   output.Col = patchL[0].Col;\n"
 
 //UV座標計算
 "   float2 top_uv = lerp(patchL[0].Tex, patchL[1].Tex, UV.x);\n"
@@ -268,9 +255,6 @@ char *ShaderDisp =
 "DS_OUTPUT_TC DSDisp(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT_TC, 4> patch)\n"
 "{\n"
 "	DS_OUTPUT_TC output;\n"
-
-//カラー取り出し
-"   output.Col = patch[0].Col;\n"
 
 "   float2 top_uv = lerp(patch[0].Tex, patch[1].Tex, UV.x);\n"
 "   float2 bottom_uv = lerp(patch[3].Tex, patch[2].Tex, UV.x);\n"
@@ -331,8 +315,6 @@ char *ShaderDisp =
 "       }\n"
 "    }\n"
 
-//アルファ値退避
-"    float a = input.Col.w;\n"
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 
 //ライト計算
@@ -354,7 +336,7 @@ char *ShaderDisp =
 "            float r = g_Lightst[i].y / (pow(distance, attenuation) * 0.001f);\n"
 
 //法線,ライト方向から陰影作成, N, Lの内積がg_ShadowLow.x未満の場合g_ShadowLow.xの値が適用される(距離による影は関係無し)
-"           Col = Col + max(dot(N, L), g_ShadowLow_Lpcs.x) * input.Col * r * g_LightColor[i];\n"
+"           Col = Col + max(dot(N, L), g_ShadowLow_Lpcs.x) * r * g_LightColor[i];\n"
 "        }\n"
 "    }\n"
 
@@ -369,7 +351,7 @@ char *ShaderDisp =
 "    }\n"
 
 //最後に基本色にテクスチャの色を掛け合わせる
-"    return float4(Col, a) * T + g_ObjCol;\n"
+"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
 "}\n"
 
 //ライト無
@@ -392,6 +374,6 @@ char *ShaderDisp =
 "    }\n"
 
 "   float4 col = T;\n"
-"   return col * input.Col + g_ObjCol;\n"
+"   return col + g_ObjCol;\n"
 "}\n";
 //**************************************ピクセルシェーダー*******************************************************************//

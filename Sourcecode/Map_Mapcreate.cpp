@@ -14,18 +14,18 @@ int Map::map_no_s;
 MapStPos Map::MPos = POS_ST;
 int Map::boss_killed[5];
 
-int Map::GetMapNo(){
+int Map::GetMapNo() {
 	return map_no_s;
 }
 
-void Map::SetMapNo(int no){
+void Map::SetMapNo(int no) {
 	map_no_s = no;
 }
 
-void Map::SetBossKilled(int i, int f){
+void Map::SetBossKilled(int i, int f) {
 
-	if (i == -1){
-		for (int i1 = 0; i1 < 5; i1++){
+	if (i == -1) {
+		for (int i1 = 0; i1 < 5; i1++) {
 			boss_killed[i1] = 0;
 		}
 		return;
@@ -33,11 +33,11 @@ void Map::SetBossKilled(int i, int f){
 	boss_killed[i] = f;
 }
 
-int *Map::GetBossKilled(){
+int *Map::GetBossKilled() {
 	return boss_killed;
 }
 
-int Map::GetBossKilled(int map_no){
+int Map::GetBossKilled(int map_no) {
 	return boss_killed[map_no];
 }
 
@@ -209,17 +209,13 @@ void Map::SetVertex() {
 		//空メイン
 		Mapcreate_Background(-3500.0f, 7500.0f);
 		//雨
-		poRain.SetVertex(0, 0,
+		poRain.SetVertexBC(0, 0,
 			0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			0.0f, 0.0f);
+			1.0f, 1.0f, 1.0f, 1.0f);
 
-		poRain.SetVertex(1, 1,
+		poRain.SetVertexBC(1, 1,
 			0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			0.0f, 0.0f);
+			1.0f, 1.0f, 1.0f, 1.0f);
 		//地面出口
 		Mapcreate_Ground(&poGroundE, 2, 3, 2.0f, 1.0f);
 		//空出口
@@ -227,10 +223,10 @@ void Map::SetVertex() {
 		break;
 	case 2:
 		//波
-		wav.SetVertex(0, -50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.7f, 0.0f, 0.0f);
-		wav.SetVertex(1, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.7f, 0.0f, 1.0f);
-		wav.SetVertex(2, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.7f, 1.0f, 1.0f);
-		wav.SetVertex(3, 50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.7f, 1.0f, 0.0f);
+		wav.SetVertex(0, -50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		wav.SetVertex(1, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		wav.SetVertex(2, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+		wav.SetVertex(3, 50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 		//入口
 		Mapcreate_EXIT(-50.0f, -50.0f, 100.0f, 100.0f);
 		//地面メイン
@@ -485,7 +481,7 @@ void Map::Mapupdate_Wood() {
 			}
 		}
 	}
-	mWood.InstanceUpdate(0, 0, 0, 0.2f);
+	mWood.InstanceUpdate(0, 0, 0, 0, 0.2f);
 }
 
 void Map::Mapdraw_Wood() {
@@ -494,40 +490,36 @@ void Map::Mapdraw_Wood() {
 
 void Map::Mapupdate_Mountain() {
 	mountain.InstancedMap(-1500.0f, 2000.0f, 0, 0, 0, 0, 500.0f);
-	mountain.Update(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0);
+	mountain.Update(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0);
 }
 
 void Map::Mapdraw_Mountain() {
 	mountain.Draw();
 }
 
-void Map::Mapcreate_Wall1(int i){
+void Map::Mapcreate_Wall1(int i) {
 	//左前
 	poWall1[i].SetVertex(0, 0,
 		-50.0f, 0.0f, 100.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//右前
 	poWall1[i].SetVertex(1, 4, 1,
 		50.0f, 0.0f, 100.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 0.0f);
 
 	//左奥
 	poWall1[i].SetVertex(2, 3, 2,
 		-50.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f);
 
 	//右奥
 	poWall1[i].SetVertex(5, 3,
 		50.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f);
 }
 
@@ -545,216 +537,192 @@ void Map::Mapupdate_Wall1() {
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i].InstanceUpdate(0, 0, 0, 0);
+	for (int i = 0; i < 3; i++)poWall1[i].InstanceUpdate(0, 0, 0, 0, 0);
 }
 
 void Map::Mapdraw_Wall1() {
 	for (int i = 0; i < 3; i++)poWall1[i].Draw();
 }
 
-void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2){
+void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2) {
 
 	int k = 0;
-	for (int k3 = 0; k3 < mxy.z; k3++){
-		for (int j = 0; j < mxy.y; j++){
-			for (int i = 0; i < mxy.x; i++){
+	for (int k3 = 0; k3 < mxy.z; k3++) {
+		for (int j = 0; j < mxy.y; j++) {
+			for (int i = 0; i < mxy.x; i++) {
 
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no2)continue;
 				//壁ブロック頂点設定
 				//正面検査
 				if (k3 < mxy.z - 1 && mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no1 &&
-					mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no2){
+					mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no2) {
 					//正面左上
 					pd->SetVertex(k, k,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 0.0f);
 
 					//正面左下
 					pd->SetVertex(k + 1, k + 1,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//正面右下
 					pd->SetVertex(k + 2, k + 2,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 1.0f);
 
 					//正面右上
 					pd->SetVertex(k + 3, k + 3,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 0.0f);
 					k += 4;
 				}
 
 				//左面検査
 				if (i > 0 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no2){
+					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no2) {
 					//左面上前
 					pd->SetVertex(k, k,
 						(float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2,
 						-1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 0.0f);
 
 					//左面上後
 					pd->SetVertex(k + 1, k + 1,
 						(float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2,
 						-1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//左面下後
 					pd->SetVertex(k + 2, k + 2,
 						(float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2,
 						-1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 1.0f);
 
 					//左面下前
 					pd->SetVertex(k + 3, k + 3,
 						(float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2,
 						-1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 0.0f);
 					k += 4;
 				}
 
 				//右面検査
 				if (i < mxy.x - 1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no2){
+					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no2) {
 					//右面下前
 					pd->SetVertex(k, k,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2,
 						1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 0.0f);
 
 					//右面下後
 					pd->SetVertex(k + 1, k + 1,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2,
 						1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//右面上後
 					pd->SetVertex(k + 2, k + 2,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2,
 						1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 1.0f);
 
 					//右面上前
 					pd->SetVertex(k + 3, k + 3,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2,
 						1.0f, 0.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 0.0f);
 					k += 4;
 				}
 
 				//上面検査
 				if (j > 0 && mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no2){
+					mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no2) {
 					//上面右前
 					pd->SetVertex(k, k,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2,
 						0.0f, -1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 0.0f);
 
 					//上面右後
 					pd->SetVertex(k + 1, k + 1,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, -1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//上面左後
 					pd->SetVertex(k + 2, k + 2,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, -1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 1.0f);
 
 					//上面左前
 					pd->SetVertex(k + 3, k + 3,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2,
 						0.0f, -1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 0.0f);
 					k += 4;
 				}
 
 				//裏面検査
 				if (k3 > 0 && mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no1 &&
-					mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no2){
+					mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no2) {
 					//裏面右上
 					pd->SetVertex(k, k,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 0.0f);
 
 					//裏面右下
 					pd->SetVertex(k + 1, k + 1,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//裏面左下
 					pd->SetVertex(k + 2, k + 2,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 1.0f);
 
 					//裏面左上
 					pd->SetVertex(k + 3, k + 3,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 0.0f);
 					k += 4;
 				}
 
 				//底面検査
 				if (j < mxy.y - 1 && mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no2){
+					mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no2) {
 					//底面左前
 					pd->SetVertex(k, k,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2,
 						0.0f, 1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 0.0f);
 
 					//底面左後
 					pd->SetVertex(k + 1, k + 1,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, 1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//底面右後
 					pd->SetVertex(k + 2, k + 2,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, 1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 1.0f);
 
 					//底面右前
 					pd->SetVertex(k + 3, k + 3,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2,
 						0.0f, 1.0f, 0.0f,
-						1.0f, 1.0f, 1.0f, 1.0f,
 						1.0f, 0.0f);
 					k += 4;
 				}
@@ -763,41 +731,37 @@ void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float 
 	}
 }
 
-void Map::Mapcreate_Ground(PolygonData *pd, int pcsx, int pcsy, float height, float adjust){
+void Map::Mapcreate_Ground(PolygonData *pd, int pcsx, int pcsy, float height, float adjust) {
 
 	//地面頂点
 	int k = 0;
 	float size = 100.0f;//1マスの大きさ
-	for (int j = 0; j < pcsy; j++){
-		for (int i = 0; i < pcsx; i++){
+	for (int j = 0; j < pcsy; j++) {
+		for (int i = 0; i < pcsx; i++) {
 			float x = size * i;
 			float y = size * j;
 			//地面左上
 			pd->SetVertex(k, k,
 				x - adjust, y - adjust, height,
 				0.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				0.0f, 0.0f);
 
 			//地面左下
 			pd->SetVertex(k + 1, k + 1,
 				x - adjust, y + size + adjust, height,
 				0.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				0.0f, 1.0f);
 
 			//地面右下
 			pd->SetVertex(k + 2, k + 2,
 				x + size + adjust, y + size + adjust, height,
 				0.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				1.0f, 1.0f);
 
 			//地面右上
 			pd->SetVertex(k + 3, k + 3,
 				x + size + adjust, y - adjust, height,
 				0.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				1.0f, 0.0f);
 
 			k += 4;
@@ -805,41 +769,37 @@ void Map::Mapcreate_Ground(PolygonData *pd, int pcsx, int pcsy, float height, fl
 	}
 }
 
-void Map::Mapcreate_Ceiling(PolygonData *pd, int pcsx, int pcsy, float height, float adjust){
+void Map::Mapcreate_Ceiling(PolygonData *pd, int pcsx, int pcsy, float height, float adjust) {
 
 	//天井頂点
 	int k = 0;
 	float size = 100.0f;//1マスの大きさ
-	for (int j = 0; j < pcsy; j++){
-		for (int i = 0; i < pcsx; i++){
+	for (int j = 0; j < pcsy; j++) {
+		for (int i = 0; i < pcsx; i++) {
 			float x = size * i;
 			float y = size * j;
 			//天井左上
 			pd->SetVertex(k, k,
 				x - adjust, y - adjust, height,
 				0.0f, 0.0f, -1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				0.0f, 0.0f);
 
 			//天井右上
 			pd->SetVertex(k + 1, k + 1,
 				x + size + adjust, y - adjust, height,
 				0.0f, 0.0f, -1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				1.0f, 0.0f);
 
 			//天井右下
 			pd->SetVertex(k + 2, k + 2,
 				x + size + adjust, y + size + adjust, height,
 				0.0f, 0.0f, -1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				1.0f, 1.0f);
 
 			//天井左下
 			pd->SetVertex(k + 3, k + 3,
 				x - adjust, y + size + adjust, height,
 				0.0f, 0.0f, -1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f,
 				0.0f, 1.0f);
 
 			k += 4;
@@ -847,7 +807,7 @@ void Map::Mapcreate_Ceiling(PolygonData *pd, int pcsx, int pcsy, float height, f
 	}
 }
 
-void Map::Mapcreate_Background(float st, float end){
+void Map::Mapcreate_Background(float st, float end) {
 
 	float height = end - st;
 	//正面
@@ -855,28 +815,24 @@ void Map::Mapcreate_Background(float st, float end){
 	poBackground.SetVertex(0, 0,
 		end, st, height,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//左上
 	poBackground.SetVertex(1, 4, 1,
 		st, st, height,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 0.0f);
 
 	//右下
 	poBackground.SetVertex(2, 3, 2,
 		end, end, height,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 5.0f);
 
 	//左下
 	poBackground.SetVertex(5, 3,
 		st, end, height,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 5.0f);
 
 	//上
@@ -884,28 +840,24 @@ void Map::Mapcreate_Background(float st, float end){
 	poBackground.SetVertex(6, 4,
 		st, st, height,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 5.0f);
 
 	//右前
 	poBackground.SetVertex(7, 10, 5,
 		end, st, height,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 5.0f);
 
 	//左奥
 	poBackground.SetVertex(8, 9, 6,
 		st, st, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 0.0f);
 
 	//右奥
 	poBackground.SetVertex(11, 7,
 		end, st, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//下
@@ -913,28 +865,24 @@ void Map::Mapcreate_Background(float st, float end){
 	poBackground.SetVertex(12, 8,
 		end, end, height,
 		0.0f, -1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//左前
 	poBackground.SetVertex(13, 16, 9,
 		st, end, height,
 		0.0f, -1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 0.0f);
 
 	//右奥
 	poBackground.SetVertex(14, 15, 10,
 		end, end, 0.0f,
 		0.0f, -1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 5.0f);
 
 	//左奥
 	poBackground.SetVertex(17, 11,
 		st, end, 0.0f,
 		0.0f, -1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 5.0f);
 
 	//右
@@ -942,28 +890,24 @@ void Map::Mapcreate_Background(float st, float end){
 	poBackground.SetVertex(18, 12,
 		end, st, height,
 		-1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 0.0f);
 
 	//下前
 	poBackground.SetVertex(19, 22, 13,
 		end, end, height,
 		-1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 5.0f);
 
 	//上奥
 	poBackground.SetVertex(20, 21, 14,
 		end, st, 0.0f,
 		-1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//下奥
 	poBackground.SetVertex(23, 15,
 		end, end, 0.0f,
 		-1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 5.0f);
 
 	//左
@@ -971,28 +915,24 @@ void Map::Mapcreate_Background(float st, float end){
 	poBackground.SetVertex(24, 16,
 		st, end, height,
 		1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 5.0f);
 
 	//上前
 	poBackground.SetVertex(25, 28, 17,
 		st, st, height,
 		1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//下奥
 	poBackground.SetVertex(26, 27, 18,
 		st, end, 0.0f,
 		1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 5.0f);
 
 	//上奥
 	poBackground.SetVertex(29, 19,
 		st, st, 0.0f,
 		1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		5.0f, 0.0f);
 }
 
@@ -1004,7 +944,7 @@ void Map::Mapupdate_Rain() {
 		y = rand() % 500;
 		poRain.InstancedMap(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f, 0.0f, (float)(rand() % 300));
 	}
-	poRain.InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f);
+	poRain.InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void Map::Mapdraw_Rain() {
@@ -1027,43 +967,35 @@ void Map::Mapcreate_Recover() {
 				poRecover.SetVertex(k1, k,
 					(float)i * 100.0f, (float)j * 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					0.0f, 0.0f);
 
 				//回復ポイント右上
 				poRecover.SetVertex(k1 + 1, k1 + 4, k + 1,
 					(float)i * 100.0f + 100.0f, (float)j * 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 0.0f);
 
 				//回復ポイント左下
 				poRecover.SetVertex(k1 + 2, k1 + 3, k + 2,
 					(float)i * 100.0f, (float)j * 100.0f + 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					0.0f, 1.0f);
 
 				//回復ポイント右下
 				poRecover.SetVertex(k1 + 5, k + 3,
 					(float)i * 100.0f + 100.0f, (float)j * 100.0f + 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 1.0f);
 
 				//line
 				for (int l = 0; l < 12; l++) {
-					poRecoverLine[l].SetVertex(l1, l1,
+					poRecoverLine[l].SetVertexBC(l1, l1,
 						(float)i * 100.0f + 50.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 1.0f,
-						0.0f, 0.0f, 0.0f,
-						0.0f, 1.0f, 0.0f, 1.0f,
-						0.0f, 0.0f);
+						0.0f, 1.0f, 0.0f, 1.0f);
 
-					poRecoverLine[l].SetVertex(l1 + 1, l1 + 1,
+					poRecoverLine[l].SetVertexBC(l1 + 1, l1 + 1,
 						(float)i * 100.0f + 50.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f,
-						0.0f, 0.0f, 0.0f,
-						0.0f, 0.4f, 1.0f, 1.0f,
-						0.0f, 0.0f);
+						0.0f, 0.4f, 1.0f, 1.0f);
 				}
 				k += 4;
 				k1 += 6;
@@ -1083,10 +1015,10 @@ void Map::Mapupdate_Recover() {
 			int rnd = rand() % 20;
 			poRecoverLine[(int)j].InstancedMapSize3(line_x, line_y, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
 		}
-		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f);
+		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	}
 	dx->PointLightPosSet(7, recovPosX, recovPosY, 2.0f, 0.2f, 0.8f, 0.2f, 1.0f, 100.0f, 10.0f, 2.0f, TRUE);
-	poRecover.Update(0, 0, 4.0f, 0, 0, 0, 0, 0);
+	poRecover.Update(0, 0, 4.0f, 0, 0, 0, 0, 0, 0);
 }
 
 void Map::Mapdraw_Recover() {
@@ -1226,40 +1158,36 @@ void Map::Mapdraw_Ds() {
 	poMo.DrawBillboard();
 }
 
-void Map::Mapcreate_BossPoint(){
+void Map::Mapcreate_BossPoint() {
 
 	int k = 0;
 	int k1 = 0;
-	for (int k3 = 0; k3 < mxy.z; k3++){
-		for (int j = 0; j < mxy.y; j++){
-			for (int i = 0; i < mxy.x; i++){
+	for (int k3 = 0; k3 < mxy.z; k3++) {
+		for (int j = 0; j < mxy.y; j++) {
+			for (int i = 0; i < mxy.x; i++) {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 51)continue;
 				//ボスポイント左前
 				poBoss.SetVertex(k1, k,
 					(float)i * 100.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 100.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					0.0f, 0.0f);
 
 				//ボスポイント右前
 				poBoss.SetVertex(k1 + 1, k1 + 4, k + 1,
 					(float)i * 100.0f + 100.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 100.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 0.0f);
 
 				//ボスポイント左奥
 				poBoss.SetVertex(k1 + 2, k1 + 3, k + 2,
 					(float)i * 100.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					0.0f, 1.0f);
 
 				//ボスポイント右奥
 				poBoss.SetVertex(k1 + 5, k + 3,
 					(float)i * 100.0f + 100.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 1.0f);
 
 				k += 4;
@@ -1269,41 +1197,37 @@ void Map::Mapcreate_BossPoint(){
 	}
 }
 
-void Map::Mapcreate_Elevator(){
+void Map::Mapcreate_Elevator() {
 
 	int k = 0;
 	int k1 = 0;
-	for (int k3 = 0; k3 < mxy.z; k3++){
-		for (int j = 0; j < mxy.y; j++){
-			for (int i = 0; i < mxy.x; i++){
+	for (int k3 = 0; k3 < mxy.z; k3++) {
+		for (int j = 0; j < mxy.y; j++) {
+			for (int i = 0; i < mxy.x; i++) {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 65 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 66)continue;
 				//エレベータ左上
 				poElevator.SetVertex(k1, k,
 					(float)i * 100.0f, (float)j * 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					0.0f, 0.0f);
 
 				//エレベータ右上
 				poElevator.SetVertex(k1 + 1, k1 + 4, k + 1,
 					(float)i * 100.0f + 100.0f, (float)j * 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 0.0f);
 
 				//エレベータ左下
 				poElevator.SetVertex(k1 + 2, k1 + 3, k + 2,
 					(float)i * 100.0f, (float)j * 100.0f + 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					0.0f, 1.0f);
 
 				//エレベータ右下
 				poElevator.SetVertex(k1 + 5, k + 3,
 					(float)i * 100.0f + 100.0f, (float)j * 100.0f + 100.0f, (float)k3 * 100.0f + 2.0f,
 					0.0f, 0.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 1.0f);
 
 				k += 4;
@@ -1313,38 +1237,30 @@ void Map::Mapcreate_Elevator(){
 	}
 }
 
-void Map::Mapcreate_EXIT(float x, float y, float z, float xsize){
+void Map::Mapcreate_EXIT(float x, float y, float z, float xsize) {
 
 	//左前
-	poEXIT.SetVertex(0, 0,
+	poEXIT.SetVertexBC(0, 0,
 		x, y, z,
-		255.0f, 255.0f, 255.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f);
+		1.0f, 1.0f, 1.0f, 1.0f);
 
 	//右前
-	poEXIT.SetVertex(1, 4, 1,
+	poEXIT.SetVertexBC(1, 4, 1,
 		x + xsize, y, z,
-		255.0f, 255.0f, 255.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f);
+		1.0f, 1.0f, 1.0f, 1.0f);
 
 	//左奥
-	poEXIT.SetVertex(2, 3, 2,
+	poEXIT.SetVertexBC(2, 3, 2,
 		x, y, 0.0f,
-		255.0f, 255.0f, 255.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		0.0f, 1.0f);
+		1.0f, 1.0f, 1.0f, 1.0f);
 
 	//右奥
-	poEXIT.SetVertex(5, 3,
+	poEXIT.SetVertexBC(5, 3,
 		x + xsize, y, 0.0f,
-		255.0f, 255.0f, 255.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f);
+		1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-Map::~Map(){
+Map::~Map() {
 	dx->WaitFenceCurrent();
 	dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, FALSE);//出口ライト消す
 	ARR_DELETE(wood);
@@ -1355,7 +1271,7 @@ Map::~Map(){
 	mxy.m = NULL;
 }
 
-bool Map::ViewCulling(float obj_x, float obj_y, float obj_z){
+bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
 	//対象オブジェクトまでの方角計算
 	int theta;
 	float radian;
@@ -1367,19 +1283,19 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z){
 	//オブジェクトと現在位置のxyが等しい場合(2フロア以上の場合発生する)
 	if (dist_x == 0 && dist_y == 0)return FALSE;
 
-	if (dist_x == 0){
+	if (dist_x == 0) {
 		if (cy > obj_y)theta = 0;
 		if (cy < obj_y)theta = 180;
 	}
-	if (dist_y == 0){
+	if (dist_y == 0) {
 		if (cx < obj_x)theta = 90;
 		if (cx > obj_x)theta = 270;
 	}
-	if (cx != obj_x && cy != obj_y){
+	if (cx != obj_x && cy != obj_y) {
 		radian = atan(dist_x / dist_y);
 		theta = (int)(180.0 * radian / 3.14159265359);
 		if (cx < obj_x && cy < obj_y)theta += 180;
-		if (cx > obj_x){
+		if (cx > obj_x) {
 			if (cy < obj_y)theta += 180;
 			if (cy > obj_y)theta += 360;
 		}
@@ -1391,15 +1307,15 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z){
 	viewleft = (viewleft + 360) % 360;
 	viewright = viewright % 360;
 	bool ret = FALSE;
-	if (viewleft < viewright){
+	if (viewleft < viewright) {
 		if (viewleft < theta && viewright > theta)ret = TRUE;
 	}
-	if (viewleft > viewright){
+	if (viewleft > viewright) {
 		if (viewleft < theta || viewright > theta)ret = TRUE;
 	}
 
 	//XYZ視野内判定
-	if (ret == TRUE){
+	if (ret == TRUE) {
 		float dist_z = fabsf(posz * 100.0f - obj_z);
 		if (dist_z == 0)return TRUE;
 		float dist_xy = sqrt(dist_x * dist_x + dist_y * dist_y);
@@ -1428,5 +1344,5 @@ void Map::MapupdateWave() {
 			}
 		}
 	}
-	wav.InstanceUpdate(0, 0, 0, 0.4f);
+	wav.InstanceUpdate(0, 0, 0, -0.4f, 0.4f);
 }

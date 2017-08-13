@@ -42,8 +42,6 @@ char *ShaderMesh =
 "{\n"
 //マテリアル毎の色
 "    float4 g_Diffuse;\n"
-//テクスチャ有無のフラグ.x
-"    float4 g_Tex_f;\n"
 "};\n"
 
 "struct VS_OUTPUT\n"
@@ -52,7 +50,6 @@ char *ShaderMesh =
 "    float4 wPos : POSITION;\n"
 "    float3 Nor  : NORMAL;\n"
 "    float2 Tex  : TEXCOORD;\n"
-"    float4 Col  : COLOR0;\n"
 "};\n"
 
 //****************************************メッシュ頂点**************************************************************//
@@ -63,7 +60,6 @@ char *ShaderMesh =
 "    output.wPos = mul(Pos, g_World[instanceID]);\n"
 "    output.Nor = mul(Nor, (float3x3)g_World[instanceID]);\n"
 "    output.Tex = Tex;\n"
-"    output.Col = g_Diffuse;\n"
 
 "    return output;\n"
 "}\n"
@@ -77,7 +73,7 @@ char *ShaderMesh =
 //テクスチャ
 "    float4 T = g_texColor.Sample(g_samLinear, input.Tex);\n"
 //基本カラー
-"    float4 C = input.Col;\n"
+"    float4 C = g_Diffuse;\n"
 
 //フォグ計算
 "    float fd;\n"//距離
@@ -87,11 +83,8 @@ char *ShaderMesh =
 "       ff = pow(2.71828, -fd * g_FogAmo_Density.y);\n"//フォグファクター計算(変化量)
 "       ff *= g_FogAmo_Density.x;\n"//フォグ全体の量(小さい方が多くなる)
 "       ff = saturate(ff);\n"
-"       if(g_Tex_f.x == 1.0f && T.w > 0.3f){\n"
+"       if(T.w > 0.3f){\n"
 "         T = ff * T + (1.0f - ff) * g_FogColor;\n"
-"       }\n"
-"       if(g_Tex_f.x == 0.0f && C.w > 0.3f){\n"
-"         C = ff * C + (1.0f - ff) * g_FogColor;\n"
 "       }\n"
 "    }\n"
 
@@ -133,16 +126,7 @@ char *ShaderMesh =
 "    }\n"
 
 "    float4 color;\n"
-//テクスチャ有
-"    if(g_Tex_f.x == 1.0f)\n"
-"    {\n"
-"       color = float4(Col, a) * T + g_ObjCol;\n"
-"    }\n"
-//テクスチャ無
-"    if (g_Tex_f.x == 0.0f)\n"
-"    {\n"
-"       color = float4(Col, a) + g_ObjCol;\n"
-"    }\n"
+"    color = float4(Col, a) * T + g_ObjCol;\n"
 "    return color;\n"
 "}\n";
 //****************************************メッシュピクセル**********************************************************//

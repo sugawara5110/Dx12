@@ -18,12 +18,17 @@
 #define S_DELETE(p)   if(p){delete p;      p=NULL;}
 #define ARR_DELETE(p) if(p){delete[] p;    p=NULL;}
 
-//頂点3D
+//頂点3DTexture有り
 struct Vertex {
 	VECTOR3 Pos;       //位置
 	VECTOR3 normal;   //法線
-	VECTOR4 color;   //色
 	VECTOR2 tex;    //テクスチャ座標
+};
+
+//頂点3DTexture無し
+struct VertexBC {
+	VECTOR3 Pos;       //位置
+	VECTOR4 color;   //色
 };
 
 //頂点メッシュ
@@ -72,7 +77,6 @@ struct CONSTANT_BUFFER {
 
 struct CONSTANT_BUFFER_MESH {
 	VECTOR4 vDiffuse;//ディフューズ色
-	VECTOR4 tex_f;   //テクスチャ有り無し
 };
 
 struct CONSTANT_BUFFER2D {

@@ -42,15 +42,12 @@ char *ShaderMesh_D =
 "{\n"
 //マテリアル毎の色
 "    float4 g_Diffuse;\n"
-//テクスチャ有無のフラグ.x
-"    float4 g_Tex_f;\n"
 "};\n"
 
 "struct VS_OUTPUT\n"
 "{\n"
 "    float3 Pos        : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR0;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
 "};\n"
@@ -65,7 +62,6 @@ char *ShaderMesh_D =
 "{\n"
 "    float3 Pos        : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
 "};\n"
@@ -75,7 +71,6 @@ char *ShaderMesh_D =
 "    float4 Pos  : SV_POSITION;\n"
 "    float4 wPos : POSITION;\n"
 "    float3 Nor  : NORMAL;\n"
-"    float4 Col  : COLOR;\n"
 "    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
@@ -86,7 +81,6 @@ char *ShaderMesh_D =
 "    output.Pos = Pos;\n"
 "    output.Nor = Nor;\n"
 "    output.Tex = Tex;\n"
-"    output.Col = g_Diffuse;\n"
 "    output.instanceID = instanceID;\n"
 "    return output;\n"
 "}\n"
@@ -105,13 +99,10 @@ char *ShaderMesh_D =
 
 //距離でポリゴン数決定
 "   float divide = 1;\n"
-//テクスチャ有の場合ポリゴン増殖
-"    if(g_Tex_f.x == 1.0f)\n"
-"    {\n"
-"       if(distance < 1000){divide = 2;}\n"
-"       if(distance < 500){divide = 5;}\n"
-"       if(distance < 300){divide = 10;}\n"
-"    }\n"
+
+"   if(distance < 1000){divide = 2;}\n"
+"   if(distance < 500){divide = 5;}\n"
+"   if(distance < 300){divide = 10;}\n"
 
 "	output.factor[0] = divide;\n"
 "	output.factor[1] = divide;\n"
@@ -134,7 +125,6 @@ char *ShaderMesh_D =
 "	HS_OUTPUT output;\n"
 "	output.Pos = ip[cpid].Pos;\n"
 "	output.Nor = ip[cpid].Nor;\n"
-"	output.Col = ip[cpid].Col;\n"
 "	output.Tex = ip[cpid].Tex;\n"
 "   output.instanceID = ip[cpid].instanceID;\n"
 "	return output;\n"
@@ -147,44 +137,34 @@ char *ShaderMesh_D =
 "{\n"
 "	DS_OUTPUT output;\n"
 
-//カラー取り出し
-"   output.Col = patch[0].Col;\n"
-
 //UV座標計算
 "   float2 uv = patch[0].Tex * UV.x + patch[1].Tex * UV.y + patch[2].Tex * UV.z;\n"
 "   output.Tex = uv;\n"
 
 "   float4 height;\n"
 "   float hei;\n"
-//テクスチャ有の場合
-"   if(g_Tex_f.x == 1.0f)\n"
-"   {\n"
+
 //画像から高さを算出
-"      height = g_texColor.SampleLevel(g_samLinear, uv, 0) * g_DispAmount.x;\n"
-"      hei = (height.x + height.y + height.z) / 3;\n"
-"   }\n"
+"   height = g_texColor.SampleLevel(g_samLinear, uv, 0) * g_DispAmount.x;\n"
+"   hei = (height.x + height.y + height.z) / 3;\n"
 
 //pos座標計算
 "   float3 pos = patch[0].Pos * UV.x + patch[1].Pos * UV.y + patch[2].Pos * UV.z;\n"
 "   output.Pos = float4(pos, 1);\n"
 
-//↓テクスチャ無の場合この法線そのまま使用
 "   float4 nor = float4(patch[0].Nor, 0);\n"
-//テクスチャ有の場合
-"   if(g_Tex_f.x == 1.0f)\n"
-"   {\n"
+
 //ローカル法線の方向にhei分頂点移動, ポリゴンが切れるのでパッチの端は移動させない
-"      if(UV.x != 1.0f && UV.x != 0.0f && UV.y != 1.0f && UV.y != 0.0f && UV.z != 1.0f && UV.z != 0.0f)\n"
-"      {\n"
-"         output.Pos.xyz += hei * patch[0].Nor;\n"
-"      }\n"
-//画像から法線計算用ベクトル生成
-"      nor = g_texColor.SampleLevel(g_samLinear, uv, 0) * 2 - 1;\n"
-//画像から生成したベクトルにローカル法線を足し法線ベクトルとする
-"      float3 nor1;\n"
-"      nor1 = nor.xyz + patch[0].Nor;\n"
-"      nor.xyz = nor1;\n"
+"   if(UV.x != 1.0f && UV.x != 0.0f && UV.y != 1.0f && UV.y != 0.0f && UV.z != 1.0f && UV.z != 0.0f)\n"
+"   {\n"
+"      output.Pos.xyz += hei * patch[0].Nor;\n"
 "   }\n"
+//画像から法線計算用ベクトル生成
+"   nor = g_texColor.SampleLevel(g_samLinear, uv, 0) * 2 - 1;\n"
+//画像から生成したベクトルにローカル法線を足し法線ベクトルとする
+"   float3 nor1;\n"
+"   nor1 = nor.xyz + patch[0].Nor;\n"
+"   nor.xyz = nor1;\n"
 
 "   float3 Normal = normalize(nor.xyz);\n"
 
@@ -207,7 +187,7 @@ char *ShaderMesh_D =
 //テクスチャ
 "    float4 T = g_texColor.Sample(g_samLinear, input.Tex);\n"
 //基本カラー
-"    float4 C = input.Col;\n"
+"    float4 C = g_Diffuse;\n"
 
 //フォグ計算
 "    float fd;\n"//距離
@@ -217,11 +197,8 @@ char *ShaderMesh_D =
 "       ff = pow(2.71828, -fd * g_FogAmo_Density.y);\n"//フォグファクター計算(変化量)
 "       ff *= g_FogAmo_Density.x;\n"//フォグ全体の量(小さい方が多くなる)
 "       ff = saturate(ff);\n"
-"       if(g_Tex_f.x == 1.0f && T.w > 0.3f){\n"
+"       if(T.w > 0.3f){\n"
 "         T = ff * T + (1.0f - ff) * g_FogColor;\n"
-"       }\n"
-"       if(g_Tex_f.x == 0.0f && C.w > 0.3f){\n"
-"         C = ff * C + (1.0f - ff) * g_FogColor;\n"
 "       }\n"
 "    }\n"
 
@@ -263,16 +240,7 @@ char *ShaderMesh_D =
 "    }\n"
 
 "    float4 color;\n"
-//テクスチャ有
-"    if(g_Tex_f.x == 1.0f)\n"
-"    {\n"
-"       color = float4(Col, a) * T + g_ObjCol;\n"
-"    }\n"
-//テクスチャ無
-"    if (g_Tex_f.x == 0.0f)\n"
-"    {\n"
-"       color = float4(Col, a) + g_ObjCol;\n"
-"    }\n"
+"    color = float4(Col, a) * T + g_ObjCol;\n"
 "    return color;\n"
 "}\n";
 //****************************************メッシュピクセル**********************************************************//

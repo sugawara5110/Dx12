@@ -32,12 +32,10 @@ Wave::~Wave() {
 void Wave::SetVertex(int i,
 	float vx, float vy, float vz,
 	float nx, float ny, float nz,
-	float r, float g, float b, float a,
 	float u, float v) {
 	d3varrayI[i] = i;
 	d3varray[i].Pos.as(vx, vy, vz);
 	d3varray[i].normal.as(nx, ny, nz);
-	d3varray[i].color.as((FLOAT)r, (FLOAT)g, (FLOAT)b, (FLOAT)a);
 	d3varray[i].tex.as(u, v);
 }
 
@@ -291,8 +289,8 @@ void Wave::InstancedMapSize3(float x, float y, float z, float theta, float sizeX
 	dx->InstancedMapSize3(&cb[sw], x, y, z, theta, 0, 0, sizeX, sizeY, sizeZ);
 }
 
-void Wave::InstanceUpdate(float r, float g, float b, float disp) {
-	InstanceUpdate(r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+void Wave::InstanceUpdate(float r, float g, float b, float a, float disp) {
+	InstanceUpdate(r, g, b, a, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void Wave::CbSwap() {
@@ -308,21 +306,21 @@ void Wave::CbSwap() {
 	DrawOn = TRUE;
 }
 
-void Wave::InstanceUpdate(float r, float g, float b, float disp, float px, float py, float mx, float my) {
-	dx->MatrixMap2(&cb[sw], r, g, b, disp, px, py, mx, my);
+void Wave::InstanceUpdate(float r, float g, float b, float a, float disp, float px, float py, float mx, float my) {
+	dx->MatrixMap2(&cb[sw], r, g, b, a, disp, px, py, mx, my);
 	CbSwap();
 }
 
-void Wave::Update(float x, float y, float z, float r, float g, float b, float theta, float disp) {
-	Update(x, y, z, r, g, b, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+void Wave::Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp) {
+	Update(x, y, z, r, g, b, a, theta, disp, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Wave::Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size) {
-	Update(x, y, z, r, g, b, theta, disp, size, 1.0f, 1.0f, 1.0f, 1.0f);
+void Wave::Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size) {
+	Update(x, y, z, r, g, b, a, theta, disp, size, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Wave::Update(float x, float y, float z, float r, float g, float b, float theta, float disp, float size, float px, float py, float mx, float my) {
-	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, theta, 0, 0, size, disp, px, py, mx, my);
+void Wave::Update(float x, float y, float z, float r, float g, float b, float a, float theta, float disp, float size, float px, float py, float mx, float my) {
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, a, theta, 0, 0, size, disp, px, py, mx, my);
 	CbSwap();
 }
 
@@ -353,18 +351,10 @@ void Wave::Compute() {
 void Wave::DrawSub() {
 
 	mCommandList->SetPipelineState(mPSODraw.Get());
-	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
 
 	//mSwapChainBuffer PRESENT→RENDER_TARGET
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	//レンダーターゲットのセット
-	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		dx->mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		dx->mCurrBackBuffer,
-		dx->mRtvDescriptorSize), true, &dx->mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);//テクスチャ無しの場合このままで良いのやら・・エラーは無し
@@ -399,5 +389,5 @@ void Wave::Draw() {
 	DrawSub();
 }
 
-	
-	
+
+

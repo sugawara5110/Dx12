@@ -11,7 +11,7 @@
 #include "Hero.h"
 
 void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta) {
-	p_att->Update(3, -1.0f, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+	p_att->Update(3, -1.0f, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f);
 }
 
 void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta, bool walkOn) {
@@ -27,12 +27,12 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 		//ˆÚ“®
 		i = 3;
 	}
-	p_att->Update(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+	p_att->Update(i, m, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f);
 	if (torchOn) {
-		torchWood->Update(i, m, x, y, z, r, g, b, theta, 0, 0, 2.0f);
+		torchWood->Update(i, m, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f);
 		v3 = torchWood->GetVertexPosition(6, 2.0f, -3.0f, -2.0f, theta, 0, 0, 2.0f);
 		dx->PointLightPosSet(0, v3.x + x, v3.y + y, v3.z + z, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, TRUE);
-		torchFlame->Update(v3.x + x, v3.y + y, v3.z + z, r, g, b, theta, 0.0f);
+		torchFlame->Update(v3.x + x, v3.y + y, v3.z + z, r, g, b, -0.2f, theta, 0.0f);
 	}
 	else {
 		torchWood->DrawOff();
@@ -105,7 +105,7 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 		m = tfloat.Add(0.15f);
 		float mx, my;
 		MovieSoundManager::Magic_sound(TRUE);
-		mag.Update(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 5.0f, 0, 0, 0, count += m, 0);
+		mag.Update(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 5.0f, 0, 0, 0, 0, count += m, 0);
 		VECTOR3 p3;
 		p3.as(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 20.0f);
 		PolygonData2D::Pos2DCompute(&p3);
@@ -207,15 +207,15 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 	m = tfloat.Add(2.0f);
 	if (Dieflg() == TRUE)m = 0.0f;
 	if (attOn) {
-		attFin = p_att->Update(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+		attFin = p_att->Update(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 	}
 	if (magicAttOn) {
-		p_att->Update(2, m * 0.3f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+		p_att->Update(2, m * 0.3f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 	}
 	if (!attOn && !magicAttOn) {
-		p_att->Update(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
+		p_att->Update(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f);
 	}
-	
+
 	Statecreate(command_run);
 	text->UpDateText(L"Žúl‚m‚", x, 470.0f, 15.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 	text->UpDateValue(o_no, x + 60.0f, 470.0f, 15.0f, 1, { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -278,10 +278,10 @@ void Hero::Draw(Encount enc, bool ending) {
 	}
 }
 
-void Hero::Act_f_init(){
+void Hero::Act_f_init() {
 	act_f = NORMAL;
 }
 
-Action Hero::Normal_act_get(){
+Action Hero::Normal_act_get() {
 	return NORMAL;
 }

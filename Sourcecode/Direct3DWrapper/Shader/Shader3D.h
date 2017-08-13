@@ -43,7 +43,6 @@ char *Shader3D =
 "    float4 Pos        : SV_POSITION;\n"
 "    float4 wPos       : POSITION;\n"
 "    float3 Nor        : NORMAL;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "};\n"
 
@@ -51,7 +50,6 @@ char *Shader3D =
 "{\n"
 "    float4 Pos        : SV_POSITION;\n"
 "    float4 wPos       : POSITION;\n"
-"    float4 Col        : COLOR;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "};\n"
 
@@ -63,13 +61,12 @@ char *Shader3D =
 
 //****************************************テクスチャ頂点**************************************************************//
 //ライト有
-"VS_OUTPUT_TCL VSTextureColorL(float4 Pos : POSITION, float4 Nor : NORMAL, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
+"VS_OUTPUT_TCL VSTextureColorL(float4 Pos : POSITION, float4 Nor : NORMAL, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TCL output = (VS_OUTPUT_TCL)0;\n"
 "    output.Pos = mul(Pos, g_WVP[instanceID]);\n"
 "    output.wPos = mul(Pos, g_World[instanceID]);\n"
 "    output.Nor = mul(Nor, (float3x3)g_World[instanceID]);\n"
-"    output.Col = Col;\n"
 "    output.Tex.x = Tex.x * g_pXpYmXmY.x + g_pXpYmXmY.x * g_pXpYmXmY.z;\n"
 "    output.Tex.y = Tex.y * g_pXpYmXmY.y + g_pXpYmXmY.y * g_pXpYmXmY.w;\n"
 
@@ -77,12 +74,11 @@ char *Shader3D =
 "}\n"
 
 //ライト無
-"VS_OUTPUT_TC VSTextureColor(float4 Pos : POSITION, float4 Col : COLOR, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
+"VS_OUTPUT_TC VSTextureColor(float4 Pos : POSITION, float2 Tex : TEXCOORD, uint instanceID : SV_InstanceID)\n"
 "{\n"
 "    VS_OUTPUT_TC output = (VS_OUTPUT_TC)0;\n"
 "    output.Pos = mul(Pos, g_WVP[instanceID]);\n"
 "    output.wPos = mul(Pos, g_World[instanceID]);\n"
-"    output.Col = Col;\n"
 "    output.Tex.x = Tex.x * g_pXpYmXmY.x + g_pXpYmXmY.x * g_pXpYmXmY.z;\n"
 "    output.Tex.y = Tex.y * g_pXpYmXmY.y + g_pXpYmXmY.y * g_pXpYmXmY.w;\n"
 
@@ -113,8 +109,6 @@ char *Shader3D =
 "       }\n"
 "    }\n"
 
-//アルファ値退避
-"    float a = input.Col.w;\n"
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 
 //ライト計算
@@ -136,7 +130,7 @@ char *Shader3D =
 "            float r = g_Lightst[i].y / (pow(distance, attenuation) * 0.001f);\n"
 
 //法線,ライト方向から陰影作成, N, Lの内積がg_ShadowLow.x未満の場合g_ShadowLow.xの値が適用される(距離による影は関係無し)
-"           Col = Col + max(dot(N, L), g_ShadowLow_Lpcs.x) * input.Col * r * g_LightColor[i];\n"
+"           Col = Col + max(dot(N, L), g_ShadowLow_Lpcs.x) * r * g_LightColor[i];\n"
 "        }\n"
 "    }\n"
 
@@ -150,7 +144,7 @@ char *Shader3D =
 "       Col = Col + g_DLightColor * g_DLightst.x * NL;\n"
 "    }\n"
 "    if(T.w <= 0.0f)discard;\n"//アルファ値0の場合ピクセル破棄
-"    return float4(Col, a) * T + g_ObjCol;\n"
+"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
 "}\n"
 
 //ライト無
@@ -172,7 +166,7 @@ char *Shader3D =
 "       }\n"
 "    }\n"
 "    if(T.w <= 0.0f)discard;\n"//アルファ値0の場合ピクセル破棄
-"    return input.Col * T + g_ObjCol;\n"
+"    return T + g_ObjCol;\n"
 "}\n"
 //****************************************テクスチャピクセル**********************************************************//
 

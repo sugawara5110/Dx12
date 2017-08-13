@@ -116,20 +116,20 @@ CommandSelect Battle::Menu_main(Hero *hero, int i, Directionkey direction) {
 	return NOSELECT;
 }
 
-CommandSelect Battle::Menu_AT(int i, Directionkey direction){
+CommandSelect Battle::Menu_AT(int i, Directionkey direction) {
 
 	//元選択中の敵がLOSTした場合の選択対象切り替え
-	if (enemy[h_draw[i].A_select].Dieflg() == TRUE){
-		for (int i1 = 0; i1 < e_num; i1++)if (enemy[i1].Dieflg() == FALSE){
+	if (enemy[h_draw[i].A_select].Dieflg() == TRUE) {
+		for (int i1 = 0; i1 < e_num; i1++)if (enemy[i1].Dieflg() == FALSE) {
 			h_draw[i].A_select = i1; break;
 		}
 	}
 
 	float r, b;
 	Cursor_e(h_draw[i].A_select, &r, &b);
-	E_select.InstanceUpdate(r, b, 0.0f, 0.0f);
+	E_select.InstanceUpdate(r, b, 0.0f, 0.0f, 0.0f);
 
-	switch (direction){
+	switch (direction) {
 	case LEFT:
 		MovieSoundManager::Select_sound(FALSE);
 		if (e_pos[1].element == TRUE && enemy[1].Dieflg() == FALSE)h_draw[i].A_select = 1;
@@ -160,25 +160,25 @@ CommandSelect Battle::Menu_AT(int i, Directionkey direction){
 	return NOSELECT;
 }
 
-CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction){
+CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction) {
 
 	//元選択中の敵がLOSTした場合の選択対象切り替え(全体攻撃の場合は切り替えしない)
-	if (h_draw[i].MA_select != 4 && enemy[h_draw[i].MA_select].Dieflg() == TRUE){
-		for (int i1 = 0; i1 < e_num; i1++)if (enemy[i1].Dieflg() == FALSE){
+	if (h_draw[i].MA_select != 4 && enemy[h_draw[i].MA_select].Dieflg() == TRUE) {
+		for (int i1 = 0; i1 < e_num; i1++)if (enemy[i1].Dieflg() == FALSE) {
 			h_draw[i].MA_select = i1; break;
 		}
 	}
 	float r, b;
 	if (h_draw[i].MA_select != 4)Cursor_e(h_draw[i].MA_select, &r, &b);//単体選択
-	else{
-		for (int i1 = 0; i1 < e_num; i1++){
+	else {
+		for (int i1 = 0; i1 < e_num; i1++) {
 			if (enemy[i1].Dieflg() == TRUE)continue;
 			Cursor_e(i1, &r, &b);//全体選択(h_draw[i].A_select == 4)
 		}
 	}
-	E_select.InstanceUpdate(r, b, 0.0f, 0.0f);
+	E_select.InstanceUpdate(r, b, 0.0f, 0.0f, 0.0f);
 
-	switch (direction){
+	switch (direction) {
 	case LEFT:
 		MovieSoundManager::Select_sound(FALSE);
 		if (e_pos[1].element == TRUE && enemy[1].Dieflg() == FALSE)h_draw[i].MA_select = 1;
@@ -193,15 +193,15 @@ CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction){
 		break;
 	case DOWN:
 		MovieSoundManager::Select_sound(FALSE);
-		if (h_draw[i].MA_select == 4){
+		if (h_draw[i].MA_select == 4) {
 			h_draw[i].MA_select = 0;
 			break;
 		}
-		if (h_draw[i].MA_select == 0){
+		if (h_draw[i].MA_select == 0) {
 			h_draw[i].MA_select = 4;
 			break;
 		}
-		if (enemy[0].Dieflg() == TRUE && h_draw[i].MA_select != 4){
+		if (enemy[0].Dieflg() == TRUE && h_draw[i].MA_select != 4) {
 			h_draw[i].MA_select = 4;
 			break;
 		}
@@ -222,21 +222,21 @@ CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction){
 	return NOSELECT;
 }
 
-CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction){
+CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction) {
 
 	//RECOV選択時の全体選択解除
 	if (MAG_select == RECOV && h_draw[i].MA_select == 4)h_draw[i].MA_select = 0;
 
 	//プレイヤ回復対象カーソル
-	if (h_draw[i].MA_select == 4){
-		for (int i1 = 0; i1 < 4; i1++){
+	if (h_draw[i].MA_select == 4) {
+		for (int i1 = 0; i1 < 4; i1++) {
 			Cursor_h(i1);
 		}
 	}
 	else Cursor_h(h_draw[i].MA_select);
 	h_select.InstanceUpdate();
 
-	switch (direction){
+	switch (direction) {
 	case LEFT:
 		MovieSoundManager::Select_sound(FALSE);
 		if (h_draw[i].MA_select == 0)break;
@@ -245,7 +245,7 @@ CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction){
 	case RIGHT:
 		MovieSoundManager::Select_sound(FALSE);
 		if (h_draw[i].MA_select == 3)break;
-		if (h_draw[i].MA_select == 4){
+		if (h_draw[i].MA_select == 4) {
 			h_draw[i].MA_select = 0;
 			break;
 		}
@@ -255,7 +255,7 @@ CommandSelect Battle::Menu_RCV(Hero *hero, int i, Directionkey direction){
 		break;
 	case DOWN:
 		MovieSoundManager::Select_sound(FALSE);
-		if (MAG_select == HEAL){
+		if (MAG_select == HEAL) {
 			if (h_draw[i].MA_select == 4)h_draw[i].MA_select = 0;
 			else h_draw[i].MA_select = 4;
 		}

@@ -239,13 +239,6 @@ void MeshData::SetVertex() {
 	for (int i = 0; i < MaterialCount; i++) {
 		CONSTANT_BUFFER_MESH sg;
 		sg.vDiffuse = pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
-									  //テクスチャ有無フラグ
-		if (pMaterial[i].TextureName[0] != NULL) {
-			sg.tex_f = { 1.0f, 0.0f, 0.0f, 0.0f };
-		}
-		else {
-			sg.tex_f = { 0.0f, 0.0f, 0.0f, 0.0f };
-		}
 		mObject_MESHCB->CopyData(i, sg);
 	}
 
@@ -475,13 +468,13 @@ void MeshData::CbSwap() {
 	DrawOn = TRUE;
 }
 
-void MeshData::InstanceUpdate(float r, float g, float b, float disp) {
-	dx->MatrixMap2(&cb[sw], r, g, b, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+void MeshData::InstanceUpdate(float r, float g, float b, float a, float disp) {
+	dx->MatrixMap2(&cb[sw], r, g, b, a, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 	CbSwap();
 }
 
-void MeshData::Update(float x, float y, float z, float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp) {
-	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
+void MeshData::Update(float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size, float disp) {
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, a, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 	CbSwap();
 }
 
@@ -498,17 +491,9 @@ void MeshData::Draw() {
 	Unlock();
 
 	mCommandList->SetPipelineState(mPSO.Get());
-	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
 
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	//レンダーターゲットのセット
-	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		dx->mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		dx->mCurrBackBuffer,
-		dx->mRtvDescriptorSize), true, &dx->mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);

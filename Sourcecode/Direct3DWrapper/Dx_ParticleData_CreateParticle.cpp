@@ -141,7 +141,7 @@ void ParticleData::GetBufferBill(int v) {
 
 void ParticleData::CreateVbObj() {
 	const UINT vbByteSize = ver * sizeof(PartPos);
-	
+
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), P_pos, vbByteSize);
 
@@ -342,18 +342,9 @@ void ParticleData::CreateBillboard() {
 
 void ParticleData::DrawParts0() {
 
-	mCommandList->RSSetViewports(1, &dx->mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &dx->mScissorRect);
-
 	//mSwapChainBuffer PRESENT→RENDER_TARGET
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	//レンダーターゲットのセット
-	mCommandList->OMSetRenderTargets(1, &CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		dx->mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		dx->mCurrBackBuffer,
-		dx->mRtvDescriptorSize), true, &dx->mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void ParticleData::DrawParts1() {

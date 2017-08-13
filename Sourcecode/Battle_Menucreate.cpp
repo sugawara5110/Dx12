@@ -121,29 +121,21 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 
 void Battle::SetVertex() {
 	//カーソル左上
-	E_select.SetVertex(0, 0,
+	E_select.SetVertexBC(0, 0,
 		-25.0f, -25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f);
+		0.0f, 0.0f, 0.0f, 1.0f);
 	//カーソル右上
-	E_select.SetVertex(1, 4, 1,
+	E_select.SetVertexBC(1, 4, 1,
 		25.0f, -25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f);
+		0.0f, 0.0f, 0.0f, 1.0f);
 	//カーソル左下
-	E_select.SetVertex(2, 3, 2,
+	E_select.SetVertexBC(2, 3, 2,
 		-25.0f, 25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f);
+		0.0f, 0.0f, 0.0f, 1.0f);
 	//カーソル右下
-	E_select.SetVertex(5, 3,
+	E_select.SetVertexBC(5, 3,
 		25.0f, 25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 1.0f);
+		0.0f, 0.0f, 0.0f, 1.0f);
 
 	for (int i = 0; i < e_num; i++) {
 		enemy[i].SetVertex();
@@ -177,7 +169,7 @@ bool Battle::CreateB_Fin() {
 void Battle::Menucreate() {
 	command.CreateBox(5.0f, 0.0f, 0.9f, 135.0f, 200.0f, 0.6f, 0.6f, 0.6f, 0.7f, TRUE, TRUE);
 }
-	
+
 void Battle::Cursor_h(int no) {
 
 	static bool clr_f = TRUE;
@@ -233,9 +225,9 @@ void Battle::Cursor_e(int select, float *pr, float *pb) {
 	E_select.InstancedMap(e_pos[select].x, e_pos[select].y, e_pos[select].z, theta);
 }
 
-void Battle::SelectPermissionMove(Hero *hero){
+void Battle::SelectPermissionMove(Hero *hero) {
 
-	if (h_draw[0].command_run == TRUE){
+	if (h_draw[0].command_run == TRUE) {
 		h_draw[0].command_run = FALSE;
 		if (hero[1].Dieflg() == FALSE && h_draw[1].AGmeter > METER_MAX)h_draw[1].command_run = TRUE;
 		else if (hero[2].Dieflg() == FALSE && h_draw[2].AGmeter > METER_MAX)h_draw[2].command_run = TRUE;
@@ -244,7 +236,7 @@ void Battle::SelectPermissionMove(Hero *hero){
 		else command_run_first_flg = FALSE;//誰も選択権無し
 		return;
 	}
-	if (h_draw[1].command_run == TRUE){
+	if (h_draw[1].command_run == TRUE) {
 		h_draw[1].command_run = FALSE;
 		if (hero[2].Dieflg() == FALSE && h_draw[2].AGmeter > METER_MAX)h_draw[2].command_run = TRUE;
 		else if (hero[3].Dieflg() == FALSE && h_draw[3].AGmeter > METER_MAX)h_draw[3].command_run = TRUE;
@@ -253,7 +245,7 @@ void Battle::SelectPermissionMove(Hero *hero){
 		else command_run_first_flg = FALSE;
 		return;
 	}
-	if (h_draw[2].command_run == TRUE){
+	if (h_draw[2].command_run == TRUE) {
 		h_draw[2].command_run = FALSE;
 		if (hero[3].Dieflg() == FALSE && h_draw[3].AGmeter > METER_MAX)h_draw[3].command_run = TRUE;
 		else if (hero[0].Dieflg() == FALSE && h_draw[0].AGmeter > METER_MAX)h_draw[0].command_run = TRUE;
@@ -262,7 +254,7 @@ void Battle::SelectPermissionMove(Hero *hero){
 		else command_run_first_flg = FALSE;
 		return;
 	}
-	if (h_draw[3].command_run == TRUE){
+	if (h_draw[3].command_run == TRUE) {
 		h_draw[3].command_run = FALSE;
 		if (hero[0].Dieflg() == FALSE && h_draw[0].AGmeter > METER_MAX)h_draw[0].command_run = TRUE;
 		else if (hero[1].Dieflg() == FALSE && h_draw[1].AGmeter > METER_MAX)h_draw[1].command_run = TRUE;

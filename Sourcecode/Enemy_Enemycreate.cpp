@@ -36,28 +36,24 @@ void Enemy::EffectGetBuffer() {
 		effect[i].SetVertex(0, 0,
 			-ver, 0.0f, ver * 2,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
 			0.0f, 0.0f);
 
 		//‰E‘O
 		effect[i].SetVertex(1, 4, 1,
 			ver, 0.0f, ver * 2,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
 			1.0f, 0.0f);
 
 		//¶‰œ
 		effect[i].SetVertex(2, 3, 2,
 			-ver, 0.0f, 0.0f,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
 			0.0f, 1.0f);
 
 		//‰E‰œ
 		effect[i].SetVertex(5, 3,
 			ver, 0.0f, 0.0f,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
 			1.0f, 1.0f);
 	}
 }
@@ -68,56 +64,52 @@ void Enemy::EffectCreate() {
 		effect[i].Create(FALSE, ef + i, TRUE, TRUE);
 }
 
-void Enemy::Enemycreate(float x, float y){
+void Enemy::Enemycreate(float x, float y) {
 
 	//“G¶‘O
 	en->SetVertex(0, 0,
 		(float)-(x / 2), (float)0.0f, y,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f);
 
 	//“G¶‰œ
 	en->SetVertex(1, 1,
 		(float)-(x / 2), (float)0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f);
 
 	//“G‰E‰œ
 	en->SetVertex(2, 2,
 		(float)(x / 2), (float)0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f);
 
 	//“G‰E‘O
 	en->SetVertex(3, 3,
 		(float)(x / 2), (float)0.0f, y,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 0.0f);
 }
 
-void Enemy::SetVertex(){}
+void Enemy::SetVertex() {}
 
-void Enemy::SetCommandList(int com_no){}
+void Enemy::SetCommandList(int com_no) {}
 
-void Enemy::CreateEnemy(){}
+void Enemy::CreateEnemy() {}
 
-void Enemy::AttackAction(){}
+void Enemy::AttackAction() {}
 
-void Enemy::DamageAction(){}
+void Enemy::DamageAction() {}
 
-void Enemy::RecoverActionInit(){}
+void Enemy::RecoverActionInit() {}
 
-void Enemy::RecoverAction(){}
+void Enemy::RecoverAction() {}
 
-bool Enemy::LostAction(float x, float y, float z){ return TRUE; }
+bool Enemy::LostAction(float x, float y, float z) { return TRUE; }
 
-bool Enemy::Magiccreate(float x, float y, float z){ return TRUE; }
+bool Enemy::Magiccreate(float x, float y, float z) { return TRUE; }
 
-void Enemy::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta){}
+void Enemy::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {}
 
 bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 
@@ -182,7 +174,7 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 		if (effect_no == 2) { r = 0.2f, g = 0.7f, b = 0.3f; }
 		if (effect_no == 3) { r = 0.2f, g = 0.3f, b = 0.7f; }
 		if (*E_select_obj != 4) {
-			effect[effect_no].Update(e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z, 0, 0, 0, e_pos[*E_select_obj].theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].Update(e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z, 0, 0, 0, 0, e_pos[*E_select_obj].theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
 			dx->PointLightPosSet(3, e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
 		}
 		else {
@@ -191,7 +183,7 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 				effect[effect_no].InstancedMap(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, e_pos[i].theta);
 				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
 			}
-			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 
@@ -203,7 +195,7 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 		if (effect_no == 0) { r = 1.0f, g = 1.0f, b = 1.0f; }
 		if (effect_no == 1) { r = 0.7f, g = 0.3f, b = 0.2f; }
 		if (*E_select_obj != 4) {
-			effect[effect_no].Update(b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, h_pos->theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].Update(b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, 0, h_pos->theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
 			dx->PointLightPosSet(3, b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
 		}
 		else {
@@ -212,12 +204,12 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 				effect[effect_no].InstancedMap(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, h_pos->theta);
 				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
 			}
-			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 	return TRUE;
 }
 
-Enemy::~Enemy(){
+Enemy::~Enemy() {
 
 }

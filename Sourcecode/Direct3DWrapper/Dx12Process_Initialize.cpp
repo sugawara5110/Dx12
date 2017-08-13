@@ -213,13 +213,18 @@ void Dx12Process::CreateShaderByteCode() {
 	pHullShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "HSMesh", "hs_5_0");
 	pDomainShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "DSMesh", "ds_5_0");
 
-	//3Dレイアウト
+	//3DレイアウトTexture有り
 	pVertexLayout_3D =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 * 2 + 4 * 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	//3Dレイアウト基本色
+	pVertexLayout_3DBC =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 	//テクスチャ3Dライト無
 	pVertexShader_TC = dx->CompileShader(Shader3D, strlen(Shader3D), "VSTextureColor", "vs_5_0");
@@ -808,10 +813,10 @@ void Dx12Process::InstancedMapSize3(CONSTANT_BUFFER *cb, float x, float y, float
 	ins_no++;
 }
 
-void Dx12Process::MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, float disp, float px, float py, float mx, float my) {
+void Dx12Process::MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, float a, float disp, float px, float py, float mx, float my) {
 
 	cb->C_Pos.as(posX, posY, posZ, 0.0f);
-	cb->AddObjColor.as(r, g, b, 0.0f);
+	cb->AddObjColor.as(r, g, b, a);
 	cb->pShadowLow_Lpcs.as(plight.ShadowLow_val, (float)plight.LightPcs, 0.0f, 0.0f);
 	memcpy(cb->pLightPos, plight.LightPos, sizeof(VECTOR4) * LIGHT_PCS);
 	memcpy(cb->pLightColor, plight.LightColor, sizeof(VECTOR4) * LIGHT_PCS);
@@ -827,14 +832,14 @@ void Dx12Process::MatrixMap2(CONSTANT_BUFFER *cb, float r, float g, float b, flo
 }
 
 void Dx12Process::MatrixMap(CONSTANT_BUFFER *cb, float x, float y, float z,
-	float r, float g, float b, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my) {
+	float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size, float disp, float px, float py, float mx, float my) {
 
-	MatrixMapSize3(cb, x, y, z, r, g, b, thetaZ, thetaY, thetaX,
+	MatrixMapSize3(cb, x, y, z, r, g, b, a, thetaZ, thetaY, thetaX,
 		size, size, size, disp, px, py, mx, my);
 }
 
 void Dx12Process::MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
-	float r, float g, float b, float thetaZ, float thetaY, float thetaX,
+	float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX,
 	float sizeX, float sizeY, float sizeZ, float disp, float px, float py, float mx, float my) {
 
 	if (ins_no > INSTANCE_PCS_3D - 1)ins_no--;
@@ -862,7 +867,7 @@ void Dx12Process::MatrixMapSize3(CONSTANT_BUFFER *cb, float x, float y, float z,
 	MatrixMultiply(&cb->WVP[ins_no], &WV, &mProj);
 	MatrixTranspose(&cb->World[ins_no]);
 	MatrixTranspose(&cb->WVP[ins_no]);
-	MatrixMap2(cb, r, g, b, disp, px, py, mx, my);
+	MatrixMap2(cb, r, g, b, a, disp, px, py, mx, my);
 	ins_no++;
 }
 
