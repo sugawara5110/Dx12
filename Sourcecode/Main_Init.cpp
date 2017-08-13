@@ -184,6 +184,7 @@ void Main::UpDate() {
 		titleOn = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
 		if (!titleOn) {
 			mapstate = NORMAL_MAP; titleSwitch = 3; mpDel_f = TRUE;
+			while (mpDel_f);
 		}
 		break;
 	}
@@ -199,6 +200,7 @@ void Main::UpDate() {
 	case CHANGE_MAP:
 		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
 			mapstate = NORMAL_MAP; mpDel_f = TRUE;
+			while (mpDel_f);
 		}
 		break;
 	case RECOV_MAP:
@@ -273,6 +275,7 @@ void Main::UpDate() {
 				result = IN_BATTLE;
 				battleSwitch = 0;
 				btDel_f = TRUE;
+				while (btDel_f);
 				break;
 			case DIE:
 				DxText::GetInstance()->UpDateText(L"‚f‚`‚l‚d‚n‚u‚d‚q", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });

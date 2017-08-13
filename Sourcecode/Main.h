@@ -54,8 +54,8 @@ private:
 	Result result = IN_BATTLE;
 	bool menu = FALSE;
 	int battleSwitch = 0;
-	bool mpDel_f = FALSE;
-	bool btDel_f = FALSE;
+	volatile bool mpDel_f = FALSE;
+	volatile bool btDel_f = FALSE;
 	HANDLE *update_h;
 	
 	void DrawNowLoading(int com_no);

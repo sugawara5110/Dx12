@@ -19,15 +19,22 @@
 //前方宣言
 class Map;
 class Parameter;
-class Hero;  
-class Enemy; 
-class EnemySide; 
-class EnemyBoss; 
+class Hero;
+class Enemy;
+class EnemySide;
+class EnemyBoss;
 //前方宣言
 
-class Battle{
+class Battle {
 
 private:
+	//初期パラメーター
+	Hero *he_para;
+	Position::E_Pos *e_po_para;
+	Position::H_Pos *h_po_para;
+	Encount encount_para;
+	int no_para, e_nu_para;
+
 	Dx12Process *dx;
 	DxText *text;
 	T_float tfloat;
@@ -55,7 +62,7 @@ private:
 	int select_obj;           //選択対象番号敵,プレイヤー共通,エフェクト選択(4==全体)
 	int E_select_obj;        //敵用(エフェクト選択用)(4==全体)
 
-	typedef struct{
+	typedef struct {
 		float AGmeter;        //メーター
 		Action action;
 		MagicSelect Magrun;//選択マジック
@@ -97,24 +104,24 @@ private:
 	void H_drawPos(int i);
 
 	template<typename T_rcv>
-	void ValueDraw(T_rcv *rcv, Draw *dm, Draw *rc, int dmI, int rcI){
+	void ValueDraw(T_rcv *rcv, Draw *dm, Draw *rc, int dmI, int rcI) {
 		//↓攻撃対象又は回復対象のアクション,データ処理開始
 		bool draw_flg = FALSE;
-		for (int i1 = 0; i1 < dmI; i1++){
-			if (dm[i1].DMdata >= 0){
+		for (int i1 = 0; i1 < dmI; i1++) {
+			if (dm[i1].DMdata >= 0) {
 				dm[i1].action = DAMAGE;//対象がダメージ受けたのでこの後ダメージ処理
 				dm[i1].DMdrawY = DrawYMIN;//パラメーター間違えると数字表示されないので注意,フラグオン
 				draw_flg = TRUE;
 			}
 		}
-		for (int i1 = 0; i1 < rcI; i1++){
-			if (rc[i1].RCVdata >= 0){
-				if (rc[i1].Recov_f == TRUE){
+		for (int i1 = 0; i1 < rcI; i1++) {
+			if (rc[i1].RCVdata >= 0) {
+				if (rc[i1].Recov_f == TRUE) {
 					rcv[i1].Dieflg(FALSE);
 					rc[i1].action = RECOVER;//対象がリカバリーを受けたのでこの後処理
 					rc[i1].LOST_fin = FALSE;
 				}
-				else{
+				else {
 					rc[i1].action = rcv[i1].Normal_act_get();//対象が回復受けたのでこの後回復処理(回復用actは無い)
 				}
 				rc[i1].RCVdrawY = DrawYMIN;//パラメーター間違えると数字表示されないので注意,フラグオン
@@ -126,8 +133,8 @@ private:
 	}
 
 	template<typename T_dm, typename T_att>
-	void ATprocess(T_dm *dm, T_att *att, Draw *d, Draw *at){
-		if (dm->Dieflg() == FALSE){
+	void ATprocess(T_dm *dm, T_att *att, Draw *d, Draw *at) {
+		if (dm->Dieflg() == FALSE) {
 			at->action = ATTACK;
 			d->DMdata = att->GetAttack();
 			time_stop_flg = TRUE;
@@ -136,21 +143,21 @@ private:
 	}
 
 	template<typename T_dm, typename T_att>
-	void MAGprocess(T_dm *p_dm, T_att *p_att, T_att *att, Draw *at, Draw *p_at, Draw *p_d, int *select_ob, MagicSelect *select_M, TemplateType type){
+	void MAGprocess(T_dm *p_dm, T_att *p_att, T_att *att, Draw *at, Draw *p_at, Draw *p_d, int *select_ob, MagicSelect *select_M, TemplateType type) {
 		int att_n;
 		int dm_n;
-		if (type == E_ATT){
+		if (type == E_ATT) {
 			att_n = e_num;
 			dm_n = 4;
 		}
-		if (type == H_ATT){
+		if (type == H_ATT) {
 			att_n = 4;
 			dm_n = e_num;
 		}
 		int cnt = 0;
 		at->action = MAGIC;
 		//MP処理
-		if (att->DownMP(*select_M) == FALSE){
+		if (att->DownMP(*select_M) == FALSE) {
 			//MP足りない場合の処理
 			at->AGmeter = 0;
 			at->Magrun = NOSEL;
@@ -158,22 +165,22 @@ private:
 			return;
 		}
 		//マジック攻撃処理
-		switch (*select_M){
+		switch (*select_M) {
 		case FLAME:
 			att->s_Fp(1);
 			//全体攻撃
-			if (*select_ob == 4){
-				for (int i = 0; i < dm_n; i++){
+			if (*select_ob == 4) {
+				for (int i = 0; i < dm_n; i++) {
 					if (p_dm[i].Dieflg() == FALSE)cnt++;//対象人数でダメージ変化
 				}
-				for (int i = 0; i < dm_n; i++){
+				for (int i = 0; i < dm_n; i++) {
 					if (p_dm[i].Dieflg() == TRUE)continue;
 					p_d[i].DMdata = att->GetMagic(FLAME, cnt);
 				}
 			}
-			else{
+			else {
 				//単体攻撃
-				if (p_dm[*select_ob].Dieflg() == TRUE){
+				if (p_dm[*select_ob].Dieflg() == TRUE) {
 					//選択後攻撃直前に対象LOSTの場合の処理
 					at->action = NORMAL; at->AGmeter = 0; return;
 				}
@@ -183,18 +190,18 @@ private:
 		case HEAL:
 			att->s_Hp(1);
 			//全体攻撃
-			if (*select_ob == 4){
-				for (int i = 0; i < att_n; i++){
+			if (*select_ob == 4) {
+				for (int i = 0; i < att_n; i++) {
 					if (p_att[i].Dieflg() == FALSE)cnt++;
 				}
-				for (int i = 0; i < att_n; i++){
+				for (int i = 0; i < att_n; i++) {
 					if (p_att[i].Dieflg() == TRUE)continue;
 					p_at[i].RCVdata = att->GetMagic(HEAL, cnt);
 				}
 			}
-			else{
+			else {
 				//単体攻撃
-				if (p_att[*select_ob].Dieflg() == TRUE){
+				if (p_att[*select_ob].Dieflg() == TRUE) {
 					//選択後回復直前に対象LOSTの場合の処理
 					at->action = NORMAL;  at->AGmeter = 0; return;
 				}
@@ -205,7 +212,7 @@ private:
 			att->s_Rp(1);
 			//戦闘不能者選択:復活  それ以外選択:小回復
 			p_at[*select_ob].RCVdata = att->GetMagic(RECOV, 1);
-			if (p_att[*select_ob].Dieflg() == TRUE){
+			if (p_att[*select_ob].Dieflg() == TRUE) {
 				p_at[*select_ob].Recov_f = TRUE;//リカバリーフラグ
 			}
 			break;
@@ -215,13 +222,13 @@ private:
 	}
 
 	template<typename T_rcv>
-	void RCVdraw(T_rcv *rcv, Draw *at, float adjustX, float adjustY){
-		if (at->RCVdrawY != 0){
-			if ((at->RCVdrawY += tfloat.Add(0.1f)) < DrawYMAX){
+	void RCVdraw(T_rcv *rcv, Draw *at, float adjustX, float adjustY) {
+		if (at->RCVdrawY != 0) {
+			if ((at->RCVdrawY += tfloat.Add(0.1f)) < DrawYMAX) {
 				text->UpDateValue(at->RCVdata, at->draw_x + adjustX, at->draw_y + at->RCVdrawY + adjustY, 30.0f, 5, { 0.3f, 1.0f, 0.3f, 1.0f });
 			}
-			else{
-				if (at->RCVdrawY >= DrawYMAX && at->RCVdrawY < DrawYMAX + 20.0f){
+			else {
+				if (at->RCVdrawY >= DrawYMAX && at->RCVdrawY < DrawYMAX + 20.0f) {
 					text->UpDateValue(at->RCVdata, at->draw_x + adjustX, at->draw_y + DrawYMAX + adjustY, 30.0f, 5, { 0.3f, 1.0f, 0.3f, 1.0f });
 				}
 				else {
@@ -234,13 +241,13 @@ private:
 	}
 
 	template<typename T_dm>
-	void DMdraw(T_dm *dm, Draw *d, float adjustX, float adjustY){
-		if (d->DMdrawY != 0){
-			if ((d->DMdrawY += tfloat.Add(0.1f)) < DrawYMAX){
+	void DMdraw(T_dm *dm, Draw *d, float adjustX, float adjustY) {
+		if (d->DMdrawY != 0) {
+			if ((d->DMdrawY += tfloat.Add(0.1f)) < DrawYMAX) {
 				text->UpDateValue(d->DMdata, d->draw_x + adjustX, d->draw_y + d->DMdrawY + adjustY, 30.0f, 5, { 1.0f, 0.3f, 0.3f, 1.0f });
 			}
-			else{
-				if (d->DMdrawY >= DrawYMAX && d->DMdrawY < DrawYMAX + 20.0f){
+			else {
+				if (d->DMdrawY >= DrawYMAX && d->DMdrawY < DrawYMAX + 20.0f) {
 					text->UpDateValue(d->DMdata, d->draw_x + adjustX, d->draw_y + DrawYMAX + adjustY, 30.0f, 5, { 1.0f, 0.3f, 0.3f, 1.0f });
 				}
 				else {
@@ -254,7 +261,8 @@ private:
 
 public:
 	Battle() {}
-	Battle(Hero *he, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
+	void SetParameter(Hero *he, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
+	void Init();
 	void SetVertex();
 	void SetCommandList(int com_no);
 	void CreateBattle();

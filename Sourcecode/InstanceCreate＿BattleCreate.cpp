@@ -12,11 +12,6 @@ HANDLE *InstanceCreate::resource_loading_h = NULL;
 HANDLE *InstanceCreate::hero_loading_h = NULL;
 
 HANDLE *InstanceCreate::battle_loading_h = NULL;
-Position::E_Pos *InstanceCreate::e_po = NULL;
-Position::H_Pos *InstanceCreate::h_po = NULL;
-Encount InstanceCreate::encount_d = NOENCOUNT;
-int InstanceCreate::no_d = -1;
-int InstanceCreate::e_nu_d = -1;
 Battle *InstanceCreate::battle = NULL;
 
 HANDLE *InstanceCreate::map_loading_h = NULL;
@@ -30,7 +25,7 @@ int InstanceCreate::GetProgress() {
 	return progress;
 }
 
-void InstanceCreate::CreateThread_R(){
+void InstanceCreate::CreateThread_R() {
 	resource_loading_h = (HANDLE*)_beginthreadex(NULL, 0, ResourceLoading, NULL, 0, NULL);
 }
 
@@ -38,11 +33,11 @@ void InstanceCreate::CreateThread_H() {
 	hero_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingHero, NULL, 0, NULL);
 }
 
-void InstanceCreate::CreateThread_B(){
+void InstanceCreate::CreateThread_B() {
 	battle_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingBattle, NULL, 0, NULL);
 }
 
-void InstanceCreate::CreateThread_M(){
+void InstanceCreate::CreateThread_M() {
 	map_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingMap, NULL, 0, NULL);
 }
 
@@ -61,7 +56,7 @@ void InstanceCreate::DeleteThread_H() {
 	hero_loading_h = NULL;
 }
 
-void InstanceCreate::DeleteThread_B(){
+void InstanceCreate::DeleteThread_B() {
 	WaitForSingleObject(battle_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(battle_loading_h);                 //ハンドルを閉じる
 	battle_loading_h = NULL;
@@ -123,23 +118,17 @@ bool InstanceCreate::Resource_load_f() {
 	return TRUE;
 }
 
-HANDLE *InstanceCreate::GetHANDLE_B(){
+HANDLE *InstanceCreate::GetHANDLE_B() {
 	return battle_loading_h;
 }
 
-void InstanceCreate::SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu){
-	he = h;
-	e_po = e_pos;
-	h_po = h_pos;
-	encount_d = encount;
-	no_d = no;
-	e_nu_d = e_nu;
+void InstanceCreate::SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu) {
+	battle = new Battle();
+	battle->SetParameter(h, e_pos, h_pos, encount, no, e_nu);
 }
 
 void InstanceCreate::BattleGetBuffer() {
-	S_DELETE(battle);
-	battle = new Battle();
-	new(battle)Battle(he, e_po, h_po, encount_d, no_d, e_nu_d);
+	battle->Init();
 }
 
 void InstanceCreate::BattleSetVertex() {
@@ -154,22 +143,25 @@ void InstanceCreate::BattleCreate() {
 }
 
 bool InstanceCreate::BattleCreate_f() {
-	return battle->CreateB_Fin();
+	DWORD th_end;
+	GetExitCodeThread(battle_loading_h, &th_end);
+	if (th_end == STILL_ACTIVE)return FALSE;
+	return TRUE;
 }
 
-void InstanceCreate::BattleDelete(){
+void InstanceCreate::BattleDelete() {
 	S_DELETE(battle)
 }
 
-Battle *InstanceCreate::GetInstance_B(){
+Battle *InstanceCreate::GetInstance_B() {
 	return battle;
 }
 
-HANDLE *InstanceCreate::GetHANDLE_M(){
+HANDLE *InstanceCreate::GetHANDLE_M() {
 	return map_loading_h;
 }
 
-void InstanceCreate::SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h){
+void InstanceCreate::SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h) {
 	h_p = h_pos;
 	he = h;
 }
@@ -216,7 +208,7 @@ void InstanceCreate::InsDelete() {
 	S_DELETE(map[1 - mapInd]);//使用されなくなったobj
 }
 
-Map *InstanceCreate::GetInstance_M(){
+Map *InstanceCreate::GetInstance_M() {
 	return map[mapInd];//使用するobj
 }
 
@@ -233,7 +225,7 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 		break;
 
 	case 1:
-		if (BattleCreate_f()) {
+		if (GetHANDLE_B() != NULL && BattleCreate_f()) {
 			DeleteThread_B();
 			th = 0;
 			return TRUE;
@@ -243,13 +235,13 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 	return FALSE;
 }
 
-bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no){
-	if (GetHANDLE_M() == NULL){
+bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no) {
+	if (GetHANDLE_M() == NULL) {
 		SetInstanceParameter_M(h_pos, h);
 		CreateThread_M();
 		*map_no = Map::GetMapNo();
 	}
-	if (GetHANDLE_M() != NULL && MapCreate_f() == TRUE){
+	if (GetHANDLE_M() != NULL && MapCreate_f()) {
 		DeleteThread_M();
 		return FALSE;
 	}
@@ -268,14 +260,14 @@ unsigned __stdcall InstanceLoadingHero(void *) {
 	return 0;
 }
 
-unsigned __stdcall InstanceLoadingBattle(void *){
+unsigned __stdcall InstanceLoadingBattle(void *) {
 	InstanceCreate::BattleGetBuffer();
 	InstanceCreate::BattleSetVertex();
 	InstanceCreate::BattleCreate();
 	return 0;
 }
 
-unsigned __stdcall InstanceLoadingMap(void *){
+unsigned __stdcall InstanceLoadingMap(void *) {
 	InstanceCreate::MapGetBuffer();
 	InstanceCreate::MapSetVertex();
 	InstanceCreate::MapCreate();

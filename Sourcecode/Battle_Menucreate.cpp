@@ -13,14 +13,23 @@
 #include "Hero.h"
 #include <memory.h>
 
-Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount encount, int no, int e_nu) {
+void Battle::SetParameter(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount encount, int no, int e_nu) {
+	he_para = he;
+	e_po_para = e_po;
+	h_po_para = h_po;
+	encount_para = encount;
+	no_para = no;
+	e_nu_para = e_nu;
+}
+
+void Battle::Init() {
 
 	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	comNo = 0;
-	e_num = e_nu;//敵出現数
-	memcpy(e_pos, e_po, sizeof(Position::E_Pos) * 4);//ポジションアドレス
-	memcpy(&h_pos, h_po, sizeof(Position::H_Pos));//ポジションアドレス
+	e_num = e_nu_para;//敵出現数
+	memcpy(e_pos, e_po_para, sizeof(Position::E_Pos) * 4);//ポジションアドレス
+	memcpy(&h_pos, h_po_para, sizeof(Position::H_Pos));//ポジションアドレス
 	b_pos = GetBtPos(&h_pos);//アドレスで渡す
 	command.GetVBarray2D(1);
 	comDraw = TRUE;//全敵HP0時コマンド表示をオフにする
@@ -36,36 +45,36 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 	srand((unsigned)time(NULL));
 
 	int en_bgm;
-	if (encount == SIDE)en_bgm = 0;
-	if (encount == BOSS) {
-		if (no <= 2)en_bgm = 1;
-		if (no == 3)en_bgm = 2;
-		if (no == 4)en_bgm = 3;
+	if (encount_para == SIDE)en_bgm = 0;
+	if (encount_para == BOSS) {
+		if (no_para <= 2)en_bgm = 1;
+		if (no_para == 3)en_bgm = 2;
+		if (no_para == 4)en_bgm = 3;
 	}
 
 	MovieSoundManager::ObjCreate_battle(en_bgm);
 	MovieSoundManager::Enemy_sound(FALSE);
 	MovieSoundManager::Enemy_sound(TRUE);
-	if (encount == SIDE) {
+	if (encount_para == SIDE) {
 		//通常の敵の生成
 		enemyside = new EnemySide[e_num];
 		int rnd;
 		//アップキャスト前に初期化
 		for (int i = 0; i < e_num; i++) {
-			rnd = (rand() % 4) + no * 4;
+			rnd = (rand() % 4) + no_para * 4;
 			new(enemyside + i) EnemySide(rnd, i, &h_pos, e_pos);// 配列をplacement newを使って初期化する
 		}
 
 		//アップキャスト
 		enemy = enemyside;
 	}
-	if (encount == BOSS) {
+	if (encount_para == BOSS) {
 		//ボス生成
 		enemyboss = new EnemyBoss[e_num];
 
 		//アップキャスト前に初期化
 		for (int i = 0; i < e_num; i++) {
-			new(enemyboss + i) EnemyBoss(no, i, &h_pos, e_pos);// 配列をplacement newを使って初期化する
+			new(enemyboss + i) EnemyBoss(no_para, i, &h_pos, e_pos);// 配列をplacement newを使って初期化する
 		}
 
 		//アップキャスト
@@ -108,7 +117,7 @@ Battle::Battle(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po, Encount e
 		h_draw[i].DMdata = -1;
 		h_draw[i].command_run = FALSE;
 		h_draw[i].LOST_fin = FALSE;
-		if (he[i].Dieflg() == TRUE)h_draw[i].LOST_fin = TRUE;
+		if (he_para[i].Dieflg() == TRUE)h_draw[i].LOST_fin = TRUE;
 		//↓コマンド入力パラメタ
 		h_draw[i].manu = MAIN_M;
 		h_draw[i].M_select = 0;

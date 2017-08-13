@@ -22,11 +22,6 @@ private:
 
 	//Battle生成用パラメータ
 	static HANDLE *battle_loading_h;
-	static Position::E_Pos *e_po;
-	static Position::H_Pos *h_po;
-	static Encount encount_d;
-	static int no_d;
-	static int e_nu_d;
 	static Battle *battle;
 
 	//Map生成用パラメータ
