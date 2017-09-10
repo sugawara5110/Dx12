@@ -7,6 +7,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Dx12Process.h"
 #include <WindowsX.h>
+#include "./Shader/ShaderFunction.h"
 #include "./Shader/Shader2D.h"
 #include "./Shader/Shader3D.h"
 #include "./Shader/ShaderDisp.h"
@@ -158,7 +159,33 @@ bool Dx12Process::SyncFin() {
 	return syncFin;
 }
 
+class addShader {
+
+public:
+	char *str = NULL;
+	size_t size;
+
+	void addStr(char *str1, size_t size1, char *str2, size_t size2) {
+		size = size1 + size2 + 1;
+		str = new char[size];
+		memcpy(str, str1, size1 + 1);
+		strncat(str, str2, size2 + 1);
+	}
+
+	~addShader() {
+		S_DELETE(str);
+	}
+};
+
 void Dx12Process::CreateShaderByteCode() {
+
+	addShader D3, Disp, Mesh, MeshD, Skin, Wave;
+	D3.addStr(ShaderFunction, strlen(ShaderFunction), Shader3D, strlen(Shader3D));
+	Disp.addStr(ShaderFunction, strlen(ShaderFunction), ShaderDisp, strlen(ShaderDisp));
+	Mesh.addStr(ShaderFunction, strlen(ShaderFunction), ShaderMesh, strlen(ShaderMesh));
+	MeshD.addStr(ShaderFunction, strlen(ShaderFunction), ShaderMesh_D, strlen(ShaderMesh_D));
+	Skin.addStr(ShaderFunction, strlen(ShaderFunction), ShaderSkinMesh, strlen(ShaderSkinMesh));
+	Wave.addStr(ShaderFunction, strlen(ShaderFunction), ShaderWaveDraw, strlen(ShaderWaveDraw));
 
 	//スキンメッシュ
 	pVertexLayout_SKIN =
@@ -169,8 +196,8 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "BONE_INDEX", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "BONE_WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
-	pVertexShader_SKIN = dx->CompileShader(ShaderSkinMesh, strlen(ShaderSkinMesh), "VSSkin", "vs_5_0");
-	pPixelShader_SKIN = dx->CompileShader(ShaderSkinMesh, strlen(ShaderSkinMesh), "PSSkin", "ps_5_0");
+	pVertexShader_SKIN = dx->CompileShader(Skin.str, Skin.size, "VSSkin", "vs_5_0");
+	pPixelShader_SKIN = dx->CompileShader(Skin.str, Skin.size, "PSSkin", "ps_5_0");
 
 	//ストリーム出力データ定義(パーティクル用)
 	pDeclaration_PSO =
@@ -205,13 +232,13 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 	//メッシュ
-	pVertexShader_MESH = dx->CompileShader(ShaderMesh, strlen(ShaderMesh), "VSMesh", "vs_5_0");
-	pPixelShader_MESH = dx->CompileShader(ShaderMesh, strlen(ShaderMesh), "PSMesh", "ps_5_0");
+	pVertexShader_MESH = dx->CompileShader(Mesh.str, Mesh.size, "VSMesh", "vs_5_0");
+	pPixelShader_MESH = dx->CompileShader(Mesh.str, Mesh.size, "PSMesh", "ps_5_0");
 	//テセレーター有メッシュ
-	pVertexShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "VSMesh", "vs_5_0");
-	pPixelShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "PSMesh", "ps_5_0");
-	pHullShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "HSMesh", "hs_5_0");
-	pDomainShader_MESH_D = dx->CompileShader(ShaderMesh_D, strlen(ShaderMesh_D), "DSMesh", "ds_5_0");
+	pVertexShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "VSMesh", "vs_5_0");
+	pPixelShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "PSMesh", "ps_5_0");
+	pHullShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "HSMesh", "hs_5_0");
+	pDomainShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "DSMesh", "ds_5_0");
 
 	//3DレイアウトTexture有り
 	pVertexLayout_3D =
@@ -227,30 +254,26 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 	//テクスチャ3Dライト無
-	pVertexShader_TC = dx->CompileShader(Shader3D, strlen(Shader3D), "VSTextureColor", "vs_5_0");
-	pPixelShader_TC = dx->CompileShader(Shader3D, strlen(Shader3D), "PSTextureColor", "ps_5_0");
+	pVertexShader_TC = dx->CompileShader(D3.str, D3.size, "VSTextureColor", "vs_5_0");
+	pPixelShader_TC = dx->CompileShader(D3.str, D3.size, "PSTextureColor", "ps_5_0");
 	//テクスチャ3Dライト有
-	pVertexShader_TCL = dx->CompileShader(Shader3D, strlen(Shader3D), "VSTextureColorL", "vs_5_0");
-	pPixelShader_TCL = dx->CompileShader(Shader3D, strlen(Shader3D), "PSTextureColorL", "ps_5_0");
+	pVertexShader_TCL = dx->CompileShader(D3.str, D3.size, "VSTextureColorL", "vs_5_0");
+	pPixelShader_TCL = dx->CompileShader(D3.str, D3.size, "PSTextureColorL", "ps_5_0");
 	//基本色3D
-	pVertexShader_BC = dx->CompileShader(Shader3D, strlen(Shader3D), "VSBaseColor", "vs_5_0");
-	pPixelShader_BC = dx->CompileShader(Shader3D, strlen(Shader3D), "PSBaseColor", "ps_5_0");
-	//テセレータライト無
-	pVertexShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "VSDisp", "vs_5_0");
-	pPixelShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "PSDisp", "ps_5_0");
-	pHullShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "HSDisp", "hs_5_0");
-	pDomainShader_DISP = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "DSDisp", "ds_5_0");
-	//テセレータライト有
-	pVertexShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "VSDispL", "vs_5_0");
-	pPixelShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "PSDispL", "ps_5_0");
-	pHullShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "HSDispL", "hs_5_0");
-	pDomainShader_DISPL = dx->CompileShader(ShaderDisp, strlen(ShaderDisp), "DSDispL", "ds_5_0");
+	pVertexShader_BC = dx->CompileShader(D3.str, D3.size, "VSBaseColor", "vs_5_0");
+	pPixelShader_BC = dx->CompileShader(D3.str, D3.size, "PSBaseColor", "ps_5_0");
+	//テセレータ
+	pVertexShader_DISP = dx->CompileShader(Disp.str, Disp.size, "VSDisp", "vs_5_0");
+	pPixelShader_DISP = dx->CompileShader(Disp.str, Disp.size, "PSDisp", "ps_5_0");
+	pHullShader_DISP = dx->CompileShader(Disp.str, Disp.size, "HSDisp", "hs_5_0");
+	pDomainShader_DISP = dx->CompileShader(Disp.str, Disp.size, "DSDisp", "ds_5_0");
+	pPixelShader_DISPL = dx->CompileShader(Disp.str, Disp.size, "PSDispL", "ps_5_0");
 	//Wave
 	pComputeShader_Wave = dx->CompileShader(ShaderWaveCom, strlen(ShaderWaveCom), "CS", "cs_5_0");
-	pVertexShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "VSWave", "vs_5_0");
-	pPixelShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "PSWave", "ps_5_0");
-	pHullShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "HSWave", "hs_5_0");
-	pDomainShader_Wave = dx->CompileShader(ShaderWaveDraw, strlen(ShaderWaveDraw), "DSWave", "ds_5_0");
+	pVertexShader_Wave = dx->CompileShader(Wave.str, Wave.size, "VSWave", "vs_5_0");
+	pPixelShader_Wave = dx->CompileShader(Wave.str, Wave.size, "PSWave", "ps_5_0");
+	pHullShader_Wave = dx->CompileShader(Wave.str, Wave.size, "HSWave", "hs_5_0");
+	pDomainShader_Wave = dx->CompileShader(Wave.str, Wave.size, "DSWave", "ds_5_0");
 
 	//2Dレイアウト
 	pVertexLayout_2D =

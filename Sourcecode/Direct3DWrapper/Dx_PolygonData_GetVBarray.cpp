@@ -253,10 +253,10 @@ void PolygonData::GetShaderByteCode(bool light, int tNo) {
 		return;
 	}
 	if (disp && light) {
-		vs = dx->pVertexShader_DISPL.Get();
+		vs = dx->pVertexShader_DISP.Get();
 		ps = dx->pPixelShader_DISPL.Get();
-		hs = dx->pHullShader_DISPL.Get();
-		ds = dx->pDomainShader_DISPL.Get();
+		hs = dx->pHullShader_DISP.Get();
+		ds = dx->pDomainShader_DISP.Get();
 		return;
 	}
 	if (disp && !light) {

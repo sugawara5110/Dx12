@@ -116,12 +116,10 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_MESH_D = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_DISP = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_MESH_D = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISP = nullptr;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_SKIN;
@@ -138,7 +136,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_MESH = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_DISPL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_DISP = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_TCL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_TC = nullptr;
