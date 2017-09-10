@@ -105,16 +105,16 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 	//戦闘時,非戦闘時のディレクショナルライト
 	float btr = 1.0f;
 	if (encount != NOENCOUNT)btr = 2.0f;
-	//平行光源off
-	dx->SetDirectionLight(TRUE);
+	
 	//フォグoff
 	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 	if (map_no == 4)dx->PointLightPosSet(1, 1450.0f, 900.0f, 650.0f, 0.4f, 0.4f, 0.8f, 1.0f, 150.0f, 80.0f, 2.0f, TRUE);
 
 	switch (map_no) {
 	case 0:
-		//出口光源
+		if (encount == NOENCOUNT)dx->SetDirectionLight(FALSE); else dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f * btr, 0.1f * btr, 0.1f * btr, 1.5f, 0.5f);
+		//出口光源
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 200.0f, 50.0f, 2.0f, TRUE);
 		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -127,6 +127,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		if (boss_count >= 1 && encount != BOSS)poBoss.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		break;
 	case 1:
+		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f, 1.5f, 0.5f);
 		dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, TRUE);
 		poGroundF.Update(1100, 3500, 0, 0, 0, 0, 0, 0, 0);
@@ -158,6 +159,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		Mapupdate_Rain();
 		break;
 	case 2:
+		if (encount == NOENCOUNT)dx->SetDirectionLight(FALSE); else dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f * btr, 0.15f * btr, 0.15f * btr, 1.5f, 0.5f);
 		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 0, 180.0f, 0);
 		//入口光源
@@ -179,6 +181,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		break;
 	case 3:
 		//とりあえずOK後で光源設定する
+		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f, 1.5f, 0.5f);
 		poGroundF.Update(200, 3000, 0, 0, 0, 0, 0, 0, 0);
 		poCeilingF.Update(200, 2990, 0, 0, 0, 0, 0, 0, 0);
@@ -199,6 +202,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		break;
 	case 4:
 		//入り口に何か細工する予定
+		if (encount == NOENCOUNT)dx->SetDirectionLight(FALSE); else dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f * btr, 0.25f * btr, 0.25f * btr, 1.5f, 0.5f);
 		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
 		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);

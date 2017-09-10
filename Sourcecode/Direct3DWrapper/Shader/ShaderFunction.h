@@ -22,7 +22,7 @@ char *ShaderFunction =
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////ポイントライト計算(ライト数分ループさせて使用する)////////////////////////////////
-"float3 PointLightCom(float4 Diffuse, float3 Nor, float4 shadow, float4 lightPos, float4 wPos, float4 lightSt, float4 lightCol)\n"
+"float3 PointLightCom(float4 SpeculerCol, float4 Diffuse, float3 Nor, float4 shadow, float4 lightPos, float4 wPos, float4 lightSt, float4 lightCol, float4 CPos)\n"
 "{\n"
 //出力用Col
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
@@ -32,8 +32,15 @@ char *ShaderFunction =
 //ライトオフ, レンジ×3より外は飛ばす
 "    if (lightSt.w == 1.0f && distance < lightSt.x * 3){\n"
 
-//ライト方向正規化
+//ライトベクトル
 "       float3 L = normalize(lightPos.xyz - wPos.xyz);\n"
+"       float NL = saturate(dot(Nor, L));"
+
+//視線ベクトル
+"       float3 EyeVec = normalize(CPos.xyz - wPos.xyz);\n"
+//スぺキュラ
+"       float3 Reflect = normalize(2 * NL * Nor - L);\n"
+"       float3 specular = pow(saturate(dot(Reflect, EyeVec)), 4);\n"
 
 //デフォルト減衰率
 "       float attenuation = 2.0f;\n"
@@ -42,26 +49,33 @@ char *ShaderFunction =
 //減衰計算           
 "       float r = lightSt.y / (pow(distance, attenuation) * 0.001f);\n"
 
-//法線,ライト方向から陰影作成, N, Lの内積がg_ShadowLow.x未満の場合g_ShadowLow.xの値が適用される(距離による影は関係無し)
-"       Col = max(dot(Nor, L), shadow.x) * Diffuse * r * lightCol;\n"
+//法線,ライト方向から陰影作成
+"       Col = (max(NL, shadow.x) * Diffuse.xyz * lightCol.xyz + specular * SpeculerCol.xyz) * r;\n"
 "    }\n"
 "    return Col;\n"
 "}\n"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////平行光源計算/////////////////////////////////////////////////////////
-"float3 DirectionalLightCom(float3 Nor, float4 DlightSt, float4 Dir, float4 DCol)\n"
+"float3 DirectionalLightCom(float4 SpeculerCol, float4 Diffuse, float3 Nor, float4 DlightSt, float4 Dir, float4 DCol, float4 wPos, float4 CPos)\n"
 "{\n"
 //出力用Col
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 
-"    float3 D_LightDir;\n"
-"    float NL;\n"
 "    if(DlightSt.y == 1.0f)\n"
 "    {\n"
-"       D_LightDir = normalize(Dir);\n"
-"       NL = max(saturate(dot(Nor, D_LightDir)), DlightSt.z);\n"
-"       Col = DCol * DlightSt.x * NL;\n"
+
+//ライトベクトル
+"       float3 L = normalize(Dir.xyz);\n"
+"       float NL = max(saturate(dot(Nor, L)), DlightSt.z);\n"
+
+//視線ベクトル
+"       float3 EyeVec = normalize(CPos.xyz - wPos.xyz);\n"
+//スぺキュラ
+"       float3 Reflect = normalize(2 * NL * Nor - L);\n"
+"       float3 specular = pow(saturate(dot(Reflect, EyeVec)), 4);\n"
+
+"       Col = DCol.xyz * DlightSt.x * Diffuse.xyz * NL + specular * SpeculerCol.xyz;\n"
 "    }\n"
 "    return Col;\n"
 "}\n"
@@ -75,7 +89,7 @@ char *ShaderFunction =
 "{\n"
 "    matrix g_World[150]; \n"
 "    matrix g_WVP[150];\n"
-//現在位置
+//視点
 "    float4 g_C_Pos;\n"
 //オブジェクト追加カラー
 "    float4 g_ObjCol;\n"

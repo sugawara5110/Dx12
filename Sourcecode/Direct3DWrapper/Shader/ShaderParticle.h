@@ -118,7 +118,7 @@ char *ShaderParticle =
 //***************************ƒsƒNƒZƒ‹********************************//
 "float4 PS(PS_INPUT Input) : SV_Target\n"
 "{\n"
-"   float4 C;\n"
+"   float4 C = {0.0f, 0.0f, 0.0f, 0.0f};\n"
 "   if(g_size.w == 0.0f)C = Input.Color;\n"
 "	if(g_size.w == 1.0f)C = g_texColor.Sample(g_samLinear, Input.UV) * Input.Color;\n"
 "	return C;\n"

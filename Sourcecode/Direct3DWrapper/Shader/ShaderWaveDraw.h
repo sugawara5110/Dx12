@@ -61,15 +61,14 @@ char *ShaderWaveDraw =
 //*********************************************頂点シェーダー*******************************************************************//
 
 //***************************************ハルシェーダーコンスタント*************************************************************//
-"HS_CONSTANT_OUTPUT HSConstant(InputPatch<VS_OUTPUT, 4> ipL, uint pidL : SV_PrimitiveID)\n"
+"HS_CONSTANT_OUTPUT HSConstant(InputPatch<VS_OUTPUT, 4> ip, uint pid : SV_PrimitiveID)\n"
 "{\n"
-"	HS_CONSTANT_OUTPUT output;\n"
+"	HS_CONSTANT_OUTPUT output = (HS_CONSTANT_OUTPUT)0;\n"
 
-//ワールド変換(float3 から float4の変換忘れ無い事)
-"   float4 pos = float4(ipL[0].Pos, 1.0f);\n"
-"   float4 wPos = mul(pos, g_World[ipL[0].instanceID]);\n"
+//ワールド変換
+"   float3 wPos = mul(ip[0].Pos, (float3x3)g_World[ip[0].instanceID]);\n"
 //頂点から現在地までの距離を計算
-"   float distance = length(g_C_Pos.xyz - wPos.xyz);\n"
+"   float distance = length(g_C_Pos.xyz - wPos);\n"
 
 //ポリゴン数決定
 "   float divide = g_wHei_divide.y;\n"
@@ -93,26 +92,26 @@ char *ShaderWaveDraw =
 "[outputtopology(\"triangle_ccw\")]\n"
 "[outputcontrolpoints(4)]\n"
 "[patchconstantfunc(\"HSConstant\")]\n"
-"HS_OUTPUT HSWave(InputPatch<VS_OUTPUT, 4> ipL, uint cpidL : SV_OutputControlPointID, uint pidL : SV_PrimitiveID)\n"
+"HS_OUTPUT HSWave(InputPatch<VS_OUTPUT, 4> ip, uint cpid : SV_OutputControlPointID, uint pid : SV_PrimitiveID)\n"
 "{\n"
-"	HS_OUTPUT output;\n"
-"	output.Pos = ipL[cpidL].Pos;\n"
-"	output.Nor = ipL[cpidL].Nor;\n"
-"	output.Tex = ipL[cpidL].Tex;\n"
-"   output.instanceID = ipL[cpidL].instanceID;\n"
+"	HS_OUTPUT output = (HS_OUTPUT)0;\n"
+"	output.Pos = ip[cpid].Pos;\n"
+"	output.Nor = ip[cpid].Nor;\n"
+"	output.Tex = ip[cpid].Tex;\n"
+"   output.instanceID = ip[cpid].instanceID;\n"
 "	return output;\n"
 "}\n"
 //***************************************ハルシェーダー*************************************************************************//
 
 //**************************************ドメインシェーダー*********************************************************************//
 "[domain(\"quad\")]\n"
-"DS_OUTPUT DSWave(HS_CONSTANT_OUTPUT InL, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 4> patchL)\n"
+"DS_OUTPUT DSWave(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 4> patch)\n"
 "{\n"
-"	DS_OUTPUT output;\n"
+"	DS_OUTPUT output = (DS_OUTPUT)0;\n"
 
 //UV座標計算
-"   float2 top_uv = lerp(patchL[0].Tex, patchL[1].Tex, UV.x);\n"
-"   float2 bottom_uv = lerp(patchL[3].Tex, patchL[2].Tex, UV.x);\n"
+"   float2 top_uv = lerp(patch[0].Tex, patch[1].Tex, UV.x);\n"
+"   float2 bottom_uv = lerp(patch[3].Tex, patch[2].Tex, UV.x);\n"
 "   float2 uv = float2(lerp(top_uv, bottom_uv, UV.y));\n"
 "   output.Tex = uv;\n"
 //画像から高さを算出
@@ -126,26 +125,26 @@ char *ShaderWaveDraw =
 //画像から法線計算用ベクトル生成
 "   float4 nor = texheight * 2 - 1;\n"//-1.0～1.0にする為
 //pos座標計算
-"   float3 top_pos = lerp(patchL[0].Pos, patchL[1].Pos, UV.x);\n"
-"   float3 bottom_pos = lerp(patchL[3].Pos, patchL[2].Pos, UV.x);\n"
+"   float3 top_pos = lerp(patch[0].Pos, patch[1].Pos, UV.x);\n"
+"   float3 bottom_pos = lerp(patch[3].Pos, patch[2].Pos, UV.x);\n"
 "   output.Pos = float4(lerp(top_pos, bottom_pos, UV.y), 1);\n"
 //ローカル法線の方向にhei分頂点移動
-"   output.Pos.xyz += hei * patchL[0].Nor;\n"
+"   output.Pos.xyz += hei * patch[0].Nor;\n"
 //ローカル法線の方向にsin波を生成
-"   float3 sinwave3 = patchL[0].Nor * sinwave;\n"
+"   float3 sinwave3 = patch[0].Nor * sinwave;\n"
 //頂点にsin波合成
 "   output.Pos.xyz += sinwave3;\n"
 //画像から生成したベクトルにローカル法線を足し法線ベクトルとする
 "   float3 nor1;\n"
-"   nor1 = nor.xyz + patchL[0].Nor;\n"
-"   output.wPos = mul(output.Pos, g_World[patchL[0].instanceID]);\n"
-"   output.Pos = mul(output.Pos, g_WVP[patchL[0].instanceID]);\n"
+"   nor1 = nor.xyz + patch[0].Nor;\n"
+"   output.wPos = mul(output.Pos, g_World[patch[0].instanceID]);\n"
+"   output.Pos = mul(output.Pos, g_WVP[patch[0].instanceID]);\n"
 
 //法線正規化
 "   float3 Normal = normalize(nor1);\n"
 
 //出力する法線の作成
-"   output.Nor = mul(Normal, (float3x3)g_World[patchL[0].instanceID]);\n"
+"   output.Nor = mul(Normal, (float3x3)g_World[patch[0].instanceID]);\n"
 
 "	return output;\n"
 "}\n"
@@ -166,11 +165,11 @@ char *ShaderWaveDraw =
 "    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 "    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i]);\n"
+"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
 "    }\n"
 
 //平行光源計算
-"    Col = Col + DirectionalLightCom(input.Nor, g_DLightst, g_DLightDirection, g_DLightColor);\n"
+"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
 
 //最後に基本色にテクスチャの色を掛け合わせる
 "    return float4(Col, 1.0f) * T + g_ObjCol;\n"

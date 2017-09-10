@@ -77,6 +77,7 @@ struct CONSTANT_BUFFER {
 
 struct CONSTANT_BUFFER_MESH {
 	VECTOR4 vDiffuse;//ディフューズ色
+	VECTOR4 vSpeculer;//スぺキュラ色
 };
 
 struct CONSTANT_BUFFER2D {
@@ -137,6 +138,7 @@ struct MY_VERTEX_S{
 struct MY_MATERIAL_S{
 	CHAR szName[255];
 	VECTOR4 Kd;//ディフューズ
+	VECTOR4 Ks;//スペキュラー
 	CHAR szTextureName[255];//テクスチャーファイル名
 	DWORD dwNumFace;//マテリアル毎のポリゴン数
 	int tex_no;
@@ -163,6 +165,7 @@ struct BONE{
 
 struct SHADER_GLOBAL1 {
 	VECTOR4 vDiffuse;//ディフューズ色
+	VECTOR4 vSpeculer;//スペキュラー色
 };
 
 struct SHADER_GLOBAL_BONES {

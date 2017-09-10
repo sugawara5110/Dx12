@@ -8,6 +8,7 @@ char *ShaderMesh_D =
 "{\n"
 //マテリアル毎の色
 "    float4 g_Diffuse;\n"
+"    float4 g_Speculer; \n"
 "};\n"
 
 "struct VS_OUTPUT\n"
@@ -55,13 +56,12 @@ char *ShaderMesh_D =
 //***************************************ハルシェーダーコンスタント*************************************************//
 "HS_CONSTANT_OUTPUT HSConstant(InputPatch<VS_OUTPUT, 3> ip, uint pid : SV_PrimitiveID)\n"
 "{\n"
-"	HS_CONSTANT_OUTPUT output;\n"
+"	HS_CONSTANT_OUTPUT output = (HS_CONSTANT_OUTPUT)0;\n"
 
-//ワールド変換(float3 から float4の変換忘れ無い事)
-"   float4 pos = float4(ip[0].Pos, 1.0f);\n"
-"   float4 wPos = mul(pos, g_World[ip[0].instanceID]);\n"
+//ワールド変換
+"   float3 wPos = mul(ip[0].Pos, (float3x3)g_World[ip[0].instanceID]);\n"
 //頂点から現在地までの距離を計算
-"   float distance = length(g_C_Pos.xyz - wPos.xyz);\n"
+"   float distance = length(g_C_Pos.xyz - wPos);\n"
 
 //距離でポリゴン数決定
 "   float divide = 1;\n"
@@ -88,7 +88,7 @@ char *ShaderMesh_D =
 "[patchconstantfunc(\"HSConstant\")]\n"
 "HS_OUTPUT HSMesh(InputPatch<VS_OUTPUT, 3> ip, uint cpid : SV_OutputControlPointID, uint pid : SV_PrimitiveID)\n"
 "{\n"
-"	HS_OUTPUT output;\n"
+"	HS_OUTPUT output = (HS_OUTPUT)0;\n"
 "	output.Pos = ip[cpid].Pos;\n"
 "	output.Nor = ip[cpid].Nor;\n"
 "	output.Tex = ip[cpid].Tex;\n"
@@ -101,18 +101,15 @@ char *ShaderMesh_D =
 "[domain(\"tri\")]\n"
 "DS_OUTPUT DSMesh(HS_CONSTANT_OUTPUT In, float3 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 3> patch)\n"
 "{\n"
-"	DS_OUTPUT output;\n"
+"	DS_OUTPUT output = (DS_OUTPUT)0;\n"
 
 //UV座標計算
 "   float2 uv = patch[0].Tex * UV.x + patch[1].Tex * UV.y + patch[2].Tex * UV.z;\n"
 "   output.Tex = uv;\n"
 
-"   float4 height;\n"
-"   float hei;\n"
-
 //画像から高さを算出
-"   height = g_texColor.SampleLevel(g_samLinear, uv, 0) * g_DispAmount.x;\n"
-"   hei = (height.x + height.y + height.z) / 3;\n"
+"   float4 height = g_texColor.SampleLevel(g_samLinear, uv, 0) * g_DispAmount.x;\n"
+"   float hei = (height.x + height.y + height.z) / 3;\n"
 
 //pos座標計算
 "   float3 pos = patch[0].Pos * UV.x + patch[1].Pos * UV.y + patch[2].Pos * UV.z;\n"
@@ -128,8 +125,7 @@ char *ShaderMesh_D =
 //画像から法線計算用ベクトル生成
 "   nor = g_texColor.SampleLevel(g_samLinear, uv, 0) * 2 - 1;\n"
 //画像から生成したベクトルにローカル法線を足し法線ベクトルとする
-"   float3 nor1;\n"
-"   nor1 = nor.xyz + patch[0].Nor;\n"
+"   float3 nor1 = nor.xyz + patch[0].Nor;\n"
 "   nor.xyz = nor1;\n"
 
 "   float3 Normal = normalize(nor.xyz);\n"
@@ -164,14 +160,13 @@ char *ShaderMesh_D =
 //ライト計算
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 "    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i]);\n"
+"        Col = Col + PointLightCom(g_Speculer, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
 "    }\n"
 
 //平行光源計算
-"    Col = Col + DirectionalLightCom(input.Nor, g_DLightst, g_DLightDirection, g_DLightColor);\n"
+"    Col = Col + DirectionalLightCom(g_Speculer, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
 
-"    float4 color;\n"
-"    color = float4(Col, a) * T + g_ObjCol;\n"
+"    float4 color = float4(Col, a) * T + g_ObjCol;\n"
 "    return color;\n"
 "}\n";
 //****************************************メッシュピクセル**********************************************************//

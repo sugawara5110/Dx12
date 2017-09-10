@@ -440,6 +440,7 @@ private:
 	struct MY_MATERIAL {
 		CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
 		VECTOR4 Kd;           //ディフューズ
+		VECTOR4 Ks;           //スペキュラー
 		CHAR TextureName[110];//マテリアルファイル内のテクスチャ№の文字列が入る
 		int tex_no;
 

@@ -154,8 +154,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 37;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 2;
-			*/
+			savedata.map_no = 2;*/
+			
 			
 			/*savedata.h_pos.cx1 = 450.0f;//ƒ{ƒX‘O
 			savedata.h_pos.cx2 = 450.0f;

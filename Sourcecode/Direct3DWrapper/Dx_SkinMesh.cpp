@@ -408,7 +408,7 @@ void SkinMesh::SetVertex() {
 
 		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();//FbxMeshから頂点ローカル座標配列取得, Directxに対してZが逆
 
-														  //頂点配列をfbxからコピー
+		//頂点配列をfbxからコピー
 		for (DWORD i = 0; i < m_pdwNumVert[m]; i++) {
 			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[i][0];//FBXは右手座標系なのでxあるいはｚを反転
 			pvVB[i + VerArrStart].vPos.y = (float)pCoord[i][1];
@@ -418,7 +418,7 @@ void SkinMesh::SetVertex() {
 		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
 		memcpy(piFaceBuffer[m], piIndex, sizeof(int) * IndexCount34Me[m]);//コピー
 
-																		  //法線読み込み
+	     //法線読み込み
 		FbxVector4 Normal;
 		for (DWORD i = 0; i < pdwNumFace[m]; i++) {
 			int iStartIndex = pFbxMesh->GetPolygonVertexIndex(i);//ポリゴンを構成する最初のインデックス取得
@@ -498,20 +498,24 @@ void SkinMesh::SetVertex() {
 		}
 
 		for (DWORD i = 0; i < m_pMaterialCount[m]; i++) {
-			//フォンモデルを想定
+
+			//マテリアル情報取得
 			FbxSurfaceMaterial *pMaterial = pNode->GetMaterial(i);
 			FbxSurfacePhong *pPhong = (FbxSurfacePhong*)pMaterial;
 
-			typedef FbxPropertyT<FbxDouble3> FbxPropertyDouble3;
-
 			//拡散反射光
-			FbxPropertyDouble3 d3Diffuse = pPhong->Diffuse;
-			m_pMaterial[mInd].Kd.x = (float)d3Diffuse.Get()[0];
-			m_pMaterial[mInd].Kd.y = (float)d3Diffuse.Get()[1];
-			m_pMaterial[mInd].Kd.z = (float)d3Diffuse.Get()[2];
+			FbxDouble3 d3Diffuse = pPhong->sDiffuseDefault;
+			m_pMaterial[mInd].Kd.x = (float)d3Diffuse[0];
+			m_pMaterial[mInd].Kd.y = (float)d3Diffuse[1];
+			m_pMaterial[mInd].Kd.z = (float)d3Diffuse[2];
 			m_pMaterial[mInd].Kd.w = 1.0f;//透けさせたい場合ここをどうにかする
-
-										  //テクスチャー
+			//スペキュラー
+			FbxDouble3 d3Specular = pPhong->sSpecularDefault;
+			m_pMaterial[mInd].Ks.x = (float)d3Specular[0];
+			m_pMaterial[mInd].Ks.y = (float)d3Specular[1];
+			m_pMaterial[mInd].Ks.z = (float)d3Specular[2];
+			m_pMaterial[mInd].Ks.w = 0.0f;
+			//テクスチャー
 			FbxProperty lProperty;
 			lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
 			FbxTexture *texture = FbxCast<FbxTexture>(lProperty.GetSrcObject<FbxTexture>(0));
@@ -574,6 +578,7 @@ void SkinMesh::SetVertex() {
 	for (int i = 0; i < MateAllpcs; i++) {
 		SHADER_GLOBAL1 sg;
 		sg.vDiffuse = m_pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
+		sg.vSpeculer = m_pMaterial[i].Ks;//スペキュラーをシェーダーに渡す
 		mObjectCB1->CopyData(i, sg);
 	}
 

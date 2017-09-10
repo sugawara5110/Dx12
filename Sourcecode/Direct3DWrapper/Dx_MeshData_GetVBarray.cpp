@@ -91,6 +91,12 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 			sscanf_s(&line[3], "%f %f %f", &v.x, &v.y, &v.z);
 			pMaterial[iMCount].Kd = v;
 		}
+		//Ks　スペキュラー
+		if (strcmp(key, "Ks") == 0)
+		{
+			sscanf_s(&line[3], "%f %f %f", &v.x, &v.y, &v.z);
+			pMaterial[iMCount].Ks = v;
+		}
 		//map_Kd　テクスチャー
 		if (strcmp(key, "map_Kd") == 0)
 		{
@@ -239,6 +245,7 @@ void MeshData::SetVertex() {
 	for (int i = 0; i < MaterialCount; i++) {
 		CONSTANT_BUFFER_MESH sg;
 		sg.vDiffuse = pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
+		sg.vDiffuse = pMaterial[i].Ks;//スペキュラーをシェーダーに渡す
 		mObject_MESHCB->CopyData(i, sg);
 	}
 

@@ -49,13 +49,12 @@ char *ShaderDisp =
 //***************************************ハルシェーダーコンスタント*************************************************************//
 "HS_CONSTANT_OUTPUT HSConstant(InputPatch<VS_OUTPUT_TC, 4> ip, uint pid : SV_PrimitiveID)\n"
 "{\n"
-"	HS_CONSTANT_OUTPUT output;\n"
+"	HS_CONSTANT_OUTPUT output = (HS_CONSTANT_OUTPUT)0;\n"
 
-//ワールド変換(float3 から float4の変換忘れ無い事)
-"   float4 pos = float4(ip[0].Pos, 1.0f);\n"
-"   float4 wPos = mul(pos, g_World[ip[0].instanceID]);\n"
+//ワールド変換
+"   float3 wPos = mul(ip[0].Pos, (float3x3)g_World[ip[0].instanceID]);\n"
 //頂点から現在地までの距離を計算
-"   float distance = length(g_C_Pos.xyz - wPos.xyz);\n"
+"   float distance = length(g_C_Pos.xyz - wPos);\n"
 
 //距離でポリゴン数決定
 "   float divide = 1;\n"
@@ -97,7 +96,7 @@ char *ShaderDisp =
 "[domain(\"quad\")]\n"
 "DS_OUTPUT_TC DSDisp(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT_TC, 4> patch)\n"
 "{\n"
-"	DS_OUTPUT_TC output;\n"
+"	DS_OUTPUT_TC output = (DS_OUTPUT_TC)0;\n"
 
 //UV座標計算
 "   float2 top_uv = lerp(patch[0].Tex, patch[1].Tex, UV.x);\n"
@@ -117,8 +116,7 @@ char *ShaderDisp =
 //ローカル法線の方向にhei分頂点移動
 "   output.Pos.xyz += hei * patch[0].Nor;\n"
 //画像から生成したベクトルにローカル法線を足し法線ベクトルとする
-"   float3 nor1;\n"
-"   nor1 = nor.xyz + patch[0].Nor;\n"
+"   float3 nor1 = nor.xyz + patch[0].Nor;\n"
 "   output.wPos = mul(output.Pos, g_World[patch[0].instanceID]);\n"
 "   output.Pos = mul(output.Pos, g_WVP[patch[0].instanceID]);\n"
 
@@ -148,11 +146,11 @@ char *ShaderDisp =
 "    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 "    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i]);\n"
+"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
 "    }\n"
 
 //平行光源計算
-"    Col = Col + DirectionalLightCom(input.Nor, g_DLightst, g_DLightDirection, g_DLightColor);\n"
+"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
 
 //最後に基本色にテクスチャの色を掛け合わせる
 "    return float4(Col, 1.0f) * T + g_ObjCol;\n"

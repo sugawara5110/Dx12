@@ -8,6 +8,7 @@ char *ShaderSkinMesh =
 "{\n"
 //マテリアル毎の色
 "    float4 g_Diffuse;\n"
+"    float4 g_Speculer; \n"
 "};\n"
 
 "cbuffer global_bones : register(b2)\n"//ボーンのポーズ行列が入る
@@ -113,14 +114,13 @@ char *ShaderSkinMesh =
 //ライト計算
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 "    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i]);\n"
+"        Col = Col + PointLightCom(g_Speculer, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
 "    }\n"
 
 //平行光源計算
-"    Col = Col + DirectionalLightCom(input.Nor, g_DLightst, g_DLightDirection, g_DLightColor);\n"
+"    Col = Col + DirectionalLightCom(g_Speculer, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
 
-"    float4 color;\n"
-"    color = float4(Col, 1.0f) * T + g_ObjCol;\n"
+"    float4 color = float4(Col, 1.0f) * T + g_ObjCol;\n"
 "    return color;\n"
 "}\n";
 //****************************************メッシュピクセル**********************************************************//

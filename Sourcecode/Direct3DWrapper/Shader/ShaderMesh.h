@@ -8,6 +8,7 @@ char *ShaderMesh =
 "{\n"
 //マテリアル毎の色
 "    float4 g_Diffuse;\n"
+"    float4 g_Speculer; \n"
 "};\n"
 
 "struct VS_OUTPUT\n"
@@ -24,7 +25,7 @@ char *ShaderMesh =
 "    VS_OUTPUT output = (VS_OUTPUT)0;\n"
 "    output.Pos = mul(Pos, g_WVP[instanceID]);\n"
 "    output.wPos = mul(Pos, g_World[instanceID]);\n"
-"    output.Nor = mul(Nor, (float3x3)g_World[instanceID]);\n"
+"    output.Nor = mul(Nor.xyz, (float3x3)g_World[instanceID]);\n"
 "    output.Tex = Tex;\n"
 
 "    return output;\n"
@@ -50,14 +51,13 @@ char *ShaderMesh =
 //ライト計算
 "    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
 "    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i]);\n"
+"        Col = Col + PointLightCom(g_Speculer, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
 "    }\n"
 
 //平行光源計算
-"    Col = Col + DirectionalLightCom(input.Nor, g_DLightst, g_DLightDirection, g_DLightColor);\n"
+"    Col = Col + DirectionalLightCom(g_Speculer, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
 
-"    float4 color;\n"
-"    color = float4(Col, a) * T + g_ObjCol;\n"
+"    float4 color = float4(Col, a) * T + g_ObjCol;\n"
 "    return color;\n"
 "}\n";
 //****************************************メッシュピクセル**********************************************************//
