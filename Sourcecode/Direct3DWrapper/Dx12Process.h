@@ -145,6 +145,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN_Bump = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH = nullptr;
@@ -815,11 +816,13 @@ private:
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
 	ID3DBlob                   *ps = nullptr;
+	ID3DBlob                   *psB = nullptr;
 	bool alpha = FALSE;
 	bool blend = FALSE;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
+	int texNum;//テクスチャー数
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB0 = nullptr;
@@ -839,6 +842,7 @@ private:
 	std::unique_ptr<IndexView[]> Iview = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;//パイプラインOBJ
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_B = nullptr;//パイプラインOBJ(バンプマップ)
 
 	//メッシュ関連	
 	DWORD *m_pdwNumVert;//メッシュ毎の頂点数
@@ -894,6 +898,7 @@ private:
 	bool SetNewPoseMatrices(float time, int ind);
 	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
 	void CbSwap();
+	ID3D12PipelineState *CreatePSO(ID3DBlob *ps);
 
 public:
 	SkinMesh();
@@ -981,7 +986,7 @@ private:
 	void CbSwap();
 	void Compute();
 	void DrawSub();
-
+	
 public:
 	Wave();
 	void SetCommandList(int no);

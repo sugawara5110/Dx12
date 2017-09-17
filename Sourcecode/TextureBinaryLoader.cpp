@@ -75,11 +75,15 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	TextureGetBuffer("./dat/texture/enemy/enemy20.da");
 	//ボス
 	TextureGetBuffer("./dat/texture/enemy/boss1.da");
+	TextureGetBuffer("./dat/texture/enemy/boss1_normal.da");
 	TextureGetBuffer("./dat/texture/enemy/boss2.da");
+	TextureGetBuffer("./dat/texture/enemy/boss2_normal.da");
 	TextureGetBuffer("./dat/texture/enemy/boss3.da");
 	TextureGetBuffer("./dat/texture/enemy/boss4.da");
+	TextureGetBuffer("./dat/texture/enemy/boss4_normal.da");
 	//ラストボス
 	TextureGetBuffer("./dat/texture/enemy/lastboss.da");
+	TextureGetBuffer("./dat/texture/enemy/lastboss_normal.da");
 	//魔方陣通常
 	TextureGetBuffer("./dat/texture/magic/side_magic.da");
 	//魔方陣ボス
@@ -96,24 +100,32 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	//プレイヤー1テクスチャ
 	TextureGetBuffer("./dat/texture/player/p1/brown_eye.da");
 	TextureGetBuffer("./dat/texture/player/p1/classicshoes_texture_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p1/classicshoes_texture_normals.da");
 	TextureGetBuffer("./dat/texture/player/p1/eyebrow001.da");
 	TextureGetBuffer("./dat/texture/player/p1/jacket01_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p1/jacket01_normals.da");
 	TextureGetBuffer("./dat/texture/player/p1/jeans01_black_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p1/jeans01_normals.da");
 	TextureGetBuffer("./dat/texture/player/p1/male01_diffuse_black.da");
 	TextureGetBuffer("./dat/texture/player/p1/young_lightskinned_male_diffuse.da");
 	//プレイヤー2テクスチャ
 	TextureGetBuffer("./dat/texture/player/p2/brown_eye.da");
 	TextureGetBuffer("./dat/texture/player/p2/diffuse_black.da");
+	TextureGetBuffer("./dat/texture/player/p2/normals.da");
 	TextureGetBuffer("./dat/texture/player/p2/eyebrow006.da");
 	TextureGetBuffer("./dat/texture/player/p2/eyelashes03.da");
 	TextureGetBuffer("./dat/texture/player/p2/shoes02_default.da");
 	TextureGetBuffer("./dat/texture/player/p2/short01_black_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p2/short01_normals.da");
 	TextureGetBuffer("./dat/texture/player/p2/tshirt02_texture.da");
+	TextureGetBuffer("./dat/texture/player/p2/tshirt02_normals.da");
 	TextureGetBuffer("./dat/texture/player/p2/young_lightskinned_female_diffuse.da");
 	//プレイヤー3テクスチャ
 	TextureGetBuffer("./dat/texture/player/p3/brown_eye.da");
 	TextureGetBuffer("./dat/texture/player/p3/classicshoes_texture_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p3/classicshoes_texture_normals.da");
 	TextureGetBuffer("./dat/texture/player/p3/jeans_basic_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p3/jeans01_normals.da");
 	TextureGetBuffer("./dat/texture/player/p3/young_darkskinned_male_diffuse.da");
 	//プレイヤー4テクスチャ
 	TextureGetBuffer("./dat/texture/player/p4/afro.da");
@@ -122,7 +134,9 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	TextureGetBuffer("./dat/texture/player/p4/eyelashes03.da");
 	TextureGetBuffer("./dat/texture/player/p4/shoes02_default.da");
 	TextureGetBuffer("./dat/texture/player/p4/short01_black_diffuse.da");
+	TextureGetBuffer("./dat/texture/player/p4/short01_normals.da");
 	TextureGetBuffer("./dat/texture/player/p4/tshirt_texture_blue.da");
+	TextureGetBuffer("./dat/texture/player/p4/tshirt_normal.da");
 	TextureGetBuffer("./dat/texture/player/p4/young_darkskinned_female_diffuse.da");
 }
 
@@ -173,11 +187,15 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	TextureBinaryDecode("./dat/texture/enemy/enemy20.da");
 	//ボス
 	TextureBinaryDecode("./dat/texture/enemy/boss1.da");
+	TextureBinaryDecode("./dat/texture/enemy/boss1_normal.da");
 	TextureBinaryDecode("./dat/texture/enemy/boss2.da");
+	TextureBinaryDecode("./dat/texture/enemy/boss2_normal.da");
 	TextureBinaryDecode("./dat/texture/enemy/boss3.da");
 	TextureBinaryDecode("./dat/texture/enemy/boss4.da");
+	TextureBinaryDecode("./dat/texture/enemy/boss4_normal.da");
 	//ラストボス
 	TextureBinaryDecode("./dat/texture/enemy/lastboss.da");
+	TextureBinaryDecode("./dat/texture/enemy/lastboss_normal.da");
 	//魔方陣通常
 	TextureBinaryDecode("./dat/texture/magic/side_magic.da");
 	//魔方陣ボス
@@ -194,24 +212,32 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	//プレイヤー1テクスチャ
 	TextureBinaryDecode("./dat/texture/player/p1/brown_eye.da");
 	TextureBinaryDecode("./dat/texture/player/p1/classicshoes_texture_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p1/classicshoes_texture_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p1/eyebrow001.da");
 	TextureBinaryDecode("./dat/texture/player/p1/jacket01_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p1/jacket01_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p1/jeans01_black_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p1/jeans01_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p1/male01_diffuse_black.da");
 	TextureBinaryDecode("./dat/texture/player/p1/young_lightskinned_male_diffuse.da");
 	//プレイヤー2テクスチャ
 	TextureBinaryDecode("./dat/texture/player/p2/brown_eye.da");
 	TextureBinaryDecode("./dat/texture/player/p2/diffuse_black.da");
+	TextureBinaryDecode("./dat/texture/player/p2/normals.da");
 	TextureBinaryDecode("./dat/texture/player/p2/eyebrow006.da");
 	TextureBinaryDecode("./dat/texture/player/p2/eyelashes03.da");
 	TextureBinaryDecode("./dat/texture/player/p2/shoes02_default.da");
 	TextureBinaryDecode("./dat/texture/player/p2/short01_black_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p2/short01_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p2/tshirt02_texture.da");
+	TextureBinaryDecode("./dat/texture/player/p2/tshirt02_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p2/young_lightskinned_female_diffuse.da");
 	//プレイヤー3テクスチャ
 	TextureBinaryDecode("./dat/texture/player/p3/brown_eye.da");
 	TextureBinaryDecode("./dat/texture/player/p3/classicshoes_texture_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p3/classicshoes_texture_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p3/jeans_basic_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p3/jeans01_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p3/young_darkskinned_male_diffuse.da");
 	//プレイヤー4テクスチャ
 	TextureBinaryDecode("./dat/texture/player/p4/afro.da");
@@ -220,7 +246,9 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	TextureBinaryDecode("./dat/texture/player/p4/eyelashes03.da");
 	TextureBinaryDecode("./dat/texture/player/p4/shoes02_default.da");
 	TextureBinaryDecode("./dat/texture/player/p4/short01_black_diffuse.da");
+	TextureBinaryDecode("./dat/texture/player/p4/short01_normals.da");
 	TextureBinaryDecode("./dat/texture/player/p4/tshirt_texture_blue.da");
+	TextureBinaryDecode("./dat/texture/player/p4/tshirt_normal.da");
 	TextureBinaryDecode("./dat/texture/player/p4/young_darkskinned_female_diffuse.da");
 
 	Dx12Process::GetInstance()->SetTextureBinary(tex, texNum);

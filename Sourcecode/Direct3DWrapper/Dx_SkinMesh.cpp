@@ -62,6 +62,7 @@ SkinMesh::SkinMesh() {
 	BoneConnect = -1.0f;
 	pvVB_delete_f = TRUE;
 	pvVB = NULL;
+	texNum = 0;
 }
 
 SkinMesh::~SkinMesh() {
@@ -418,7 +419,7 @@ void SkinMesh::SetVertex() {
 		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
 		memcpy(piFaceBuffer[m], piIndex, sizeof(int) * IndexCount34Me[m]);//コピー
 
-	     //法線読み込み
+		 //法線読み込み
 		FbxVector4 Normal;
 		for (DWORD i = 0; i < pdwNumFace[m]; i++) {
 			int iStartIndex = pFbxMesh->GetPolygonVertexIndex(i);//ポリゴンを構成する最初のインデックス取得
@@ -515,20 +516,33 @@ void SkinMesh::SetVertex() {
 			m_pMaterial[mInd].Ks.y = (float)d3Specular[1];
 			m_pMaterial[mInd].Ks.z = (float)d3Specular[2];
 			m_pMaterial[mInd].Ks.w = 0.0f;
+
 			//テクスチャー
-			FbxProperty lProperty;
-			lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
-			FbxTexture *texture = FbxCast<FbxTexture>(lProperty.GetSrcObject<FbxTexture>(0));
-			if (texture) {
-				FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(texture);
+			FbxProperty lPropertyDif;
+			FbxProperty lPropertyNor;
+			lPropertyDif = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+			lPropertyNor = pMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
+
+			FbxTexture *textureNor = FbxCast<FbxTexture>(lPropertyNor.GetSrcObject<FbxTexture>(0));
+			if (textureNor) {
+				FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(textureNor);
+				strcpy_s(m_pMaterial[mInd].norTextureName, fileTexture->GetFileName());
+				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
+				m_pMaterial[mInd].nortex_no = dx->GetTexNumber(m_pMaterial[mInd].norTextureName);
+				texNum++;
+			}
+			FbxTexture *textureDif = FbxCast<FbxTexture>(lPropertyDif.GetSrcObject<FbxTexture>(0));
+			if (textureDif) {
+				FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(textureDif);
 				strcpy_s(m_pMaterial[mInd].szTextureName, fileTexture->GetFileName());
 				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
 				m_pMaterial[mInd].tex_no = dx->GetTexNumber(m_pMaterial[mInd].szTextureName);
+				texNum++;
 			}
 			else {
 				strcpy_s(m_pMaterial[mInd].szTextureName, pMaterial->GetName());//テクスチャ名が無い場合マテリアル名から
-																				//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
 				m_pMaterial[mInd].tex_no = dx->GetTexNumber(m_pMaterial[mInd].szTextureName);
+				texNum++;
 			}
 
 			int iCount = 0;
@@ -609,19 +623,22 @@ void SkinMesh::CreateFromFBX() {
 
 	vs = dx->pVertexShader_SKIN.Get();
 	ps = dx->pPixelShader_SKIN.Get();
+	psB = dx->pPixelShader_SKIN_Bump.Get();
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, shader内registerIndex
+	nortexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
-	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
-	slotRootParameter[1].InitAsConstantBufferView(0);
-	slotRootParameter[2].InitAsConstantBufferView(1);
-	slotRootParameter[3].InitAsConstantBufferView(2);
+	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
+	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);//DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
+	slotRootParameter[1].InitAsDescriptorTable(1, &nortexTable, D3D12_SHADER_VISIBILITY_ALL);
+	slotRootParameter[2].InitAsConstantBufferView(0);
+	slotRootParameter[3].InitAsConstantBufferView(1);
+	slotRootParameter[4].InitAsConstantBufferView(2);
 
 	auto staticSamplers = dx->GetStaticSamplers();
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -641,14 +658,23 @@ void SkinMesh::CreateFromFBX() {
 		serializedRootSig->GetBufferSize(),
 		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
 
-	//マテリアルの数だけDescriptorを用意する
+	//使用テクスチャ数だけDescriptorを用意する
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = MateAllpcs;
+	srvHeapDesc.NumDescriptors = texNum;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
 	//パイプラインステートオブジェクト生成
+	mPSO = CreatePSO(ps);
+	mPSO_B = CreatePSO(psB);
+
+	GetTexture();
+}
+
+ID3D12PipelineState *SkinMesh::CreatePSO(ID3DBlob *p) {
+	//パイプラインステートオブジェクト生成
+	ID3D12PipelineState *pso;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	psoDesc.InputLayout = { dx->pVertexLayout_SKIN.data(), (UINT)dx->pVertexLayout_SKIN.size() };
@@ -660,8 +686,8 @@ void SkinMesh::CreateFromFBX() {
 	};
 	psoDesc.PS =
 	{
-		reinterpret_cast<BYTE*>(ps->GetBufferPointer()),
-		ps->GetBufferSize()
+		reinterpret_cast<BYTE*>(p->GetBufferPointer()),
+		p->GetBufferSize()
 	};
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
@@ -680,9 +706,9 @@ void SkinMesh::CreateFromFBX() {
 	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
 	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
 	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
+	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
 
-	GetTexture();
+	return pso;
 }
 
 HRESULT SkinMesh::GetFbxSub(CHAR* szFileName, int ind) {
@@ -724,17 +750,24 @@ void SkinMesh::CreateFromFBX_SubAnimation(int ind) {
 
 	int loopind = 0;
 	int searchCount = 0;
+	int name2Num = 0;
 	while (loopind < m_iNumBone) {
 		int sa_ind = (ind - 1) * m_iNumBone + loopind;
-		m_ppSubAnimationBone[sa_ind] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, searchCount + 1);
+		m_ppSubAnimationBone[sa_ind] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, searchCount);
 		searchCount++;
 		SearchNode(NULL, FbxNodeAttribute::eSkeleton, 0);//リセット
 		const char *name = m_ppSubAnimationBone[sa_ind]->GetName();
+		if (!strncmp("Skeleton", name, 8))continue;
 		char *name2 = &m_pClusterName[loopind * 255];//各Bone名の先頭アドレスを渡す
+		//Bone名に空白が含まれている場合最後の空白以降の文字から終端までの文字を比較する為,
+		//終端文字までポインタを進め, 終端から検査して空白位置手前まで比較する
 		while (*name != '\0')name++;//終端文字までポインタを進める
-		while (*name2 != '\0')name2++;
-		while (*(--name) == *(--name2) && *name2 != ' ');
-		if (*name2 != ' ')continue;
+		//終端文字までポインタを進める, 空白が含まれない文字の場合もあるので文字数カウントし,
+		//文字数で比較完了を判断する
+		while (*name2 != '\0') { name2++; name2Num++; }
+		while (*(--name) == *(--name2) && *name2 != ' ' && (--name2Num) > 0);
+		if (*name2 != ' ' && name2Num > 0) { name2Num = 0; continue; }
+		name2Num = 0;
 		loopind++;
 	}
 }
@@ -917,6 +950,13 @@ void SkinMesh::GetTexture() {
 		srvDesc.Texture2D.MipLevels = dx->texture[m_pMaterial[i].tex_no]->GetDesc().MipLevels;
 		dx->md3dDevice->CreateShaderResourceView(dx->texture[m_pMaterial[i].tex_no], &srvDesc, hDescriptor);
 		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
+		//normalMapが存在する場合
+		if (m_pMaterial[i].nortex_no != -1) {
+			srvDesc.Format = dx->texture[m_pMaterial[i].nortex_no]->GetDesc().Format;
+			srvDesc.Texture2D.MipLevels = dx->texture[m_pMaterial[i].nortex_no]->GetDesc().MipLevels;
+			dx->md3dDevice->CreateShaderResourceView(dx->texture[m_pMaterial[i].nortex_no], &srvDesc, hDescriptor);
+			hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
+		}
 	}
 }
 
@@ -959,8 +999,6 @@ void SkinMesh::Draw() {
 	mObject_BONES->CopyData(0, sgb[1 - sw]);
 	Unlock();
 
-	mCommandList->SetPipelineState(mPSO.Get());
-
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -981,13 +1019,20 @@ void SkinMesh::Draw() {
 		}
 		mCommandList->IASetIndexBuffer(&Iview[i].IndexBufferView());
 
-		mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+		mCommandList->SetGraphicsRootDescriptorTable(0, tex);//(slotRootParameterIndex(shader内registerIndex), DESCRIPTOR_HANDLE)
 		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);//デスクリプタヒープのアドレス位置オフセットで次のテクスチャを読み込ませる
+		if (m_pMaterial[i].nortex_no != -1) {
+			//normalMapが存在する場合diffuseの次に格納されている
+			mCommandList->SetGraphicsRootDescriptorTable(1, tex);
+			tex.Offset(1, dx->mCbvSrvUavDescriptorSize);
+			mCommandList->SetPipelineState(mPSO_B.Get());//normalMap有り無しでPSO切り替え
+		}
+		else mCommandList->SetPipelineState(mPSO.Get());
 
-		mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB0->Resource()->GetGPUVirtualAddress());
+		mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB0->Resource()->GetGPUVirtualAddress());
 		UINT mElementByteSize = (sizeof(SHADER_GLOBAL1) + 255) & ~255;
-		mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB1->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
-		mCommandList->SetGraphicsRootConstantBufferView(3, mObject_BONES->Resource()->GetGPUVirtualAddress());
+		mCommandList->SetGraphicsRootConstantBufferView(3, mObjectCB1->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
+		mCommandList->SetGraphicsRootConstantBufferView(4, mObject_BONES->Resource()->GetGPUVirtualAddress());
 
 		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, 1, 0, 0, 0);
 	}

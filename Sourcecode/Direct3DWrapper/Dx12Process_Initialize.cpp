@@ -198,6 +198,7 @@ void Dx12Process::CreateShaderByteCode() {
 	};
 	pVertexShader_SKIN = dx->CompileShader(Skin.str, Skin.size, "VSSkin", "vs_5_0");
 	pPixelShader_SKIN = dx->CompileShader(Skin.str, Skin.size, "PSSkin", "ps_5_0");
+	pPixelShader_SKIN_Bump = dx->CompileShader(Skin.str, Skin.size, "PSSkinBumpMap", "ps_5_0");
 
 	//ストリーム出力データ定義(パーティクル用)
 	pDeclaration_PSO =

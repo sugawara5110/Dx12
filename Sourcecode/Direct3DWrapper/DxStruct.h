@@ -135,21 +135,24 @@ struct MY_VERTEX_S{
 	}
 };
 
-struct MY_MATERIAL_S{
+struct MY_MATERIAL_S {
 	CHAR szName[255];
 	VECTOR4 Kd;//ディフューズ
 	VECTOR4 Ks;//スペキュラー
 	CHAR szTextureName[255];//テクスチャーファイル名
+	CHAR norTextureName[255];//ノーマルマップ
 	DWORD dwNumFace;//マテリアル毎のポリゴン数
 	int tex_no;
+	int nortex_no;
 	MY_MATERIAL_S()
 	{
 		ZeroMemory(this, sizeof(MY_MATERIAL_S));
 		tex_no = -1;
+		nortex_no = -1;
 	}
 	~MY_MATERIAL_S()
 	{
-		
+
 	}
 };
 
