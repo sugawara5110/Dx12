@@ -4,12 +4,13 @@
 
 //ShaderFunction.hに連結させて使う
 char *ShaderWaveDraw =
+"Texture2D g_texNormal : register(t1);\n"
 "struct WaveData\n"
 "{\n"
 "	float sinWave;\n"
 "   float theta;\n"
 "};\n"
-"StructuredBuffer<WaveData> gInput : register(t1);\n"
+"StructuredBuffer<WaveData> gInput : register(t2);\n"
 
 //wave
 "cbuffer cbWave  : register(b1)\n"
@@ -173,4 +174,31 @@ char *ShaderWaveDraw =
 
 //最後に基本色にテクスチャの色を掛け合わせる
 "    return float4(Col, 1.0f) * T + g_ObjCol;\n"
+"}\n"
+//**************************************ピクセルシェーダー********************************************************************//
+
+//********************************ピクセルシェーダー(バンプマップ)********************************************************************//
+"float4 PSWaveBump(DS_OUTPUT input) : SV_Target\n"
+"{\n"
+//テクスチャ
+"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
+"    float4 T2 = g_texNormal.Sample(g_samLinear, input.Tex);\n"
+//NormalMapと法線を掛け合わせて正規化
+"    float3 N = normalize(input.Nor * T2.xyz);\n"
+//フォグ計算テクスチャに対して計算
+"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
+
+//ライト計算
+"    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
+"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
+"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
+"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
+"    }\n"
+
+//平行光源計算
+"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
+
+//最後に基本色にテクスチャの色を掛け合わせる
+"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
 "}\n";
+//********************************ピクセルシェーダー(バンプマップ)********************************************************************//

@@ -233,7 +233,7 @@ void PolygonData::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) {
 	mCommandList->ResourceBarrier(1, &BarrierDesc);
 }
 
-void PolygonData::GetShaderByteCode(bool light, int tNo) {
+void PolygonData::GetShaderByteCode(bool light, int tNo, int nortNo) {
 	t_no = tNo;
 	bool disp = FALSE;
 	if (primType_create == D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH)disp = TRUE;
@@ -254,7 +254,10 @@ void PolygonData::GetShaderByteCode(bool light, int tNo) {
 	}
 	if (disp && light) {
 		vs = dx->pVertexShader_DISP.Get();
-		ps = dx->pPixelShader_DISPL.Get();
+		if (nortNo == -1)
+			ps = dx->pPixelShader_DISPL.Get();
+		else
+			ps = dx->pPixelShader_DISPL_Bump.Get();
 		hs = dx->pHullShader_DISP.Get();
 		ds = dx->pDomainShader_DISP.Get();
 		return;
@@ -269,22 +272,28 @@ void PolygonData::GetShaderByteCode(bool light, int tNo) {
 }
 
 void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
+	Create(light, tNo, -1, blend, alpha);
+}
 
-	GetShaderByteCode(light, tNo);
+void PolygonData::Create(bool light, int tNo, int nortNo, bool blend, bool alpha) {
+
+	GetShaderByteCode(light, tNo, nortNo);
 
 	//BuildRootSignature
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);// このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, 開始Index 0番
+	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, 開始Index 0番
+	nortexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
 	//BuildRootSignatureParameter
-	CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[3];
 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);// DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
-	slotRootParameter[1].InitAsConstantBufferView(0);
+	slotRootParameter[1].InitAsDescriptorTable(1, &nortexTable, D3D12_SHADER_VISIBILITY_ALL);
+	slotRootParameter[2].InitAsConstantBufferView(0);
 
 	auto staticSamplers = dx->GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -306,35 +315,41 @@ void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 		serializedRootSig->GetBufferSize(),
 		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
 
-	//BuildDescriptorHeaps
-	//
-	// Create the SRV heap.
-	//
+	//SRVのデスクリプターヒープ生成
+	texNum = 1;
+	if (nortNo != -1)texNum = 2;//normalMap有りの場合2個生成
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.NumDescriptors = texNum;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
-	//
-	// Fill out the heap with actual descriptors.
-	//
+	//テクスチャ設定
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	//diffuseテクスチャ
 	if (!m_on && tNo != -1) {
 		srvDesc.Format = dx->texture[tNo]->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = dx->texture[tNo]->GetDesc().MipLevels;
 		dx->md3dDevice->CreateShaderResourceView(dx->texture[tNo], &srvDesc, hDescriptor);
 	}
+	//動画テクスチャ
 	if (m_on) {
 		srvDesc.Format = texture->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = texture->GetDesc().MipLevels;
 		dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
+	}
+	//normalMap
+	if (nortNo != -1) {
+		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);//normalMapは二個目のテクスチャになるのでオフセット
+		srvDesc.Format = dx->texture[nortNo]->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = dx->texture[nortNo]->GetDesc().MipLevels;
+		dx->md3dDevice->CreateShaderResourceView(dx->texture[nortNo], &srvDesc, hDescriptor);
 	}
 
 	UINT VertexSize;
@@ -497,8 +512,13 @@ void PolygonData::Draw() {
 	mCommandList->IASetIndexBuffer(&Iview->IndexBufferView());
 	mCommandList->IASetPrimitiveTopology(primType_draw);
 
-	mCommandList->SetGraphicsRootDescriptorTable(0, mSrvHeap->GetGPUDescriptorHandleForHeapStart());
-	mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvHeap->GetGPUDescriptorHandleForHeapStart());
+	mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+	if (texNum == 2) {
+		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);
+		mCommandList->SetGraphicsRootDescriptorTable(1, tex);
+	}
+	mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB->Resource()->GetGPUVirtualAddress());
 
 	mCommandList->DrawIndexedInstanced(Iview->IndexCount, insNum, 0, 0, 0);
 

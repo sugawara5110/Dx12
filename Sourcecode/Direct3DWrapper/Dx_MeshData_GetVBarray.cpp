@@ -13,6 +13,8 @@ MeshData::MeshData() {
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	addDiffuse = 0.0f;
+	addSpecular = 0.0f;
 }
 
 MeshData::~MeshData() {
@@ -110,9 +112,16 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 }
 
 void MeshData::SetState(bool al, bool bl, bool di) {
+	SetState(al, bl, di, 0.0f, 0.0f);
+}
+
+void MeshData::SetState(bool al, bool bl, bool di, float diffuse, float specu) {
 	alpha = al;
 	blend = bl;
 	disp = di;
+	addDiffuse = diffuse;
+	addSpecular = specu;
+
 	if (disp) {
 		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
@@ -244,6 +253,12 @@ void MeshData::SetVertex() {
 
 	for (int i = 0; i < MaterialCount; i++) {
 		CONSTANT_BUFFER_MESH sg;
+		pMaterial[i].Kd.x += addDiffuse;
+		pMaterial[i].Kd.y += addDiffuse;
+		pMaterial[i].Kd.z += addDiffuse;
+		pMaterial[i].Ks.x += addSpecular;
+		pMaterial[i].Ks.y += addSpecular;
+		pMaterial[i].Ks.z += addSpecular;
 		sg.vDiffuse = pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
 		sg.vDiffuse = pMaterial[i].Ks;//スペキュラーをシェーダーに渡す
 		mObject_MESHCB->CopyData(i, sg);

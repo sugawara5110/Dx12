@@ -600,6 +600,22 @@ void SkinMesh::SetVertex() {
 	ReadSkinInfo(pvVB);
 }
 
+void SkinMesh::SetDiffuseTextureName(char *textureName, int materialIndex) {
+	if (m_pMaterial[materialIndex].tex_no != -1)return;//既に設定済みの場合無効
+	strcpy_s(m_pMaterial[materialIndex].szTextureName, textureName);
+	//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
+	m_pMaterial[materialIndex].tex_no = dx->GetTexNumber(m_pMaterial[materialIndex].szTextureName);
+	texNum++;
+}
+
+void SkinMesh::SetNormalTextureName(char *textureName, int materialIndex) {
+	if (m_pMaterial[materialIndex].nortex_no != -1)return;
+	strcpy_s(m_pMaterial[materialIndex].norTextureName, textureName);
+	//ファイル名を元に既にデコード済みのテクスチャ番号を読み込む
+	m_pMaterial[materialIndex].nortex_no = dx->GetTexNumber(m_pMaterial[materialIndex].norTextureName);
+	texNum++;
+}
+
 void SkinMesh::CreateFromFBX() {
 
 	//インデックスバッファ生成2段回目, 一時格納配列解放

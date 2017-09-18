@@ -144,12 +144,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2DTC = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_Wave = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_WaveBump = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN_Bump = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_DISPL = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_DISPL_Bump = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_DISP = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_TCL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_TC = nullptr;
@@ -457,6 +459,8 @@ private:
 	bool alpha = FALSE;
 	bool blend = FALSE;
 	bool disp = FALSE;//テセレータフラグ
+	float addDiffuse;
+	float addSpecular;
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
 	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
 
@@ -473,6 +477,7 @@ public:
 	~MeshData();
 	void SetCommandList(int no);
 	void SetState(bool alpha, bool blend, bool disp);
+	void SetState(bool alpha, bool blend, bool disp, float diffuse, float specu);
 	void GetBuffer(char *FileName);
 	void SetVertex();
 	void CreateMesh();
@@ -529,6 +534,7 @@ private:
 	//テクスチャ番号(通常テクスチャ用)
 	int    t_no = -1;
 	int    insNum = 0;
+	int    texNum;//テクスチャ個数
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	D3D12_TEXTURE_COPY_LOCATION dest, src;
@@ -549,7 +555,7 @@ private:
 	static void Lock() { mtx.lock(); }
 	static void Unlock() { mtx.unlock(); }
 
-	void GetShaderByteCode(bool light, int tNo);
+	void GetShaderByteCode(bool light, int tNo, int nortNo);
 	void CbSwap();
 
 public:
@@ -561,6 +567,7 @@ public:
 	void TextureInit(int width, int height);
 	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
 	void Create(bool light, int tNo, bool blend, bool alpha);
+	void Create(bool light, int tNo, int nortNo, bool blend, bool alpha);
 	void SetVertex(int I1, int I2, int i,
 		float vx, float vy, float vz,
 		float nx, float ny, float nz,
@@ -914,6 +921,8 @@ public:
 	HRESULT GetFbx(CHAR* szFileName);
 	void GetBuffer(float end_frame);
 	void SetVertex();
+	void SetDiffuseTextureName(char *textureName, int materialIndex);
+	void SetNormalTextureName(char *textureName, int materialIndex);
 	void CreateFromFBX();
 	HRESULT GetFbxSub(CHAR* szFileName, int ind);
 	HRESULT GetBuffer_Sub(int ind, float end_frame);
@@ -962,6 +971,7 @@ private:
 	//テクスチャ番号(通常テクスチャ用)
 	int    t_no = -1;
 	int    insNum = 0;
+	int    texNum;//テクスチャー数
 
 	int div;//分割数
 
@@ -980,9 +990,9 @@ private:
 	static void Lock() { mtx.lock(); }
 	static void Unlock() { mtx.unlock(); }
 
-	void GetShaderByteCode();
+	void GetShaderByteCode(int texNum);
 	void ComCreate();
-	void DrawCreate(int texNo, bool blend, bool alpha);
+	void DrawCreate(int texNo, int nortNo, bool blend, bool alpha);
 	void CbSwap();
 	void Compute();
 	void DrawSub();
@@ -993,6 +1003,7 @@ public:
 	~Wave();
 	void GetVBarray(int v);
 	void Create(int texNo, bool blend, bool alpha, float waveHeight, float divide);
+	void Create(int texNo, int nortNo, bool blend, bool alpha, float waveHeight, float divide);
 	//順番:左上左下右下右上
 	void SetVertex(int i,
 		float vx, float vy, float vz,

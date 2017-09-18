@@ -269,10 +269,12 @@ void Dx12Process::CreateShaderByteCode() {
 	pHullShader_DISP = dx->CompileShader(Disp.str, Disp.size, "HSDisp", "hs_5_0");
 	pDomainShader_DISP = dx->CompileShader(Disp.str, Disp.size, "DSDisp", "ds_5_0");
 	pPixelShader_DISPL = dx->CompileShader(Disp.str, Disp.size, "PSDispL", "ps_5_0");
+	pPixelShader_DISPL_Bump = dx->CompileShader(Disp.str, Disp.size, "PSDispLBump", "ps_5_0");
 	//Wave
 	pComputeShader_Wave = dx->CompileShader(ShaderWaveCom, strlen(ShaderWaveCom), "CS", "cs_5_0");
 	pVertexShader_Wave = dx->CompileShader(Wave.str, Wave.size, "VSWave", "vs_5_0");
 	pPixelShader_Wave = dx->CompileShader(Wave.str, Wave.size, "PSWave", "ps_5_0");
+	pPixelShader_WaveBump = dx->CompileShader(Wave.str, Wave.size, "PSWaveBump", "ps_5_0");
 	pHullShader_Wave = dx->CompileShader(Wave.str, Wave.size, "HSWave", "hs_5_0");
 	pDomainShader_Wave = dx->CompileShader(Wave.str, Wave.size, "DSWave", "ds_5_0");
 
@@ -308,7 +310,7 @@ int Dx12Process::GetTexNumber(CHAR *fileName) {
 		strcpy(str1, fileName);
 		int i1 = -1;
 		while (str[++i1] != '\0' && str[i1] != '.' && str[i1] == str1[i1]);
-		if (str[i1] == '.')return i;
+		if (str[i1] == '.' && str1[i1] == '.')return i;
 	}
 
 	return -1;

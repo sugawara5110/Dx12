@@ -33,25 +33,37 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	texNum = 0;
 	//マップ0
 	TextureGetBuffer("./dat/texture/map/wall1.da");
+	TextureGetBuffer("./dat/texture/map/wall1Nor.da");
 	TextureGetBuffer("./dat/texture/map/ground1.da");
+	TextureGetBuffer("./dat/texture/map/ground1Nor.da");
 	TextureGetBuffer("./dat/texture/map/ceiling1.da");
+	TextureGetBuffer("./dat/texture/map/ceiling1Nor.da");
 	//マップ1
 	TextureGetBuffer("./dat/texture/map/wall2.da");
 	TextureGetBuffer("./dat/texture/map/ground2.da");
+	TextureGetBuffer("./dat/texture/map/ground2Nor.da");
 	TextureGetBuffer("./dat/texture/map/ceiling2.da");
 	TextureGetBuffer("./dat/texture/map/wall2-1.da");
+	TextureGetBuffer("./dat/texture/map/wall2Nor.da");
 	TextureGetBuffer("./dat/texture/map/leaf.da");
 	TextureGetBuffer("./dat/texture/map/wood.da");
 	//マップ2
 	TextureGetBuffer("./dat/texture/map/ceiling3_wall3.da");
+	TextureGetBuffer("./dat/texture/map/ceiling3_wall3Nor.da");
 	TextureGetBuffer("./dat/texture/map/ground3.da");
+	TextureGetBuffer("./dat/texture/map/ground3Nor.da");
 	TextureGetBuffer("./dat/texture/map/wave.da");
+	TextureGetBuffer("./dat/texture/map/waveNor.da");
 	//マップ3
 	TextureGetBuffer("./dat/texture/map/ceiling4_ground4.da");
+	TextureGetBuffer("./dat/texture/map/ceiling4_ground4Nor.da");
 	//マップ4
 	TextureGetBuffer("./dat/texture/map/wall5.da");
+	TextureGetBuffer("./dat/texture/map/wall5Nor.da");
 	TextureGetBuffer("./dat/texture/map/ground5.da");
+	TextureGetBuffer("./dat/texture/map/ground5Nor.da");
 	TextureGetBuffer("./dat/texture/map/ceiling5.da");
+	TextureGetBuffer("./dat/texture/map/ceiling5Nor.da");
 	//通常敵
 	TextureGetBuffer("./dat/texture/enemy/enemy1.da");
 	TextureGetBuffer("./dat/texture/enemy/enemy2.da");
@@ -145,25 +157,37 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	texNum = 0;
 	//マップ0
 	TextureBinaryDecode("./dat/texture/map/wall1.da");
+	TextureBinaryDecode("./dat/texture/map/wall1Nor.da");
 	TextureBinaryDecode("./dat/texture/map/ground1.da");
+	TextureBinaryDecode("./dat/texture/map/ground1Nor.da");
 	TextureBinaryDecode("./dat/texture/map/ceiling1.da");
+	TextureBinaryDecode("./dat/texture/map/ceiling1Nor.da");
 	//マップ1
 	TextureBinaryDecode("./dat/texture/map/wall2.da");
 	TextureBinaryDecode("./dat/texture/map/ground2.da");
+	TextureBinaryDecode("./dat/texture/map/ground2Nor.da");
 	TextureBinaryDecode("./dat/texture/map/ceiling2.da");
 	TextureBinaryDecode("./dat/texture/map/wall2-1.da");
+	TextureBinaryDecode("./dat/texture/map/wall2Nor.da");
 	TextureBinaryDecode("./dat/texture/map/leaf.da");
 	TextureBinaryDecode("./dat/texture/map/wood.da");
 	//マップ2
 	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3.da");
+	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3Nor.da");
 	TextureBinaryDecode("./dat/texture/map/ground3.da");
+	TextureBinaryDecode("./dat/texture/map/ground3Nor.da");
 	TextureBinaryDecode("./dat/texture/map/wave.da");
+	TextureBinaryDecode("./dat/texture/map/waveNor.da");
 	//マップ3
 	TextureBinaryDecode("./dat/texture/map/ceiling4_ground4.da");
+	TextureBinaryDecode("./dat/texture/map/ceiling4_ground4Nor.da");
 	//マップ4
 	TextureBinaryDecode("./dat/texture/map/wall5.da");
+	TextureBinaryDecode("./dat/texture/map/wall5Nor.da");
 	TextureBinaryDecode("./dat/texture/map/ground5.da");
+	TextureBinaryDecode("./dat/texture/map/ground5Nor.da");
 	TextureBinaryDecode("./dat/texture/map/ceiling5.da");
+	TextureBinaryDecode("./dat/texture/map/ceiling5Nor.da");
 	//通常敵
 	TextureBinaryDecode("./dat/texture/enemy/enemy1.da");
 	TextureBinaryDecode("./dat/texture/enemy/enemy2.da");

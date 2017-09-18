@@ -13,6 +13,7 @@ Wave::Wave() {
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
 	d3varray = NULL;
 	d3varrayI = NULL;
+	texNum = 1;
 }
 
 void Wave::SetCommandList(int no) {
@@ -49,10 +50,13 @@ void Wave::GetVBarray(int v) {
 	Iview = std::make_unique<IndexView>();
 }
 
-void Wave::GetShaderByteCode() {
+void Wave::GetShaderByteCode(int texNum) {
 	cs = dx->pComputeShader_Wave.Get();
 	vs = dx->pVertexShader_Wave.Get();
-	ps = dx->pPixelShader_Wave.Get();
+	if (texNum <= 1)
+		ps = dx->pPixelShader_Wave.Get();
+	else
+		ps = dx->pPixelShader_WaveBump.Get();
 	hs = dx->pHullShader_Wave.Get();
 	ds = dx->pDomainShader_Wave.Get();
 }
@@ -111,7 +115,6 @@ void Wave::ComCreate() {
 
 	//ルートシグネチャ
 	CD3DX12_ROOT_PARAMETER slotRootParameter[3];
-
 	slotRootParameter[0].InitAsUnorderedAccessView(0);//RWStructuredBuffer(u0)
 	slotRootParameter[1].InitAsUnorderedAccessView(1);//RWStructuredBuffer(u1)
 	slotRootParameter[2].InitAsConstantBufferView(0);//mObjectCB_WAVE
@@ -148,20 +151,22 @@ void Wave::ComCreate() {
 	dx->md3dDevice->CreateComputePipelineState(&PsoDesc, IID_PPV_ARGS(&mPSOCom));
 }
 
-void Wave::DrawCreate(int texNo, bool blend, bool alpha) {
+void Wave::DrawCreate(int texNo, int nortNo, bool blend, bool alpha) {
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
+	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, 開始Index 0番
+	nortexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
-	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);// DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
-	slotRootParameter[1].InitAsConstantBufferView(0);
-	slotRootParameter[2].InitAsConstantBufferView(1);//mObjectCB_WAVE(b1)
-	slotRootParameter[3].InitAsShaderResourceView(1);//StructuredBuffer(t1)
+	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
+	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);//(t0)DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
+	slotRootParameter[1].InitAsDescriptorTable(1, &nortexTable, D3D12_SHADER_VISIBILITY_ALL);//(t1)
+	slotRootParameter[2].InitAsConstantBufferView(0);//(b0)
+	slotRootParameter[3].InitAsConstantBufferView(1);//mObjectCB_WAVE(b1)
+	slotRootParameter[4].InitAsShaderResourceView(2);//StructuredBuffer(t2)
 
 	auto staticSamplers = dx->GetStaticSamplers();
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -182,7 +187,7 @@ void Wave::DrawCreate(int texNo, bool blend, bool alpha) {
 		IID_PPV_ARGS(mRootSignatureDraw.GetAddressOf()));
 
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.NumDescriptors = texNum;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
@@ -197,6 +202,12 @@ void Wave::DrawCreate(int texNo, bool blend, bool alpha) {
 	srvDesc.Format = dx->texture[texNo]->GetDesc().Format;
 	srvDesc.Texture2D.MipLevels = dx->texture[texNo]->GetDesc().MipLevels;
 	dx->md3dDevice->CreateShaderResourceView(dx->texture[texNo], &srvDesc, hDescriptor);
+	if (nortNo != -1) {
+		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
+		srvDesc.Format = dx->texture[nortNo]->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = dx->texture[nortNo]->GetDesc().MipLevels;
+		dx->md3dDevice->CreateShaderResourceView(dx->texture[nortNo], &srvDesc, hDescriptor);
+	}
 
 	const UINT vbByteSize = ver * sizeof(Vertex);
 	const UINT ibByteSize = verI * sizeof(std::uint16_t);
@@ -269,12 +280,17 @@ void Wave::DrawCreate(int texNo, bool blend, bool alpha) {
 }
 
 void Wave::Create(int texNo, bool blend, bool alpha, float waveHeight, float divide) {
+	Create(texNo, -1, blend, alpha, waveHeight, divide);
+}
+
+void Wave::Create(int texNo, int nortNo, bool blend, bool alpha, float waveHeight, float divide) {
 	cbw.wHei_divide.as(waveHeight, divide, 0.0f, 0.0f);
 	mObjectCB_WAVE->CopyData(0, cbw);
 	t_no = texNo;
-	GetShaderByteCode();
+	if (nortNo != -1)texNum = 2;
+	GetShaderByteCode(texNum);
 	ComCreate();
-	DrawCreate(texNo, blend, alpha);
+	DrawCreate(texNo, nortNo, blend, alpha);
 }
 
 void Wave::InstancedMap(float x, float y, float z, float theta) {
@@ -365,10 +381,15 @@ void Wave::DrawSub() {
 	mCommandList->IASetIndexBuffer(&Iview->IndexBufferView());
 	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
-	mCommandList->SetGraphicsRootDescriptorTable(0, mSrvHeap->GetGPUDescriptorHandleForHeapStart());
-	mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
-	mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB_WAVE->Resource()->GetGPUVirtualAddress());
-	mCommandList->SetGraphicsRootShaderResourceView(3, mOutputBuffer->GetGPUVirtualAddress());
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvHeap->GetGPUDescriptorHandleForHeapStart());
+	mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+	if (texNum == 2) {
+		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);
+		mCommandList->SetGraphicsRootDescriptorTable(1, tex);
+	}
+	mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB->Resource()->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootConstantBufferView(3, mObjectCB_WAVE->Resource()->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootShaderResourceView(4, mOutputBuffer->GetGPUVirtualAddress());
 
 	mCommandList->DrawIndexedInstanced(Iview->IndexCount, insNum, 0, 0, 0);
 

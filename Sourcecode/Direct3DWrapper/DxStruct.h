@@ -103,8 +103,8 @@ struct PointLight {
 	VECTOR4 LightPos[LIGHT_PCS];   //光源
 	VECTOR4 LightColor[LIGHT_PCS];//色
 	VECTOR4 Lightst[LIGHT_PCS];  //レンジ,明るさ,減衰の大きさ,オンオフ
-	float        ShadowLow_val; //影の下限値
-	int          LightPcs;     //ライト個数
+	float   ShadowLow_val; //影の下限値
+	int     LightPcs;     //ライト個数
 };
 
 //平行光源
@@ -117,9 +117,9 @@ struct DirectionLight {
 //フォグ
 struct Fog {
 	VECTOR4  FogColor;//フォグの色
-	float         Amount;  //フォグ量
-	float         Density;//密度
-	float         on_off;
+	float    Amount;  //フォグ量
+	float    Density;//密度
+	float    on_off;
 };
 
 //以下スキンメッシュ

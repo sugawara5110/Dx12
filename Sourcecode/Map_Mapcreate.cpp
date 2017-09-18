@@ -68,7 +68,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		break;
 	case 1:
 		//山
-		mountain.SetState(TRUE, TRUE, FALSE);//3角形化必要
+		mountain.SetState(TRUE, TRUE, FALSE, 0.8f, 0.8f);//3角形化必要
 		mountain.GetBuffer("./dat/mesh/mountain.obj");
 		//地面入り口
 		poGroundF.GetVBarray(CONTROL_POINT, 6);
@@ -348,58 +348,76 @@ void Map::CreateMap() {
 		//出口
 		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"), TRUE, FALSE);
+		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
+			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"), TRUE, FALSE);
+		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), TRUE, FALSE);
 		break;
 	case 1:
 		//山
 		mountain.CreateMesh();
 		mountain.GetTexture();
 		//地面入り口
-		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"), TRUE, FALSE);
+		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
+			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), TRUE, FALSE);
 		//空入り口
-		poCeilingF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"), TRUE, FALSE);
+		poCeilingF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), TRUE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"), TRUE, FALSE);
+		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"),
+			dx->GetTexNumber("./dat/texture/map/ground2Nor.da"), TRUE, FALSE);
 		//空メイン
 		poBackground.Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);
 		//雨
 		poRain.Create(FALSE, -1, FALSE, FALSE);
 		//地面出口
-		poGroundE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"), TRUE, FALSE);
+		poGroundE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), TRUE, FALSE);
 		//空出口
-		poCeilingE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"), TRUE, FALSE);
+		poCeilingE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), TRUE, FALSE);
 		break;
 	case 2:
 		//波
-		wav.Create(dx->GetTexNumber("./dat/texture/map/wave.da"), TRUE, TRUE, 1.0f, 64.0f);
+		wav.Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
+			dx->GetTexNumber("./dat/texture/map/waveNor.da"), TRUE, TRUE, 1.0f, 64.0f);
 		//入口
 		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"), TRUE, FALSE);
+		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"), TRUE, FALSE);
+		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), TRUE, FALSE);
 		//地面出口
-		poGroundE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"), TRUE, FALSE);
+		poGroundE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), TRUE, FALSE);
 		//空出口
-		poCeilingE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"), TRUE, FALSE);
+		poCeilingE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), TRUE, FALSE);
 		break;
 	case 3:
 		//地面入り口
-		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"), TRUE, FALSE);
+		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), TRUE, FALSE);
 		//空入り口
-		poCeilingF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"), TRUE, FALSE);
+		poCeilingF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), TRUE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"), TRUE, FALSE);
+		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"), TRUE, FALSE);
+		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), TRUE, FALSE);
 		break;
 	case 4:
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"), TRUE, FALSE);
+		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"),
+			dx->GetTexNumber("./dat/texture/map/ground5Nor.da"), TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"), TRUE, FALSE);
+		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling5Nor.da"), TRUE, FALSE);
 		break;
 	}
 
@@ -412,25 +430,30 @@ void Map::CreateMap() {
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i].Create(TRUE, 3, TRUE, TRUE);
+			poWall1[i].Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);
 		}
 	}
 
 	//壁(ブロック)
 	if (blockcountA >= 1) {
-		poWallA.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"), TRUE, FALSE);
+		poWallA.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
+			dx->GetTexNumber("./dat/texture/map/wall1Nor.da"), TRUE, FALSE);
 	}
 	if (blockcountB >= 1) {
-		poWallB.Create(TRUE, 6, TRUE, FALSE);
+		poWallB.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2-1.da"),
+			dx->GetTexNumber("./dat/texture/map/wall2Nor.da"), TRUE, FALSE);
 	}
 	if (blockcountC >= 1) {
-		poWallC.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"), TRUE, FALSE);
+		poWallC.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), TRUE, FALSE);
 	}
 	if (blockcountD >= 1) {
-		poWallD.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"), TRUE, FALSE);
+		poWallD.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), TRUE, FALSE);
 	}
 	if (blockcountE >= 1) {
-		poWallE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"), TRUE, FALSE);
+		poWallE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"),
+			dx->GetTexNumber("./dat/texture/map/wall5Nor.da"), TRUE, FALSE);
 	}
 
 	//リカバーポイント
@@ -1302,8 +1325,8 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
 	}
 
 	//XY視野内判定
-	int viewleft = (int)(src_theta - dx->GetViewY_theta() / 1.5);
-	int viewright = (int)(src_theta + dx->GetViewY_theta() / 1.5);
+	int viewleft = (int)(src_theta - dx->GetViewY_theta() / 2.5f);
+	int viewright = (int)(src_theta + dx->GetViewY_theta() / 2.5f);
 	viewleft = (viewleft + 360) % 360;
 	viewright = viewright % 360;
 	bool ret = FALSE;
