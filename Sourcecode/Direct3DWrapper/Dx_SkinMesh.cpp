@@ -10,6 +10,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define FBX_PCS 5
+#define WAIT(str) do{stInitFBX_ON = TRUE;while (stSetNewPose_ON);str;stInitFBX_ON = FALSE;}while(0)
 #include "Dx12Process.h"
 #include <string.h>
 
@@ -177,13 +178,8 @@ FbxNode *SkinMesh::SearchNode(FbxNode *pnode, FbxNodeAttribute::EType SearchType
 
 HRESULT SkinMesh::InitFBX(CHAR *szFileName, int p) {
 
-	static bool f = FALSE;
-
-	stInitFBX_ON = TRUE;
-	while (stSetNewPose_ON);//アニメーション中の場合終了まで待つ
-	f = fbx[p].Create(szFileName);
-	stInitFBX_ON = FALSE;
-
+	bool f = FALSE;
+	WAIT(f = fbx[p].Create(szFileName));//WAIT()FBX_SDK全関数にやるかは様子見
 	if (f)return S_OK;
 	return E_FAIL;
 }
@@ -193,10 +189,7 @@ FbxScene *SkinMesh::GetScene(int p) {
 }
 
 void SkinMesh::DestroyFBX() {
-	stInitFBX_ON = TRUE;
-	while (stSetNewPose_ON);//アニメーション中の場合終了まで待つ
-	ARR_DELETE(fbx);
-	stInitFBX_ON = FALSE;
+	WAIT(ARR_DELETE(fbx));
 }
 
 HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
@@ -253,13 +246,11 @@ HRESULT SkinMesh::ReadSkinInfo(MY_VERTEX_S *pvVB) {
 		}
 	}
 
-	//ボーン設定
 	FbxAMatrix mat;
-
 	for (int i = 0; i < m_iNumBone; i++) {
-
+		//初期姿勢行列読み込み
+		//GetCurrentPoseMatrixで使う
 		m_ppCluster[i]->GetTransformLinkMatrix(mat);
-
 		for (int x = 0; x < 4; x++) {
 			for (int y = 0; y < 4; y++) {
 				m_BoneArray[i].mBindPose.m[y][x] = (float)mat.Get(y, x);
@@ -297,15 +288,17 @@ void SkinMesh::GetBuffer(float end_frame) {
 	FbxScene *pScene = GetScene(0);//シーン取得
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 
-	NodeArraypcs = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eMesh);//eMesh数カウント
+	WAIT(NodeArraypcs = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eMesh));//eMesh数カウント
 	SearchNodeCount(NULL, FbxNodeAttribute::eMesh);//リセット
 
 	//各メッシュへのポインタ配列取得
 	m_ppNodeArray = new FbxNode*[NodeArraypcs];
-	for (int i = 0; i < NodeArraypcs; i++) {
-		m_ppNodeArray[i] = SearchNode(pNodeRoot, FbxNodeAttribute::eMesh, i);
-		SearchNode(NULL, FbxNodeAttribute::eMesh, 0);//リセット
-	}
+	WAIT(
+		for (int i = 0; i < NodeArraypcs; i++) {
+			m_ppNodeArray[i] = SearchNode(pNodeRoot, FbxNodeAttribute::eMesh, i);
+			SearchNode(NULL, FbxNodeAttribute::eMesh, 0);//リセット
+		}
+	);
 
 	//事前にメッシュ毎頂点数、ポリゴン数マテリアル数等を調べる
 	m_pdwNumVert = new DWORD[NodeArraypcs];
@@ -340,8 +333,6 @@ void SkinMesh::GetBuffer(float end_frame) {
 	//IBO マテリアル毎に生成する
 	Iview = std::make_unique<IndexView[]>(MateAllpcs);
 
-	pvVB = new MY_VERTEX_S[VerAllpcs];//頂点バッファはそのままの数で確保,不要な頂点が存在してもIndexでアクセスするので問題無し
-
 	//インデックス数計算(ポリゴン1個に付き頂点 2個～5個が存在することが有るが
 	//fbxからIndex配列コピー時に全てコピーするのでそのままの個数をカウントする)
 	for (int k = 0; k < NodeArraypcs; k++) {
@@ -350,6 +341,7 @@ void SkinMesh::GetBuffer(float end_frame) {
 		for (DWORD i = 0; i < pdwNumFace[k]; i++) {
 			IndexCount34Me[k] += pFbxMesh->GetPolygonSize(i);//メッシュ毎の分割前頂点インデックス数
 		}
+		IndexCount34MeAll += IndexCount34Me[k];
 	}
 
 	int mInd = 0;
@@ -376,11 +368,6 @@ void SkinMesh::GetBuffer(float end_frame) {
 		}
 	}
 
-	piFaceBuffer = new int*[NodeArraypcs];
-	for (int i = 0; i < NodeArraypcs; i++) {
-		piFaceBuffer[i] = new int[IndexCount34Me[i]];
-	}
-
 	pIndex = new int*[MateAllpcs];
 	for (int i = 0; i < MateAllpcs; i++) {
 		pIndex[i] = new int[IndexCount3M[i]];
@@ -400,65 +387,39 @@ void SkinMesh::GetBuffer(float end_frame) {
 
 void SkinMesh::SetVertex() {
 
+	//4頂点分割前状態でのインデックス数で頂点配列生成
+	//4頂点ポリゴンは分割後法線変化無しの為, 頂点は3頂点,4頂点混在状態の要素数で生成
+	pvVB = new MY_VERTEX_S[IndexCount34MeAll];
+
+	MY_VERTEX_S *tmpVB = new MY_VERTEX_S[VerAllpcs];
+	//スキン情報(ジョイント, ウェイト)
+	ReadSkinInfo(tmpVB);
+
 	//メッシュ毎に配列格納処理
 	int mInd = 0;//マテリアル内カウント
-	DWORD VerArrStart = 0;
+	DWORD VerArrStart = 0;//分割前インデックス数(最終的な頂点数)
+	DWORD VerArrStart2 = 0;//読み込み時頂点数
 	for (int m = 0; m < NodeArraypcs; m++) {
 		FbxMesh *pFbxMesh = m_ppNodeArray[m]->GetMesh();
 		FbxNode *pNode = pFbxMesh->GetNode();
 
-		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();//FbxMeshから頂点ローカル座標配列取得, Directxに対してZが逆
+		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
 
 		//頂点配列をfbxからコピー
-		for (DWORD i = 0; i < m_pdwNumVert[m]; i++) {
-			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[i][0];//FBXは右手座標系なのでxあるいはｚを反転
-			pvVB[i + VerArrStart].vPos.y = (float)pCoord[i][1];
-			pvVB[i + VerArrStart].vPos.z = (float)pCoord[i][2];
-		}
-
-		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
-		memcpy(piFaceBuffer[m], piIndex, sizeof(int) * IndexCount34Me[m]);//コピー
-
-		 //法線読み込み
-		FbxVector4 Normal;
-		for (DWORD i = 0; i < pdwNumFace[m]; i++) {
-			int iStartIndex = pFbxMesh->GetPolygonVertexIndex(i);//ポリゴンを構成する最初のインデックス取得
-			int pcs = pFbxMesh->GetPolygonSize(i);//各ポリゴンの頂点数
-			if (pcs != 3 && pcs != 4)continue;//頂点数3個,4個以外はスキップ
-			int iVert0Index, iVert1Index, iVert2Index, iVert3Index;
-
-			//以下の法線読み込みの際GetPolygonVertexNormalでインデックス順で読み込むので
-			//頂点バッファもインデックス順で参照する為にインデックスを取得する
-			iVert0Index = piFaceBuffer[m][iStartIndex] + VerArrStart;
-			iVert1Index = piFaceBuffer[m][iStartIndex + 1] + VerArrStart;
-			iVert2Index = piFaceBuffer[m][iStartIndex + 2] + VerArrStart;
-			if (pcs == 4)iVert3Index = piFaceBuffer[m][iStartIndex + 3] + VerArrStart;
-
-			if (iVert0Index < 0) continue;
-			pFbxMesh->GetPolygonVertexNormal(i, 0, Normal);//(polyInd, verInd, FbxVector4)
-			pvVB[iVert0Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転
-			pvVB[iVert0Index].vNorm.y = (float)Normal[1];
-			pvVB[iVert0Index].vNorm.z = (float)Normal[2];
-
-			pFbxMesh->GetPolygonVertexNormal(i, 1, Normal);
-			pvVB[iVert1Index].vNorm.x = (float)-Normal[0];
-			pvVB[iVert1Index].vNorm.y = (float)Normal[1];
-			pvVB[iVert1Index].vNorm.z = (float)Normal[2];
-
-			pFbxMesh->GetPolygonVertexNormal(i, 2, Normal);
-			pvVB[iVert2Index].vNorm.x = (float)-Normal[0];
-			pvVB[iVert2Index].vNorm.y = (float)Normal[1];
-			pvVB[iVert2Index].vNorm.z = (float)Normal[2];
-
-			if (pcs == 4) {
-				pFbxMesh->GetPolygonVertexNormal(i, 3, Normal);
-				pvVB[iVert3Index].vNorm.x = (float)-Normal[0];
-				pvVB[iVert3Index].vNorm.y = (float)Normal[1];
-				pvVB[iVert3Index].vNorm.z = (float)Normal[2];
+		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();//FbxMeshから頂点ローカル座標配列取得, Directxに対してZが逆
+		for (int i = 0; i < IndexCount34Me[m]; i++) {
+			//fbxから読み込んだindex順で頂点を整列しながら頂点格納
+			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[piIndex[i]][0];//FBXは右手座標系なのでxあるいはｚを反転
+			pvVB[i + VerArrStart].vPos.y = (float)pCoord[piIndex[i]][1];
+			pvVB[i + VerArrStart].vPos.z = (float)pCoord[piIndex[i]][2];
+			for (int bi = 0; bi < 4; bi++) {
+				//ReadSkinInfo(tmpVB)で読み込んだ各パラメータコピー
+				pvVB[i + VerArrStart].bBoneIndex[bi] = tmpVB[piIndex[i] + VerArrStart2].bBoneIndex[bi];
+				pvVB[i + VerArrStart].bBoneWeight[bi] = tmpVB[piIndex[i] + VerArrStart2].bBoneWeight[bi];
 			}
 		}
 
-		//テクスチャー座標読み込み
+		//法線, テクスチャー座標読み込み
 		FbxVector2 UV;
 		FbxLayerElementUV *pUV = 0;
 		pUV = pFbxMesh->GetLayer(0)->GetUVs();
@@ -466,36 +427,62 @@ void SkinMesh::SetVertex() {
 		FbxLayerElement::EMappingMode mappingMode = pUV->GetMappingMode();
 		bool UnMap = TRUE;
 		if (mappingMode == FbxLayerElement::eByPolygonVertex)UnMap = FALSE;
+		FbxVector4 Normal;
 
+		int IndCount = 0;
 		for (DWORD i = 0; i < pdwNumFace[m]; i++) {
-			int iStartIndex = pFbxMesh->GetPolygonVertexIndex(i);//ポリゴンを構成する最初のインデックス取得
+			//int iStartIndex = pFbxMesh->GetPolygonVertexIndex(i);//ポリゴンを構成する最初のインデックス取得
 			int pcs = pFbxMesh->GetPolygonSize(i);//各ポリゴンの頂点数
 			if (pcs != 3 && pcs != 4)continue;//頂点数3個,4個以外はスキップ
 			int iVert0Index, iVert1Index, iVert2Index, iVert3Index;
 
-			iVert0Index = piFaceBuffer[m][iStartIndex] + VerArrStart;
-			iVert1Index = piFaceBuffer[m][iStartIndex + 1] + VerArrStart;
-			iVert2Index = piFaceBuffer[m][iStartIndex + 2] + VerArrStart;
-			if (pcs == 4)iVert3Index = piFaceBuffer[m][iStartIndex + 3] + VerArrStart;
+			//法線,UV読み込み,indexで読み込み
+			//頂点はindexで整列済み
+			iVert0Index = IndCount + VerArrStart;
+			iVert1Index = IndCount + 1 + VerArrStart;
+			iVert2Index = IndCount + 2 + VerArrStart;
+			iVert3Index = IndCount + 3 + VerArrStart;
 
-			if (iVert0Index < 0) continue;
+			if (iVert0Index < 0)continue;
+			pFbxMesh->GetPolygonVertexNormal(i, 0, Normal);//(polyInd, verInd, FbxVector4)
+			pvVB[iVert0Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転
+			pvVB[iVert0Index].vNorm.y = (float)Normal[1];
+			pvVB[iVert0Index].vNorm.z = (float)Normal[2];
+
 			pFbxMesh->GetPolygonVertexUV(i, 0, uvname, UV, UnMap);//(polyInd, verInd, UV_Name, FbxVector2_UV, bool_UnMap)
 			pvVB[iVert0Index].vTex.x = (float)UV[0];
 			pvVB[iVert0Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV)
 
+			pFbxMesh->GetPolygonVertexNormal(i, 1, Normal);
+			pvVB[iVert1Index].vNorm.x = (float)-Normal[0];
+			pvVB[iVert1Index].vNorm.y = (float)Normal[1];
+			pvVB[iVert1Index].vNorm.z = (float)Normal[2];
+
 			pFbxMesh->GetPolygonVertexUV(i, 1, uvname, UV, UnMap);
 			pvVB[iVert1Index].vTex.x = (float)UV[0];
 			pvVB[iVert1Index].vTex.y = 1.0f - (float)UV[1];
+
+			pFbxMesh->GetPolygonVertexNormal(i, 2, Normal);
+			pvVB[iVert2Index].vNorm.x = (float)-Normal[0];
+			pvVB[iVert2Index].vNorm.y = (float)Normal[1];
+			pvVB[iVert2Index].vNorm.z = (float)Normal[2];
 
 			pFbxMesh->GetPolygonVertexUV(i, 2, uvname, UV, UnMap);
 			pvVB[iVert2Index].vTex.x = (float)UV[0];
 			pvVB[iVert2Index].vTex.y = 1.0f - (float)UV[1];
 
 			if (pcs == 4) {
+				pFbxMesh->GetPolygonVertexNormal(i, 3, Normal);
+				pvVB[iVert3Index].vNorm.x = (float)-Normal[0];
+				pvVB[iVert3Index].vNorm.y = (float)Normal[1];
+				pvVB[iVert3Index].vNorm.z = (float)Normal[2];
+
 				pFbxMesh->GetPolygonVertexUV(i, 3, uvname, UV, UnMap);
 				pvVB[iVert3Index].vTex.x = (float)UV[0];
 				pvVB[iVert3Index].vTex.y = 1.0f - (float)UV[1];
+				IndCount++;
 			}
+			IndCount += 3;
 		}
 
 		for (DWORD i = 0; i < m_pMaterialCount[m]; i++) {
@@ -545,7 +532,8 @@ void SkinMesh::SetVertex() {
 				texNum++;
 			}
 
-			int iCount = 0;
+			int iCount = 0;//最終的な(分割後)indexカウント
+			int vCount = 0;//頂点カウント
 			int polygon_cnt = 0;
 			for (DWORD k = 0; k < pdwNumFace[m]; k++) {
 				FbxLayerElementMaterial* mat = pFbxMesh->GetLayer(0)->GetMaterials();//レイヤー0のマテリアル取得
@@ -554,18 +542,20 @@ void SkinMesh::SetVertex() {
 				if (pcs != 3 && pcs != 4)continue;//頂点数3個,4個以外はスキップ
 				if (matId == i)//現在処理中のマテリアルと一致した場合以下処理実行(1Meshに2以上のマテリアルが有る場合の処理)
 				{
-					pIndex[mInd][iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;//ポリゴンkを構成する0番目の頂点のインデックス番号
-					pIndex[mInd][iCount + 1] = pFbxMesh->GetPolygonVertex(k, 1) + VerArrStart;
-					pIndex[mInd][iCount + 2] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
+					pIndex[mInd][iCount] = vCount + VerArrStart;//vpVBは分割前index順に整列済み
+					pIndex[mInd][iCount + 1] = vCount + 1 + VerArrStart;
+					pIndex[mInd][iCount + 2] = vCount + 2 + VerArrStart;
 					iCount += 3;
 
 					//4頂点は{ 0, 1, 2 }, { 0, 2, 3 }で分割するよう処理
 					if (pcs == 4) {
-						pIndex[mInd][iCount] = pFbxMesh->GetPolygonVertex(k, 0) + VerArrStart;
-						pIndex[mInd][iCount + 1] = pFbxMesh->GetPolygonVertex(k, 2) + VerArrStart;
-						pIndex[mInd][iCount + 2] = pFbxMesh->GetPolygonVertex(k, 3) + VerArrStart;
+						pIndex[mInd][iCount] = vCount + VerArrStart;
+						pIndex[mInd][iCount + 1] = vCount + 2 + VerArrStart;
+						pIndex[mInd][iCount + 2] = vCount + 3 + VerArrStart;
 						iCount += 3;//4頂点を分割後はインデックスは3頂点の倍
+						vCount++;
 					}
+					vCount += 3;
 					polygon_cnt++;
 				}
 			}
@@ -575,19 +565,16 @@ void SkinMesh::SetVertex() {
 			m_pMaterial[mInd].dwNumFace = polygon_cnt;//そのマテリアル内のポリゴン数	
 			mInd++;
 		}
-		VerArrStart += m_pdwNumVert[m];
+		VerArrStart += IndexCount34Me[m];
+		VerArrStart2 += m_pdwNumVert[m];
 	}
 
 	//各一時格納用配列解放
-	for (int i = 0; i < NodeArraypcs; i++) {
-		ARR_DELETE(piFaceBuffer[i]);
-	}
-	ARR_DELETE(piFaceBuffer);
-
 	ARR_DELETE(m_pMaterialCount);
 	ARR_DELETE(IndexCount34Me);
 	ARR_DELETE(IndexCount3M);
 	ARR_DELETE(pdwNumFace);
+	ARR_DELETE(tmpVB);
 
 	for (int i = 0; i < MateAllpcs; i++) {
 		SHADER_GLOBAL1 sg;
@@ -595,9 +582,6 @@ void SkinMesh::SetVertex() {
 		sg.vSpeculer = m_pMaterial[i].Ks;//スペキュラーをシェーダーに渡す
 		mObjectCB1->CopyData(i, sg);
 	}
-
-	//スキン情報(ジョイント, ウェイト)
-	ReadSkinInfo(pvVB);
 }
 
 void SkinMesh::SetDiffuseTextureName(char *textureName, int materialIndex) {
@@ -626,7 +610,7 @@ void SkinMesh::CreateFromFBX() {
 	ARR_DELETE(pIndex);
 
 	//バーテックスバッファー作成
-	const UINT vbByteSize = (UINT)VerAllpcs * sizeof(MY_VERTEX_S);
+	const UINT vbByteSize = (UINT)IndexCount34MeAll * sizeof(MY_VERTEX_S);
 
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), pvVB, vbByteSize);
@@ -746,12 +730,13 @@ HRESULT SkinMesh::GetBuffer_Sub(int ind, float end_frame) {
 	FbxNode *pNodeRoot = pScene->GetRootNode();//ルートノード取得
 	fbx[ind].end_frame = end_frame;
 
-	int BoneNum = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eSkeleton);
+	int BoneNum;
+	WAIT(BoneNum = SearchNodeCount(pNodeRoot, FbxNodeAttribute::eSkeleton));
 	if (BoneNum == 0) {
 		MessageBox(0, L"FBXローダー初期化失敗", NULL, MB_OK);
 		return E_FAIL;
 	}
-	SearchNodeCount(NULL, FbxNodeAttribute::eSkeleton);//リセット
+	WAIT(SearchNodeCount(NULL, FbxNodeAttribute::eSkeleton));//リセット
 
 	if (!m_ppSubAnimationBone) {
 		m_ppSubAnimationBone = new FbxNode*[(FBX_PCS - 1) * m_iNumBone];
@@ -769,7 +754,7 @@ void SkinMesh::CreateFromFBX_SubAnimation(int ind) {
 	int name2Num = 0;
 	while (loopind < m_iNumBone) {
 		int sa_ind = (ind - 1) * m_iNumBone + loopind;
-		m_ppSubAnimationBone[sa_ind] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, searchCount);
+		WAIT(m_ppSubAnimationBone[sa_ind] = SearchNode(pNodeRoot, FbxNodeAttribute::eSkeleton, searchCount));
 		searchCount++;
 		SearchNode(NULL, FbxNodeAttribute::eSkeleton, 0);//リセット
 		const char *name = m_ppSubAnimationBone[sa_ind]->GetName();
@@ -870,6 +855,8 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 			mat = m_ppSubAnimationBone[(ind - 1) * m_iNumBone + i]->EvaluateGlobalTransform(time);
 		}
 
+		//初期姿勢testを行う場合,ここにm_ppCluster[i]->GetTransformLinkMatrix(mat);を入れる(matはFbxAMatrix)
+
 		for (int x = 0; x < 4; x++) {
 			for (int y = 0; y < 4; y++) {
 				if (fbx[ind].centering) {
@@ -880,6 +867,7 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 				}
 			}
 		}
+
 		if (fbx[ind].centering) {
 			MATRIX tmp;
 			MatrixMultiply(&tmp, &fbx[ind].rotZYX, &mat0_mov);
@@ -901,7 +889,7 @@ bool SkinMesh::SetNewPoseMatrices(float ti, int ind) {
 	return frame_end;
 }
 
-//次の（現在の）ポーズ行列を返す
+//ポーズ行列を返す
 MATRIX SkinMesh::GetCurrentPoseMatrix(int index) {
 	MATRIX inv;
 	MatrixIdentity(&inv);

@@ -853,7 +853,7 @@ private:
 
 	//メッシュ関連	
 	DWORD *m_pdwNumVert;//メッシュ毎の頂点数
-	DWORD VerAllpcs;    //全頂点数
+	DWORD VerAllpcs;   //全頂点数
 	MY_VERTEX_S *pvVB;//使用後保持するか破棄するかフラグで決める,通常は破棄
 	bool pvVB_delete_f;
 
@@ -864,9 +864,9 @@ private:
 	DWORD *m_pMaterialCount;//メッシュ毎のマテリアルカウント
 	DWORD *pdwNumFace; //メッシュ毎のポリゴン数
 	int *IndexCount34Me;  //4頂点ポリゴン分割前のメッシュ毎のインデックス数
+	int IndexCount34MeAll;
 	int *IndexCount3M;  //4頂点ポリゴン分割後のマテリアル毎のインデックス数
-	int **piFaceBuffer;//メッシュ毎の頂点インデックス配列
-	int **pIndex;      //メッシュ毎の4頂点分割後インデックス配列
+	int **pIndex;      //メッシュ毎のインデックス配列(4頂点ポリゴン分割後)
 
 	//ボーン
 	int m_iNumBone;
