@@ -18,34 +18,7 @@
 #define S_DELETE(p)   if(p){delete p;      p=NULL;}
 #define ARR_DELETE(p) if(p){delete[] p;    p=NULL;}
 
-//頂点3DTexture有り
-struct Vertex {
-	VECTOR3 Pos;       //位置
-	VECTOR3 normal;   //法線
-	VECTOR2 tex;    //テクスチャ座標
-};
-
-//頂点3DTexture無し
-struct VertexBC {
-	VECTOR3 Pos;       //位置
-	VECTOR4 color;   //色
-};
-
-//頂点メッシュ
-struct MY_VERTEX_MESH {
-	VECTOR3 Pos;
-	VECTOR3 normal;
-	VECTOR2 tex;
-};
-
-//頂点2D
-struct MY_VERTEX2 {
-	VECTOR3 Pos;       
-	VECTOR4 color;
-	VECTOR2 tex;    
-};
-
-//シェーダー受け渡し用バッファ3D
+//シェーダー受け渡し用バッファ3D用
 struct CONSTANT_BUFFER {
 
 	MATRIX World[INSTANCE_PCS_3D];
@@ -53,13 +26,13 @@ struct CONSTANT_BUFFER {
 	VECTOR4 C_Pos;       //視点位置
 	VECTOR4 AddObjColor;//オブジェクトの色変化用
 
-	//ポイントライト
+    //ポイントライト
 	VECTOR4 pLightPos[LIGHT_PCS];
 	VECTOR4 pLightColor[LIGHT_PCS];
 	VECTOR4 pLightst[LIGHT_PCS];
 	VECTOR4 pShadowLow_Lpcs;//影の下限値, ライト個数, ライト有無
 
-	//ディレクショナルライト
+    //ディレクショナルライト
 	VECTOR4 dDirection;
 	VECTOR4 dLightColor;
 	VECTOR4 dLightst;
@@ -68,34 +41,30 @@ struct CONSTANT_BUFFER {
 	VECTOR4  FogAmo_Density; //フォグ量x, フォグの密度y, onoffz
 	VECTOR4  FogColor;   //フォグの色
 
-	//ディスプレイトメントマッピングの起伏量x(0入力の場合デフォルト値3になる)
+    //ディスプレイトメントマッピングの起伏量x(0入力の場合デフォルト値3になる)
 	VECTOR4  DispAmount;
 
 	//UV座標移動用
 	VECTOR4 pXpYmXmY;
 };
 
-struct CONSTANT_BUFFER_MESH {
+struct CONSTANT_BUFFER2 {
 	VECTOR4 vDiffuse;//ディフューズ色
 	VECTOR4 vSpeculer;//スぺキュラ色
 };
 
+//コンスタントバッファ2D用
 struct CONSTANT_BUFFER2D {
 	VECTOR4 Pos[INSTANCE_PCS_2D];
 	VECTOR4 Color[INSTANCE_PCS_2D];
 	VECTOR4 sizeXY[INSTANCE_PCS_2D];
 };
 
+//コンスタントバッファパーティクル用
 struct CONSTANT_BUFFER_P {
 	MATRIX  WV;
 	MATRIX  Proj;
 	VECTOR4 size;//xパーティクル大きさ, yパーティクル初期化フラグ, zスピード
-};
-struct PartPos {
-	VECTOR3 CurrentPos; //描画に使う
-	VECTOR3 PosSt;     //開始位置
-	VECTOR3 PosEnd;   //終了位置
-	VECTOR4 Col;
 };
 
 //ポイントライト
@@ -122,10 +91,39 @@ struct Fog {
 	float    on_off;
 };
 
+//頂点3DTexture有り
+struct Vertex {
+	VECTOR3 Pos;       //位置
+	VECTOR3 normal;   //法線
+	VECTOR2 tex;    //テクスチャ座標
+};
+
+//頂点3DTexture無し
+struct VertexBC {
+	VECTOR3 Pos;       //位置
+	VECTOR4 color;   //色
+};
+
+//頂点2D
+struct MY_VERTEX2 {
+	VECTOR3 Pos;       
+	VECTOR4 color;
+	VECTOR2 tex;    
+};
+
+//パーティクル頂点
+struct PartPos {
+	VECTOR3 CurrentPos; //描画に使う
+	VECTOR3 PosSt;     //開始位置
+	VECTOR3 PosEnd;   //終了位置
+	VECTOR4 Col;
+};
+
 //以下スキンメッシュ
 struct MY_VERTEX_S{
-	VECTOR3 vPos;//頂点位置
-	VECTOR3 vNorm;//頂点法線
+	VECTOR3 vPos;//頂点
+	VECTOR3 vNorm;//法線
+	VECTOR3 vGeoNorm;//ジオメトリ法線
 	VECTOR2 vTex;//UV座標
 	UINT bBoneIndex[4];//ボーン　番号
 	float bBoneWeight[4];//ボーン　重み
@@ -164,11 +162,6 @@ struct BONE{
 	{
 		ZeroMemory(this, sizeof(BONE));
 	}
-};
-
-struct SHADER_GLOBAL1 {
-	VECTOR4 vDiffuse;//ディフューズ色
-	VECTOR4 vSpeculer;//スペキュラー色
 };
 
 struct SHADER_GLOBAL_BONES {

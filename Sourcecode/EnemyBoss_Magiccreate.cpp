@@ -13,6 +13,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	e_pos = e_po;
 	mag_size = 0.1f;
 	en_boss_att0 = NULL;
+	dispOn = true;
 	//t_no=“G‡‚
 	int e;
 	switch (t_no) {
@@ -35,6 +36,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		pos_offset = 30.0f;
 		size_x = 90.0f;
 		size_y = 90.0f;//zˆÊ’u•â³‚ÅŽg—p
+		disp_size = 0.05f;
 		break;
 	case 1:
 		e = 51;
@@ -55,6 +57,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		pos_offset = 30.0f;
 		size_x = 60.0f;
 		size_y = 60.0f;
+		disp_size = 0.02f;
 		break;
 	case 2:
 		e = 52;
@@ -96,6 +99,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_x = 120.0f;
 		size_y = 120.0f;
 		mag_size = 0.15f;
+		disp_size = 0.05f;
 		break;
 	case 4:
 		e = 59;
@@ -117,6 +121,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_x = 250.0f;
 		size_y = 135.0f;
 		mag_size = 0.25f;
+		disp_size = 0.05f;
 		break;
 	}
 	p_data.HP = s_MHP();
@@ -211,7 +216,7 @@ void EnemyBoss::CreateEnemy() {
 		en_boss_att0->GetTexture();
 	}
 	if (e_no != 2) {
-		en_boss_att->CreateFromFBX();
+		en_boss_att->CreateFromFBX(dispOn);
 	}
 	mag_boss->CreateParticle(dx->GetTexNumber("particle.jpg"));
 }
@@ -344,13 +349,13 @@ void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, 
 		return;
 	}
 	if (attOn) {
-		attFin = en_boss_att->Update(tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f);
+		attFin = en_boss_att->Update(0, tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, disp_size);
 	}
 	if (magicAttOn) {
-		en_boss_att->Update(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f);
+		en_boss_att->Update(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, disp_size);
 	}
 	if (!attOn && !magicAttOn) {
-		en_boss_att->Update(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f);
+		en_boss_att->Update(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, disp_size);
 	}
 }
 

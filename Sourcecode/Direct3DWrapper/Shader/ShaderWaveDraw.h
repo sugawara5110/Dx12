@@ -4,7 +4,6 @@
 
 //ShaderFunction.hに連結させて使う
 char *ShaderWaveDraw =
-"Texture2D g_texNormal : register(t1);\n"
 "struct WaveData\n"
 "{\n"
 "	float sinWave;\n"
@@ -13,7 +12,7 @@ char *ShaderWaveDraw =
 "StructuredBuffer<WaveData> gInput : register(t2);\n"
 
 //wave
-"cbuffer cbWave  : register(b1)\n"
+"cbuffer cbWave  : register(b2)\n"
 "{\n"
 //x:waveHeight, y:分割数
 "    float4 g_wHei_divide;\n"
@@ -39,14 +38,6 @@ char *ShaderWaveDraw =
 "    float3 Nor        : NORMAL;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
-"};\n"
-
-"struct DS_OUTPUT\n"
-"{\n"
-"    float4 Pos  : SV_POSITION;\n"
-"    float4 wPos : POSITION;\n"
-"    float3 Nor  : NORMAL;\n"
-"    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
 //*********************************************頂点シェーダー*******************************************************************//
@@ -106,9 +97,9 @@ char *ShaderWaveDraw =
 
 //**************************************ドメインシェーダー*********************************************************************//
 "[domain(\"quad\")]\n"
-"DS_OUTPUT DSWave(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 4> patch)\n"
+"PS_INPUT DSWave(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 4> patch)\n"
 "{\n"
-"	DS_OUTPUT output = (DS_OUTPUT)0;\n"
+"	PS_INPUT output = (PS_INPUT)0;\n"
 
 //UV座標計算
 "   float2 top_uv = lerp(patch[0].Tex, patch[1].Tex, UV.x);\n"
@@ -148,57 +139,5 @@ char *ShaderWaveDraw =
 "   output.Nor = mul(Normal, (float3x3)g_World[patch[0].instanceID]);\n"
 
 "	return output;\n"
-"}\n"
-//**************************************ドメインシェーダー*********************************************************************//
-
-//**************************************ピクセルシェーダー********************************************************************//
-"float4 PSWave(DS_OUTPUT input) : SV_Target\n"
-"{\n"
-//法線正規化
-"    float3 N = normalize(input.Nor);\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-
-//フォグ計算テクスチャに対して計算
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//ライト計算
-"    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-//最後に基本色にテクスチャの色を掛け合わせる
-"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
-"}\n"
-//**************************************ピクセルシェーダー********************************************************************//
-
-//********************************ピクセルシェーダー(バンプマップ)********************************************************************//
-"float4 PSWaveBump(DS_OUTPUT input) : SV_Target\n"
-"{\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-"    float4 T2 = g_texNormal.Sample(g_samLinear, input.Tex);\n"
-//NormalMapと法線を掛け合わせて正規化
-"    float3 N = normalize(input.Nor * T2.xyz);\n"
-//フォグ計算テクスチャに対して計算
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//ライト計算
-"    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-//最後に基本色にテクスチャの色を掛け合わせる
-"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
 "}\n";
-//********************************ピクセルシェーダー(バンプマップ)********************************************************************//
+//**************************************ドメインシェーダー*********************************************************************//

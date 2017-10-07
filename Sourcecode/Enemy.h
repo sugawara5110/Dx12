@@ -33,6 +33,8 @@ protected:
 	bool magicAttOn;            //magicアニメーションフラグ
 	ParticleData *mag_boss = NULL;//ボス用
 	float mag_size;           //ボス用
+	float disp_size;         //ボス用
+	bool dispOn;            //ボス用
 	int comNo;
 
 	bool esc;//エスケープ可否 TRUE==エスケープ可

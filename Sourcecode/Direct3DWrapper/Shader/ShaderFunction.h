@@ -83,9 +83,10 @@ char *ShaderFunction =
 
 //////////////////////////////////共通パラメーター////////////////////////////////////////////////////////
 "Texture2D g_texColor : register(t0);\n"
+"Texture2D g_texNormal : register(t1);\n"
 "SamplerState g_samLinear : register(s0);\n"
 
-"cbuffer global  : register(b0)\n"
+"cbuffer global : register(b0)\n"
 "{\n"
 "    matrix g_World[150]; \n"
 "    matrix g_WVP[150];\n"
@@ -115,5 +116,21 @@ char *ShaderFunction =
 "    float4 g_DispAmount;\n"
 //UV座標移動用
 "    float4 g_pXpYmXmY;\n"
+"};\n"
+
+//マテリアル毎の色
+"cbuffer global_1 : register(b1)\n"
+"{\n"
+"    float4 g_Diffuse;\n"
+"    float4 g_Speculer; \n"
+"};\n"
+
+//DS, PSで使用
+"struct PS_INPUT\n"
+"{\n"
+"    float4 Pos        : SV_POSITION;\n"
+"    float4 wPos       : POSITION;\n"
+"    float3 Nor        : NORMAL;\n"
+"    float2 Tex        : TEXCOORD;\n"
 "};\n";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

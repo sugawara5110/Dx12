@@ -4,7 +4,6 @@
 
 //ShaderFunction.hに連結させて使う
 char *ShaderDisp =
-"Texture2D g_texNormal : register(t1);\n"
 "struct VS_OUTPUT_TC\n"
 "{\n"
 "    float3 Pos        : POSITION;\n"
@@ -25,14 +24,6 @@ char *ShaderDisp =
 "    float3 Nor        : NORMAL;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
-"};\n"
-
-"struct DS_OUTPUT_TC\n"
-"{\n"
-"	 float4 Pos  : SV_POSITION;\n"
-"    float4 wPos : POSITION;\n"
-"    float3 Nor  : NORMAL;\n"
-"    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
 //*********************************************頂点シェーダー*******************************************************************//
@@ -95,9 +86,9 @@ char *ShaderDisp =
 
 //**************************************ドメインシェーダー*********************************************************************//
 "[domain(\"quad\")]\n"
-"DS_OUTPUT_TC DSDisp(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT_TC, 4> patch)\n"
+"PS_INPUT DSDisp(HS_CONSTANT_OUTPUT In, float2 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT_TC, 4> patch)\n"
 "{\n"
-"	DS_OUTPUT_TC output = (DS_OUTPUT_TC)0;\n"
+"	PS_INPUT output = (PS_INPUT)0;\n"
 
 //UV座標計算
 "   float2 top_uv = lerp(patch[0].Tex, patch[1].Tex, UV.x);\n"
@@ -108,93 +99,24 @@ char *ShaderDisp =
 "   float4 texheight = g_texColor.SampleLevel(g_samLinear, uv, 0);\n"
 "   float4 height = texheight * g_DispAmount.x;\n"
 "   float hei = (height.x + height.y + height.z) / 3;\n"
-//画像から法線計算用ベクトル生成
-"   float4 nor = texheight * 2 - 1;\n"//-1.0～1.0にする為
 //pos座標計算
 "   float3 top_pos = lerp(patch[0].Pos, patch[1].Pos, UV.x);\n"
 "   float3 bottom_pos = lerp(patch[3].Pos, patch[2].Pos, UV.x);\n"
 "   output.Pos = float4(lerp(top_pos, bottom_pos, UV.y), 1);\n"
+//法線計算
+"   float3 top_nor = lerp(patch[0].Nor, patch[1].Nor, UV.x);\n"
+"   float3 bottom_nor = lerp(patch[3].Nor, patch[2].Nor, UV.x);\n"
+"   float3 Normal = lerp(top_nor, bottom_nor, UV.y);\n"
 //ローカル法線の方向にhei分頂点移動
-"   output.Pos.xyz += hei * patch[0].Nor;\n"
+"   output.Pos.xyz += hei * Normal;\n"
 //画像から生成したベクトルにローカル法線を足し法線ベクトルとする
-"   float3 nor1 = nor.xyz + patch[0].Nor;\n"
+"   float3 nor1 = height.xyz + Normal;\n"
+//座標変換
 "   output.wPos = mul(output.Pos, g_World[patch[0].instanceID]);\n"
 "   output.Pos = mul(output.Pos, g_WVP[patch[0].instanceID]);\n"
-
-//法線正規化
-"   float3 Normal = normalize(nor1);\n"
-
 //出力する法線の作成
-"   output.Nor = mul(Normal, (float3x3)g_World[patch[0].instanceID]);\n"
+"   output.Nor = mul(nor1, (float3x3)g_World[patch[0].instanceID]);\n"
 
 "	return output;\n"
-"}\n"
-//**************************************ドメインシェーダー*********************************************************************//
-
-//**************************************ピクセルシェーダー********************************************************************//
-////////////////////////////////////////////ライト有/////////////////////////////////////////////////////////////////
-"float4 PSDispL(DS_OUTPUT_TC input) : SV_Target\n"
-"{\n"
-//法線正規化
-"    float3 N = normalize(input.Nor);\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-
-//フォグ計算(テクスチャに対して計算)
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//ライト計算
-"    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-//最後に基本色にテクスチャの色を掛け合わせる
-"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
-"}\n"
-////////////////////////////////////////////ライト有/////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////ライト有バンプマップ////////////////////////////////////////////////////////////
-"float4 PSDispLBump(DS_OUTPUT_TC input) : SV_Target\n"
-"{\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-"    float4 T2 = g_texNormal.Sample(g_samLinear, input.Tex);\n"
-//NormalMapと法線を掛け合わせて正規化
-"    float3 N = normalize(input.Nor * T2.xyz);\n"
-//フォグ計算(テクスチャに対して計算)
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//ライト計算
-"    float4 C = { 1.0f, 1.0f, 1.0f, 1.0f};\n"
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(C, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(C, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-//最後に基本色にテクスチャの色を掛け合わせる
-"    return float4(Col, 1.0f) * T + g_ObjCol;\n"
-"}\n"
-/////////////////////////////////////ライト有バンプマップ////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////ライト無し/////////////////////////////////////////////////////////////////
-"float4 PSDisp(DS_OUTPUT_TC input) : SV_Target\n"
-"{\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-
-//フォグ計算テクスチャに対して計算
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-"    float4 col = T;\n"
-"    return col + g_ObjCol;\n"
 "}\n";
-/////////////////////////////////////////ライト無し/////////////////////////////////////////////////////////////////
-//**************************************ピクセルシェーダー*******************************************************************//
+//**************************************ドメインシェーダー*********************************************************************//

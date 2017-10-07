@@ -326,7 +326,7 @@ void SkinMesh::GetBuffer(float end_frame) {
 	m_pMaterial = new MY_MATERIAL_S[MateAllpcs];
 
 	//マテリアルコンスタントバッファ
-	mObjectCB1 = new UploadBuffer<SHADER_GLOBAL1>(dx->md3dDevice.Get(), MateAllpcs, true);
+	mObjectCB1 = new UploadBuffer<CONSTANT_BUFFER2>(dx->md3dDevice.Get(), MateAllpcs, true);
 
 	//VBO
 	Vview = std::make_unique<VertexView>();
@@ -335,6 +335,7 @@ void SkinMesh::GetBuffer(float end_frame) {
 
 	//インデックス数計算(ポリゴン1個に付き頂点 2個～5個が存在することが有るが
 	//fbxからIndex配列コピー時に全てコピーするのでそのままの個数をカウントする)
+	IndexCount34MeAll = 0;
 	for (int k = 0; k < NodeArraypcs; k++) {
 		IndexCount34Me[k] = 0;
 		FbxMesh *pFbxMesh = m_ppNodeArray[k]->GetMesh();
@@ -385,6 +386,32 @@ void SkinMesh::GetBuffer(float end_frame) {
 	m_pLastBoneMatrix = new MATRIX[m_iNumBone];
 }
 
+class SameVertexList {
+
+private:
+	int list[50];
+	unsigned int ind;
+
+public:
+	SameVertexList() {
+		for (int i = 0; i < 50; i++) {
+			list[i] = -1;
+		}
+		ind = 0;
+	}
+
+	void Push(int vInd) {
+		list[ind] = vInd;
+		ind++;
+	}
+
+	int Pop() {
+		if (ind <= 0)return -1;
+		ind--;
+		return list[ind];
+	}
+};
+
 void SkinMesh::SetVertex() {
 
 	//4頂点分割前状態でのインデックス数で頂点配列生成
@@ -394,6 +421,9 @@ void SkinMesh::SetVertex() {
 	MY_VERTEX_S *tmpVB = new MY_VERTEX_S[VerAllpcs];
 	//スキン情報(ジョイント, ウェイト)
 	ReadSkinInfo(tmpVB);
+
+	//同一座標頂点リスト
+	SameVertexList *svList = new SameVertexList[VerAllpcs];
 
 	//メッシュ毎に配列格納処理
 	int mInd = 0;//マテリアル内カウント
@@ -406,12 +436,13 @@ void SkinMesh::SetVertex() {
 		int *piIndex = pFbxMesh->GetPolygonVertices();//fbxから頂点インデックス配列取得
 
 		//頂点配列をfbxからコピー
-		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();//FbxMeshから頂点ローカル座標配列取得, Directxに対してZが逆
+		FbxVector4 *pCoord = pFbxMesh->GetControlPoints();
 		for (int i = 0; i < IndexCount34Me[m]; i++) {
 			//fbxから読み込んだindex順で頂点を整列しながら頂点格納
-			pvVB[i + VerArrStart].vPos.x = (float)-pCoord[piIndex[i]][0];//FBXは右手座標系なのでxあるいはｚを反転
+			pvVB[i + VerArrStart].vPos.x = (float)pCoord[piIndex[i]][0];
 			pvVB[i + VerArrStart].vPos.y = (float)pCoord[piIndex[i]][1];
 			pvVB[i + VerArrStart].vPos.z = (float)pCoord[piIndex[i]][2];
+			svList[piIndex[i] + VerArrStart2].Push(i + VerArrStart);
 			for (int bi = 0; bi < 4; bi++) {
 				//ReadSkinInfo(tmpVB)で読み込んだ各パラメータコピー
 				pvVB[i + VerArrStart].bBoneIndex[bi] = tmpVB[piIndex[i] + VerArrStart2].bBoneIndex[bi];
@@ -445,27 +476,36 @@ void SkinMesh::SetVertex() {
 
 			if (iVert0Index < 0)continue;
 			pFbxMesh->GetPolygonVertexNormal(i, 0, Normal);//(polyInd, verInd, FbxVector4)
-			pvVB[iVert0Index].vNorm.x = (float)-Normal[0];//FBXは右手座標系なのでxあるいはｚを反転
+			pvVB[iVert0Index].vNorm.x = (float)Normal[0];
 			pvVB[iVert0Index].vNorm.y = (float)Normal[1];
 			pvVB[iVert0Index].vNorm.z = (float)Normal[2];
+			pvVB[iVert0Index].vGeoNorm.x = (float)Normal[0];
+			pvVB[iVert0Index].vGeoNorm.y = (float)Normal[1];
+			pvVB[iVert0Index].vGeoNorm.z = (float)Normal[2];
 
 			pFbxMesh->GetPolygonVertexUV(i, 0, uvname, UV, UnMap);//(polyInd, verInd, UV_Name, FbxVector2_UV, bool_UnMap)
 			pvVB[iVert0Index].vTex.x = (float)UV[0];
 			pvVB[iVert0Index].vTex.y = 1.0f - (float)UV[1];//(1.0f-UV)
 
 			pFbxMesh->GetPolygonVertexNormal(i, 1, Normal);
-			pvVB[iVert1Index].vNorm.x = (float)-Normal[0];
+			pvVB[iVert1Index].vNorm.x = (float)Normal[0];
 			pvVB[iVert1Index].vNorm.y = (float)Normal[1];
 			pvVB[iVert1Index].vNorm.z = (float)Normal[2];
+			pvVB[iVert1Index].vGeoNorm.x = (float)Normal[0];
+			pvVB[iVert1Index].vGeoNorm.y = (float)Normal[1];
+			pvVB[iVert1Index].vGeoNorm.z = (float)Normal[2];
 
 			pFbxMesh->GetPolygonVertexUV(i, 1, uvname, UV, UnMap);
 			pvVB[iVert1Index].vTex.x = (float)UV[0];
 			pvVB[iVert1Index].vTex.y = 1.0f - (float)UV[1];
 
 			pFbxMesh->GetPolygonVertexNormal(i, 2, Normal);
-			pvVB[iVert2Index].vNorm.x = (float)-Normal[0];
+			pvVB[iVert2Index].vNorm.x = (float)Normal[0];
 			pvVB[iVert2Index].vNorm.y = (float)Normal[1];
 			pvVB[iVert2Index].vNorm.z = (float)Normal[2];
+			pvVB[iVert2Index].vGeoNorm.x = (float)Normal[0];
+			pvVB[iVert2Index].vGeoNorm.y = (float)Normal[1];
+			pvVB[iVert2Index].vGeoNorm.z = (float)Normal[2];
 
 			pFbxMesh->GetPolygonVertexUV(i, 2, uvname, UV, UnMap);
 			pvVB[iVert2Index].vTex.x = (float)UV[0];
@@ -473,9 +513,12 @@ void SkinMesh::SetVertex() {
 
 			if (pcs == 4) {
 				pFbxMesh->GetPolygonVertexNormal(i, 3, Normal);
-				pvVB[iVert3Index].vNorm.x = (float)-Normal[0];
+				pvVB[iVert3Index].vNorm.x = (float)Normal[0];
 				pvVB[iVert3Index].vNorm.y = (float)Normal[1];
 				pvVB[iVert3Index].vNorm.z = (float)Normal[2];
+				pvVB[iVert3Index].vGeoNorm.x = (float)Normal[0];
+				pvVB[iVert3Index].vGeoNorm.y = (float)Normal[1];
+				pvVB[iVert3Index].vGeoNorm.z = (float)Normal[2];
 
 				pFbxMesh->GetPolygonVertexUV(i, 3, uvname, UV, UnMap);
 				pvVB[iVert3Index].vTex.x = (float)UV[0];
@@ -569,15 +612,44 @@ void SkinMesh::SetVertex() {
 		VerArrStart2 += m_pdwNumVert[m];
 	}
 
+	//同一座標頂点の法線統一化(テセレーション用)
+	for (DWORD i = 0; i < VerAllpcs; i++) {
+		int indVB = 0;
+		VECTOR3 geo[50];
+		int indVb[50];
+		int indGeo = 0;
+		while (1) {
+			indVB = svList[i].Pop();
+			if (indVB == -1)break;
+			indVb[indGeo] = indVB;
+			geo[indGeo++] = pvVB[indVB].vGeoNorm;
+		}
+		VECTOR3 sum;
+		sum.as(0.0f, 0.0f, 0.0f);
+		for (int i1 = 0; i1 < indGeo; i1++) {
+			sum.x += geo[i1].x;
+			sum.y += geo[i1].y;
+			sum.z += geo[i1].z;
+		}
+		VECTOR3 ave;
+		ave.x = sum.x / (float)indGeo;
+		ave.y = sum.y / (float)indGeo;
+		ave.z = sum.z / (float)indGeo;
+		for (int i1 = 0; i1 < indGeo; i1++) {
+			pvVB[indVb[i1]].vGeoNorm = ave;
+		}
+	}
+
 	//各一時格納用配列解放
 	ARR_DELETE(m_pMaterialCount);
 	ARR_DELETE(IndexCount34Me);
 	ARR_DELETE(IndexCount3M);
 	ARR_DELETE(pdwNumFace);
 	ARR_DELETE(tmpVB);
+	ARR_DELETE(svList);
 
 	for (int i = 0; i < MateAllpcs; i++) {
-		SHADER_GLOBAL1 sg;
+		CONSTANT_BUFFER2 sg;
 		sg.vDiffuse = m_pMaterial[i].Kd;//ディフューズカラーをシェーダーに渡す
 		sg.vSpeculer = m_pMaterial[i].Ks;//スペキュラーをシェーダーに渡す
 		mObjectCB1->CopyData(i, sg);
@@ -600,7 +672,7 @@ void SkinMesh::SetNormalTextureName(char *textureName, int materialIndex) {
 	texNum++;
 }
 
-void SkinMesh::CreateFromFBX() {
+void SkinMesh::CreateFromFBX(bool disp) {
 
 	//インデックスバッファ生成2段回目, 一時格納配列解放
 	for (int i = 0; i < MateAllpcs; i++) {
@@ -622,8 +694,22 @@ void SkinMesh::CreateFromFBX() {
 	if (pvVB_delete_f)ARR_DELETE(pvVB);//使わない場合解放
 
 	vs = dx->pVertexShader_SKIN.Get();
-	ps = dx->pPixelShader_SKIN.Get();
-	psB = dx->pPixelShader_SKIN_Bump.Get();
+	if (disp) {
+		vsB = dx->pVertexShader_SKIN_D.Get();
+		hs = dx->pHullShader_SKIN_D.Get();
+		ds = dx->pDomainShader_SKIN_D.Get();
+		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		primType_drawB = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
+	}
+	else {
+		vsB = dx->pVertexShader_SKIN.Get();
+		hs = nullptr;
+		ds = nullptr;
+		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		primType_drawB = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	}
+	ps = dx->pPixelShader_3D.Get();
+	psB = dx->pPixelShader_Bump.Get();
 
 	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, shader内registerIndex
@@ -666,13 +752,20 @@ void SkinMesh::CreateFromFBX() {
 	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
 
 	//パイプラインステートオブジェクト生成
-	mPSO = CreatePSO(ps);
-	mPSO_B = CreatePSO(psB);
+	mPSO = CreatePSO(vs, nullptr, nullptr, ps);
+	mPSO_B = CreatePSO(vsB, hs, ds, psB);
 
 	GetTexture();
 }
 
-ID3D12PipelineState *SkinMesh::CreatePSO(ID3DBlob *p) {
+void SkinMesh::CreateFromFBX() {
+	CreateFromFBX(FALSE);
+}
+
+ID3D12PipelineState *SkinMesh::CreatePSO(ID3DBlob *Vs, ID3DBlob *Hs, ID3DBlob *Ds, ID3DBlob *Ps) {
+
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
 	//パイプラインステートオブジェクト生成
 	ID3D12PipelineState *pso;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
@@ -681,13 +774,28 @@ ID3D12PipelineState *SkinMesh::CreatePSO(ID3DBlob *p) {
 	psoDesc.pRootSignature = mRootSignature.Get();
 	psoDesc.VS =
 	{
-		reinterpret_cast<BYTE*>(vs->GetBufferPointer()),
-		vs->GetBufferSize()
+		reinterpret_cast<BYTE*>(Vs->GetBufferPointer()),
+		Vs->GetBufferSize()
 	};
+	if (Hs != nullptr) {
+		psoDesc.HS =
+		{
+			reinterpret_cast<BYTE*>(Hs->GetBufferPointer()),
+			Hs->GetBufferSize()
+		};
+		topology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+	}
+	if (Ds != nullptr) {
+		psoDesc.DS =
+		{
+			reinterpret_cast<BYTE*>(Ds->GetBufferPointer()),
+			Ds->GetBufferSize()
+		};
+	}
 	psoDesc.PS =
 	{
-		reinterpret_cast<BYTE*>(p->GetBufferPointer()),
-		p->GetBufferSize()
+		reinterpret_cast<BYTE*>(Ps->GetBufferPointer()),
+		Ps->GetBufferSize()
 	};
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
@@ -700,7 +808,7 @@ ID3D12PipelineState *SkinMesh::CreatePSO(ID3DBlob *p) {
 
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.PrimitiveTopologyType = topology;
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
 	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
@@ -980,10 +1088,10 @@ bool SkinMesh::Update(float time, float x, float y, float z, float r, float g, f
 	return Update(0, time, x, y, z, r, g, b, a, thetaZ, thetaY, thetaX, size);
 }
 
-bool SkinMesh::Update(int ind, float ti, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size) {
+bool SkinMesh::Update(int ind, float ti, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size, float disp) {
 
 	bool frame_end = FALSE;
-	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, a, thetaZ, thetaY, thetaX, size, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	dx->MatrixMap(&cb[sw], x, y, z, r, g, b, a, thetaZ, thetaY, thetaX, size, disp, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (ti != -1.0f)frame_end = SetNewPoseMatrices(ti, ind);
 	MatrixMap_Bone(&sgb[sw]);
 	CbSwap();
@@ -1012,7 +1120,6 @@ void SkinMesh::Draw() {
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
 	mCommandList->IASetVertexBuffers(0, 1, &Vview->VertexBufferView());
-	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvHeap->GetGPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < MateAllpcs; i++) {
@@ -1026,15 +1133,19 @@ void SkinMesh::Draw() {
 		mCommandList->SetGraphicsRootDescriptorTable(0, tex);//(slotRootParameterIndex(shader内registerIndex), DESCRIPTOR_HANDLE)
 		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);//デスクリプタヒープのアドレス位置オフセットで次のテクスチャを読み込ませる
 		if (m_pMaterial[i].nortex_no != -1) {
+			mCommandList->IASetPrimitiveTopology(primType_drawB);
 			//normalMapが存在する場合diffuseの次に格納されている
 			mCommandList->SetGraphicsRootDescriptorTable(1, tex);
 			tex.Offset(1, dx->mCbvSrvUavDescriptorSize);
 			mCommandList->SetPipelineState(mPSO_B.Get());//normalMap有り無しでPSO切り替え
 		}
-		else mCommandList->SetPipelineState(mPSO.Get());
+		else {
+			mCommandList->IASetPrimitiveTopology(primType_draw);
+			mCommandList->SetPipelineState(mPSO.Get());
+		}
 
 		mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB0->Resource()->GetGPUVirtualAddress());
-		UINT mElementByteSize = (sizeof(SHADER_GLOBAL1) + 255) & ~255;
+		UINT mElementByteSize = (sizeof(CONSTANT_BUFFER2) + 255) & ~255;
 		mCommandList->SetGraphicsRootConstantBufferView(3, mObjectCB1->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
 		mCommandList->SetGraphicsRootConstantBufferView(4, mObject_BONES->Resource()->GetGPUVirtualAddress());
 

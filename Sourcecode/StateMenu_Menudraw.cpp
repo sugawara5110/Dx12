@@ -111,12 +111,12 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 10;//ボス前
 
 			//通常のスタート位置
-			/*savedata.h_pos.cx1 = 1150.0f;
+			savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 3350.0f;
 			savedata.h_pos.cy2 = 3280.0f;
 			savedata.h_pos.px = 11;
-			savedata.h_pos.py = 33;*/
+			savedata.h_pos.py = 33;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 0;
@@ -173,7 +173,6 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 3;*/
 			
-
 			//ラスダン
 			/*savedata.h_pos.cx1 = 1450.0f;//ボス前
 			savedata.h_pos.cx2 = 1450.0f;
@@ -197,8 +196,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			FILE *fp = fopen("./dat/save/save.da1", "rb");
 			FILE *fp2 = fopen("./dat/save/save.da2", "rb");
 			if (fp == NULL || fp2 == NULL)return TRUE;//読み込み失敗
-			int cnt1 = fread(&key1, sizeof(key1), 1, fp);
-			int cnt2 = fread(&key2, sizeof(key2), 1, fp2);
+			int cnt1 = (int)(fread(&key1, sizeof(key1), 1, fp));
+			int cnt2 = (int)(fread(&key2, sizeof(key2), 1, fp2));
 			fclose(fp); //ファイルを閉じる
 			fclose(fp2);
 			if (cnt1 < 1 || cnt2 < 1)return TRUE;//読み込みエラー

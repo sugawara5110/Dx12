@@ -204,7 +204,7 @@ void Hero::SetCommandList(int com_no) {
 }
 
 void Hero::CreateHero() {
-	p_att->CreateFromFBX();
+	p_att->CreateFromFBX(true);
 	if (o_no == 0) {
 		torchWood->CreateFromFBX();
 		torchFlame->TextureInit(128, 128);

@@ -549,7 +549,7 @@ void ParticleData::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) 
 	texResource.RowPitch = footprint.Footprint.RowPitch;
 
 	for (int j = 0; j < height; j++) {
-		UINT j1 = j * texResource.RowPitch;//RowPitchデータの行ピッチ、行幅、または物理サイズ (バイト単位)
+		UINT j1 = (UINT)(j * texResource.RowPitch);//RowPitchデータの行ピッチ、行幅、または物理サイズ (バイト単位)
 		for (int i = 0; i < width; i++) {
 			UINT ptexI = i * 4 + j1;
 			ptex[ptexI + 0] = m_pix[j][i] >> 16 & r;

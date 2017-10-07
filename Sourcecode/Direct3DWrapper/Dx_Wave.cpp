@@ -45,6 +45,7 @@ void Wave::GetVBarray(int v) {
 	d3varray = (Vertex*)malloc(sizeof(Vertex) * ver);
 	d3varrayI = (std::uint16_t*)malloc(sizeof(std::uint16_t) * verI);
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
+	mObjectCB1 = new UploadBuffer<CONSTANT_BUFFER2>(dx->md3dDevice.Get(), 1, true);
 	mObjectCB_WAVE = new UploadBuffer<CONSTANT_BUFFER_WAVE>(dx->md3dDevice.Get(), 1, true);
 	Vview = std::make_unique<VertexView>();
 	Iview = std::make_unique<IndexView>();
@@ -54,9 +55,9 @@ void Wave::GetShaderByteCode(int texNum) {
 	cs = dx->pComputeShader_Wave.Get();
 	vs = dx->pVertexShader_Wave.Get();
 	if (texNum <= 1)
-		ps = dx->pPixelShader_Wave.Get();
+		ps = dx->pPixelShader_3D.Get();
 	else
-		ps = dx->pPixelShader_WaveBump.Get();
+		ps = dx->pPixelShader_Bump.Get();
 	hs = dx->pHullShader_Wave.Get();
 	ds = dx->pDomainShader_Wave.Get();
 }
@@ -64,13 +65,13 @@ void Wave::GetShaderByteCode(int texNum) {
 void Wave::ComCreate() {
 
 	//CSからDSへの受け渡し用
-	int divide = cbw.wHei_divide.y * cbw.wHei_divide.y;
-	div = cbw.wHei_divide.y / 32.0f;//32はCS内スレッド数
+	int divide = (int)(cbw.wHei_divide.y * cbw.wHei_divide.y);
+	div = (int)(cbw.wHei_divide.y / 32.0f);//32はCS内スレッド数
 	std::vector<WaveData> wdata(divide);
 	for (int i = 0; i < divide; ++i)
 	{
 		wdata[i].sinWave = 0;
-		wdata[i].theta = i % 360;
+		wdata[i].theta = (float)(i % 360);
 	}
 
 	UINT64 byteSize = wdata.size() * sizeof(WaveData);
@@ -153,20 +154,32 @@ void Wave::ComCreate() {
 
 void Wave::DrawCreate(int texNo, int nortNo, bool blend, bool alpha) {
 
+	CONSTANT_BUFFER2 sg;
+	sg.vDiffuse.x = 1.0f;
+	sg.vDiffuse.y = 1.0f;
+	sg.vDiffuse.z = 1.0f;
+	sg.vDiffuse.w = 1.0f;
+	sg.vSpeculer.x = 1.0f;
+	sg.vSpeculer.y = 1.0f;
+	sg.vSpeculer.z = 1.0f;
+	sg.vSpeculer.w = 1.0f;
+	mObjectCB1->CopyData(0, sg);
+
 	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, 開始Index 0番
 	nortexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
-	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[6];
 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);//(t0)DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
 	slotRootParameter[1].InitAsDescriptorTable(1, &nortexTable, D3D12_SHADER_VISIBILITY_ALL);//(t1)
 	slotRootParameter[2].InitAsConstantBufferView(0);//(b0)
-	slotRootParameter[3].InitAsConstantBufferView(1);//mObjectCB_WAVE(b1)
-	slotRootParameter[4].InitAsShaderResourceView(2);//StructuredBuffer(t2)
+	slotRootParameter[3].InitAsConstantBufferView(1);//(b1)
+	slotRootParameter[4].InitAsConstantBufferView(2);//mObjectCB_WAVE(b2)
+	slotRootParameter[5].InitAsShaderResourceView(2);//StructuredBuffer(t2)
 
 	auto staticSamplers = dx->GetStaticSamplers();
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(6, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -388,8 +401,9 @@ void Wave::DrawSub() {
 		mCommandList->SetGraphicsRootDescriptorTable(1, tex);
 	}
 	mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB->Resource()->GetGPUVirtualAddress());
-	mCommandList->SetGraphicsRootConstantBufferView(3, mObjectCB_WAVE->Resource()->GetGPUVirtualAddress());
-	mCommandList->SetGraphicsRootShaderResourceView(4, mOutputBuffer->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootConstantBufferView(3, mObjectCB1->Resource()->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootConstantBufferView(4, mObjectCB_WAVE->Resource()->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootShaderResourceView(5, mOutputBuffer->GetGPUVirtualAddress());
 
 	mCommandList->DrawIndexedInstanced(Iview->IndexCount, insNum, 0, 0, 0);
 

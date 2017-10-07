@@ -117,10 +117,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_DISP = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_SKIN_D = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISP = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_SKIN_D = nullptr;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_SKIN;
 	std::vector<D3D12_SO_DECLARATION_ENTRY> pDeclaration_PSO;
@@ -132,29 +134,21 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_Wave = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_SKIN = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_SKIN_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_PSO = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_P = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_MESH_D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_MESH = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_DISP = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_TCL = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_TC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_BC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexShader_2DTC = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_Wave = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_WaveBump = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_SKIN_Bump = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_P = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH_D = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_MESH = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_DISPL = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_DISPL_Bump = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_DISP = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_TCL = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_TC = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_Bump = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_3D = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_Emissive = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_BC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_2D = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_2DTC = nullptr;
@@ -412,7 +406,7 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
-	UploadBuffer<CONSTANT_BUFFER_MESH> *mObject_MESHCB = nullptr;//マテリアル渡し用(1回しか更新しない)
+	UploadBuffer<CONSTANT_BUFFER2> *mObject_MESHCB = nullptr;//マテリアル渡し用(1回しか更新しない)
 	//UpLoad用
 	CONSTANT_BUFFER cb[2];
 	int sw = 0;//↑切り替え
@@ -431,7 +425,7 @@ private:
 
 	int              MaterialCount = 0;//マテリアル数
 	int              *piFaceBuffer;
-	MY_VERTEX_MESH   *pvVertexBuffer;
+	Vertex           *pvVertexBuffer;
 	int              FaceCount;  //ポリゴン数カウンター
 	char             mFileName[255];
 	//一時保管
@@ -513,6 +507,7 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
+	UploadBuffer<CONSTANT_BUFFER2> *mObjectCB1 = nullptr;
 	CONSTANT_BUFFER cb[2];
 	int sw = 0;
 	//UpLoadカウント
@@ -822,10 +817,15 @@ private:
 	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
+	ID3DBlob                   *vsB = nullptr;
+	ID3DBlob                   *hs = nullptr;
+	ID3DBlob                   *ds = nullptr;
 	ID3DBlob                   *ps = nullptr;
 	ID3DBlob                   *psB = nullptr;
 	bool alpha = FALSE;
 	bool blend = FALSE;
+	
+	D3D_PRIMITIVE_TOPOLOGY primType_draw, primType_drawB;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
@@ -833,7 +833,7 @@ private:
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB0 = nullptr;
-	UploadBuffer<SHADER_GLOBAL1> *mObjectCB1 = nullptr;
+	UploadBuffer<CONSTANT_BUFFER2> *mObjectCB1 = nullptr;
 	UploadBuffer<SHADER_GLOBAL_BONES> *mObject_BONES = nullptr;
 	CONSTANT_BUFFER cb[2];
 	SHADER_GLOBAL_BONES sgb[2];
@@ -905,7 +905,7 @@ private:
 	bool SetNewPoseMatrices(float time, int ind);
 	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
 	void CbSwap();
-	ID3D12PipelineState *CreatePSO(ID3DBlob *ps);
+	ID3D12PipelineState *CreatePSO(ID3DBlob *vs, ID3DBlob *hs, ID3DBlob *ds, ID3DBlob *ps);
 
 public:
 	SkinMesh();
@@ -923,12 +923,13 @@ public:
 	void SetVertex();
 	void SetDiffuseTextureName(char *textureName, int materialIndex);
 	void SetNormalTextureName(char *textureName, int materialIndex);
+	void CreateFromFBX(bool disp);
 	void CreateFromFBX();
 	HRESULT GetFbxSub(CHAR* szFileName, int ind);
 	HRESULT GetBuffer_Sub(int ind, float end_frame);
 	void CreateFromFBX_SubAnimation(int ind);
 	bool Update(float time, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size);
-	bool Update(int ind, float time, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size);
+	bool Update(int ind, float time, float x, float y, float z, float r, float g, float b, float a, float thetaZ, float thetaY, float thetaX, float size, float disp = 1.0f);
 	void DrawOff();
 	void Draw();
 	VECTOR3 GetVertexPosition(int verNum, float adjustZ, float adjustY, float adjustX, float thetaZ, float thetaY, float thetaX, float scale);
@@ -954,6 +955,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
 
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
+	UploadBuffer<CONSTANT_BUFFER2> *mObjectCB1 = nullptr;
 	UploadBuffer<CONSTANT_BUFFER_WAVE> *mObjectCB_WAVE = nullptr;
 	CONSTANT_BUFFER cb[2];
 	CONSTANT_BUFFER_WAVE cbw;

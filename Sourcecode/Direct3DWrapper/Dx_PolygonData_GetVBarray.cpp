@@ -113,6 +113,7 @@ void PolygonData::GetVBarray(PrimitiveType type, int v) {
 	d3varrayBC = (VertexBC*)malloc(sizeof(VertexBC) * ver);
 	d3varrayI = (std::uint16_t*)malloc(sizeof(std::uint16_t) * verI);
 	mObjectCB = new UploadBuffer<CONSTANT_BUFFER>(dx->md3dDevice.Get(), 1, true);
+	mObjectCB1 = new UploadBuffer<CONSTANT_BUFFER2>(dx->md3dDevice.Get(), 1, true);
 	Vview = std::make_unique<VertexView>();
 	Iview = std::make_unique<IndexView>();
 }
@@ -209,7 +210,7 @@ void PolygonData::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) {
 	texResource.RowPitch = footprint.Footprint.RowPitch;
 
 	for (int j = 0; j < height; j++) {
-		UINT j1 = j * texResource.RowPitch;//RowPitchデータの行ピッチ、行幅、または物理サイズ (バイト単位)
+		UINT j1 = (UINT)(j * texResource.RowPitch);//RowPitchデータの行ピッチ、行幅、または物理サイズ (バイト単位)
 		for (int i = 0; i < width; i++) {
 			UINT ptexI = i * 4 + j1;
 			ptex[ptexI + 0] = m_pix[j][i] >> 16 & r;
@@ -243,28 +244,28 @@ void PolygonData::GetShaderByteCode(bool light, int tNo, int nortNo) {
 		return;
 	}
 	if (!disp && light) {
-		vs = dx->pVertexShader_TCL.Get();
-		ps = dx->pPixelShader_TCL.Get();
+		vs = dx->pVertexShader_TC.Get();
+		ps = dx->pPixelShader_3D.Get();
 		return;
 	}
 	if (!disp && !light) {
 		vs = dx->pVertexShader_TC.Get();
-		ps = dx->pPixelShader_TC.Get();
+		ps = dx->pPixelShader_Emissive.Get();
 		return;
 	}
 	if (disp && light) {
 		vs = dx->pVertexShader_DISP.Get();
 		if (nortNo == -1)
-			ps = dx->pPixelShader_DISPL.Get();
+			ps = dx->pPixelShader_3D.Get();
 		else
-			ps = dx->pPixelShader_DISPL_Bump.Get();
+			ps = dx->pPixelShader_Bump.Get();
 		hs = dx->pHullShader_DISP.Get();
 		ds = dx->pDomainShader_DISP.Get();
 		return;
 	}
 	if (disp && !light) {
 		vs = dx->pVertexShader_DISP.Get();
-		ps = dx->pPixelShader_DISP.Get();
+		ps = dx->pPixelShader_Emissive.Get();
 		hs = dx->pHullShader_DISP.Get();
 		ds = dx->pDomainShader_DISP.Get();
 		return;
@@ -279,21 +280,33 @@ void PolygonData::Create(bool light, int tNo, int nortNo, bool blend, bool alpha
 
 	GetShaderByteCode(light, tNo, nortNo);
 
+	CONSTANT_BUFFER2 sg;
+	sg.vDiffuse.x = 1.0f;
+	sg.vDiffuse.y = 1.0f;
+	sg.vDiffuse.z = 1.0f;
+	sg.vDiffuse.w = 1.0f;
+	sg.vSpeculer.x = 1.0f;
+	sg.vSpeculer.y = 1.0f;
+	sg.vSpeculer.z = 1.0f;
+	sg.vSpeculer.w = 1.0f;
+	mObjectCB1->CopyData(0, sg);
+
 	//BuildRootSignature
 	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);//このDescriptorRangeはシェーダーリソースビュー,Descriptor 1個, 開始Index 0番
 	nortexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
 	//BuildRootSignatureParameter
-	CD3DX12_ROOT_PARAMETER slotRootParameter[3];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);// DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
 	slotRootParameter[1].InitAsDescriptorTable(1, &nortexTable, D3D12_SHADER_VISIBILITY_ALL);
 	slotRootParameter[2].InitAsConstantBufferView(0);
+	slotRootParameter[3].InitAsConstantBufferView(1);
 
 	auto staticSamplers = dx->GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -519,6 +532,7 @@ void PolygonData::Draw() {
 		mCommandList->SetGraphicsRootDescriptorTable(1, tex);
 	}
 	mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB->Resource()->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootConstantBufferView(3, mObjectCB1->Resource()->GetGPUVirtualAddress());
 
 	mCommandList->DrawIndexedInstanced(Iview->IndexCount, insNum, 0, 0, 0);
 

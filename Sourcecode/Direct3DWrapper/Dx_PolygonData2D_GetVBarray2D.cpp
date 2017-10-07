@@ -164,7 +164,7 @@ void PolygonData2D::SetText() {
 	memset(pBits, 0, texResource.RowPitch * Theight);//0–„‚ß
 	for (int cnt = 0; cnt < Tcount; cnt++) {
 
-		UINT temp = texResource.RowPitch / Tcount / 4;
+		UINT temp = (UINT)(texResource.RowPitch / Tcount / 4);
 		UINT s_rowPitch = temp * 4;
 		UINT offset1 = s_rowPitch * cnt;//4‚Ì”{”‚É‚È‚Á‚Ä‚¢‚éŽ–
 

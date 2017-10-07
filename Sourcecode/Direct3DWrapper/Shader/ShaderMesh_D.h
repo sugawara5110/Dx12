@@ -4,13 +4,6 @@
 
 //ShaderFunction.hに連結させて使う
 char *ShaderMesh_D =
-"cbuffer global_1:register(b1)\n"
-"{\n"
-//マテリアル毎の色
-"    float4 g_Diffuse;\n"
-"    float4 g_Speculer; \n"
-"};\n"
-
 "struct VS_OUTPUT\n"
 "{\n"
 "    float3 Pos        : POSITION;\n"
@@ -31,14 +24,6 @@ char *ShaderMesh_D =
 "    float3 Nor        : NORMAL;\n"
 "    float2 Tex        : TEXCOORD;\n"
 "    uint   instanceID : SV_InstanceID;\n"
-"};\n"
-
-"struct DS_OUTPUT\n"
-"{\n"
-"    float4 Pos  : SV_POSITION;\n"
-"    float4 wPos : POSITION;\n"
-"    float3 Nor  : NORMAL;\n"
-"    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
 //****************************************メッシュ頂点**************************************************************//
@@ -99,9 +84,9 @@ char *ShaderMesh_D =
 
 //**************************************ドメインシェーダー**********************************************************//
 "[domain(\"tri\")]\n"
-"DS_OUTPUT DSMesh(HS_CONSTANT_OUTPUT In, float3 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 3> patch)\n"
+"PS_INPUT DSMesh(HS_CONSTANT_OUTPUT In, float3 UV : SV_DomaInLocation, const OutputPatch<HS_OUTPUT, 3> patch)\n"
 "{\n"
-"	DS_OUTPUT output = (DS_OUTPUT)0;\n"
+"	PS_INPUT output = (PS_INPUT)0;\n"
 
 //UV座標計算
 "   float2 uv = patch[0].Tex * UV.x + patch[1].Tex * UV.y + patch[2].Tex * UV.z;\n"
@@ -138,35 +123,5 @@ char *ShaderMesh_D =
 "   output.Nor = mul(Normal, (float3x3)g_World[patch[0].instanceID]);\n"
 
 "	return output;\n"
-"}\n"
-//**************************************ドメインシェーダー**********************************************************//
-
-//****************************************メッシュピクセル**********************************************************//
-"float4 PSMesh(DS_OUTPUT input) : SV_Target\n"
-"{\n"
-//法線正規化
-"    float3 N = normalize(input.Nor);\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-//基本カラー
-"    float4 C = g_Diffuse;\n"
-
-//フォグ計算テクスチャに対して計算
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//アルファ値退避
-"    float a = C.w;\n"
-
-//ライト計算
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(g_Speculer, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(g_Speculer, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-"    float4 color = float4(Col, a) * T + g_ObjCol;\n"
-"    return color;\n"
 "}\n";
-//****************************************メッシュピクセル**********************************************************//
+//**************************************ドメインシェーダー**********************************************************//

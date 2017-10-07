@@ -4,14 +4,6 @@
 
 //ShaderFunction.hに連結させて使う
 char *ShaderSkinMesh =
-"Texture2D g_texNormal : register(t1);\n"
-"cbuffer global_1:register(b1)\n"
-"{\n"
-//マテリアル毎の色
-"    float4 g_Diffuse;\n"
-"    float4 g_Speculer; \n"
-"};\n"
-
 "cbuffer global_bones : register(b2)\n"//ボーンのポーズ行列が入る
 "{\n"
 "   matrix g_mConstBoneWorld[150];\n"
@@ -26,19 +18,11 @@ char *ShaderSkinMesh =
 //バーテックスバッファーの入力
 "struct VSSkinIn\n"
 "{\n"
-"   float3 Pos : POSITION;\n"//位置   
-"   float3 Nor : NORMAL;\n"//頂点法線
+"   float3 Pos : POSITION;\n"//頂点   
+"   float3 Nor : NORMAL;\n"//法線
 "   float2 Tex : TEXCOORD;\n"//テクスチャー座標
 "   uint4  Bones : BONE_INDEX;\n"//ボーンのインデックス
 "   float4 Weights : BONE_WEIGHT;\n"//ボーンの重み
-"};\n"
-
-"struct VS_OUTPUT\n"
-"{\n"
-"    float4 Pos  : SV_POSITION;\n"
-"    float4 wPos : POSITION;\n"
-"    float3 Nor  : NORMAL;\n"
-"    float2 Tex  : TEXCOORD;\n"
 "};\n"
 
 //指定した番号のボーンのポーズ行列を返す　サブ関数（バーテックスシェーダーで使用）
@@ -53,7 +37,6 @@ char *ShaderSkinMesh =
 "   Skin Output = (Skin)0;\n"
 
 "   float4 Pos = float4(Input.Pos, 1);\n"
-"   Pos.x *= -1;\n"//FBXは右手座標系なのでxあるいはｚを反転
 "   float3 Nor = Input.Nor;\n"
 //ボーン0
 "   uint iBone = Input.Bones.x;\n"
@@ -84,9 +67,9 @@ char *ShaderSkinMesh =
 "}\n"
 
 //****************************************メッシュ頂点**************************************************************//
-"VS_OUTPUT VSSkin(VSSkinIn input)\n"
+"PS_INPUT VSSkin(VSSkinIn input)\n"
 "{\n"
-"    VS_OUTPUT output = (VS_OUTPUT)0;\n"
+"    PS_INPUT output = (PS_INPUT)0;\n"
 
 "    Skin vSkinned = SkinVert(input);\n"
 
@@ -96,60 +79,5 @@ char *ShaderSkinMesh =
 "    output.Tex = input.Tex;\n"
 
 "    return output;\n"
-"}\n"
-//****************************************メッシュ頂点**************************************************************//
-
-//****************************************メッシュピクセル**********************************************************//
-"float4 PSSkin(VS_OUTPUT input) : SV_Target\n"
-"{\n"
-//法線正規化
-"    float3 N = normalize(input.Nor);\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-//基本カラー
-"    float4 C = g_Diffuse;\n"
-
-//フォグ計算テクスチャに対して計算
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//ライト計算
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(g_Speculer, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(g_Speculer, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-"    float4 color = float4(Col, 1.0f) * T + g_ObjCol;\n"
-"    return color;\n"
-"}\n"
-//****************************************メッシュピクセル**********************************************************//
-
-//**********************************メッシュピクセル(バンプマップ)**************************************************//
-"float4 PSSkinBumpMap(VS_OUTPUT input) : SV_Target\n"
-"{\n"
-//テクスチャ
-"    float4 T1 = g_texColor.Sample(g_samLinear, input.Tex);\n"
-"    float4 T2 = g_texNormal.Sample(g_samLinear, input.Tex);\n"
-//NormalMapと法線を掛け合わせて正規化
-"    float3 N = normalize(input.Nor * T2.xyz);\n"
-//基本カラー
-"    float4 C = g_Diffuse;\n"
-
-//フォグ計算テクスチャに対して計算
-"    float4 T = FogCom(g_FogColor, g_FogAmo_Density, g_C_Pos, input.wPos, T1);\n"
-
-//ライト計算
-"    float3 Col = { 0.0f, 0.0f, 0.0f };\n"
-"    for (int i = 0; i < g_ShadowLow_Lpcs.y; i++){\n"
-"        Col = Col + PointLightCom(g_Speculer, C, N, g_ShadowLow_Lpcs, g_LightPos[i], input.wPos, g_Lightst[i], g_LightColor[i], g_C_Pos);\n"
-"    }\n"
-
-//平行光源計算
-"    Col = Col + DirectionalLightCom(g_Speculer, C, N, g_DLightst, g_DLightDirection, g_DLightColor, input.wPos, g_C_Pos);\n"
-
-"    float4 color = float4(Col, 1.0f) * T + g_ObjCol;\n"
-"    return color;\n"
 "}\n";
-//**********************************メッシュピクセル(バンプマップ)**************************************************//
+//****************************************メッシュ頂点**************************************************************//

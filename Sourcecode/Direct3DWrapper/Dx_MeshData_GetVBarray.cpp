@@ -38,11 +38,11 @@ void MeshData::GetShaderByteCode(bool disp) {
 		hs = dx->pHullShader_MESH_D.Get();
 		ds = dx->pDomainShader_MESH_D.Get();
 		vs = dx->pVertexShader_MESH_D.Get();
-		ps = dx->pPixelShader_MESH_D.Get();
+		ps = dx->pPixelShader_3D.Get();
 	}
 	else {
 		vs = dx->pVertexShader_MESH.Get();
-		ps = dx->pPixelShader_MESH.Get();
+		ps = dx->pPixelShader_3D.Get();
 	}
 }
 
@@ -61,7 +61,7 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 	{
 		//キーワード読み込み
 		fgets(line, sizeof(line), fp);
-		sscanf_s(line, "%s ", key, sizeof(key));
+		sscanf_s(line, "%s ", key, (unsigned int)sizeof(key));
 		//マテリアル名
 		if (strcmp(key, "newmtl") == 0)
 		{
@@ -79,12 +79,12 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 	{
 		//キーワード読み込み
 		fgets(line, sizeof(line), fp);//1行読み込みlineに格納,FILEポインタ1行進む
-		sscanf_s(line, "%s ", key, sizeof(key));//読み込んだ1行から"%s"最初の文字列1個読み込み
+		sscanf_s(line, "%s ", key, (unsigned int)sizeof(key));//読み込んだ1行から"%s"最初の文字列1個読み込み
 		//マテリアル名
 		if (strcmp(key, "newmtl") == 0)
 		{
 			iMCount++;
-			sscanf_s(&line[7], "%s ", key, sizeof(key));//lineの7要素目(newmtl)の直後から1個目の文字列をkeyに格納
+			sscanf_s(&line[7], "%s ", key, (unsigned int)sizeof(key));//lineの7要素目(newmtl)の直後から1個目の文字列をkeyに格納
 			strcpy_s(pMaterial[iMCount].MaterialName, key);
 		}
 		//Kd　ディフューズ
@@ -102,7 +102,7 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 		//map_Kd　テクスチャー
 		if (strcmp(key, "map_Kd") == 0)
 		{
-			sscanf_s(&line[7], "%s", &pMaterial[iMCount].TextureName, sizeof(pMaterial[iMCount].TextureName));
+			sscanf_s(&line[7], "%s", &pMaterial[iMCount].TextureName, (unsigned int)sizeof(pMaterial[iMCount].TextureName));
 			pMaterial[iMCount].tex_no = dx->GetTexNumber(pMaterial[iMCount].TextureName);
 		}
 	}
@@ -154,11 +154,11 @@ void MeshData::GetBuffer(char *FileName) {
 	{
 		//キーワード読み込み
 		fgets(line, sizeof(line), fp);
-		sscanf_s(line, "%s ", key, sizeof(key));
+		sscanf_s(line, "%s ", key, (unsigned int)sizeof(key));
 		//マテリアル読み込み
 		if (strcmp(key, "mtllib") == 0)
 		{
-			sscanf_s(&line[7], "%s ", key, sizeof(key));
+			sscanf_s(&line[7], "%s ", key, (unsigned int)sizeof(key));
 			LoadMaterialFromFile(key, &pMaterial);
 		}
 		//頂点
@@ -189,12 +189,12 @@ void MeshData::GetBuffer(char *FileName) {
 	pvNormal = new VECTOR3[VNCount]();
 	pvTexture = new VECTOR2[VTCount]();
 
-	mObject_MESHCB = new UploadBuffer<CONSTANT_BUFFER_MESH>(dx->md3dDevice.Get(), MaterialCount, true);//アドレスずらして各Materialアクセス
+	mObject_MESHCB = new UploadBuffer<CONSTANT_BUFFER2>(dx->md3dDevice.Get(), MaterialCount, true);//アドレスずらして各Materialアクセス
 	Vview = std::make_unique<VertexView>();
 	Iview = std::make_unique<IndexView[]>(MaterialCount);
 
 	piFaceBuffer = new int[MaterialCount * FaceCount * 3]();//3頂点なので3インデックス * Material個数
-	pvVertexBuffer = new MY_VERTEX_MESH[FaceCount * 3]();
+	pvVertexBuffer = new Vertex[FaceCount * 3]();
 }
 
 void MeshData::SetVertex() {
@@ -219,7 +219,7 @@ void MeshData::SetVertex() {
 		//キーワード 読み込み
 		ZeroMemory(key, sizeof(key));
 		fgets(line, sizeof(line), fp);
-		sscanf_s(line, "%s", key, sizeof(key));
+		sscanf_s(line, "%s", key, (unsigned int)sizeof(key));
 
 		//頂点 読み込み
 		if (strcmp(key, "v") == 0)
@@ -252,7 +252,7 @@ void MeshData::SetVertex() {
 	}
 
 	for (int i = 0; i < MaterialCount; i++) {
-		CONSTANT_BUFFER_MESH sg;
+		CONSTANT_BUFFER2 sg;
 		pMaterial[i].Kd.x += addDiffuse;
 		pMaterial[i].Kd.y += addDiffuse;
 		pMaterial[i].Kd.z += addDiffuse;
@@ -279,12 +279,12 @@ void MeshData::SetVertex() {
 			//キーワード 読み込み
 			ZeroMemory(key, sizeof(key));
 			fgets(line, sizeof(line), fp);
-			sscanf_s(line, "%s ", key, sizeof(key));
+			sscanf_s(line, "%s ", key, (unsigned int)sizeof(key));
 
 			//フェイス 読み込み→頂点インデックスに
 			if (strcmp(key, "usemtl") == 0)
 			{
-				sscanf_s(&line[7], "%s ", key, sizeof(key));
+				sscanf_s(&line[7], "%s ", key, (unsigned int)sizeof(key));
 				if (strcmp(key, pMaterial[i].MaterialName) == 0)
 				{
 					boFlag = true;
@@ -345,12 +345,12 @@ void MeshData::SetVertex() {
 
 	fclose(fp);
 
-	const UINT vbByteSize = (UINT)FCount * 3 * sizeof(MY_VERTEX_MESH);
+	const UINT vbByteSize = (UINT)FCount * 3 * sizeof(Vertex);
 
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), pvVertexBuffer, vbByteSize);
 
-	Vview->VertexByteStride = sizeof(MY_VERTEX_MESH);
+	Vview->VertexByteStride = sizeof(Vertex);
 	Vview->VertexBufferByteSize = vbByteSize;
 
 	//一時的変数解放
@@ -534,7 +534,7 @@ void MeshData::Draw() {
 		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);//デスクリプタヒープのアドレス位置オフセットで次のテクスチャを読み込ませる
 
 		mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
-		UINT mElementByteSize = (sizeof(CONSTANT_BUFFER_MESH) + 255) & ~255;
+		UINT mElementByteSize = (sizeof(CONSTANT_BUFFER2) + 255) & ~255;
 		mCommandList->SetGraphicsRootConstantBufferView(2, mObject_MESHCB->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
 
 		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, insNum, 0, 0, 0);
