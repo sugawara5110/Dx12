@@ -47,6 +47,7 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	TextureGetBuffer("./dat/texture/map/wall2Nor.da");
 	TextureGetBuffer("./dat/texture/map/leaf.da");
 	TextureGetBuffer("./dat/texture/map/wood.da");
+	TextureGetBuffer("./dat/texture/map/woodNor.da");
 	//マップ2
 	TextureGetBuffer("./dat/texture/map/ceiling3_wall3.da");
 	TextureGetBuffer("./dat/texture/map/ceiling3_wall3Nor.da");
@@ -171,6 +172,7 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	TextureBinaryDecode("./dat/texture/map/wall2Nor.da");
 	TextureBinaryDecode("./dat/texture/map/leaf.da");
 	TextureBinaryDecode("./dat/texture/map/wood.da");
+	TextureBinaryDecode("./dat/texture/map/woodNor.da");
 	//マップ2
 	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3.da");
 	TextureBinaryDecode("./dat/texture/map/ceiling3_wall3Nor.da");

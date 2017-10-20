@@ -120,36 +120,10 @@ void Wave::ComCreate() {
 	slotRootParameter[1].InitAsUnorderedAccessView(1);//RWStructuredBuffer(u1)
 	slotRootParameter[2].InitAsConstantBufferView(0);//mObjectCB_WAVE
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter,
-		0, nullptr,
-		D3D12_ROOT_SIGNATURE_FLAG_NONE);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignatureCom.GetAddressOf()));
+	mRootSignatureCom = CreateRsCompute(3, slotRootParameter);
 
 	//PSO
-	D3D12_COMPUTE_PIPELINE_STATE_DESC PsoDesc = {};
-	PsoDesc.pRootSignature = mRootSignatureCom.Get();
-	PsoDesc.CS =
-	{
-		reinterpret_cast<BYTE*>(cs->GetBufferPointer()),
-		cs->GetBufferSize()
-	};
-	PsoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	dx->md3dDevice->CreateComputePipelineState(&PsoDesc, IID_PPV_ARGS(&mPSOCom));
+	mPSOCom = CreatePsoCompute(cs, mRootSignatureCom.Get());
 }
 
 void Wave::DrawCreate(int texNo, int nortNo, bool blend, bool alpha) {
@@ -177,50 +151,13 @@ void Wave::DrawCreate(int texNo, int nortNo, bool blend, bool alpha) {
 	slotRootParameter[4].InitAsConstantBufferView(2);//mObjectCB_WAVE(b2)
 	slotRootParameter[5].InitAsShaderResourceView(2);//StructuredBuffer(t2)
 
-	auto staticSamplers = dx->GetStaticSamplers();
+	mRootSignatureDraw = CreateRs(6, slotRootParameter);
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(6, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-	//RootSignature生成
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignatureDraw.GetAddressOf()));
-
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = texNum;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	srvDesc.Format = dx->texture[texNo]->GetDesc().Format;
-	srvDesc.Texture2D.MipLevels = dx->texture[texNo]->GetDesc().MipLevels;
-	dx->md3dDevice->CreateShaderResourceView(dx->texture[texNo], &srvDesc, hDescriptor);
-	if (nortNo != -1) {
-		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
-		srvDesc.Format = dx->texture[nortNo]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[nortNo]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[nortNo], &srvDesc, hDescriptor);
-	}
+	TextureNo te;
+	te.diffuse = texNo;
+	te.normal = nortNo;
+	te.movie = m_on;
+	mSrvHeap = CreateSrvHeap(1, texNum, &te);
 
 	const UINT vbByteSize = ver * sizeof(Vertex);
 	const UINT ibByteSize = verI * sizeof(std::uint16_t);
@@ -244,52 +181,7 @@ void Wave::DrawCreate(int texNo, int nortNo, bool blend, bool alpha) {
 	Iview->IndexCount = verI;
 
 	//パイプラインステートオブジェクト生成
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	psoDesc.InputLayout = { dx->pVertexLayout_3D.data(), (UINT)dx->pVertexLayout_3D.size() };
-	psoDesc.pRootSignature = mRootSignatureDraw.Get();
-	psoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(vs->GetBufferPointer()),
-		vs->GetBufferSize()
-	};
-	if (hs != nullptr) {
-		psoDesc.HS =
-		{
-			reinterpret_cast<BYTE*>(hs->GetBufferPointer()),
-			hs->GetBufferSize()
-		};
-	}
-	if (ds != nullptr) {
-		psoDesc.DS =
-		{
-			reinterpret_cast<BYTE*>(ds->GetBufferPointer()),
-			ds->GetBufferSize()
-		};
-	}
-	psoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(ps->GetBufferPointer()),
-		ps->GetBufferSize()
-	};
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.IndependentBlendEnable = FALSE;
-	psoDesc.BlendState.AlphaToCoverageEnable = alpha;//アルファテストon/off
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = blend;//ブレンドon/off
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
-	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
-	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
-	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSODraw));
+	mPSODraw = CreatePsoVsHsDsPs(vs, hs, ds, ps, mRootSignatureDraw.Get(), dx->pVertexLayout_3D, alpha, blend);
 }
 
 void Wave::Create(int texNo, bool blend, bool alpha, float waveHeight, float divide) {

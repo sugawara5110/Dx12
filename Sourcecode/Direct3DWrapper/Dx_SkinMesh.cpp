@@ -386,32 +386,6 @@ void SkinMesh::GetBuffer(float end_frame) {
 	m_pLastBoneMatrix = new MATRIX[m_iNumBone];
 }
 
-class SameVertexList {
-
-private:
-	int list[50];
-	unsigned int ind;
-
-public:
-	SameVertexList() {
-		for (int i = 0; i < 50; i++) {
-			list[i] = -1;
-		}
-		ind = 0;
-	}
-
-	void Push(int vInd) {
-		list[ind] = vInd;
-		ind++;
-	}
-
-	int Pop() {
-		if (ind <= 0)return -1;
-		ind--;
-		return list[ind];
-	}
-};
-
 void SkinMesh::SetVertex() {
 
 	//4頂点分割前状態でのインデックス数で頂点配列生成
@@ -696,8 +670,8 @@ void SkinMesh::CreateFromFBX(bool disp) {
 	vs = dx->pVertexShader_SKIN.Get();
 	if (disp) {
 		vsB = dx->pVertexShader_SKIN_D.Get();
-		hs = dx->pHullShader_SKIN_D.Get();
-		ds = dx->pDomainShader_SKIN_D.Get();
+		hs = dx->pHullShaderTriangle.Get();
+		ds = dx->pDomainShaderTriangle.Get();
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		primType_drawB = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
 	}
@@ -722,101 +696,17 @@ void SkinMesh::CreateFromFBX(bool disp) {
 	slotRootParameter[3].InitAsConstantBufferView(1);
 	slotRootParameter[4].InitAsConstantBufferView(2);
 
-	auto staticSamplers = dx->GetStaticSamplers();
-
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-	//RootSignature生成
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
-
-	//使用テクスチャ数だけDescriptorを用意する
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = texNum;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
+	mRootSignature = CreateRs(5, slotRootParameter);
 
 	//パイプラインステートオブジェクト生成
-	mPSO = CreatePSO(vs, nullptr, nullptr, ps);
-	mPSO_B = CreatePSO(vsB, hs, ds, psB);
+	mPSO = CreatePsoVsPs(vs, ps, mRootSignature.Get(), dx->pVertexLayout_SKIN, alpha, blend);
+	mPSO_B = CreatePsoVsHsDsPs(vsB, hs, ds, psB, mRootSignature.Get(), dx->pVertexLayout_SKIN, alpha, blend);
 
 	GetTexture();
 }
 
 void SkinMesh::CreateFromFBX() {
 	CreateFromFBX(FALSE);
-}
-
-ID3D12PipelineState *SkinMesh::CreatePSO(ID3DBlob *Vs, ID3DBlob *Hs, ID3DBlob *Ds, ID3DBlob *Ps) {
-
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	//パイプラインステートオブジェクト生成
-	ID3D12PipelineState *pso;
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	psoDesc.InputLayout = { dx->pVertexLayout_SKIN.data(), (UINT)dx->pVertexLayout_SKIN.size() };
-	psoDesc.pRootSignature = mRootSignature.Get();
-	psoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(Vs->GetBufferPointer()),
-		Vs->GetBufferSize()
-	};
-	if (Hs != nullptr) {
-		psoDesc.HS =
-		{
-			reinterpret_cast<BYTE*>(Hs->GetBufferPointer()),
-			Hs->GetBufferSize()
-		};
-		topology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
-	}
-	if (Ds != nullptr) {
-		psoDesc.DS =
-		{
-			reinterpret_cast<BYTE*>(Ds->GetBufferPointer()),
-			Ds->GetBufferSize()
-		};
-	}
-	psoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(Ps->GetBufferPointer()),
-		Ps->GetBufferSize()
-	};
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.IndependentBlendEnable = FALSE;
-	psoDesc.BlendState.AlphaToCoverageEnable = alpha;//アルファテストon/off
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = blend;//ブレンドon/off
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = topology;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
-	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
-	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
-	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
-
-	return pso;
 }
 
 HRESULT SkinMesh::GetFbxSub(CHAR* szFileName, int ind) {
@@ -1051,25 +941,16 @@ void SkinMesh::MatrixMap_Bone(SHADER_GLOBAL_BONES *sgb) {
 }
 
 void SkinMesh::GetTexture() {
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	TextureNo *te = new TextureNo[MateAllpcs];
 	for (int i = 0; i < MateAllpcs; i++) {
-		srvDesc.Format = dx->texture[m_pMaterial[i].tex_no]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[m_pMaterial[i].tex_no]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[m_pMaterial[i].tex_no], &srvDesc, hDescriptor);
-		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
-		//normalMapが存在する場合
-		if (m_pMaterial[i].nortex_no != -1) {
-			srvDesc.Format = dx->texture[m_pMaterial[i].nortex_no]->GetDesc().Format;
-			srvDesc.Texture2D.MipLevels = dx->texture[m_pMaterial[i].nortex_no]->GetDesc().MipLevels;
-			dx->md3dDevice->CreateShaderResourceView(dx->texture[m_pMaterial[i].nortex_no], &srvDesc, hDescriptor);
-			hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
-		}
+		te[i].diffuse = m_pMaterial[i].tex_no;
+		te[i].normal = m_pMaterial[i].nortex_no;
+		te[i].movie = m_on;
 	}
+	mSrvHeap = CreateSrvHeap(MateAllpcs, texNum, te);
+
+	ARR_DELETE(te);
 }
 
 void SkinMesh::CbSwap() {

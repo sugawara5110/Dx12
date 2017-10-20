@@ -78,32 +78,28 @@ void PolygonData::SetVertexBC(int I1, int i,
 
 void PolygonData::GetVBarray(PrimitiveType type, int v) {
 
+	primType_create = type;
 	if (type == SQUARE) {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		ver = v * 4;//v==四角形の個数
 		verI = v * 6;
 	}
 	if (type == POINt) {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
 		ver = v;//v==点の個数
 		verI = v;
 	}
 	if (type == LINE_L) {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 		ver = v * 2;//v==線の個数
 		verI = v * 2;
 	}
 	if (type == LINE_S) {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
 		ver = v * 2;//v==線の個数
 		verI = v * 2;
 	}
 	if (type == CONTROL_POINT) {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		ver = v * 4;//v==パッチの個数
 		verI = v * 4;
@@ -116,122 +112,6 @@ void PolygonData::GetVBarray(PrimitiveType type, int v) {
 	mObjectCB1 = new UploadBuffer<CONSTANT_BUFFER2>(dx->md3dDevice.Get(), 1, true);
 	Vview = std::make_unique<VertexView>();
 	Iview = std::make_unique<IndexView>();
-}
-
-void PolygonData::TextureInit(int width, int height) {
-
-	D3D12_RESOURCE_DESC texDesc = {};
-	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.DepthOrArraySize = 1;
-	texDesc.MipLevels = 1;
-	texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	D3D12_HEAP_PROPERTIES HeapProps;
-	HeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-	HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	HeapProps.CreationNodeMask = 1;
-	HeapProps.VisibleNodeMask = 1;
-	HRESULT hr;
-	hr = dx->md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&texture));
-
-	//upload
-	UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
-	D3D12_HEAP_PROPERTIES HeapPropsUp;
-	HeapPropsUp.Type = D3D12_HEAP_TYPE_UPLOAD;
-	HeapPropsUp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	HeapPropsUp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	HeapPropsUp.CreationNodeMask = 1;
-	HeapPropsUp.VisibleNodeMask = 1;
-
-	D3D12_RESOURCE_DESC BufferDesc;
-	BufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	BufferDesc.Alignment = 0;
-	BufferDesc.Width = uploadBufferSize;
-	BufferDesc.Height = 1;
-	BufferDesc.DepthOrArraySize = 1;
-	BufferDesc.MipLevels = 1;
-	BufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-	BufferDesc.SampleDesc.Count = 1;
-	BufferDesc.SampleDesc.Quality = 0;
-	BufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	BufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	dx->md3dDevice->CreateCommittedResource(&HeapPropsUp, D3D12_HEAP_FLAG_NONE,
-		&BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr, IID_PPV_ARGS(&textureUp));
-
-	UINT64  total_bytes = 0;
-	dx->md3dDevice->GetCopyableFootprints(&texDesc, 0, 1, 0, &footprint, nullptr, nullptr, &total_bytes);
-
-	memset(&dest, 0, sizeof(dest));
-	dest.pResource = texture;
-	dest.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	dest.SubresourceIndex = 0;
-
-	memset(&src, 0, sizeof(src));
-	src.pResource = textureUp;
-	src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-	src.PlacedFootprint = footprint;
-
-	m_on = TRUE;
-}
-
-void PolygonData::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) {
-
-	D3D12_RESOURCE_DESC texdesc;
-	texdesc = texture->GetDesc();
-	//テクスチャの横サイズ取得
-	int width = (int)texdesc.Width;
-	//テクスチャの縦サイズ取得
-	int height = texdesc.Height;
-
-	D3D12_SUBRESOURCE_DATA texResource;
-
-	D3D12_RESOURCE_BARRIER BarrierDesc;
-	BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	BarrierDesc.Transition.pResource = texture;
-	BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
-	BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-	mCommandList->ResourceBarrier(1, &BarrierDesc);
-
-	textureUp->Map(0, nullptr, reinterpret_cast<void**>(&texResource));
-
-	UCHAR *ptex = (UCHAR*)texResource.pData;
-	texResource.RowPitch = footprint.Footprint.RowPitch;
-
-	for (int j = 0; j < height; j++) {
-		UINT j1 = (UINT)(j * texResource.RowPitch);//RowPitchデータの行ピッチ、行幅、または物理サイズ (バイト単位)
-		for (int i = 0; i < width; i++) {
-			UINT ptexI = i * 4 + j1;
-			ptex[ptexI + 0] = m_pix[j][i] >> 16 & r;
-			ptex[ptexI + 1] = m_pix[j][i] >> 8 & g;
-			ptex[ptexI + 2] = m_pix[j][i] & b;
-
-			if ((m_pix[j][i] >> 16 & b) < 50 && (m_pix[j][i] >> 8 & g) < 50 && (m_pix[j][i] & r) < 50) {
-				ptex[ptexI + 3] = 0;
-			}
-			else {
-				ptex[ptexI + 3] = a;
-			}
-		}
-	}
-	textureUp->Unmap(0, nullptr);
-
-	mCommandList->CopyTextureRegion(&dest, 0, 0, 0, &src, nullptr);
-
-	BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	mCommandList->ResourceBarrier(1, &BarrierDesc);
 }
 
 void PolygonData::GetShaderByteCode(bool light, int tNo, int nortNo) {
@@ -303,67 +183,16 @@ void PolygonData::Create(bool light, int tNo, int nortNo, bool blend, bool alpha
 	slotRootParameter[2].InitAsConstantBufferView(0);
 	slotRootParameter[3].InitAsConstantBufferView(1);
 
-	auto staticSamplers = dx->GetStaticSamplers();
-
-	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	//RootSignatureを作成するのに必要なバッファを確保し、Tableの情報をシリアライズします
-	//このバッファを指定して、CreateRootSignature() でRootSignatureを作成します
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-	//RootSignature生成
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
+	mRootSignature = CreateRs(4, slotRootParameter);
 
 	//SRVのデスクリプターヒープ生成
 	texNum = 1;
 	if (nortNo != -1)texNum = 2;//normalMap有りの場合2個生成
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = texNum;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
-
-	//テクスチャ設定
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-	//diffuseテクスチャ
-	if (!m_on && tNo != -1) {
-		srvDesc.Format = dx->texture[tNo]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[tNo]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[tNo], &srvDesc, hDescriptor);
-	}
-	//動画テクスチャ
-	if (m_on) {
-		srvDesc.Format = texture->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = texture->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
-	}
-	//normalMap
-	if (nortNo != -1) {
-		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);//normalMapは二個目のテクスチャになるのでオフセット
-		srvDesc.Format = dx->texture[nortNo]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[nortNo]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[nortNo], &srvDesc, hDescriptor);
-	}
+	TextureNo te;
+	te.diffuse = tNo;
+	te.normal = nortNo;
+	te.movie = m_on;
+	mSrvHeap = CreateSrvHeap(1, texNum, &te, texture);
 
 	UINT VertexSize;
 	if (tNo == -1 && !m_on)
@@ -400,55 +229,10 @@ void PolygonData::Create(bool light, int tNo, int nortNo, bool blend, bool alpha
 	Iview->IndexCount = verI;
 
 	//パイプラインステートオブジェクト生成
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	if (tNo == -1 && !m_on)
-		psoDesc.InputLayout = { dx->pVertexLayout_3DBC.data(), (UINT)dx->pVertexLayout_3DBC.size() };
+		mPSO = CreatePsoVsHsDsPs(vs, hs, ds, ps, mRootSignature.Get(), dx->pVertexLayout_3DBC, alpha, blend, primType_create);
 	else
-		psoDesc.InputLayout = { dx->pVertexLayout_3D.data(), (UINT)dx->pVertexLayout_3D.size() };
-	psoDesc.pRootSignature = mRootSignature.Get();
-	psoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(vs->GetBufferPointer()),
-		vs->GetBufferSize()
-	};
-	if (hs != nullptr) {
-		psoDesc.HS =
-		{
-			reinterpret_cast<BYTE*>(hs->GetBufferPointer()),
-			hs->GetBufferSize()
-		};
-	}
-	if (ds != nullptr) {
-		psoDesc.DS =
-		{
-			reinterpret_cast<BYTE*>(ds->GetBufferPointer()),
-			ds->GetBufferSize()
-		};
-	}
-	psoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(ps->GetBufferPointer()),
-		ps->GetBufferSize()
-	};
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.IndependentBlendEnable = FALSE;
-	psoDesc.BlendState.AlphaToCoverageEnable = alpha;//アルファテストon/off
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = blend;//ブレンドon/off
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = primType_create;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
-	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
-	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
-	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
+		mPSO = CreatePsoVsHsDsPs(vs, hs, ds, ps, mRootSignature.Get(), dx->pVertexLayout_3D, alpha, blend, primType_create);
 }
 
 void PolygonData::InstancedMap(float x, float y, float z, float theta) {

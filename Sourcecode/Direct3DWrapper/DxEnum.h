@@ -7,12 +7,13 @@
 #ifndef Class_DxEnum_Header
 #define Class_DxEnum_Header
 
-enum PrimitiveType{
+enum PrimitiveType {
 	SQUARE,
 	POINt,
 	LINE_S,
 	LINE_L,
-	CONTROL_POINT
+	CONTROL_POINT,
+	NUL
 };
 
 enum ComListState {

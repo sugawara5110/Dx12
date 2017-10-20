@@ -19,6 +19,7 @@
 #include "./Shader/ShaderWaveCom.h"
 #include "./Shader/ShaderWaveDraw.h"
 #include "./Shader/ShaderCommonPS.h"
+#include "./Shader/ShaderCommonTriangleHSDS.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -181,7 +182,7 @@ public:
 
 void Dx12Process::CreateShaderByteCode() {
 
-	addShader D3, Disp, Mesh, MeshD, Skin, SkinD, Wave, ComPS;
+	addShader D3, Disp, Mesh, MeshD, Skin, SkinD, Wave, ComPS, ComHSDS;
 	D3.addStr(ShaderFunction, strlen(ShaderFunction), Shader3D, strlen(Shader3D));
 	Disp.addStr(ShaderFunction, strlen(ShaderFunction), ShaderDisp, strlen(ShaderDisp));
 	Mesh.addStr(ShaderFunction, strlen(ShaderFunction), ShaderMesh, strlen(ShaderMesh));
@@ -190,11 +191,15 @@ void Dx12Process::CreateShaderByteCode() {
 	SkinD.addStr(ShaderFunction, strlen(ShaderFunction), ShaderSkinMesh_D, strlen(ShaderSkinMesh_D));
 	Wave.addStr(ShaderFunction, strlen(ShaderFunction), ShaderWaveDraw, strlen(ShaderWaveDraw));
 	ComPS.addStr(ShaderFunction, strlen(ShaderFunction), ShaderCommonPS, strlen(ShaderCommonPS));
+	ComHSDS.addStr(ShaderFunction, strlen(ShaderFunction), ShaderCommonTriangleHSDS, strlen(ShaderCommonTriangleHSDS));
 
 	//CommonPS
 	pPixelShader_Bump = dx->CompileShader(ComPS.str, ComPS.size, "PS_LBump", "ps_5_0");
 	pPixelShader_3D = dx->CompileShader(ComPS.str, ComPS.size, "PS_L", "ps_5_0");
 	pPixelShader_Emissive = dx->CompileShader(ComPS.str, ComPS.size, "PS", "ps_5_0");
+	//CommonHSDS(Triangle)
+	pHullShaderTriangle = dx->CompileShader(ComHSDS.str, ComHSDS.size, "HS", "hs_5_0");
+	pDomainShaderTriangle = dx->CompileShader(ComHSDS.str, ComHSDS.size, "DS", "ds_5_0");
 
 	//スキンメッシュ
 	pVertexLayout_SKIN =
@@ -209,8 +214,6 @@ void Dx12Process::CreateShaderByteCode() {
 	pVertexShader_SKIN = dx->CompileShader(Skin.str, Skin.size, "VSSkin", "vs_5_0");
 	//テセレーター有
 	pVertexShader_SKIN_D = dx->CompileShader(SkinD.str, SkinD.size, "VS", "vs_5_0");
-	pHullShader_SKIN_D = dx->CompileShader(SkinD.str, SkinD.size, "HS", "hs_5_0");
-	pDomainShader_SKIN_D = dx->CompileShader(SkinD.str, SkinD.size, "DS", "ds_5_0");
 
 	//ストリーム出力データ定義(パーティクル用)
 	pDeclaration_PSO =
@@ -241,15 +244,14 @@ void Dx12Process::CreateShaderByteCode() {
 	pVertexLayout_MESH =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 * 2, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "GEO_NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 	//メッシュ
 	pVertexShader_MESH = dx->CompileShader(Mesh.str, Mesh.size, "VSMesh", "vs_5_0");
 	//テセレーター有メッシュ
 	pVertexShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "VSMesh", "vs_5_0");
-	pHullShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "HSMesh", "hs_5_0");
-	pDomainShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "DSMesh", "ds_5_0");
 
 	//3DレイアウトTexture有り
 	pVertexLayout_3D =

@@ -166,66 +166,11 @@ void ParticleData::CreatePartsCom() {
 	CD3DX12_ROOT_PARAMETER slotRootParameter_com[1];
 	slotRootParameter_com[0].InitAsConstantBufferView(0);
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc_com(1, slotRootParameter_com,
-		NULL, NULL,
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT | D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig_com = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_com = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc_com, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig_com.GetAddressOf(), errorBlob_com.GetAddressOf());
-
-	if (errorBlob_com != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob_com->GetBufferPointer());
-	}
-
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig_com->GetBufferPointer(),
-		serializedRootSig_com->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature_com.GetAddressOf()));
+	mRootSignature_com = CreateRsStreamOutput(1, slotRootParameter_com);
 
 	//パイプラインステートオブジェクト生成(STREAM_OUTPUT)
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	psoDesc.InputLayout = { dx->pVertexLayout_P.data(), (UINT)dx->pVertexLayout_P.size() };
-	psoDesc.pRootSignature = mRootSignature_com.Get();
-	psoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(vsSO->GetBufferPointer()),
-		vsSO->GetBufferSize()
-	};
-	psoDesc.GS =
-	{
-		reinterpret_cast<BYTE*>(gsSO->GetBufferPointer()),
-		gsSO->GetBufferSize()
-	};
-	//ストリーム
-	psoDesc.StreamOutput.pSODeclaration = dx->pDeclaration_PSO.data();
-	psoDesc.StreamOutput.NumEntries = 4;  //D3D12_SO_DECLARATION_ENTRYの個数
-	psoDesc.StreamOutput.pBufferStrides = &Sview1[0].StreamByteStride;
-	psoDesc.StreamOutput.NumStrides = 1;//バッファの数？
-	psoDesc.StreamOutput.RasterizedStream = D3D12_SO_NO_RASTERIZED_STREAM;
-
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.IndependentBlendEnable = FALSE;
-	psoDesc.BlendState.AlphaToCoverageEnable = TRUE;//アルファテストon/off
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;//ブレンドon/off
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
-	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
-	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
-	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO_com));
+	mPSO_com = CreatePsoStreamOutput(vsSO, gsSO, mRootSignature_com.Get(),
+		dx->pVertexLayout_P, dx->pDeclaration_PSO, Sview1[0].StreamByteStride);
 }
 
 void ParticleData::CreatePartsDraw(int texpar) {
@@ -239,92 +184,16 @@ void ParticleData::CreatePartsDraw(int texpar) {
 	slotRootParameter_draw[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);// DescriptorRangeの数は1つ, DescriptorRangeの先頭アドレス
 	slotRootParameter_draw[1].InitAsConstantBufferView(0);
 
-	auto staticSamplers = dx->GetStaticSamplers();
+	mRootSignature_draw = CreateRs(2, slotRootParameter_draw);
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc_draw(2, slotRootParameter_draw,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig_draw = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob_draw = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc_draw, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig_draw.GetAddressOf(), errorBlob_draw.GetAddressOf());
-
-	if (errorBlob_draw != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob_draw->GetBufferPointer());
-	}
-
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig_draw->GetBufferPointer(),
-		serializedRootSig_draw->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature_draw.GetAddressOf()));
-
-	//シェーダーリソースビュー(directshow用)
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	if (!m_on && texpar != -1) {
-		srvDesc.Format = dx->texture[texpar]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[texpar]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[texpar], &srvDesc, hDescriptor);
-	}
-	if (m_on) {
-		srvDesc.Format = texture->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = texture->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(texture, &srvDesc, hDescriptor);
-	}
+	TextureNo te;
+	te.diffuse = texpar;
+	te.normal = -1;
+	te.movie = m_on;
+	mSrvHeap = CreateSrvHeap(1, 1, &te, texture);
 
 	//パイプラインステートオブジェクト生成(Draw)
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	psoDesc.InputLayout = { dx->pVertexLayout_P.data(), (UINT)dx->pVertexLayout_P.size() };
-	psoDesc.pRootSignature = mRootSignature_draw.Get();
-	psoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(vs->GetBufferPointer()),
-		vs->GetBufferSize()
-	};
-	psoDesc.GS =
-	{
-		reinterpret_cast<BYTE*>(gs->GetBufferPointer()),
-		gs->GetBufferSize()
-	};
-	psoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(ps->GetBufferPointer()),
-		ps->GetBufferSize()
-	};
-
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.IndependentBlendEnable = FALSE;
-	psoDesc.BlendState.AlphaToCoverageEnable = TRUE;//アルファテストon/off
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;//ブレンドon/off
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
-	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
-	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
-	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO_draw));
+	mPSO_draw = CreatePsoParticle(vs, ps, gs, mRootSignature_draw.Get(), dx->pVertexLayout_P, TRUE, TRUE);
 }
 
 void ParticleData::CreateParticle(int texpar) {
@@ -455,122 +324,6 @@ void ParticleData::DrawBillboard() {
 	//mSwapChainBuffer RENDER_TARGET→PRESENT
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-}
-
-void ParticleData::TextureInit(int width, int height) {
-
-	D3D12_RESOURCE_DESC texDesc = {};
-	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.DepthOrArraySize = 1;
-	texDesc.MipLevels = 1;
-	texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	D3D12_HEAP_PROPERTIES HeapProps;
-	HeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-	HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	HeapProps.CreationNodeMask = 1;
-	HeapProps.VisibleNodeMask = 1;
-	HRESULT hr;
-	hr = dx->md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&texture));
-
-	//upload
-	UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
-	D3D12_HEAP_PROPERTIES HeapPropsUp;
-	HeapPropsUp.Type = D3D12_HEAP_TYPE_UPLOAD;
-	HeapPropsUp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	HeapPropsUp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	HeapPropsUp.CreationNodeMask = 1;
-	HeapPropsUp.VisibleNodeMask = 1;
-
-	D3D12_RESOURCE_DESC BufferDesc;
-	BufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	BufferDesc.Alignment = 0;
-	BufferDesc.Width = uploadBufferSize;
-	BufferDesc.Height = 1;
-	BufferDesc.DepthOrArraySize = 1;
-	BufferDesc.MipLevels = 1;
-	BufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-	BufferDesc.SampleDesc.Count = 1;
-	BufferDesc.SampleDesc.Quality = 0;
-	BufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	BufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	dx->md3dDevice->CreateCommittedResource(&HeapPropsUp, D3D12_HEAP_FLAG_NONE,
-		&BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr, IID_PPV_ARGS(&textureUp));
-
-	UINT64  total_bytes = 0;
-	dx->md3dDevice->GetCopyableFootprints(&texDesc, 0, 1, 0, &footprint, nullptr, nullptr, &total_bytes);
-
-	memset(&dest, 0, sizeof(dest));
-	dest.pResource = texture;
-	dest.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	dest.SubresourceIndex = 0;
-
-	memset(&src, 0, sizeof(src));
-	src.pResource = textureUp;
-	src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-	src.PlacedFootprint = footprint;
-
-	m_on = TRUE;
-}
-
-void ParticleData::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) {
-
-	D3D12_RESOURCE_DESC texdesc;
-	texdesc = texture->GetDesc();
-	//テクスチャの横サイズ取得
-	int width = (int)texdesc.Width;
-	//テクスチャの縦サイズ取得
-	int height = texdesc.Height;
-
-	D3D12_SUBRESOURCE_DATA texResource;
-
-	D3D12_RESOURCE_BARRIER BarrierDesc;
-	BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	BarrierDesc.Transition.pResource = texture;
-	BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
-	BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-	mCommandList->ResourceBarrier(1, &BarrierDesc);
-
-	textureUp->Map(0, nullptr, reinterpret_cast<void**>(&texResource));
-
-	UCHAR *ptex = (UCHAR*)texResource.pData;
-	texResource.RowPitch = footprint.Footprint.RowPitch;
-
-	for (int j = 0; j < height; j++) {
-		UINT j1 = (UINT)(j * texResource.RowPitch);//RowPitchデータの行ピッチ、行幅、または物理サイズ (バイト単位)
-		for (int i = 0; i < width; i++) {
-			UINT ptexI = i * 4 + j1;
-			ptex[ptexI + 0] = m_pix[j][i] >> 16 & r;
-			ptex[ptexI + 1] = m_pix[j][i] >> 8 & g;
-			ptex[ptexI + 2] = m_pix[j][i] & b;
-
-			if ((m_pix[j][i] >> 16 & b) < 50 && (m_pix[j][i] >> 8 & g) < 50 && (m_pix[j][i] & r) < 50) {
-				ptex[ptexI + 3] = 0;
-			}
-			else {
-				ptex[ptexI + 3] = a;
-			}
-		}
-	}
-	textureUp->Unmap(0, nullptr);
-
-	mCommandList->CopyTextureRegion(&dest, 0, 0, 0, &src, nullptr);
-
-	BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	mCommandList->ResourceBarrier(1, &BarrierDesc);
 }
 
 void ParticleData::SetVertex(int i,

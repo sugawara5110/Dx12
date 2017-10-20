@@ -11,8 +11,6 @@ std::mutex MeshData::mtx;
 MeshData::MeshData() {
 	dx = Dx12Process::GetInstance();
 	mCommandList = dx->dx_sub[0].mCommandList.Get();
-	primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	addDiffuse = 0.0f;
 	addSpecular = 0.0f;
 }
@@ -34,16 +32,19 @@ ID3D12PipelineState *MeshData::GetPipelineState() {
 
 void MeshData::GetShaderByteCode(bool disp) {
 
-	if (disp == TRUE) {
-		hs = dx->pHullShader_MESH_D.Get();
-		ds = dx->pDomainShader_MESH_D.Get();
-		vs = dx->pVertexShader_MESH_D.Get();
-		ps = dx->pPixelShader_3D.Get();
+	vs = dx->pVertexShader_MESH.Get();
+	if (disp) {
+		vsB = dx->pVertexShader_MESH_D.Get();
+		hs = dx->pHullShaderTriangle.Get();
+		ds = dx->pDomainShaderTriangle.Get();
 	}
 	else {
-		vs = dx->pVertexShader_MESH.Get();
-		ps = dx->pPixelShader_3D.Get();
+		vsB = dx->pVertexShader_MESH.Get();
+		hs = nullptr;
+		ds = nullptr;
 	}
+	ps = dx->pPixelShader_3D.Get();
+	psB = dx->pPixelShader_Bump.Get();
 }
 
 void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
@@ -74,6 +75,7 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 	//本読み込み	
 	fseek(fp, 0, SEEK_SET);
 	INT iMCount = -1;
+	texNum = 0;
 
 	while (!feof(fp))
 	{
@@ -104,6 +106,14 @@ void MeshData::LoadMaterialFromFile(char *FileName, MY_MATERIAL** ppMaterial) {
 		{
 			sscanf_s(&line[7], "%s", &pMaterial[iMCount].TextureName, (unsigned int)sizeof(pMaterial[iMCount].TextureName));
 			pMaterial[iMCount].tex_no = dx->GetTexNumber(pMaterial[iMCount].TextureName);
+			texNum++;
+		}
+		//map_bump　テクスチャー
+		if (strcmp(key, "map_bump") == 0)
+		{
+			sscanf_s(&line[7], "%s", &pMaterial[iMCount].norTextureName, (unsigned int)sizeof(pMaterial[iMCount].norTextureName));
+			pMaterial[iMCount].nortex_no = dx->GetTexNumber(pMaterial[iMCount].norTextureName);
+			texNum++;
 		}
 	}
 	fclose(fp);
@@ -123,12 +133,12 @@ void MeshData::SetState(bool al, bool bl, bool di, float diffuse, float specu) {
 	addSpecular = specu;
 
 	if (disp) {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
-		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
+		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		primType_drawB = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
 	}
 	else {
-		primType_create = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		primType_draw = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		primType_drawB = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	}
 }
 
@@ -194,7 +204,7 @@ void MeshData::GetBuffer(char *FileName) {
 	Iview = std::make_unique<IndexView[]>(MaterialCount);
 
 	piFaceBuffer = new int[MaterialCount * FaceCount * 3]();//3頂点なので3インデックス * Material個数
-	pvVertexBuffer = new Vertex[FaceCount * 3]();
+	pvVertexBuffer = new VertexM[FaceCount * 3]();
 }
 
 void MeshData::SetVertex() {
@@ -250,6 +260,9 @@ void MeshData::SetVertex() {
 			VTCount++;
 		}
 	}
+
+	//同一座標頂点リスト
+	SameVertexList *svList = new SameVertexList[VCount];
 
 	for (int i = 0; i < MaterialCount; i++) {
 		CONSTANT_BUFFER2 sg;
@@ -313,15 +326,21 @@ void MeshData::SetVertex() {
 				//頂点構造体に代入
 				pvVertexBuffer[FCount * 3].Pos = pvCoord[v1 - 1];
 				pvVertexBuffer[FCount * 3].normal = pvNormal[vn1 - 1];
+				pvVertexBuffer[FCount * 3].geoNormal = pvNormal[vn1 - 1];
 				pvVertexBuffer[FCount * 3].tex = pvTexture[vt1 - 1];
+				svList[v1 - 1].Push(FCount * 3);
 
 				pvVertexBuffer[FCount * 3 + 1].Pos = pvCoord[v2 - 1];
 				pvVertexBuffer[FCount * 3 + 1].normal = pvNormal[vn2 - 1];
+				pvVertexBuffer[FCount * 3 + 1].geoNormal = pvNormal[vn2 - 1];
 				pvVertexBuffer[FCount * 3 + 1].tex = pvTexture[vt2 - 1];
+				svList[v2 - 1].Push(FCount * 3 + 1);
 
 				pvVertexBuffer[FCount * 3 + 2].Pos = pvCoord[v3 - 1];
 				pvVertexBuffer[FCount * 3 + 2].normal = pvNormal[vn3 - 1];
+				pvVertexBuffer[FCount * 3 + 2].geoNormal = pvNormal[vn3 - 1];
 				pvVertexBuffer[FCount * 3 + 2].tex = pvTexture[vt3 - 1];
+				svList[v3 - 1].Push(FCount * 3 + 2);
 
 				dwPartFCount++;
 				FCount++;
@@ -338,134 +357,93 @@ void MeshData::SetVertex() {
 		D3DCreateBlob(ibByteSize, &Iview[i].IndexBufferCPU);
 		CopyMemory(Iview[i].IndexBufferCPU->GetBufferPointer(), &piFaceBuffer[FaceCount * 3 * i], ibByteSize);
 
-		Iview[i].IndexFormat = DXGI_FORMAT_R32_UINT;//これ間違うと全然変わる注意
+		Iview[i].IndexFormat = DXGI_FORMAT_R32_UINT;
 		Iview[i].IndexBufferByteSize = ibByteSize;
 		Iview[i].IndexCount = dwPartFCount * 3;
 	}
 
+	//同一座標頂点の法線統一化(テセレーション用)
+	for (int i = 0; i < VCount; i++) {
+		int indVB = 0;
+		VECTOR3 geo[50];
+		int indVb[50];
+		int indGeo = 0;
+		while (1) {
+			indVB = svList[i].Pop();
+			if (indVB == -1)break;
+			indVb[indGeo] = indVB;
+			geo[indGeo++] = pvVertexBuffer[indVB].geoNormal;
+		}
+		VECTOR3 sum;
+		sum.as(0.0f, 0.0f, 0.0f);
+		for (int i1 = 0; i1 < indGeo; i1++) {
+			sum.x += geo[i1].x;
+			sum.y += geo[i1].y;
+			sum.z += geo[i1].z;
+		}
+		VECTOR3 ave;
+		ave.x = sum.x / (float)indGeo;
+		ave.y = sum.y / (float)indGeo;
+		ave.z = sum.z / (float)indGeo;
+		for (int i1 = 0; i1 < indGeo; i1++) {
+			pvVertexBuffer[indVb[i1]].geoNormal = ave;
+		}
+	}
+
 	fclose(fp);
 
-	const UINT vbByteSize = (UINT)FCount * 3 * sizeof(Vertex);
+	const UINT vbByteSize = (UINT)FCount * 3 * sizeof(VertexM);
 
 	D3DCreateBlob(vbByteSize, &Vview->VertexBufferCPU);
 	CopyMemory(Vview->VertexBufferCPU->GetBufferPointer(), pvVertexBuffer, vbByteSize);
 
-	Vview->VertexByteStride = sizeof(Vertex);
+	Vview->VertexByteStride = sizeof(VertexM);
 	Vview->VertexBufferByteSize = vbByteSize;
 
 	//一時的変数解放
 	ARR_DELETE(pvCoord);
 	ARR_DELETE(pvNormal);
 	ARR_DELETE(pvTexture);
+	ARR_DELETE(svList);
 }
 
 void MeshData::CreateMesh() {
 
 	GetShaderByteCode(disp);
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
+	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	nortexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
-	CD3DX12_ROOT_PARAMETER slotRootParameter[3];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_ALL);
-	slotRootParameter[1].InitAsConstantBufferView(0);
-	slotRootParameter[2].InitAsConstantBufferView(1);
+	slotRootParameter[1].InitAsDescriptorTable(1, &nortexTable, D3D12_SHADER_VISIBILITY_ALL);
+	slotRootParameter[2].InitAsConstantBufferView(0);
+	slotRootParameter[3].InitAsConstantBufferView(1);
 
-	auto staticSamplers = dx->GetStaticSamplers();
-
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter,
-		(UINT)staticSamplers.size(), staticSamplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-	//RootSignature生成
-	dx->md3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(mRootSignature.GetAddressOf()));
-
-	//マテリアルの数だけDescriptorを用意する
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = MaterialCount;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
+	mRootSignature = CreateRs(4, slotRootParameter);
 
 	//パイプラインステートオブジェクト生成
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	psoDesc.InputLayout = { dx->pVertexLayout_MESH.data(), (UINT)dx->pVertexLayout_MESH.size() };
-	psoDesc.pRootSignature = mRootSignature.Get();
-	psoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(vs->GetBufferPointer()),
-		vs->GetBufferSize()
-	};
-	if (hs != nullptr) {
-		psoDesc.HS =
-		{
-			reinterpret_cast<BYTE*>(hs->GetBufferPointer()),
-			hs->GetBufferSize()
-		};
-	}
-	if (ds != nullptr) {
-		psoDesc.DS =
-		{
-			reinterpret_cast<BYTE*>(ds->GetBufferPointer()),
-			ds->GetBufferSize()
-		};
-	}
-	psoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(ps->GetBufferPointer()),
-		ps->GetBufferSize()
-	};
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.IndependentBlendEnable = FALSE;
-	psoDesc.BlendState.AlphaToCoverageEnable = alpha;//アルファテストon/off
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = blend;//ブレンドon/off
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = primType_create;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = dx->mBackBufferFormat;
-	psoDesc.SampleDesc.Count = dx->m4xMsaaState ? 4 : 1;
-	psoDesc.SampleDesc.Quality = dx->m4xMsaaState ? (dx->m4xMsaaQuality - 1) : 0;
-	psoDesc.DSVFormat = dx->mDepthStencilFormat;
-	dx->md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO));
+	mPSO = CreatePsoVsPs(vs, ps, mRootSignature.Get(), dx->pVertexLayout_MESH, alpha, blend);
+	mPSO_B = CreatePsoVsHsDsPs(vsB, hs, ds, psB, mRootSignature.Get(), dx->pVertexLayout_MESH, alpha, blend);
 }
 
 void MeshData::GetTexture() {
-	//頂点読み込みの都合上CommandListの処理を隔離
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	for (int i = 0; i < MaterialCount; i++) {
-		srvDesc.Format = dx->texture[pMaterial[i].tex_no]->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = dx->texture[pMaterial[i].tex_no]->GetDesc().MipLevels;
-		dx->md3dDevice->CreateShaderResourceView(dx->texture[pMaterial[i].tex_no], &srvDesc, hDescriptor);
-		hDescriptor.Offset(1, dx->mCbvSrvUavDescriptorSize);
 
+	TextureNo *te = new TextureNo[MaterialCount];
+	for (int i = 0; i < MaterialCount; i++) {
+		te[i].diffuse = pMaterial[i].tex_no;
+		te[i].normal = pMaterial[i].nortex_no;
+		te[i].movie = m_on;
+	}
+
+	mSrvHeap = CreateSrvHeap(MaterialCount, texNum, te);
+
+	for (int i = 0; i < MaterialCount; i++)
 		Iview[i].IndexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
 			mCommandList, &piFaceBuffer[FaceCount * 3 * i], Iview[i].IndexBufferByteSize, Iview[i].IndexBufferUploader);
-	}
+
+	ARR_DELETE(te);
 	ARR_DELETE(piFaceBuffer);
 
 	Vview->VertexBufferGPU = dx->CreateDefaultBuffer(dx->md3dDevice.Get(),
@@ -523,7 +501,6 @@ void MeshData::Draw() {
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
 	mCommandList->IASetVertexBuffers(0, 1, &Vview->VertexBufferView());
-	mCommandList->IASetPrimitiveTopology(primType_draw);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvHeap->GetGPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < MaterialCount; i++) {
@@ -532,10 +509,20 @@ void MeshData::Draw() {
 
 		mCommandList->SetGraphicsRootDescriptorTable(0, tex);
 		tex.Offset(1, dx->mCbvSrvUavDescriptorSize);//デスクリプタヒープのアドレス位置オフセットで次のテクスチャを読み込ませる
-
-		mCommandList->SetGraphicsRootConstantBufferView(1, mObjectCB->Resource()->GetGPUVirtualAddress());
+		if (pMaterial[i].nortex_no != -1) {
+			mCommandList->IASetPrimitiveTopology(primType_drawB);
+			//normalMapが存在する場合diffuseの次に格納されている
+			mCommandList->SetGraphicsRootDescriptorTable(1, tex);
+			tex.Offset(1, dx->mCbvSrvUavDescriptorSize);
+			mCommandList->SetPipelineState(mPSO_B.Get());//normalMap有り無しでPSO切り替え
+		}
+		else {
+			mCommandList->IASetPrimitiveTopology(primType_draw);
+			mCommandList->SetPipelineState(mPSO.Get());
+		}
+		mCommandList->SetGraphicsRootConstantBufferView(2, mObjectCB->Resource()->GetGPUVirtualAddress());
 		UINT mElementByteSize = (sizeof(CONSTANT_BUFFER2) + 255) & ~255;
-		mCommandList->SetGraphicsRootConstantBufferView(2, mObject_MESHCB->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
+		mCommandList->SetGraphicsRootConstantBufferView(3, mObject_MESHCB->Resource()->GetGPUVirtualAddress() + mElementByteSize * i);
 
 		mCommandList->DrawIndexedInstanced(Iview[i].IndexCount, insNum, 0, 0, 0);
 	}

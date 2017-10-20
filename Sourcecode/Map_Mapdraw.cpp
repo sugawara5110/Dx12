@@ -68,9 +68,9 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 	float pr, pg, pb;
 	float fr, fg, fb;
 	if (map_no == 1) {
-		pr = 0.00015f;
-		pg = 0.0002f;
-		pb = 0.0002f;
+		pr = 0.000015f;
+		pg = 0.00002f;
+		pb = 0.00002f;
 		fr = -0.8f;
 		fg = -0.8f;
 		fb = -0.8f;
@@ -105,7 +105,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 	//戦闘時,非戦闘時のディレクショナルライト
 	float btr = 1.0f;
 	if (encount != NOENCOUNT)btr = 2.0f;
-	
+
 	//フォグoff
 	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 	if (map_no == 4)dx->PointLightPosSet(1, 1450.0f, 900.0f, 650.0f, 0.4f, 0.4f, 0.8f, 1.0f, 150.0f, 80.0f, 2.0f, TRUE);

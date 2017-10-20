@@ -54,6 +54,7 @@ class ParticleData;
 class SkinMesh;
 class DxText;
 class Wave;
+class Common;
 //前方宣言
 
 class Dx12Process_sub {
@@ -66,6 +67,7 @@ private:
 	friend ParticleData;
 	friend SkinMesh;
 	friend Wave;
+	friend Common;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCmdListAlloc[2];
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
@@ -87,6 +89,7 @@ private:
 	friend SkinMesh;
 	friend Dx12Process_sub;
 	friend Wave;
+	friend Common;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
 	Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
@@ -115,14 +118,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pGeometryShader_P = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_Wave = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_MESH_D = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pHullShaderTriangle = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_DISP = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pHullShader_SKIN_D = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_Wave = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_MESH_D = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShaderTriangle = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_DISP = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pDomainShader_SKIN_D = nullptr;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> pVertexLayout_SKIN;
 	std::vector<D3D12_SO_DECLARATION_ENTRY> pDeclaration_PSO;
@@ -200,8 +201,8 @@ private:
 	int  ins_no = 0;
 
 	Dx12Process() {}//外部からのオブジェクト生成禁止
-	Dx12Process(const Dx12Process &obj) {}     // コピーコンストラクタ禁止
-	void operator=(const Dx12Process& obj) {};// 代入演算子禁止
+	Dx12Process(const Dx12Process &obj) {}   // コピーコンストラクタ禁止
+	void operator=(const Dx12Process& obj) {}// 代入演算子禁止
 	~Dx12Process();
 
 	void CreateShaderByteCode();
@@ -254,7 +255,7 @@ public:
 	void ResetPointLight();
 	void P_ShadowBright(float val);
 	void PointLightPosSet(int Idx, float x, float y, float z, float r, float g, float b, float a, float range,
-		float brightness, float attenuation, bool on_off);//0:視点, 1:ラスボス, 2:出入り口, 3456:戦闘
+		float brightness, float attenuation, bool on_off);
 	void DirectionLight(float x, float y, float z, float r, float g, float b, float bright, float ShadowBright);
 	void SetDirectionLight(bool onoff);
 	void Fog(float r, float g, float b, float amount, float density, bool onoff);
@@ -388,21 +389,94 @@ public:
 	}
 };
 
-//*********************************MeshDataクラス*************************************//
+//**********************************Commonクラス*************************************//
 
-class MeshData {
+class Common {
 
 private:
+	friend MeshData;
+	friend PolygonData;
+	friend PolygonData2D;
+	friend ParticleData;
+	friend SkinMesh;
+	friend Wave;
+	Common() {}//外部からのオブジェクト生成禁止
+	Common(const Common &obj) {}     // コピーコンストラクタ禁止
+	void operator=(const Common& obj) {}// 代入演算子禁止
+
 	Dx12Process                *dx;
 	ID3D12GraphicsCommandList  *mCommandList;
+
+	//テクスチャ保持(SetTextureMPixel用)
+	ID3D12Resource *texture = NULL;
+	ID3D12Resource *textureUp = NULL;
+	//movie_on
+	bool   m_on = FALSE;
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
+	D3D12_TEXTURE_COPY_LOCATION dest, src;
+
+	ID3D12DescriptorHeap *CreateSrvHeap(int MaterialNum, int texNum, TextureNo *to, ID3D12Resource *movietex = nullptr);
+
+	ID3D12RootSignature *CreateRsCommon(CD3DX12_ROOT_SIGNATURE_DESC *rootSigDesc);//直接使用禁止
+
+	ID3D12RootSignature *CreateRs(int paramNum, CD3DX12_ROOT_PARAMETER *slotRootParameter);
+	ID3D12RootSignature *CreateRsStreamOutput(int paramNum, CD3DX12_ROOT_PARAMETER *slotRootParameter);
+	ID3D12RootSignature *CreateRsCompute(int paramNum, CD3DX12_ROOT_PARAMETER *slotRootParameter);
+
+	ID3D12PipelineState *CreatePSO(ID3DBlob *vs, ID3DBlob *hs,
+		ID3DBlob *ds, ID3DBlob *ps, ID3DBlob *gs,
+		ID3D12RootSignature *mRootSignature,
+		std::vector<D3D12_INPUT_ELEMENT_DESC> *pVertexLayout,
+		std::vector<D3D12_SO_DECLARATION_ENTRY> *pDeclaration,
+		bool STREAM_OUTPUT, UINT StreamSize, bool alpha, bool blend,
+		PrimitiveType type);
+
+	ID3D12PipelineState *CreatePsoVsPs(ID3DBlob *vs, ID3DBlob *ps,
+		ID3D12RootSignature *mRootSignature,
+		std::vector<D3D12_INPUT_ELEMENT_DESC>& pVertexLayout,
+		bool alpha, bool blend,
+		PrimitiveType type = NUL);
+
+	ID3D12PipelineState *CreatePsoVsHsDsPs(ID3DBlob *vs, ID3DBlob *hs, ID3DBlob *ds, ID3DBlob *ps,
+		ID3D12RootSignature *mRootSignature,
+		std::vector<D3D12_INPUT_ELEMENT_DESC>& pVertexLayout,
+		bool alpha, bool blend,
+		PrimitiveType type = NUL);
+
+	ID3D12PipelineState *CreatePsoStreamOutput(ID3DBlob *vs, ID3DBlob *gs,
+		ID3D12RootSignature *mRootSignature,
+		std::vector<D3D12_INPUT_ELEMENT_DESC>& pVertexLayout,
+		std::vector<D3D12_SO_DECLARATION_ENTRY>& pDeclaration, UINT StreamSize);
+
+	ID3D12PipelineState *CreatePsoParticle(ID3DBlob *vs, ID3DBlob *ps, ID3DBlob *gs,
+		ID3D12RootSignature *mRootSignature,
+		std::vector<D3D12_INPUT_ELEMENT_DESC>& pVertexLayout,
+		bool alpha, bool blend);
+
+	ID3D12PipelineState *CreatePsoCompute(ID3DBlob *cs,
+		ID3D12RootSignature *mRootSignature);
+
+public:
+	void TextureInit(int width, int height);
+	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
+};
+
+//*********************************MeshDataクラス*************************************//
+
+class MeshData :public Common {
+
+private:
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
+	ID3DBlob                   *vsB = nullptr;
 	ID3DBlob                   *ps = nullptr;
+	ID3DBlob                   *psB = nullptr;
 	ID3DBlob                   *hs = nullptr;
 	ID3DBlob                   *ds = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap = nullptr;
+	int texNum;//テクスチャー数
 
 	//コンスタントバッファOBJ
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
@@ -422,10 +496,11 @@ private:
 	std::unique_ptr<IndexView[]> Iview = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;//パイプラインOBJ
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO_B = nullptr;//パイプラインOBJ(バンプマップ)
 
 	int              MaterialCount = 0;//マテリアル数
 	int              *piFaceBuffer;
-	Vertex           *pvVertexBuffer;
+	VertexM          *pvVertexBuffer;
 	int              FaceCount;  //ポリゴン数カウンター
 	char             mFileName[255];
 	//一時保管
@@ -434,20 +509,6 @@ private:
 	VECTOR2 *pvTexture;
 	int insNum = 0;
 
-	struct MY_MATERIAL {
-		CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
-		VECTOR4 Kd;           //ディフューズ
-		VECTOR4 Ks;           //スペキュラー
-		CHAR TextureName[110];//マテリアルファイル内のテクスチャ№の文字列が入る
-		int tex_no;
-
-		MY_MATERIAL()
-		{
-			ZeroMemory(this, sizeof(MY_MATERIAL));
-			tex_no = -1;
-		}
-		~MY_MATERIAL() {}
-	};
 	MY_MATERIAL* pMaterial;
 
 	bool alpha = FALSE;
@@ -455,8 +516,8 @@ private:
 	bool disp = FALSE;//テセレータフラグ
 	float addDiffuse;
 	float addSpecular;
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
-	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
+
+	D3D_PRIMITIVE_TOPOLOGY primType_draw, primType_drawB;
 
 	static std::mutex mtx;
 	static void Lock() { mtx.lock(); }
@@ -490,12 +551,10 @@ public:
 
 //*********************************PolygonDataクラス*************************************//
 
-class PolygonData {
+class PolygonData :public Common {
 
 private:
 	//ポインタで受け取る
-	Dx12Process *dx;
-	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
 	ID3DBlob                   *ps = nullptr;
@@ -521,18 +580,10 @@ private:
 	std::unique_ptr<VertexView> Vview = nullptr;
 	std::unique_ptr<IndexView> Iview = nullptr;
 
-	//テクスチャ保持(SetTextureMPixel用)
-	ID3D12Resource *texture = NULL;
-	ID3D12Resource *textureUp = NULL;
-	//movie_on
-	bool   m_on = FALSE;
 	//テクスチャ番号(通常テクスチャ用)
 	int    t_no = -1;
 	int    insNum = 0;
 	int    texNum;//テクスチャ個数
-
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
-	D3D12_TEXTURE_COPY_LOCATION dest, src;
 
 	//パイプラインOBJ
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;
@@ -543,8 +594,8 @@ private:
 	int            ver;      //頂点個数
 	int            verI;    //頂点インデックス
 
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE  primType_create;
-	D3D_PRIMITIVE_TOPOLOGY         primType_draw;
+	PrimitiveType            primType_create;
+	D3D_PRIMITIVE_TOPOLOGY   primType_draw;
 
 	static std::mutex mtx;
 	static void Lock() { mtx.lock(); }
@@ -559,8 +610,6 @@ public:
 	~PolygonData();
 	ID3D12PipelineState *GetPipelineState();
 	void GetVBarray(PrimitiveType type, int v);
-	void TextureInit(int width, int height);
-	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
 	void Create(bool light, int tNo, bool blend, bool alpha);
 	void Create(bool light, int tNo, int nortNo, bool blend, bool alpha);
 	void SetVertex(int I1, int I2, int i,
@@ -591,13 +640,11 @@ public:
 
 //*********************************PolygonData2Dクラス*************************************//
 
-class PolygonData2D {
+class PolygonData2D :public Common {
 
 private:
 	friend DxText;
 
-	Dx12Process                *dx;
-	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
 	ID3DBlob                   *ps = nullptr;
@@ -694,11 +741,9 @@ public:
 
 //*********************************ParticleDataクラス*************************************//
 
-class ParticleData {
+class ParticleData :public Common {
 
 private:
-	Dx12Process                *dx;
-	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *gsSO;
 	ID3DBlob                   *vsSO;
@@ -723,15 +768,6 @@ private:
 	bool UpOn = FALSE;
 	//DrawOn
 	bool DrawOn = FALSE;
-
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
-	D3D12_TEXTURE_COPY_LOCATION dest, src;
-
-	//テクスチャ保持(directshow用)
-	ID3D12Resource *texture = NULL;
-	ID3D12Resource *textureUp = NULL;
-	//movie_on
-	bool m_on = FALSE;
 	bool texpar_on = FALSE;
 
 	//頂点バッファOBJ
@@ -767,7 +803,6 @@ public:
 	ParticleData();
 	~ParticleData();
 	void SetCommandList(int no);
-	void TextureInit(int width, int height);
 	void GetBufferParticle(int texture_no, float size, float density);//テクスチャを元にパーティクルデータ生成, 全体サイズ倍率, 密度
 	void GetBufferBill(int v);
 	void SetVertex(int i,
@@ -778,7 +813,6 @@ public:
 	void Update(float x, float y, float z, float theta, float size, bool init, float speed);//sizeパーティクル1個のサイズ
 	void DrawOff();
 	void Draw();
-	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
 	void Update(float size);
 	void DrawBillboard();
 };
@@ -803,7 +837,7 @@ private:
 	bool Create(CHAR *szFileName);
 };
 
-class SkinMesh {
+class SkinMesh :public Common {
 
 private:
 	friend SkinMesh_sub;
@@ -813,8 +847,6 @@ private:
 	//InitFBX排他処理用
 	static volatile bool stInitFBX_ON, stSetNewPose_ON;
 
-	Dx12Process                *dx;
-	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
 	ID3DBlob                   *vsB = nullptr;
@@ -824,7 +856,7 @@ private:
 	ID3DBlob                   *psB = nullptr;
 	bool alpha = FALSE;
 	bool blend = FALSE;
-	
+
 	D3D_PRIMITIVE_TOPOLOGY primType_draw, primType_drawB;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
@@ -905,7 +937,6 @@ private:
 	bool SetNewPoseMatrices(float time, int ind);
 	void CreateRotMatrix(float thetaZ, float thetaY, float thetaX, int ind);
 	void CbSwap();
-	ID3D12PipelineState *CreatePSO(ID3DBlob *vs, ID3DBlob *hs, ID3DBlob *ds, ID3DBlob *ps);
 
 public:
 	SkinMesh();
@@ -938,11 +969,9 @@ public:
 //エラーメッセージ
 void ErrorMessage(char *E_mes);
 
-class Wave {
+class Wave :public Common {
 
 private:
-	Dx12Process *dx;
-	ID3D12GraphicsCommandList  *mCommandList;
 	int                        com_no = 0;
 	ID3DBlob                   *cs = nullptr;
 	ID3DBlob                   *vs = nullptr;
@@ -998,7 +1027,7 @@ private:
 	void CbSwap();
 	void Compute();
 	void DrawSub();
-	
+
 public:
 	Wave();
 	void SetCommandList(int no);

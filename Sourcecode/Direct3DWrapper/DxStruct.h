@@ -119,6 +119,32 @@ struct PartPos {
 	VECTOR4 Col;
 };
 
+//Mesh.obj
+struct VertexM {
+	VECTOR3 Pos;       //位置
+	VECTOR3 normal;   //法線
+	VECTOR3 geoNormal;
+	VECTOR2 tex;    //テクスチャ座標
+};
+
+struct MY_MATERIAL {
+	CHAR MaterialName[110];//マテリアルファイル内のマテリアル名が入る
+	VECTOR4 Kd;           //ディフューズ
+	VECTOR4 Ks;           //スペキュラー
+	CHAR TextureName[110];//テクスチャファイル名
+	CHAR norTextureName[255];//ノーマルマップファイル名
+	int tex_no;
+	int nortex_no;
+
+	MY_MATERIAL()
+	{
+		ZeroMemory(this, sizeof(MY_MATERIAL));
+		tex_no = -1;
+		nortex_no = -1;
+	}
+	~MY_MATERIAL() {}
+};
+
 //以下スキンメッシュ
 struct MY_VERTEX_S{
 	VECTOR3 vPos;//頂点
@@ -192,6 +218,38 @@ struct WaveData
 
 struct CONSTANT_BUFFER_WAVE {
 	VECTOR4 wHei_divide;//x:waveHeight, y:分割数
+};
+
+class SameVertexList {
+
+private:
+	int list[50];
+	unsigned int ind;
+
+public:
+	SameVertexList() {
+		for (int i = 0; i < 50; i++) {
+			list[i] = -1;
+		}
+		ind = 0;
+	}
+
+	void Push(int vInd) {
+		list[ind] = vInd;
+		ind++;
+	}
+
+	int Pop() {
+		if (ind <= 0)return -1;
+		ind--;
+		return list[ind];
+	}
+};
+
+struct TextureNo {
+	int diffuse;
+	int normal;
+	bool movie;
 };
 
 #endif

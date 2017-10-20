@@ -68,7 +68,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		break;
 	case 1:
 		//山
-		mountain.SetState(TRUE, TRUE, FALSE, 0.8f, 0.8f);//3角形化必要
+		mountain.SetState(TRUE, TRUE, TRUE, 0.8f, 0.8f);//3角形化必要
 		mountain.GetBuffer("./dat/mesh/mountain.obj");
 		//地面入り口
 		poGroundF.GetVBarray(CONTROL_POINT, 6);
@@ -125,7 +125,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 
 	//木
 	if (woodcount > 0) {
-		mWood.SetState(TRUE, TRUE, FALSE);
+		mWood.SetState(TRUE, TRUE, TRUE);
 		mWood.GetBuffer("./dat/mesh/tree.obj");
 	}
 
