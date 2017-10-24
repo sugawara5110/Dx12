@@ -31,7 +31,7 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 	p_att->Update(i, m, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f, DISP_SIZE);
 	if (torchOn) {
 		torchWood->Update(i, m, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f);
-		v3 = torchWood->GetVertexPosition(4, 2.0f, -3.0f, -2.0f, theta, 0, 0, 2.0f);
+		v3 = torchWood->GetVertexPosition(4, 3.0f, -1.0f, 0.0f, theta, 0, 0, 2.0f);
 		dx->PointLightPosSet(0, v3.x + x, v3.y + y, v3.z + z, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, TRUE);
 		torchFlame->Update(v3.x + x, v3.y + y, v3.z + z, r, g, b, -0.2f, theta, 0.0f);
 	}

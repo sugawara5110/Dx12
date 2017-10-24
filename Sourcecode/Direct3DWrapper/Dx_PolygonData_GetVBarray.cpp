@@ -15,6 +15,15 @@ PolygonData::PolygonData() {
 	d3varray = NULL;
 	d3varrayBC = NULL;
 	d3varrayI = NULL;
+
+	sg.vDiffuse.x = 1.0f;
+	sg.vDiffuse.y = 1.0f;
+	sg.vDiffuse.z = 1.0f;
+	sg.vDiffuse.w = 1.0f;
+	sg.vSpeculer.x = 1.0f;
+	sg.vSpeculer.y = 1.0f;
+	sg.vSpeculer.z = 1.0f;
+	sg.vSpeculer.w = 1.0f;
 }
 
 void PolygonData::SetCommandList(int no) {
@@ -152,6 +161,15 @@ void PolygonData::GetShaderByteCode(bool light, int tNo, int nortNo) {
 	}
 }
 
+void PolygonData::SetCol(float difR, float difG, float difB, float speR, float speG, float speB) {
+	sg.vDiffuse.x = difR;
+	sg.vDiffuse.y = difG;
+	sg.vDiffuse.z = difB;
+	sg.vSpeculer.x = speR;
+	sg.vSpeculer.y = speG;
+	sg.vSpeculer.z = speB;
+}
+
 void PolygonData::Create(bool light, int tNo, bool blend, bool alpha) {
 	Create(light, tNo, -1, blend, alpha);
 }
@@ -160,15 +178,6 @@ void PolygonData::Create(bool light, int tNo, int nortNo, bool blend, bool alpha
 
 	GetShaderByteCode(light, tNo, nortNo);
 
-	CONSTANT_BUFFER2 sg;
-	sg.vDiffuse.x = 1.0f;
-	sg.vDiffuse.y = 1.0f;
-	sg.vDiffuse.z = 1.0f;
-	sg.vDiffuse.w = 1.0f;
-	sg.vSpeculer.x = 1.0f;
-	sg.vSpeculer.y = 1.0f;
-	sg.vSpeculer.z = 1.0f;
-	sg.vSpeculer.w = 1.0f;
 	mObjectCB1->CopyData(0, sg);
 
 	//BuildRootSignature

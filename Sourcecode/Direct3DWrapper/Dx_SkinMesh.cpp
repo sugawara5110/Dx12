@@ -80,6 +80,8 @@ SkinMesh::~SkinMesh() {
 	S_DELETE(mObjectCB0);
 	S_DELETE(mObjectCB1);
 	S_DELETE(mObject_BONES);
+	RELEASE(texture);
+	RELEASE(textureUp);
 
 	DestroyFBX();
 }

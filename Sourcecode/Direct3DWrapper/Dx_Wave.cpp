@@ -14,6 +14,15 @@ Wave::Wave() {
 	d3varray = NULL;
 	d3varrayI = NULL;
 	texNum = 1;
+
+	sg.vDiffuse.x = 1.0f;
+	sg.vDiffuse.y = 1.0f;
+	sg.vDiffuse.z = 1.0f;
+	sg.vDiffuse.w = 1.0f;
+	sg.vSpeculer.x = 1.0f;
+	sg.vSpeculer.y = 1.0f;
+	sg.vSpeculer.z = 1.0f;
+	sg.vSpeculer.w = 1.0f;
 }
 
 void Wave::SetCommandList(int no) {
@@ -28,6 +37,8 @@ Wave::~Wave() {
 	d3varrayI = NULL;
 	S_DELETE(mObjectCB);
 	S_DELETE(mObjectCB_WAVE);
+	RELEASE(texture);
+	RELEASE(textureUp);
 }
 
 void Wave::SetVertex(int i,
@@ -126,17 +137,17 @@ void Wave::ComCreate() {
 	mPSOCom = CreatePsoCompute(cs, mRootSignatureCom.Get());
 }
 
+void Wave::SetCol(float difR, float difG, float difB, float speR, float speG, float speB) {
+	sg.vDiffuse.x = difR;
+	sg.vDiffuse.y = difG;
+	sg.vDiffuse.z = difB;
+	sg.vSpeculer.x = speR;
+	sg.vSpeculer.y = speG;
+	sg.vSpeculer.z = speB;
+}
+
 void Wave::DrawCreate(int texNo, int nortNo, bool blend, bool alpha) {
 
-	CONSTANT_BUFFER2 sg;
-	sg.vDiffuse.x = 1.0f;
-	sg.vDiffuse.y = 1.0f;
-	sg.vDiffuse.z = 1.0f;
-	sg.vDiffuse.w = 1.0f;
-	sg.vSpeculer.x = 1.0f;
-	sg.vSpeculer.y = 1.0f;
-	sg.vSpeculer.z = 1.0f;
-	sg.vSpeculer.w = 1.0f;
 	mObjectCB1->CopyData(0, sg);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable, nortexTable;

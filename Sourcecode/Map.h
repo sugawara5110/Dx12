@@ -51,6 +51,9 @@ private:
 	float cay1;//現在位置
 	float cay2;//注視点
 	float src_theta;//現在の向いてる方向
+	//GetCamDelayPos使用
+	float outx, outy;
+	bool GetCamPosInit = false;
 
 	int posx;//マップフィルター位置
 	int posy;
@@ -131,6 +134,7 @@ private:
 	bool ViewCulling(float obj_x, float obj_y, float obj_z);
 	void HeroUpdate(bool mf);
 	bool CollisionDetection(float in_y, float in_x, Directionkey dir);
+	void GetCamDelayPos(Directionkey dir, float inX, float inY, float *outX, float *outY);
 
 	//四捨五入
 	int rounding(int val, int digit_number) {

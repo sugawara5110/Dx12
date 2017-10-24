@@ -53,7 +53,9 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 	float cx = cax1 + cax1 - cax2;
 	float cy = cay1 + cay1 - cay2;
 	float cz = (float)posz * 100.0f + 40.0f + elevator_step;
-	if (encount == NOENCOUNT)dx->Cameraset(cx, cax2, cy, cay2, cz, cz);
+	float out_x, out_y;
+	GetCamDelayPos(direction, cx, cy, &out_x, &out_y);
+	if (encount == NOENCOUNT)dx->Cameraset(out_x, cax2, out_y, cay2, cz, cz);
 
 	//ポイントライト暗い部分明るさ
 	dx->P_ShadowBright(0.3f);

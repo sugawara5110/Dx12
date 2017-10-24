@@ -76,6 +76,75 @@ bool Map::CollisionDetection(float in_y, float in_x, Directionkey dir) {
 	return FALSE;
 }
 
+void Map::GetCamDelayPos(Directionkey dir, float inX, float inY, float *outX, float *outY) {
+
+	if (!GetCamPosInit) {
+		outx = inX;
+		outy = inY;
+		GetCamPosInit = true;
+	}
+	static float add = 0.0f;
+	float tmp_outx = outx;
+	float tmp_outy = outy;
+
+	float dirx = 1.0f;
+	float diry = 1.0f;
+	if (inX < tmp_outx)dirx = -1.0f;
+	if (inY < tmp_outy)diry = -1.0f;
+
+	switch (dir) {
+	case UP:
+	case DOWN:
+		if (abs(inX - tmp_outx) > 20.0f || abs(inY - tmp_outy) > 20.0f) {
+			if (add > 0.4f)add -= 0.01f;
+			if (add < 0.4f)add += 0.01f;
+		}
+		else {
+			if (add > 0.21f)add -= 0.01f;
+			if (add < 0.19f)add += 0.01f;
+		}
+		break;
+	case LEFT:
+	case RIGHT:
+		if (add > 5.1f)add -= 0.01f;
+		if (add < 4.9f)add += 0.01f;
+		break;
+	default:
+		if (add > 0.4f)add -= 0.01f;
+		if (add < 0.4f)add += 0.01f;
+		break;
+	}
+
+	float m = tfloat.Add(add);
+
+	tmp_outx += m * dirx;
+	tmp_outy += m * diry;
+	if (dirx == 1.0f && tmp_outx >= inX ||
+		dirx == -1.0f && tmp_outx <= inX)tmp_outx = inX;
+	if (diry == 1.0f && tmp_outy >= inY ||
+		diry == -1.0f && tmp_outy <= inY)tmp_outy = inY;
+
+	if (CollisionDetection(tmp_outy, tmp_outx, UP)) {
+		if (CollisionDetection(outy, tmp_outx, UP)) {
+			if (!CollisionDetection(tmp_outy, outx, UP))
+				//座標更新
+				outy = tmp_outy;
+		}
+		else {
+			//座標更新
+			outx = tmp_outx;
+		}
+	}
+	else {
+		//座標更新
+		outx = tmp_outx;
+		outy = tmp_outy;
+	}
+
+	*outX = outx;
+	*outY = outy;
+}
+
 Encount Map::Move(MapState *mapstate, Directionkey direction) {
 
 	float cax1Tmp = cax1;

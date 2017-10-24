@@ -568,6 +568,7 @@ private:
 	UploadBuffer<CONSTANT_BUFFER> *mObjectCB = nullptr;
 	UploadBuffer<CONSTANT_BUFFER2> *mObjectCB1 = nullptr;
 	CONSTANT_BUFFER cb[2];
+	CONSTANT_BUFFER2 sg;
 	int sw = 0;
 	//UpLoadカウント
 	int upCount = 0;
@@ -610,6 +611,7 @@ public:
 	~PolygonData();
 	ID3D12PipelineState *GetPipelineState();
 	void GetVBarray(PrimitiveType type, int v);
+	void SetCol(float difR, float difG, float difB, float speR, float speG, float speB);
 	void Create(bool light, int tNo, bool blend, bool alpha);
 	void Create(bool light, int tNo, int nortNo, bool blend, bool alpha);
 	void SetVertex(int I1, int I2, int i,
@@ -672,8 +674,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO = nullptr;
 
 	//テクスチャ保持,DxText classでしか使わない
-	ID3D12Resource *texture = NULL;
-	ID3D12Resource *textureUp = NULL;
 	bool tex_on = FALSE;
 	//SetTextParameter
 	int Twidth;
@@ -969,6 +969,8 @@ public:
 //エラーメッセージ
 void ErrorMessage(char *E_mes);
 
+//***********************************Waveクラス***************************************//
+
 class Wave :public Common {
 
 private:
@@ -987,6 +989,7 @@ private:
 	UploadBuffer<CONSTANT_BUFFER2> *mObjectCB1 = nullptr;
 	UploadBuffer<CONSTANT_BUFFER_WAVE> *mObjectCB_WAVE = nullptr;
 	CONSTANT_BUFFER cb[2];
+	CONSTANT_BUFFER2 sg;
 	CONSTANT_BUFFER_WAVE cbw;
 	int sw = 0;
 	//UpLoadカウント
@@ -1033,6 +1036,7 @@ public:
 	void SetCommandList(int no);
 	~Wave();
 	void GetVBarray(int v);
+	void SetCol(float difR, float difG, float difB, float speR, float speG, float speB);
 	void Create(int texNo, bool blend, bool alpha, float waveHeight, float divide);
 	void Create(int texNo, int nortNo, bool blend, bool alpha, float waveHeight, float divide);
 	//順番:左上左下右下右上

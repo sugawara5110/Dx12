@@ -19,6 +19,8 @@ MeshData::~MeshData() {
 	S_DELETE(mObjectCB);
 	S_DELETE(mObject_MESHCB);
 	ARR_DELETE(pMaterial);
+	RELEASE(texture);
+	RELEASE(textureUp);
 }
 
 void MeshData::SetCommandList(int no) {
