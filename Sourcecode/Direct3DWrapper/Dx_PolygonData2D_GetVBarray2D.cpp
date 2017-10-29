@@ -291,11 +291,11 @@ void PolygonData2D::Create(bool blend, bool alpha) {
 
 	mRootSignature = CreateRs(2, slotRootParameter);
 
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx->md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvHeap));
+	TextureNo te;
+	te.diffuse = -1;
+	te.normal = -1;
+	te.movie = m_on;
+	mSrvHeap = CreateSrvHeap(1, 1, &te, texture);
 
 	const UINT vbByteSize = ver * sizeof(MY_VERTEX2);
 	const UINT ibByteSize = (int)(ver * 1.5) * sizeof(std::uint16_t);

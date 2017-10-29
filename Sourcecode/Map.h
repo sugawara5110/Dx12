@@ -22,9 +22,15 @@
 #define POSX_U1 (posz * mxy.y * mxy.x + posy * mxy.x + (posx + 1))
 #define POSX_D1 (posz * mxy.y * mxy.x + posy * mxy.x + (posx - 1))
 
-class Map{
+class Map {
 
 private:
+	//地図
+	static MapHistoryData maphis;
+	static unsigned int *maphistory[5];
+	int **mapdata;
+	PolygonData2D MapHistory;
+
 	static int map_no_s;    //マップナンバー
 	int map_no;            //オブジェクト内部用マップナンバー
 	int comNo;
@@ -35,7 +41,7 @@ private:
 	T_float tfloat;
 	Position::mapxy mxy;
 
-	struct LightPos{
+	struct LightPos {
 		float x, y, z;
 		float r, g, b, a;
 		float range;
@@ -75,20 +81,20 @@ private:
 	bool recover_p_f;//リカバーポイント到達履歴
 	float recovPosX, recovPosY;//リカバーポイント光源位置(複数にする場合要処理変更)
 	bool boss_p_f;  //ボス出現ポイント到達履歴
-	bool elevator_UP; 
+	bool elevator_UP;
 	bool elevator_DOWN;
 	float elevator_step;
 
-	struct OBJPosRandomValue{
+	struct OBJPosRandomValue {
 		float x;
 		float y;
-		OBJPosRandomValue(){
+		OBJPosRandomValue() {
 			x = (rand() % 100) - 50.0f;
 			y = (rand() % 100) - 50.0f;
 		}
 	};
 	OBJPosRandomValue *wood, *wall1;
-	
+
 	Wave wav;
 	MeshData mWood, mountain;
 	PolygonData poWallA, poWallB, poWallC, poWallD, poWallE, poWall1[3], poF_Wall,
@@ -129,12 +135,14 @@ private:
 	void MapdrawObj();
 	bool MoveUpCond(int Ind);
 	bool MoveDownCond(int Ind);
+	bool MoveCamCond(int Ind);
 	Encount Move(MapState *mapstate, Directionkey direction);
 	void MapText(TCHAR str[30]);
 	bool ViewCulling(float obj_x, float obj_y, float obj_z);
 	void HeroUpdate(bool mf);
 	bool CollisionDetection(float in_y, float in_x, Directionkey dir);
 	void GetCamDelayPos(Directionkey dir, float inX, float inY, float *outX, float *outY);
+	void RecordMap();
 
 	//四捨五入
 	int rounding(int val, int digit_number) {
@@ -152,13 +160,15 @@ private:
 		if ((valT % 10) <= downNum)return (valT2 - 1) * d * 10;
 		return val;
 	}
-	
+
 public:
 	static int GetMapNo();
 	static void SetMapNo(int no);
 	static void SetBossKilled(int i, int f);
 	static int *GetBossKilled();
 	static int GetBossKilled(int map_no);
+	static void SetMapHistory(MapHistoryData *maphis);
+	static MapHistoryData *GetMapHistory();
 	Map() {}
 	Map(Position::H_Pos *h_p, Hero *hero);
 	void SetVertex();

@@ -114,7 +114,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 
 	switch (map_no) {
 	case 0:
-		if (encount == NOENCOUNT)dx->SetDirectionLight(FALSE); else dx->SetDirectionLight(TRUE);
+		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f * btr, 0.1f * btr, 0.1f * btr, 1.5f, 0.5f);
 		//出口光源
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 200.0f, 50.0f, 2.0f, TRUE);
@@ -161,7 +161,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		Mapupdate_Rain();
 		break;
 	case 2:
-		if (encount == NOENCOUNT)dx->SetDirectionLight(FALSE); else dx->SetDirectionLight(TRUE);
+		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f * btr, 0.15f * btr, 0.15f * btr, 1.5f, 0.5f);
 		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 0, 180.0f, 0);
 		//入口光源
@@ -204,7 +204,7 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 		break;
 	case 4:
 		//入り口に何か細工する予定
-		if (encount == NOENCOUNT)dx->SetDirectionLight(FALSE); else dx->SetDirectionLight(TRUE);
+		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f * btr, 0.25f * btr, 0.25f * btr, 1.5f, 0.5f);
 		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
 		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
@@ -220,7 +220,13 @@ Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encou
 	}
 
 	he->TorchSwitch(mainlight);
-	if (encount == NOENCOUNT && !ending)HeroUpdate(Move_f);//Mov関数からフラグもらうようにする
+	if (encount == NOENCOUNT && !ending) {
+		HeroUpdate(Move_f);//Mov関数からフラグもらうようにする
+		MapHistory.Update(0, 0, 0, 0, 0, 0, 0, 1.0f, 1.0f);//地図
+	}
+	else {
+		MapHistory.DrawOff();
+	}
 
 	MapText(m_tx);
 
@@ -244,6 +250,10 @@ void Map::MapDraw() {
 	Mapdraw_Mountain();
 	Mapdraw_Rain();
 	wav.Draw();//ブレンドするので最後の方に
+
+	//地図
+	MapHistory.SetTextureMPixel(mapdata, 0xff, 0xff, 0xff, 200);
+	MapHistory.Draw();
 
 	if (mo_count >= 1) {
 		poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);

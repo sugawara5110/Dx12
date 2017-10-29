@@ -14,7 +14,7 @@
 #define s_MAX_HP (savedata.p_data[i].Vitality * savedata.p_data[i].LV * 2 + 30)
 #define s_MAX_MP (savedata.p_data[i].Magic * savedata.p_data[i].LV + 10)
 
-class StateMenu{
+class StateMenu {
 
 private:
 	Dx12Process *dx;
@@ -30,11 +30,13 @@ private:
 	int pp_select;
 	int pp_select1;
 
-	typedef struct{
+	typedef struct {
 		Parameter::P_Data p_data[4];
 		Position::H_Pos h_pos;
 		int map_no;
 		int boss_kil[5];//É{ÉXåÇîjóöó
+		//ínê}óöó
+		MapHistoryData maphis;
 	}SaveData;
 	SaveData savedata, key1, key2;
 	unsigned int Encryptionkey;
@@ -44,7 +46,7 @@ private:
 	void St_create();
 	void Re_create();
 	void Re_create1();
-	bool Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction);
+	bool Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction);
 	void St_Menu(Hero *hero, Directionkey direction);
 	void Re_Menu(Hero *hero, Directionkey direction);
 	void Pp_Menu(Hero *hero, Directionkey direction);
@@ -55,9 +57,10 @@ public:
 	Parameter::P_Data *SetP_Data(int i);
 	Position::H_Pos *SetH_Pos();
 	int Set_boss_kil(int i);
+	MapHistoryData *GetMapHistory();
 	int SetMap_No();
 	void SetCommandList(int com_no);
-	bool MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction);
+	bool MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction);
 	void Draw();
 	~StateMenu();
 };

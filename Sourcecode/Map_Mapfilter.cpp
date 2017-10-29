@@ -63,6 +63,19 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 		break;
 	}
 
+	maphistory[0] = maphis.maphis0;
+	maphistory[1] = maphis.maphis1;
+	maphistory[2] = maphis.maphis2;
+	maphistory[3] = maphis.maphis3;
+	maphistory[4] = maphis.maphis4;
+	mapdata = (int**)malloc(sizeof(int*) * 128);
+	for (int i = 0; i < 128; i++)mapdata[i] = (int*)malloc(sizeof(int) * 128);
+	for (int y = 0; y < 128; y++) {
+		for (int x = 0; x < 128; x++) {
+			mapdata[y][x] = 0x00000000;
+		}
+	}
+	
 	mapfilter = (char*)malloc(sizeof(char) * mxy.z * mxy.y * mxy.x);
 	// J:壁B74 K:壁C75 L:壁D76 M:壁E77 O:松明有り壁C79
 	// 0:通路48  1:壁A49  2:回復ポイント50  3:ボス出現ポイント51  4:松明有り壁A52
@@ -120,10 +133,10 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 	if (h_p == NULL && MPos == POS_ST){
 		cax1 = 1150.0f;
 		cax2 = 1150.0f;
-		cay1 = 3350.0f;
-		cay2 = 3280.0f;
+		cay1 = 3250.0f;
+		cay2 = 3180.0f;
 		posx = 11;
-		posy = 33;
+		posy = 32;
 		posz = 0;
 		src_theta = 0.0f;
 	}

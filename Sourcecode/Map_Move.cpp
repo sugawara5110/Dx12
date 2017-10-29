@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <time.h>
 
+MapHistoryData Map::maphis;
+unsigned int *Map::maphistory[5];
+
 bool Map::MoveUpCond(int Ind){
 	if (mxy.m[Ind] == 49 ||
 		mxy.m[Ind] == 74 ||
@@ -37,6 +40,46 @@ bool Map::MoveDownCond(int Ind){
 	return FALSE;
 }
 
+bool Map::MoveCamCond(int Ind) {
+	if (mxy.m[Ind] == 49 ||
+		mxy.m[Ind] == 74 ||
+		mxy.m[Ind] == 75 ||
+		mxy.m[Ind] == 76 ||
+		mxy.m[Ind] == 77 ||
+		mxy.m[Ind] == 78 ||
+		mxy.m[Ind] == 79 ||
+		mxy.m[Ind] == 52 ||
+		mxy.m[Ind] == 53 ||
+		mxy.m[Ind] == 87 ||
+		mxy.m[Ind] == 73)return TRUE;
+	return FALSE;
+}
+
+void Map::RecordMap() {
+	int ind = mxy.y * mxy.x * (posz / 3) + mxy.x * posy + posx;
+	maphistory[map_no][ind] = 1;
+	int y_pitch = 128 / mxy.y;
+	int x_pitch = 128 / mxy.x;
+	for (int y = 0; y < mxy.y; y++) {
+		for (int x = 0; x < mxy.x; x++) {
+			int ind2 = mxy.y * mxy.x * (posz / 3) + mxy.x * y + x;
+			int yst = y_pitch * y;
+			int xst = x_pitch * x;
+			for (int y1 = yst; y1 < yst + y_pitch; y1++) {
+				for (int x1 = xst; x1 < xst + x_pitch; x1++) {
+					if (posy == y && posx == x)mapdata[y1][x1] = 0xff0000ff;
+					else
+					{
+						if (maphistory[map_no][ind2])
+							mapdata[y1][x1] = 0xffffffff;
+						else mapdata[y1][x1] = 0x00000000;
+					}
+				}
+			}
+		}
+	}
+}
+
 bool Map::CollisionDetection(float in_y, float in_x, Directionkey dir) {
 	int indY = (int)(in_y * 0.01f);
 	int indX = (int)(in_x * 0.01f);
@@ -45,6 +88,19 @@ bool Map::CollisionDetection(float in_y, float in_x, Directionkey dir) {
 		for (int x = -1; x < 2; x++) {
 			int ind = posz * mxy.y * mxy.x + (indY + y) * mxy.x + (indX + x);
 			switch (dir) {
+			case CAMPOS:
+				if (MoveCamCond(ind)) {
+					float xc = (indX + x) * 100.0f;//当たり判定中ブロックx0点
+					float yc = (indY + y) * 100.0f;//当たり判定中ブロックy0点
+					float xs = xc - 10.0f;//x左側当たり判定
+					float xe = xc + 110.0f;//x右側
+					float ys = yc - 10.0f;//y上
+					float ye = yc + 110.0f;//y下
+
+					if (in_x > xs && in_x < xe && in_y > ys && in_y < ye)return TRUE;
+				}
+				break;
+
 			case UP:
 				if (MoveUpCond(ind)) {
 					float xc = (indX + x) * 100.0f;//当たり判定中ブロックx0点
@@ -124,9 +180,9 @@ void Map::GetCamDelayPos(Directionkey dir, float inX, float inY, float *outX, fl
 	if (diry == 1.0f && tmp_outy >= inY ||
 		diry == -1.0f && tmp_outy <= inY)tmp_outy = inY;
 
-	if (CollisionDetection(tmp_outy, tmp_outx, UP)) {
-		if (CollisionDetection(outy, tmp_outx, UP)) {
-			if (!CollisionDetection(tmp_outy, outx, UP))
+	if (CollisionDetection(tmp_outy, tmp_outx, CAMPOS)) {
+		if (CollisionDetection(outy, tmp_outx, CAMPOS)) {
+			if (!CollisionDetection(tmp_outy, outx, CAMPOS))
 				//座標更新
 				outy = tmp_outy;
 		}
@@ -238,6 +294,8 @@ Encount Map::Move(MapState *mapstate, Directionkey direction) {
 	src_theta = src_thetaTmp;
 	posx = (int)(cax1 * 0.01f);
 	posy = (int)(cay1 * 0.01f);
+
+	RecordMap();
 
 	//エレベータA上到達
 	if (!elevator_UP && mxy.m[POS_CE] == 65) {

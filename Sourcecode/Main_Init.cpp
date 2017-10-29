@@ -178,6 +178,7 @@ void Main::UpDate() {
 		for (int i = 0; i < 4; i++)hero[i].P_DataInput(statemenu->SetP_Data(i));//パラメーターインプット
 		Map::SetMapNo(statemenu->SetMap_No());
 		for (int i = 0; i < 5; i++)Map::SetBossKilled(i, statemenu->Set_boss_kil(i));
+		Map::SetMapHistory(statemenu->GetMapHistory());
 		titleSwitch = 2;
 		break;
 	case 2:
@@ -212,7 +213,7 @@ void Main::UpDate() {
 	case NORMAL_MAP:
 		if (menu) {
 			menu = statemenu->MenuUpdate(InstanceCreate::GetInstance_M()->Getposition(),
-				map_no, Map::GetBossKilled(), hero, control->Direction());
+				map_no, Map::GetBossKilled(), Map::GetMapHistory(), hero, control->Direction());
 		}
 		break;
 	}
@@ -303,11 +304,11 @@ void Main::UpDate() {
 void Main::Draw() {
 	dx->Bigin(0);
 	dx->Sclear(0);
+	InstanceCreate::GetInstance_M()->MapDraw();
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw(encount);
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
 	}
-	InstanceCreate::GetInstance_M()->MapDraw();
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
 	dx->End(0);

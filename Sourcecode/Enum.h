@@ -15,7 +15,8 @@ enum Directionkey {
 	UP,
 	DOWN,
 	ENTER,
-	CANCEL
+	CANCEL,
+	CAMPOS //éãì_ç¿ïWóp
 };
 
 enum Result {

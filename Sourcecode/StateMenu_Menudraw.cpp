@@ -67,7 +67,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Recover_LV = 0;
 				savedata.p_data[i].Rpoint = 10;*/
 
-				
+
 				savedata.p_data[i].Attack = 10;
 				savedata.p_data[i].Magic = 10;
 				savedata.p_data[i].Agility = 10;
@@ -83,8 +83,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Hpoint = 100;
 				savedata.p_data[i].Recover_LV = 10;
 				savedata.p_data[i].Rpoint = 100;
-				
-				
+
+
 				savedata.p_data[i].Attack = 100;
 				savedata.p_data[i].Magic = 100;
 				savedata.p_data[i].Agility = 100;
@@ -100,7 +100,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				savedata.p_data[i].Hpoint = 1000;
 				savedata.p_data[i].Recover_LV = 100;
 				savedata.p_data[i].Rpoint = 1000;
-				
+
 			}
 
 			savedata.h_pos.cx1 = 450.0f;//ボス前
@@ -111,18 +111,18 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 10;//ボス前
 
 			//通常のスタート位置
-			/*savedata.h_pos.cx1 = 1150.0f;
+			savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
-			savedata.h_pos.cy1 = 3350.0f;
-			savedata.h_pos.cy2 = 3280.0f;
+			savedata.h_pos.cy1 = 3250.0f;
+			savedata.h_pos.cy2 = 3180.0f;
 			savedata.h_pos.px = 11;
-			savedata.h_pos.py = 33;
+			savedata.h_pos.py = 32;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 0;*/
+			savedata.map_no = 0;
 			//通常のスタート位置
 
-			
+
 			/*savedata.h_pos.cx1 = 950.0f;//ボス前
 			savedata.h_pos.cx2 = 950.0f;
 			savedata.h_pos.cy1 = 950.0f;
@@ -138,8 +138,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 1;*/
-			
-			
+
+
 			/*savedata.h_pos.cx1 = 150.0f;//ボス前
 			savedata.h_pos.cx2 = 150.0f;
 			savedata.h_pos.cy1 = 1250.0f;
@@ -155,8 +155,8 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 2;*/
-			
-			
+
+
 			/*savedata.h_pos.cx1 = 450.0f;//ボス前
 			savedata.h_pos.cx2 = 450.0f;
 			savedata.h_pos.cy1 = 750.0f;
@@ -172,7 +172,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 3;*/
-			
+
 			//ラスダン
 			/*savedata.h_pos.cx1 = 1450.0f;//ボス前
 			savedata.h_pos.cx2 = 1450.0f;
@@ -190,7 +190,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 4;*/
-			
+
 		}
 		if (select == 1) {
 			FILE *fp = fopen("./dat/save/save.da1", "rb");
@@ -253,6 +253,11 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				((unsigned int)key1.boss_kil[2] | Decryptionkey) != 0xffffff ||
 				((unsigned int)key1.boss_kil[3] | Decryptionkey) != 0xffffff ||
 				((unsigned int)key1.boss_kil[4] | Decryptionkey) != 0xffffff ||
+				((unsigned int)key1.maphis.maphis0[35] | Decryptionkey) != 0xffffff ||
+				((unsigned int)key1.maphis.maphis1[40] | Decryptionkey) != 0xffffff ||
+				((unsigned int)key1.maphis.maphis2[40] | Decryptionkey) != 0xffffff ||
+				((unsigned int)key1.maphis.maphis3[35] | Decryptionkey) != 0xffffff ||
+				((unsigned int)key1.maphis.maphis4[30] | Decryptionkey) != 0xffffff ||
 				//論理積チェック
 				((unsigned int)key2.h_pos.cx1 & Decryptionkey) != 0x000000 ||
 				((unsigned int)key2.h_pos.cx2 & Decryptionkey) != 0x000000 ||
@@ -267,7 +272,12 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 				((unsigned int)key2.boss_kil[1] & Decryptionkey) != 0x000000 ||
 				((unsigned int)key2.boss_kil[2] & Decryptionkey) != 0x000000 ||
 				((unsigned int)key2.boss_kil[3] & Decryptionkey) != 0x000000 ||
-				((unsigned int)key2.boss_kil[4] & Decryptionkey) != 0x000000)return TRUE;
+				((unsigned int)key2.boss_kil[4] & Decryptionkey) != 0x000000 ||
+				((unsigned int)key2.maphis.maphis0[35] & Decryptionkey) != 0x000000 ||
+				((unsigned int)key2.maphis.maphis1[40] & Decryptionkey) != 0x000000 ||
+				((unsigned int)key2.maphis.maphis2[40] & Decryptionkey) != 0x000000 ||
+				((unsigned int)key2.maphis.maphis3[35] & Decryptionkey) != 0x000000 ||
+				((unsigned int)key2.maphis.maphis4[30] & Decryptionkey) != 0x000000)return TRUE;
 
 			//セーブデータ復元
 			for (int i = 0; i < 4; i++) {
@@ -297,6 +307,11 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.theta = (key2.h_pos.theta + ((unsigned int)key1.h_pos.theta & Decryptionkey));
 			savedata.map_no = (key2.map_no + ((unsigned int)key1.map_no      & Decryptionkey));
 			for (int i = 0; i < 5; i++)savedata.boss_kil[i] = (key2.boss_kil[i] + ((unsigned int)key1.boss_kil[i] & Decryptionkey));
+			for (int i = 0; i < 1 * 35 * 30; i++)savedata.maphis.maphis0[i] = (key2.maphis.maphis0[i] + ((unsigned int)key1.maphis.maphis0[i] & Decryptionkey));
+			for (int i = 0; i < 1 * 40 * 40; i++)savedata.maphis.maphis1[i] = (key2.maphis.maphis1[i] + ((unsigned int)key1.maphis.maphis1[i] & Decryptionkey));
+			for (int i = 0; i < 1 * 40 * 30; i++)savedata.maphis.maphis2[i] = (key2.maphis.maphis2[i] + ((unsigned int)key1.maphis.maphis2[i] & Decryptionkey));
+			for (int i = 0; i < 1 * 35 * 30; i++)savedata.maphis.maphis3[i] = (key2.maphis.maphis3[i] + ((unsigned int)key1.maphis.maphis3[i] & Decryptionkey));
+			for (int i = 0; i < 3 * 30 * 30; i++)savedata.maphis.maphis4[i] = (key2.maphis.maphis4[i] + ((unsigned int)key1.maphis.maphis4[i] & Decryptionkey));
 		}
 		MovieSoundManager::ObjDelete_title();
 		return FALSE;
@@ -315,6 +330,10 @@ Position::H_Pos *StateMenu::SetH_Pos(){
 	return &savedata.h_pos;
 }
 
+MapHistoryData *StateMenu::GetMapHistory() {
+	return &savedata.maphis;
+}
+
 int StateMenu::SetMap_No(){
 	return savedata.map_no;
 }
@@ -323,12 +342,12 @@ int StateMenu::Set_boss_kil(int i){
 	return savedata.boss_kil[i];
 }
 
-bool StateMenu::MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {
-	
+bool StateMenu::MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction) {
+
 	bool m_ref = FALSE;
 	switch (menu_select) {
 	case MAIN:
-		m_ref = Main_Menu(h_p, map_no, boss_killed, hero, direction);
+		m_ref = Main_Menu(h_p, map_no, boss_killed, maphis, hero, direction);
 		return m_ref;
 	case ST:
 		St_Menu(hero, direction);
@@ -350,7 +369,7 @@ void StateMenu::Draw() {
 	r_state1.Draw();
 }
 
-bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, Hero *hero, Directionkey direction) {
+bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction) {
 
 	float fsize = 25.0f;
 
@@ -464,6 +483,11 @@ bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, He
 			key1.h_pos.theta = (float)((unsigned int)0.0f | Encryptionkey);
 			key1.map_no = ((unsigned int)map_no | Encryptionkey);
 			for (int i = 0; i < 5; i++)key1.boss_kil[i] = ((unsigned int)boss_killed[i] | Encryptionkey);
+			for (int i = 0; i < 1 * 35 * 30; i++)key1.maphis.maphis0[i] = ((unsigned int)maphis->maphis0[i] | Encryptionkey);
+			for (int i = 0; i < 1 * 40 * 40; i++)key1.maphis.maphis1[i] = ((unsigned int)maphis->maphis1[i] | Encryptionkey);
+			for (int i = 0; i < 1 * 40 * 30; i++)key1.maphis.maphis2[i] = ((unsigned int)maphis->maphis2[i] | Encryptionkey);
+			for (int i = 0; i < 1 * 35 * 30; i++)key1.maphis.maphis3[i] = ((unsigned int)maphis->maphis3[i] | Encryptionkey);
+			for (int i = 0; i < 3 * 30 * 30; i++)key1.maphis.maphis4[i] = ((unsigned int)maphis->maphis4[i] | Encryptionkey);
 			//論理積データ
 			key2.h_pos.cx1 = (float)((unsigned int)(h_p->px * 100 + 50) & Encryptionkey);
 			key2.h_pos.cx2 = (float)((unsigned int)(h_p->px * 100 + 50) & Encryptionkey);
@@ -475,6 +499,11 @@ bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, He
 			key2.h_pos.theta = (float)((unsigned int)0.0f & Encryptionkey);
 			key2.map_no = ((unsigned int)map_no & Encryptionkey);
 			for (int i = 0; i < 5; i++)key2.boss_kil[i] = ((unsigned int)boss_killed[i] & Encryptionkey);
+			for (int i = 0; i < 1 * 35 * 30; i++)key2.maphis.maphis0[i] = ((unsigned int)maphis->maphis0[i] & Encryptionkey);
+			for (int i = 0; i < 1 * 40 * 40; i++)key2.maphis.maphis1[i] = ((unsigned int)maphis->maphis1[i] & Encryptionkey);
+			for (int i = 0; i < 1 * 40 * 30; i++)key2.maphis.maphis2[i] = ((unsigned int)maphis->maphis2[i] & Encryptionkey);
+			for (int i = 0; i < 1 * 35 * 30; i++)key2.maphis.maphis3[i] = ((unsigned int)maphis->maphis3[i] & Encryptionkey);
+			for (int i = 0; i < 3 * 30 * 30; i++)key2.maphis.maphis4[i] = ((unsigned int)maphis->maphis4[i] & Encryptionkey);
 
 			FILE *fp = fopen("./dat/save/save.da1", "wb");
 			FILE *fp2 = fopen("./dat/save/save.da2", "wb");

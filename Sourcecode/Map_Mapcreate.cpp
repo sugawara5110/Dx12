@@ -41,6 +41,14 @@ int Map::GetBossKilled(int map_no) {
 	return boss_killed[map_no];
 }
 
+void Map::SetMapHistory(MapHistoryData *maphi) {
+	maphis = *maphi;
+}
+
+MapHistoryData *Map::GetMapHistory() {
+	return &maphis;
+}
+
 Map::Map(Position::H_Pos *h_p, Hero *hero) {
 
 	map_no = map_no_s;
@@ -180,6 +188,9 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 	if (Elevator_count >= 1) {
 		poElevator.GetVBarray(SQUARE, Elevator_count);
 	}
+
+	//地図
+	MapHistory.GetVBarray2D(1);
 
 	//ライトポジション構造体確保
 	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);
@@ -339,6 +350,7 @@ void Map::SetCommandList(int com_no) {
 	poElevator.SetCommandList(comNo);
 	poEXIT.SetCommandList(comNo);
 	poMo.SetCommandList(comNo);
+	MapHistory.SetCommandList(comNo);
 }
 
 void Map::CreateMap() {
@@ -484,6 +496,10 @@ void Map::CreateMap() {
 	if (Elevator_count >= 1) {
 		poElevator.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);
 	}
+
+	MapHistory.TexOn();
+	MapHistory.TextureInit(128, 128);
+	MapHistory.CreateBox(600.0f, 100.0f, 0.1f, 100.0f, 100.0f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
 }
 
 void Map::Mapupdate_Wood() {
@@ -1292,6 +1308,12 @@ Map::~Map() {
 	light = NULL;
 	free(mxy.m);
 	mxy.m = NULL;
+	for (int i = 0; i < 128; i++) {
+		free(mapdata[i]);
+		mapdata[i] = NULL;
+	}
+	free(mapdata);
+	mapdata = NULL;
 }
 
 bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {

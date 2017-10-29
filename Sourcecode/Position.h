@@ -15,6 +15,14 @@
 #define POSX_U (h_posIn->pz * mxy->y * mxy->x + h_posIn->py * mxy->x + (h_posIn->px + 1))
 #define POSX_D (h_posIn->pz * mxy->y * mxy->x + h_posIn->py * mxy->x + (h_posIn->px - 1))
 
+struct MapHistoryData {
+	unsigned int maphis0[1 * 35 * 30] = { 0 };
+	unsigned int maphis1[1 * 40 * 40] = { 0 };
+	unsigned int maphis2[1 * 40 * 30] = { 0 };
+	unsigned int maphis3[1 * 35 * 30] = { 0 };
+	unsigned int maphis4[3 * 30 * 30] = { 0 };
+};
+
 class Position{
 
 public:
