@@ -54,6 +54,7 @@ class ParticleData;
 class SkinMesh;
 class DxText;
 class Wave;
+class PostEffect;
 class Common;
 //前方宣言
 
@@ -67,6 +68,7 @@ private:
 	friend ParticleData;
 	friend SkinMesh;
 	friend Wave;
+	friend PostEffect;
 	friend Common;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCmdListAlloc[2];
@@ -89,6 +91,7 @@ private:
 	friend SkinMesh;
 	friend Dx12Process_sub;
 	friend Wave;
+	friend PostEffect;
 	friend Common;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
@@ -155,6 +158,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_2DTC = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader_Wave = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader_Post = nullptr;
 
 	//サンプラ
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
@@ -400,6 +404,7 @@ private:
 	friend ParticleData;
 	friend SkinMesh;
 	friend Wave;
+	friend PostEffect;
 	Common() {}//外部からのオブジェクト生成禁止
 	Common(const Common &obj) {}     // コピーコンストラクタ禁止
 	void operator=(const Common& obj) {}// 代入演算子禁止
@@ -459,6 +464,30 @@ private:
 public:
 	void TextureInit(int width, int height);
 	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
+};
+
+//**********************************PostEffectクラス*********************************//
+
+class PostEffect :public Common {
+
+private:
+	int                        com_no = 0;
+	ID3DBlob                   *cs = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignatureCom = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSOCom = nullptr;//パイプラインOBJ
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mUavHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mInputBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mOutputBuffer = nullptr;
+
+	UploadBuffer<CONSTANT_BUFFER_PostMosaic> *mObjectCB = nullptr;
+
+public:
+	PostEffect();
+	~PostEffect();
+	void SetCommandList(int no);
+	void ComCreate();
+	void Compute(bool On, int size);
 };
 
 //*********************************MeshDataクラス*************************************//

@@ -40,6 +40,7 @@ private:
 	DxText *text;
 	T_float tfloat;
 	Position::mapxy mxy;
+	bool menuSt = FALSE;
 
 	struct LightPos {
 		float x, y, z;
@@ -180,6 +181,7 @@ public:
 	Position::H_Pos *Getposition();
 	void Setposition(Position::H_Pos *pos);
 	Position::mapxy *Getmap();
+	bool GetMenuState(int *cnt);
 	~Map();
 };
 

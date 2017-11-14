@@ -33,6 +33,8 @@ private:
 	Dx12Process *dx;
 	//文字入力
 	DxText *text;
+	//ポストエフェクト
+	PostEffect *pe = NULL;
 	//プレイヤー
 	Hero *hero = NULL;
 	//入力

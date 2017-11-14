@@ -20,6 +20,7 @@
 #include "./Shader/ShaderWaveDraw.h"
 #include "./Shader/ShaderCommonPS.h"
 #include "./Shader/ShaderCommonTriangleHSDS.h"
+#include "./Shader/ShaderPostEffect.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -194,12 +195,15 @@ void Dx12Process::CreateShaderByteCode() {
 	ComHSDS.addStr(ShaderFunction, strlen(ShaderFunction), ShaderCommonTriangleHSDS, strlen(ShaderCommonTriangleHSDS));
 
 	//CommonPS
-	pPixelShader_Bump = dx->CompileShader(ComPS.str, ComPS.size, "PS_LBump", "ps_5_0");
-	pPixelShader_3D = dx->CompileShader(ComPS.str, ComPS.size, "PS_L", "ps_5_0");
-	pPixelShader_Emissive = dx->CompileShader(ComPS.str, ComPS.size, "PS", "ps_5_0");
+	pPixelShader_Bump = CompileShader(ComPS.str, ComPS.size, "PS_LBump", "ps_5_0");
+	pPixelShader_3D = CompileShader(ComPS.str, ComPS.size, "PS_L", "ps_5_0");
+	pPixelShader_Emissive = CompileShader(ComPS.str, ComPS.size, "PS", "ps_5_0");
 	//CommonHSDS(Triangle)
-	pHullShaderTriangle = dx->CompileShader(ComHSDS.str, ComHSDS.size, "HS", "hs_5_0");
-	pDomainShaderTriangle = dx->CompileShader(ComHSDS.str, ComHSDS.size, "DS", "ds_5_0");
+	pHullShaderTriangle = CompileShader(ComHSDS.str, ComHSDS.size, "HS", "hs_5_0");
+	pDomainShaderTriangle = CompileShader(ComHSDS.str, ComHSDS.size, "DS", "ds_5_0");
+
+	//ポストエフェクト
+	pComputeShader_Post = CompileShader(ShaderPostEffect, strlen(ShaderPostEffect), "MosaicCS", "cs_5_0");
 
 	//スキンメッシュ
 	pVertexLayout_SKIN =
@@ -211,9 +215,9 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "BONE_INDEX", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "BONE_WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 60, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
-	pVertexShader_SKIN = dx->CompileShader(Skin.str, Skin.size, "VSSkin", "vs_5_0");
+	pVertexShader_SKIN = CompileShader(Skin.str, Skin.size, "VSSkin", "vs_5_0");
 	//テセレーター有
-	pVertexShader_SKIN_D = dx->CompileShader(SkinD.str, SkinD.size, "VS", "vs_5_0");
+	pVertexShader_SKIN_D = CompileShader(SkinD.str, SkinD.size, "VS", "vs_5_0");
 
 	//ストリーム出力データ定義(パーティクル用)
 	pDeclaration_PSO =
@@ -224,8 +228,8 @@ void Dx12Process::CreateShaderByteCode() {
 		{ 0, "COLOR", 0, 0, 4, 0 }
 	};
 	//ストリーム出力
-	pVertexShader_PSO = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "VS_SO", "vs_5_0");
-	pGeometryShader_PSO = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point_SO", "gs_5_0");
+	pVertexShader_PSO = CompileShader(ShaderParticle, strlen(ShaderParticle), "VS_SO", "vs_5_0");
+	pGeometryShader_PSO = CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point_SO", "gs_5_0");
 
 	//パーティクル頂点インプットレイアウトを定義
 	pVertexLayout_P =
@@ -236,9 +240,9 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 	//パーティクル
-	pVertexShader_P = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "VS", "vs_5_0");
-	pGeometryShader_P = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point", "gs_5_0");
-	pPixelShader_P = dx->CompileShader(ShaderParticle, strlen(ShaderParticle), "PS", "ps_5_0");
+	pVertexShader_P = CompileShader(ShaderParticle, strlen(ShaderParticle), "VS", "vs_5_0");
+	pGeometryShader_P = CompileShader(ShaderParticle, strlen(ShaderParticle), "GS_Point", "gs_5_0");
+	pPixelShader_P = CompileShader(ShaderParticle, strlen(ShaderParticle), "PS", "ps_5_0");
 
 	//メッシュレイアウト
 	pVertexLayout_MESH =
@@ -249,9 +253,9 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 	//メッシュ
-	pVertexShader_MESH = dx->CompileShader(Mesh.str, Mesh.size, "VSMesh", "vs_5_0");
+	pVertexShader_MESH = CompileShader(Mesh.str, Mesh.size, "VSMesh", "vs_5_0");
 	//テセレーター有メッシュ
-	pVertexShader_MESH_D = dx->CompileShader(MeshD.str, MeshD.size, "VSMesh", "vs_5_0");
+	pVertexShader_MESH_D = CompileShader(MeshD.str, MeshD.size, "VSMesh", "vs_5_0");
 
 	//3DレイアウトTexture有り
 	pVertexLayout_3D =
@@ -267,19 +271,19 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 	//テクスチャ3D
-	pVertexShader_TC = dx->CompileShader(D3.str, D3.size, "VSTextureColor", "vs_5_0");
+	pVertexShader_TC = CompileShader(D3.str, D3.size, "VSTextureColor", "vs_5_0");
 	//基本色3D
-	pVertexShader_BC = dx->CompileShader(D3.str, D3.size, "VSBaseColor", "vs_5_0");
-	pPixelShader_BC = dx->CompileShader(D3.str, D3.size, "PSBaseColor", "ps_5_0");
+	pVertexShader_BC = CompileShader(D3.str, D3.size, "VSBaseColor", "vs_5_0");
+	pPixelShader_BC = CompileShader(D3.str, D3.size, "PSBaseColor", "ps_5_0");
 	//テセレータ
-	pVertexShader_DISP = dx->CompileShader(Disp.str, Disp.size, "VSDisp", "vs_5_0");
-	pHullShader_DISP = dx->CompileShader(Disp.str, Disp.size, "HSDisp", "hs_5_0");
-	pDomainShader_DISP = dx->CompileShader(Disp.str, Disp.size, "DSDisp", "ds_5_0");
+	pVertexShader_DISP = CompileShader(Disp.str, Disp.size, "VSDisp", "vs_5_0");
+	pHullShader_DISP = CompileShader(Disp.str, Disp.size, "HSDisp", "hs_5_0");
+	pDomainShader_DISP = CompileShader(Disp.str, Disp.size, "DSDisp", "ds_5_0");
 	//Wave
-	pComputeShader_Wave = dx->CompileShader(ShaderWaveCom, strlen(ShaderWaveCom), "CS", "cs_5_0");
-	pVertexShader_Wave = dx->CompileShader(Wave.str, Wave.size, "VSWave", "vs_5_0");
-	pHullShader_Wave = dx->CompileShader(Wave.str, Wave.size, "HSWave", "hs_5_0");
-	pDomainShader_Wave = dx->CompileShader(Wave.str, Wave.size, "DSWave", "ds_5_0");
+	pComputeShader_Wave = CompileShader(ShaderWaveCom, strlen(ShaderWaveCom), "CS", "cs_5_0");
+	pVertexShader_Wave = CompileShader(Wave.str, Wave.size, "VSWave", "vs_5_0");
+	pHullShader_Wave = CompileShader(Wave.str, Wave.size, "HSWave", "hs_5_0");
+	pDomainShader_Wave = CompileShader(Wave.str, Wave.size, "DSWave", "ds_5_0");
 
 	//2Dレイアウト
 	pVertexLayout_2D =
@@ -289,11 +293,11 @@ void Dx12Process::CreateShaderByteCode() {
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 + 4 * 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 	//テクスチャ2D
-	pVertexShader_2DTC = dx->CompileShader(Shader2D, strlen(Shader2D), "VSTextureColor", "vs_5_0");
-	pPixelShader_2DTC = dx->CompileShader(Shader2D, strlen(Shader2D), "PSTextureColor", "ps_5_0");
+	pVertexShader_2DTC = CompileShader(Shader2D, strlen(Shader2D), "VSTextureColor", "vs_5_0");
+	pPixelShader_2DTC = CompileShader(Shader2D, strlen(Shader2D), "PSTextureColor", "ps_5_0");
 	//2D
-	pVertexShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "VSBaseColor", "vs_5_0");
-	pPixelShader_2D = dx->CompileShader(Shader2D, strlen(Shader2D), "PSBaseColor", "ps_5_0");
+	pVertexShader_2D = CompileShader(Shader2D, strlen(Shader2D), "VSBaseColor", "vs_5_0");
+	pPixelShader_2D = CompileShader(Shader2D, strlen(Shader2D), "PSBaseColor", "ps_5_0");
 }
 
 void Dx12Process::SetTextureBinary(Texture *texture, int size) {
@@ -349,7 +353,7 @@ void Dx12Process::GetTexture(int com_no) {
 		HeapProps.CreationNodeMask = 1;
 		HeapProps.VisibleNodeMask = 1;
 
-		if (FAILED(dx->md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
+		if (FAILED(md3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
 			D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&texture[i])))) {
 			sprintf(str, "texture[%d]読み込みエラー", (i));
 			throw str;
@@ -377,7 +381,7 @@ void Dx12Process::GetTexture(int com_no) {
 		BufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		BufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if (FAILED(dx->md3dDevice->CreateCommittedResource(&HeapPropsUp, D3D12_HEAP_FLAG_NONE,
+		if (FAILED(md3dDevice->CreateCommittedResource(&HeapPropsUp, D3D12_HEAP_FLAG_NONE,
 			&BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr, IID_PPV_ARGS(&textureUp[i])))) {
 			sprintf(str, "textureUp[%d]読み込みエラー", (i));
@@ -643,7 +647,7 @@ void Dx12Process::Sclear(int com_no) {
 		mCurrBackBuffer,
 		mRtvDescriptorSize), true, &mDsvHeap->GetCPUDescriptorHandleForHeapStart());
 
-	dx_sub[com_no].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get(),
+	dx_sub[com_no].mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 }
 

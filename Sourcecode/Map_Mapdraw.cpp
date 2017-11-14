@@ -27,9 +27,42 @@ void Map::MapdrawObj() {
 	poWallE.Draw();
 }
 
+bool Map::GetMenuState(int *cnt) {
+	static int count = 10;
+
+	if (!menuSt) {//menuOFF
+		if (count > 10) {
+			count--;
+			*cnt = count * 0.1f;
+			return TRUE;
+		}
+		else {
+			count = 10;
+			*cnt = 1;
+			return FALSE;
+		}
+	}
+	else {//menu開いているON
+		if (count < 100) {
+			count++;
+			*cnt = count * 0.1f;
+			return TRUE;
+		}
+		else {
+			count = 100;
+			*cnt = 10;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 Encount Map::MapUpdate(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending) {
 
 	//Debug();
+
+	menuSt = menu;
 
 	//ボス撃破後のマップ,テキスト処理
 	if (mxy.m[POS_CE] == 51 && boss_killed[map_no] == 1) {

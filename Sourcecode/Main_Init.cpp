@@ -141,6 +141,8 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	control = Control::GetInstance();
 	dx->Bigin(0);
 	statemenu = new StateMenu();
+	pe = new PostEffect();
+	pe->ComCreate();
 	dx->End(0);
 	dx->WaitFenceCurrent();
 
@@ -309,6 +311,8 @@ void Main::Draw() {
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
 	}
+	int cnt = 0;
+	pe->Compute(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
 	dx->End(0);
@@ -341,6 +345,7 @@ Main::~Main() {
 	ARR_DELETE(hero);
 	S_DELETE(ending);
 	TextureBinaryLoader::DeleteTextureStruct();
+	S_DELETE(pe);
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }

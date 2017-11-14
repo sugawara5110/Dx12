@@ -252,4 +252,9 @@ struct TextureNo {
 	bool movie;
 };
 
+//ポストエフェクト
+struct CONSTANT_BUFFER_PostMosaic {
+	VECTOR4 mosaicSize;//x
+};
+
 #endif
