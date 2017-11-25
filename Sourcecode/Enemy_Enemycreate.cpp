@@ -26,6 +26,7 @@ Enemy::Enemy(int t_no, int no) {
 	en = NULL;
 	en_boss_att = NULL;
 	attFin = attOn = magicAttOn = FALSE;
+	magicSel = NOSEL;
 }
 
 void Enemy::EffectGetBuffer() {

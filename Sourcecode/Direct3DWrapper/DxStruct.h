@@ -255,6 +255,7 @@ struct TextureNo {
 //ポストエフェクト
 struct CONSTANT_BUFFER_PostMosaic {
 	VECTOR4 mosaicSize;//x
+	VECTOR4 blur;//xy:座標, z:強さ
 };
 
 #endif

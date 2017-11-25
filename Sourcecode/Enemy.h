@@ -25,6 +25,7 @@ protected:
 	PolygonData *en = NULL;//SideEnemy使用
 	PolygonData *mag = NULL;//SideEnemy使用
 	PolygonData effect[4];//エフェクト
+	MagicSelect magicSel;
 
 	int effect_no = 0;
 	MeshData *en_boss_att0 = NULL;//boss2のみ使用
@@ -79,6 +80,7 @@ public:
 	virtual bool M_run_flg();//マジック実行フラグ
 	virtual void M_select(int *r, int *r1);//マジック選択
 	bool s_esc();
+	bool GetBossEffectState(float *blur);
 	virtual ~Enemy();
 };
 

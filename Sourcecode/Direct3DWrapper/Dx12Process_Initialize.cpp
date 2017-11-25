@@ -203,7 +203,8 @@ void Dx12Process::CreateShaderByteCode() {
 	pDomainShaderTriangle = CompileShader(ComHSDS.str, ComHSDS.size, "DS", "ds_5_0");
 
 	//ポストエフェクト
-	pComputeShader_Post = CompileShader(ShaderPostEffect, strlen(ShaderPostEffect), "MosaicCS", "cs_5_0");
+	pComputeShader_Post[0] = CompileShader(ShaderPostEffect, strlen(ShaderPostEffect), "MosaicCS", "cs_5_0");
+	pComputeShader_Post[1] = CompileShader(ShaderPostEffect, strlen(ShaderPostEffect), "BlurCS", "cs_5_0");
 
 	//スキンメッシュ
 	pVertexLayout_SKIN =

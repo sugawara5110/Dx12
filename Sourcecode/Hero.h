@@ -64,6 +64,7 @@ public:
 	void Draw(Encount enc, bool ending);
 	Action Normal_act_get();
 	void Act_f_init();
+	void Draw2D(Encount enc, bool ending);
 	virtual ~Hero();
 };
 

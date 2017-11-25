@@ -288,10 +288,17 @@ Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 }
 
 void Battle::FightDraw(Encount enc) {
-	command.Draw();
-	h_select.Draw();
 	E_select.Draw();
 	for (int i = 0; i < e_num; i++)enemy[i].Draw(enc);
+}
+
+void Battle::Draw2D(Encount enc) {
+	command.Draw();
+	h_select.Draw();
+}
+
+bool Battle::GetBossEffectState(float *blur) {
+	return	enemy[0].GetBossEffectState(blur);//boss‚Ì‚Ý‚È‚Ì‚ÅŠî–{“I‚É[0]‚Ì‚Ý
 }
 
 Position::Bt_H_Pos *Battle::GetBtPos(Position::H_Pos *h_p){

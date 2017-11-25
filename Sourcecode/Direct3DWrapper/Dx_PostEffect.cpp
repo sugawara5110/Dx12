@@ -21,7 +21,15 @@ void PostEffect::SetCommandList(int no) {
 	mCommandList = dx->dx_sub[com_no].mCommandList.Get();
 }
 
-void PostEffect::ComCreate() {
+void PostEffect::ComCreateMosaic() {
+	ComCreate(0);
+}
+
+void PostEffect::ComCreateBlur() {
+	ComCreate(1);
+}
+
+void PostEffect::ComCreate(int no) {
 
 	D3D12_DESCRIPTOR_HEAP_DESC uavHeapDesc = {};
 	uavHeapDesc.NumDescriptors = 2;
@@ -88,18 +96,29 @@ void PostEffect::ComCreate() {
 
 	mRootSignatureCom = CreateRsCompute(3, slotRootParameter);
 
-	cs = dx->pComputeShader_Post.Get();
+	cs = dx->pComputeShader_Post[no].Get();
 
 	//PSO
 	mPSOCom = CreatePsoCompute(cs, mRootSignatureCom.Get());
 }
 
-void PostEffect::Compute(bool On, int size) {
+void PostEffect::ComputeMosaic(bool On, int size) {
+	Compute(On, size, 0.0f, 0.0f, 0.0f);
+}
+
+void PostEffect::ComputeBlur(bool On, float blurX, float blurY, float blurLevel) {
+	Compute(On, 0.0f, blurX, blurY, blurLevel);
+}
+
+void PostEffect::Compute(bool On, int size, float blurX, float blurY, float blurLevel) {
 
 	if (!On)return;
 
 	CONSTANT_BUFFER_PostMosaic cb;
 	cb.mosaicSize.x = (float)size;
+	cb.blur.x = blurX;
+	cb.blur.y = blurY;
+	cb.blur.z = blurLevel;
 	mObjectCB->CopyData(0, cb);
 
 	mCommandList->SetPipelineState(mPSOCom.Get());

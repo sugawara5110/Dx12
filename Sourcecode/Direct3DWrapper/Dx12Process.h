@@ -158,7 +158,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelShader_2DTC = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader_Wave = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader_Post = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader_Post[2] = { nullptr };
 
 	//サンプラ
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
@@ -482,12 +482,17 @@ private:
 
 	UploadBuffer<CONSTANT_BUFFER_PostMosaic> *mObjectCB = nullptr;
 
+	void ComCreate(int no);
+	void Compute(bool On, int size, float blurX, float blurY, float blurLevel);
+
 public:
 	PostEffect();
 	~PostEffect();
 	void SetCommandList(int no);
-	void ComCreate();
-	void Compute(bool On, int size);
+	void ComCreateMosaic();
+	void ComCreateBlur();
+	void ComputeMosaic(bool On, int size);
+	void ComputeBlur(bool On, float blurX, float blurY, float blurLevel);
 };
 
 //*********************************MeshDataクラス*************************************//

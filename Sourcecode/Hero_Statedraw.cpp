@@ -263,19 +263,29 @@ void Hero::Draw(Encount enc, bool ending) {
 			torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
 			torchFlame->Draw();
 		}
-		state.DrawOff();
-		meter.DrawOff();
 	}
 	else {
 		p_att->Draw();
-		state.Draw();
-		meter.Draw();
 		mag.Draw();
 		for (int i = 0; i < 4; i++)effect[i].Draw();
 		if (torchWood) {
 			torchWood->DrawOff();
 			torchFlame->DrawOff();
 		}
+	}
+}
+
+void Hero::Draw2D(Encount enc, bool ending) {
+
+	if (ending)return;
+
+	if (enc == NOENCOUNT) {
+		state.DrawOff();
+		meter.DrawOff();
+	}
+	else {
+		state.Draw();
+		meter.Draw();
 	}
 }
 

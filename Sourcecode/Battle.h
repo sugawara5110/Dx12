@@ -269,11 +269,13 @@ public:
 	bool CreateB_Fin();
 	Result FightUpdate(Hero *he, Directionkey direction, Result result);
 	void FightDraw(Encount enc);
+	void Draw2D(Encount enc);
 	Position::Bt_H_Pos *GetBtPos(Position::H_Pos *h_p);
 	bool GetH_DM(int element);
 	bool GetH_RCV(int element);
 	bool GetE_DM(int element);
 	bool GetE_RCV(int element);
+	bool GetBossEffectState(float *blur);
 	~Battle();
 };
 

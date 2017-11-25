@@ -141,8 +141,10 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	control = Control::GetInstance();
 	dx->Bigin(0);
 	statemenu = new StateMenu();
-	pe = new PostEffect();
-	pe->ComCreate();
+	mosaic = new PostEffect();
+	mosaic->ComCreateMosaic();
+	blur = new PostEffect();
+	blur->ComCreateBlur();
 	dx->End(0);
 	dx->WaitFenceCurrent();
 
@@ -306,13 +308,25 @@ void Main::UpDate() {
 void Main::Draw() {
 	dx->Bigin(0);
 	dx->Sclear(0);
-	InstanceCreate::GetInstance_M()->MapDraw();
-	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->FightDraw(encount);
+	float blu = 0.0f;
+	bool bluRet = FALSE;
+	if (battleSwitch == 2) {
+		InstanceCreate::GetInstance_B()->FightDraw(encount);
+		bluRet = InstanceCreate::GetInstance_B()->GetBossEffectState(&blu);
+	}
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
 	}
+	InstanceCreate::GetInstance_M()->MapDraw();
 	int cnt = 0;
-	pe->Compute(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
+	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
+	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
+	bluRet = FALSE;
+	blu = 0.0f;
+	for (int i = 0; i < 4; i++) {
+		hero[i].Draw2D(encount, ending);
+	}
+	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
 	dx->End(0);
@@ -345,7 +359,8 @@ Main::~Main() {
 	ARR_DELETE(hero);
 	S_DELETE(ending);
 	TextureBinaryLoader::DeleteTextureStruct();
-	S_DELETE(pe);
+	S_DELETE(mosaic);
+	S_DELETE(blur);
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }

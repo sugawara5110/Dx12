@@ -80,6 +80,7 @@ Act_fin_flg Enemy::EnemyUpdate(Battle *battle, int *E_select_obj, Action action,
 			text->UpDateText(L"ƒtƒŒƒCƒ€‚k‚u", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 			text->UpDateValue(GetFlameATT_LV(), mx + 180.0f, my, 30.0f, 3, { 1.0f, 1.0f, 1.0f, 1.0f });
 			effect_no = 1;
+			magicSel = FLAME;
 			break;
 		case HEAL:
 			text->UpDateText(L"ƒq[ƒŠƒ“ƒO‚k‚u", mx, my, 30.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -128,6 +129,21 @@ Act_fin_flg Enemy::EnemyUpdate(Battle *battle, int *E_select_obj, Action action,
 	ObjUpdate(e_pos[o_no].x + mov_x, e_pos[o_no].y + mov_y, e_pos[o_no].z + mov_z, cr, cg, cb, e_pos[o_no].theta);
 
 	return NOT_FIN;
+}
+
+bool Enemy::GetBossEffectState(float *blur) {
+	static float blurRet = 0.0f;
+	static bool eff = FALSE;
+
+	if ((en_boss_att || en_boss_att0) && magicSel == FLAME && effect_f)eff = TRUE;
+
+	if (eff && (blurRet += 0.001f) > 0.1f) {
+		blurRet = 0.0f;
+		eff = FALSE;
+		magicSel = NOSEL;
+	}
+	*blur = blurRet;
+	return eff;
 }
 
 void Enemy::Draw(Encount enc) {
