@@ -27,8 +27,8 @@ class Map {
 private:
 	//地図
 	static MapHistoryData maphis;
-	static unsigned int *maphistory[5];
-	int **mapdata;
+	static UINT *maphistory[5];
+	UINT **mapdata;
 	PolygonData2D MapHistory;
 
 	static int map_no_s;    //マップナンバー

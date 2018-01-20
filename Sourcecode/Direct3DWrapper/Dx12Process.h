@@ -58,7 +58,7 @@ class PostEffect;
 class Common;
 //前方宣言
 
-class Dx12Process_sub {
+class Dx12Process_sub final{
 
 private:
 	friend Dx12Process;
@@ -81,7 +81,7 @@ private:
 	void End();
 };
 
-class Dx12Process {
+class Dx12Process final{
 
 private:
 	friend MeshData;
@@ -340,7 +340,7 @@ struct StreamView {
 template<typename T>
 class UploadBuffer {
 
-private:
+protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> mUploadBuffer;
 	BYTE *mMappedData = nullptr;
 	UINT mElementByteSize = 0;
@@ -397,7 +397,7 @@ public:
 
 class Common {
 
-private:
+protected:
 	friend MeshData;
 	friend PolygonData;
 	friend PolygonData2D;
@@ -461,16 +461,22 @@ private:
 	ID3D12PipelineState *CreatePsoCompute(ID3DBlob *cs,
 		ID3D12RootSignature *mRootSignature);
 
+	ID3D12Resource *GetSwapChainBuffer();
+	ID3D12Resource *GetDepthStencilBuffer();
+	ID3D12Resource *GetTexture(int Num);
+	ID3D12Resource *GetTextureUp(int Num);
+	Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(LPSTR szFileName, size_t size, LPSTR szFuncName, LPSTR szProfileName);
+
 public:
 	void TextureInit(int width, int height);
-	void SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a);
+	void SetTextureMPixel(UINT **m_pix, BYTE r, BYTE g, BYTE b, BYTE a);
 };
 
 //**********************************PostEffectクラス*********************************//
 
 class PostEffect :public Common {
 
-private:
+protected:
 	int                        com_no = 0;
 	ID3DBlob                   *cs = nullptr;
 
@@ -499,7 +505,7 @@ public:
 
 class MeshData :public Common {
 
-private:
+protected:
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
 	ID3DBlob                   *vsB = nullptr;
@@ -587,7 +593,7 @@ public:
 
 class PolygonData :public Common {
 
-private:
+protected:
 	//ポインタで受け取る
 	int                        com_no = 0;
 	ID3DBlob                   *vs = nullptr;
@@ -678,7 +684,7 @@ public:
 
 class PolygonData2D :public Common {
 
-private:
+protected:
 	friend DxText;
 
 	int                        com_no = 0;
@@ -757,7 +763,7 @@ public:
 
 class T_float {
 
-private:
+protected:
 	static DWORD f[2], time[2];
 	static DWORD time_fps[2];//FPS計測用
 	static int frame[2];    //FPS計測使用
@@ -777,7 +783,7 @@ public:
 
 class ParticleData :public Common {
 
-private:
+protected:
 	int                        com_no = 0;
 	ID3DBlob                   *gsSO;
 	ID3DBlob                   *vsSO;
@@ -855,7 +861,7 @@ public:
 
 class SkinMesh_sub {
 
-private:
+protected:
 	friend SkinMesh;
 
 	FbxScene *m_pmyScene = NULL;
@@ -873,7 +879,7 @@ private:
 
 class SkinMesh :public Common {
 
-private:
+protected:
 	friend SkinMesh_sub;
 	friend Dx12Process;
 	static FbxManager *m_pSdkManager;
@@ -1007,7 +1013,7 @@ void ErrorMessage(char *E_mes);
 
 class Wave :public Common {
 
-private:
+protected:
 	int                        com_no = 0;
 	ID3DBlob                   *cs = nullptr;
 	ID3DBlob                   *vs = nullptr;

@@ -13,7 +13,7 @@
 #include <time.h>
 
 MapHistoryData Map::maphis;
-unsigned int *Map::maphistory[5];
+UINT *Map::maphistory[5];
 
 bool Map::MoveUpCond(int Ind){
 	if (mxy.m[Ind] == 49 ||

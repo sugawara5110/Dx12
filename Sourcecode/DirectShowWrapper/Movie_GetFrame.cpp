@@ -76,7 +76,7 @@ Movie::Movie(char *fname) {
 	if (fileDelF)remove(fname);//削除フラグOn:ファイル削除。解放されると削除されてる
 }
 
-int **Movie::GetFrame(int width, int height){
+UINT **Movie::GetFrame(int width, int height){
 
 	hei = height;
 	wid = width;
@@ -94,9 +94,9 @@ int **Movie::GetFrame(int width, int height){
 	pSampleGrabber->GetCurrentBuffer(&nBufferSize, (long *)(pBuffer));
 
 	if (m_pix == NULL){
-		m_pix = (int**)malloc(sizeof(int*) * hei);
+		m_pix = (UINT**)malloc(sizeof(UINT*) * hei);
 		for (int i = 0; i < hei; i++){
-			m_pix[i] = (int*)malloc(sizeof(int) * wid);
+			m_pix[i] = (UINT*)malloc(sizeof(UINT) * wid);
 		}
 	}
 

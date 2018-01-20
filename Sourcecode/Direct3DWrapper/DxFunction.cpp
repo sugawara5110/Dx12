@@ -299,3 +299,4 @@ void StraightLinear(MATRIX *out, MATRIX *start, MATRIX *end, float t) {
 		}
 	}
 }
+

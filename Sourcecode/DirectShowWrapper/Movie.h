@@ -19,12 +19,12 @@ protected:
 	int linesize;   //1ラインサイズ
 	int xs, ys;    //画像サイズ
 	int wid, hei; //格納時画像サイズ 
-	int **m_pix; //受け渡し用ピクセルデータ(1要素1ピクセル)
+	UINT **m_pix; //受け渡し用ピクセルデータ(1要素1ピクセル)
 
 public:
 	Movie() {}
 	Movie(char *fileName);//デコード後のファイルネーム
-	int **GetFrame(int width, int height);
+	UINT **GetFrame(int width, int height);
 	virtual ~Movie();
 };
 

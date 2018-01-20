@@ -26,6 +26,11 @@ void TextureBinaryLoader::TextureBinaryDecode(char *Bpass, bool UpKeep) {
 	texNum++;
 }
 
+void TextureBinaryLoader::InputTextureFileName(char *Bpass) {
+	tex[texNum].texName = Bpass;
+	texNum++;
+}
+
 void TextureBinaryLoader::TextureGetBufferAll() {
 
 	tex = new Texture[150];

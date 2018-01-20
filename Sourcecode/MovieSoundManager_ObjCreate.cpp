@@ -218,11 +218,11 @@ void MovieSoundManager::ObjDelete(){
 	S_DELETE(enter_so);
 }
 
-int **MovieSoundManager::Torch_GetFrame(int width, int height){
+UINT **MovieSoundManager::Torch_GetFrame(int width, int height){
 	return mo->GetFrame(width, height);
 }
 
-int **MovieSoundManager::FireWall_GetFrame(int width, int height){
+UINT **MovieSoundManager::FireWall_GetFrame(int width, int height){
 	return f_wall->GetFrame(width, height);
 }
 

@@ -72,7 +72,7 @@ void Common::TextureInit(int width, int height) {
 	m_on = TRUE;
 }
 
-void Common::SetTextureMPixel(int **m_pix, BYTE r, BYTE g, BYTE b, int a) {
+void Common::SetTextureMPixel(UINT **m_pix, BYTE r, BYTE g, BYTE b, BYTE a) {
 
 	D3D12_RESOURCE_DESC texdesc;
 	texdesc = texture->GetDesc();
@@ -371,3 +371,22 @@ ID3D12PipelineState *Common::CreatePsoCompute(ID3DBlob *cs,
 	return pso;
 }
 
+ID3D12Resource *Common::GetSwapChainBuffer() {
+	return dx->mSwapChainBuffer[dx->mCurrBackBuffer].Get();
+}
+
+ID3D12Resource *Common::GetDepthStencilBuffer() {
+	return dx->mDepthStencilBuffer.Get();
+}
+
+ID3D12Resource *Common::GetTexture(int Num) {
+	return dx->texture[Num];
+}
+
+ID3D12Resource *Common::GetTextureUp(int Num) {
+	return dx->textureUp[Num];
+}
+
+Microsoft::WRL::ComPtr<ID3DBlob> Common::CompileShader(LPSTR szFileName, size_t size, LPSTR szFuncName, LPSTR szProfileName) {
+	return dx->CompileShader(szFileName, size, szFuncName, szProfileName);
+}

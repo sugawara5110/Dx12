@@ -68,8 +68,8 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 	maphistory[2] = maphis.maphis2;
 	maphistory[3] = maphis.maphis3;
 	maphistory[4] = maphis.maphis4;
-	mapdata = (int**)malloc(sizeof(int*) * 128);
-	for (int i = 0; i < 128; i++)mapdata[i] = (int*)malloc(sizeof(int) * 128);
+	mapdata = (UINT**)malloc(sizeof(UINT*) * 128);
+	for (int i = 0; i < 128; i++)mapdata[i] = (UINT*)malloc(sizeof(UINT) * 128);
 	for (int y = 0; y < 128; y++) {
 		for (int x = 0; x < 128; x++) {
 			mapdata[y][x] = 0x00000000;

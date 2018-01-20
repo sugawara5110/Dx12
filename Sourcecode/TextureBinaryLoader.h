@@ -19,6 +19,7 @@ private:
 	static void TextureGetBuffer(char *Bpass);
 	static void TextureBinaryDecode(char *Bpass);
 	static void TextureBinaryDecode(char *Bpass, bool UpKeep);//暗号化済み画像バイナリデコード
+	static void InputTextureFileName(char *Bpass);//ファイル直接読み込み
 
 public:
 	static void TextureGetBufferAll();

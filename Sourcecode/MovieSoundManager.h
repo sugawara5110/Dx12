@@ -42,8 +42,8 @@ public:
 	static void ObjCreate_ending();
 	static void ObjDelete_ending();
 	static void ObjDelete();
-	static int **Torch_GetFrame(int width, int height);
-	static int **FireWall_GetFrame(int width, int height);
+	static UINT **Torch_GetFrame(int width, int height);
+	static UINT **FireWall_GetFrame(int width, int height);
 	static void Dungeon_sound(bool repeat, int map);
 	static void Dungeon_soundoff(int map);
 	static void Rain_sound(bool repeat);

@@ -21,6 +21,7 @@
 #include "./Shader/ShaderCommonPS.h"
 #include "./Shader/ShaderCommonTriangleHSDS.h"
 #include "./Shader/ShaderPostEffect.h"
+#include <locale.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -336,12 +337,26 @@ void Dx12Process::GetTexture(int com_no) {
 	char str[50];
 
 	for (int i = 0; i < texNum; i++) {
-		if (tex[i].binary_size == 0)continue;
+		if (tex[i].texName == NULL)continue;
 
-		if (FAILED(DirectX::LoadWICTextureFromMemory(md3dDevice.Get(),
-			(uint8_t*)tex[i].binary_ch, tex[i].binary_size, &t, decodedData, subresource))) {
-			sprintf(str, "テクスチャ№%d読み込みエラー", (i));
-			throw str;
+		if (tex[i].binary_ch != NULL) {
+			if (FAILED(DirectX::LoadWICTextureFromMemory(md3dDevice.Get(),
+				(uint8_t*)tex[i].binary_ch, tex[i].binary_size, &t, decodedData, subresource))) {
+				sprintf(str, "テクスチャ№%d読み込みエラー", (i));
+				throw str;
+			}
+		}
+		else {
+			wchar_t ws[200];
+			setlocale(LC_CTYPE, "jpn");
+			mbstowcs(ws, tex[i].texName, 200);
+			tex[i].texName = GetNameFromPass(tex[i].texName);
+
+			if (FAILED(DirectX::LoadWICTextureFromFile(md3dDevice.Get(),
+				ws, &t, decodedData, subresource))) {
+				sprintf(str, "テクスチャ№%d読み込みエラー", (i));
+				throw str;
+			}
 		}
 
 		D3D12_RESOURCE_DESC texDesc;
