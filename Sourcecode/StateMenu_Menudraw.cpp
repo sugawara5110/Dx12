@@ -140,7 +140,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.map_no = 1;*/
 
 
-			/*savedata.h_pos.cx1 = 150.0f;//ボス前
+			savedata.h_pos.cx1 = 150.0f;//ボス前
 			savedata.h_pos.cx2 = 150.0f;
 			savedata.h_pos.cy1 = 1250.0f;
 			savedata.h_pos.cy2 = 1180.0f;
@@ -154,24 +154,24 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 37;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 2;*/
+			savedata.map_no = 2;
 
 
-			/*savedata.h_pos.cx1 = 450.0f;//ボス前
+			savedata.h_pos.cx1 = 450.0f;//ボス前
 			savedata.h_pos.cx2 = 450.0f;
 			savedata.h_pos.cy1 = 750.0f;
 			savedata.h_pos.cy2 = 680.0f;
 			savedata.h_pos.px = 4;
 			savedata.h_pos.py = 7;//ボス前
-			savedata.h_pos.cx1 = 250.0f;
+			/*savedata.h_pos.cx1 = 250.0f;
 			savedata.h_pos.cx2 = 250.0f;
 			savedata.h_pos.cy1 = 2750.0f;
 			savedata.h_pos.cy2 = 2680.0f;
 			savedata.h_pos.px = 2;
-			savedata.h_pos.py = 27;
+			savedata.h_pos.py = 27;*/
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 3;*/
+			savedata.map_no = 3;
 
 			//ラスダン
 			/*savedata.h_pos.cx1 = 1450.0f;//ボス前

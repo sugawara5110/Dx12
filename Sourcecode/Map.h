@@ -9,7 +9,8 @@
 
 #include "MovieSoundManager.h"
 #include "Position.h"
-#include "./Direct3DWrapper/DxText.h"
+#include "../../Common/Window/Control.h"
+#include "../../Common/Direct3DWrapper/DxText.h"
 #include "Hero.h"
 #include <stdio.h>
 #include <stdlib.h>

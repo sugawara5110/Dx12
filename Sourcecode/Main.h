@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "Win.h"
-#include "./Direct3DWrapper/Dx12Process.h"
-#include "./Direct3DWrapper//DxText.h"
+#include "../../Common/Window/Win.h"
+#include "../../Common/Direct3DWrapper/Dx12Process.h"
+#include "../../Common/Direct3DWrapper//DxText.h"
 #include "Map.h"
 #include "Control.h"
 #include "InstanceCreate.h"
@@ -23,6 +23,10 @@
 #include "Ending.h"
 #include "TextureBinaryLoader.h"
 #pragma comment(lib,"winmm.lib")
+#define REFWIDTH 800
+#define REFHEIGHT 600
+#define CURRWIDTH 1024
+#define CURRHEIGHT 768
 
 class Main {
 

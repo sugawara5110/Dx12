@@ -15,10 +15,8 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	en_boss_att0 = NULL;
 	dispOn = true;
 	//t_no=“G‡‚
-	int e;
 	switch (t_no) {
 	case 0:
-		e = 50;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 3;
 		p_data.Attack = 25;
@@ -39,7 +37,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		disp_size = 0.05f;
 		break;
 	case 1:
-		e = 51;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 16;
@@ -60,7 +57,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		disp_size = 0.02f;
 		break;
 	case 2:
-		e = 52;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 30;
@@ -80,7 +76,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		size_y = 60.0f;
 		break;
 	case 3:
-		e = 53;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 65;
@@ -102,7 +97,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 		disp_size = 0.05f;
 		break;
 	case 4:
-		e = 59;
 		normal_action = NORMAL;
 		M_run_flg_rnd = 2;
 		p_data.Attack = 90;

@@ -9,7 +9,8 @@
 
 #include "MovieSoundManager.h"
 #include "Position.h"
-#include "./Direct3DWrapper/DxText.h"
+#include "../../Common/Direct3DWrapper/DxText.h"
+#include "../../Common/Window/Control.h"
 #include "Enum.h"
 
 #define METER_MAX 25000

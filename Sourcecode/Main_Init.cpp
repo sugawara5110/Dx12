@@ -53,7 +53,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 	srand((unsigned)time(NULL));
 
-	if (Createwindow(&hWnd, hInstance, nCmdShow) == -1)return FALSE;
+	if (Createwindow(&hWnd, hInstance, nCmdShow, CURRWIDTH, CURRHEIGHT, L"3DRPG") == -1)return FALSE;
 
 	//Dx12Processオブジェクト生成
 	Dx12Process::InstanceCreate();
@@ -61,10 +61,18 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	dx = Dx12Process::GetInstance();
 	try {
 		//DirectX初期化
-		dx->Initialize(hWnd);
+		dx->Initialize(hWnd, CURRWIDTH, CURRHEIGHT);
+		float cuw = CURRWIDTH;
+		float cuh = CURRHEIGHT;
+		float rew = REFWIDTH;
+		float reh = REFHEIGHT;
+		PolygonData2D::SetMagnification(cuw / rew, cuh / reh);
+		SkinMesh::CreateManager();
 	}
 	catch (char *E_mes) {
 		ErrorMessage(E_mes);
+		SkinMesh::DeleteManager();
+		DxText::DeleteInstance();
 		Dx12Process::DeleteInstance();
 		return FALSE;
 	}
@@ -79,6 +87,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	try {
 		while (1) {
 			if (!DispatchMSG(&msg)) {
+				SkinMesh::DeleteManager();
 				DxText::DeleteInstance();
 				Dx12Process::DeleteInstance();
 				return TRUE;	//アプリ終了
@@ -133,6 +142,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	}
 	catch (char *E_mes) {
 		ErrorMessage(E_mes);
+		SkinMesh::DeleteManager();
 		DxText::DeleteInstance();
 		Dx12Process::DeleteInstance();
 		return FALSE;
@@ -361,6 +371,7 @@ Main::~Main() {
 	TextureBinaryLoader::DeleteTextureStruct();
 	S_DELETE(mosaic);
 	S_DELETE(blur);
+	SkinMesh::DeleteManager();
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }

@@ -7,7 +7,7 @@
 #ifndef Class_Position_Header
 #define Class_Position_Header
 
-#include "./Direct3DWrapper/Dx12Process.h"
+#include "../../Common/Direct3DWrapper/Dx12Process.h"
 #include "Enum.h"
 
 #define POSY_U (h_posIn->pz * mxy->y * mxy->x + (h_posIn->py + 1) * mxy->x + h_posIn->px)

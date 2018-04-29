@@ -7,18 +7,6 @@
 #ifndef Class_Enum_Header
 #define Class_Enum_Header
 
-enum Directionkey {
-	TWOPRESS,
-	NOTPRESS,
-	LEFT,
-	RIGHT,
-	UP,
-	DOWN,
-	ENTER,
-	CANCEL,
-	CAMPOS //éãì_ç¿ïWóp
-};
-
 enum Result {
 	WIN,
 	IN_BATTLE,

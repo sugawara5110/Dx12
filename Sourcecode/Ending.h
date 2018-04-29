@@ -8,7 +8,7 @@
 #define Class_Ending_Header
 
 #include "MovieSoundManager.h"
-#include "./Direct3DWrapper/DxText.h"
+#include "../../Common/Direct3DWrapper/DxText.h"
 
 class Ending{
 

@@ -213,10 +213,10 @@ void Hero::CreateHero() {
 	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	mag.Create(FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
-	int ef = dx->GetTexNumber("h_att.jpg");
-	for (int i = 0; i < 4; i++) {
-		effect[i].Create(FALSE, ef + i, TRUE, TRUE);
-	}
+	effect[0].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
+	effect[1].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
+	effect[2].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
+	effect[3].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
 }
 
 void Hero::Statecreate(bool command_run) {
