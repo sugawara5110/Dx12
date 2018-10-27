@@ -1052,7 +1052,7 @@ void Map::Mapupdate_Recover() {
 			float line_y = -cos(i * 3.14f / 180.0f) * 50.0f;
 			float line_x = sin(i * 3.14f / 180.0f) * 50.0f;
 			int rnd = rand() % 20;
-			poRecoverLine[(int)j].InstancedMapSize3(line_x, line_y, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
+			poRecoverLine[(int)j].InstancedMap(line_x, line_y, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
 		}
 		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	}
@@ -1183,7 +1183,7 @@ void Map::Mapupdate_Ds() {
 		}
 	}
 
-	int loopcount = LIGHT_PCS_init;//ライトのインデックス(0:手持ち松明用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定, 7:リカバーポイント)
+	int loopcount = 8;//ライトのインデックス(0:手持ち松明用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定, 7:リカバーポイント)
 	//各ライト設定
 	for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
 		dx->PointLightPosSet(loopcount, light[i].x, light[i].y, light[i].z, light[i].r, light[i].g, light[i].b, light[i].a, light[i].range, light[i].brightness, light[i].attenuation, light[i].on_off);
@@ -1301,7 +1301,7 @@ void Map::Mapcreate_EXIT(float x, float y, float z, float xsize) {
 
 Map::~Map() {
 	dx->WaitFenceCurrent();
-	dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f, 1.0f, 1.0f, 1.0f, 1.0f, 250.0f, 300.0f, 2.0f, FALSE);//出口ライト消す
+	dx->ResetPointLight();
 	ARR_DELETE(wood);
 	ARR_DELETE(wall1);
 	free(light);
