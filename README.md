@@ -1,7 +1,7 @@
-Developing 3DRPG  
+3DRPG開発中です。
 
-It is for the study of the program.  
+自作Direct3Dラッパーライブラリ使用してます
 
-I have developed it since August 2015.
+3DRPG is under development.
 
-Use Direct3DWrapper
+I'm using my own Direct3D wrapper library
