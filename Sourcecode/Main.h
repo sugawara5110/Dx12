@@ -34,25 +34,25 @@ private:
 	//ウィンドウハンドル
 	HWND hWnd;
 	//DirectX12ラッパー
-	Dx12Process *dx;
+	Dx12Process* dx;
 	//文字入力
-	DxText *text;
+	DxText* text;
 	//ポストエフェクト
-	PostEffect *mosaic = NULL;
-	PostEffect *blur = NULL;
+	PostEffect* mosaic = NULL;
+	PostEffect* blur = NULL;
 	//プレイヤー
-	Hero *hero = NULL;
+	Hero* hero = NULL;
 	//入力
-	Control *control;
+	Control* control;
 	//メニュー
-	StateMenu *statemenu;
+	StateMenu* statemenu;
 	//エンディング
-	Ending *ending = NULL;
+	Ending* ending = NULL;
 	bool endingflg = FALSE;
 	//時間
 	T_float tfloat;
 
-	static Main *main;
+	static Main* main;
 
 	//その他Loop内で使用する変数
 	int map_no = 0;
@@ -63,18 +63,19 @@ private:
 	int battleSwitch = 0;
 	volatile bool mpDel_f = FALSE;
 	volatile bool btDel_f = FALSE;
-	HANDLE *update_h;
-	
+	HANDLE* update_h;
+	int sync = 0;
+
 	void DrawNowLoading(int com_no);
 	void CreateThreadUpdate();
 	void DeleteThreadUpdate();
 
 public:
 	//メッセージ
-	MSG msg;  
+	MSG msg;
 	volatile bool UpDateThreadLoop = TRUE;
-	
-	static Main *GetInstance();
+
+	static Main* GetInstance();
 	static void DeleteInstance();
 
 	bool Init(HINSTANCE hInstance, int nCmdShow);

@@ -7,6 +7,7 @@
 #include "Main.h"
 
 Main *Main::main = NULL;
+HANDLE event[2] = {};
 
 Main *Main::GetInstance() {
 
@@ -44,7 +45,7 @@ void Main::CreateThreadUpdate() {
 
 void Main::DeleteThreadUpdate() {
 	UpDateThreadLoop = FALSE;
-	WaitForSingleObject(update_h, INFINITE);//スレッドが終了するまで待つ
+	//WaitForSingleObject(update_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(update_h);                 //ハンドルを閉じる
 	update_h = NULL;
 }
@@ -67,11 +68,9 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 		float rew = REFWIDTH;
 		float reh = REFHEIGHT;
 		PolygonData2D::SetMagnification(cuw / rew, cuh / reh);
-		SkinMesh::CreateManager();
 	}
-	catch (char *E_mes) {
+	catch (char* E_mes) {
 		ErrorMessage(E_mes);
-		SkinMesh::DeleteManager();
 		DxText::DeleteInstance();
 		Dx12Process::DeleteInstance();
 		return FALSE;
@@ -87,7 +86,6 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	try {
 		while (1) {
 			if (!DispatchMSG(&msg)) {
-				SkinMesh::DeleteManager();
 				DxText::DeleteInstance();
 				Dx12Process::DeleteInstance();
 				return TRUE;	//アプリ終了
@@ -140,9 +138,8 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 			if (fin) break;
 		}
 	}
-	catch (char *E_mes) {
+	catch (char* E_mes) {
 		ErrorMessage(E_mes);
-		SkinMesh::DeleteManager();
 		DxText::DeleteInstance();
 		Dx12Process::DeleteInstance();
 		return FALSE;
@@ -165,19 +162,28 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 void Main::Loop() {
 
+	for (int i = 0; i < 2; i++)
+		event[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+
 	statemenu->SetCommandList(0);
 	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg))break;
 
 		T_float::GetTime(hWnd);
+		SetEvent(event[0]);
 		Draw();
 		ObjDel();
+		WaitForSingleObject(event[1], INFINITE);
+		sync = 1 - sync;
 	}
+	for (int i = 0; i < 2; i++)
+		CloseHandle(event[i]);
 }
 
 void Main::UpDate() {
 
+	dx->setUpSwapIndex(sync);
 	T_float::GetTimeUp(hWnd);
 	T_float::AddAdjust(0.8f);
 
@@ -199,6 +205,8 @@ void Main::UpDate() {
 		titleOn = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
 		if (!titleOn) {
 			mapstate = NORMAL_MAP; titleSwitch = 3; mpDel_f = TRUE;
+			SetEvent(event[1]);
+			WaitForSingleObject(event[0], INFINITE);
 			while (mpDel_f);
 		}
 		break;
@@ -215,6 +223,8 @@ void Main::UpDate() {
 	case CHANGE_MAP:
 		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
 			mapstate = NORMAL_MAP; mpDel_f = TRUE;
+			SetEvent(event[1]);
+			WaitForSingleObject(event[0], INFINITE);
 			while (mpDel_f);
 		}
 		break;
@@ -234,9 +244,9 @@ void Main::UpDate() {
 
 	static bool posget = FALSE;
 	static bool btLoad[2] = { FALSE };
-	static Position::H_Pos *h_posIn = NULL;
+	static Position::H_Pos* h_posIn = NULL;
 	static Position::H_Pos h_posOut, h_posOut2;
-	static Position::mapxy *mxy = NULL;
+	static Position::mapxy* mxy = NULL;
 	static int rnd = 0;
 	if (encount != NOENCOUNT) {
 		switch (battleSwitch) {
@@ -273,7 +283,7 @@ void Main::UpDate() {
 			if (btLoad[0] && btLoad[1]) {
 				btLoad[0] = FALSE;
 				btLoad[1] = FALSE;
-				Position::H_Pos *h = NULL;//↓の初期化用
+				Position::H_Pos* h = NULL;//↓の初期化用
 				Position::CamAdvance(h, NULL, NULL, 0, NULL, encount);//初期化
 				posget = FALSE;
 				battleSwitch = 2;
@@ -290,6 +300,8 @@ void Main::UpDate() {
 				result = IN_BATTLE;
 				battleSwitch = 0;
 				btDel_f = TRUE;
+				SetEvent(event[1]);
+				WaitForSingleObject(event[0], INFINITE);
 				while (btDel_f);
 				break;
 			case DIE:
@@ -316,6 +328,7 @@ void Main::UpDate() {
 }
 
 void Main::Draw() {
+	dx->setDrawSwapIndex(1 - sync);
 	dx->Bigin(0);
 	dx->Sclear(0);
 	float blu = 0.0f;
@@ -371,15 +384,15 @@ Main::~Main() {
 	TextureBinaryLoader::DeleteTextureStruct();
 	S_DELETE(mosaic);
 	S_DELETE(blur);
-	SkinMesh::DeleteManager();
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }
 
-unsigned __stdcall UpDateThread(void *) {
+unsigned __stdcall UpDateThread(void*) {
 	while (Main::GetInstance()->UpDateThreadLoop) {
-
+		WaitForSingleObject(event[0], INFINITE);
 		Main::GetInstance()->UpDate();
+		SetEvent(event[1]);
 	}
 	return 0;
 }

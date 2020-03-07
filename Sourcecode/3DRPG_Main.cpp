@@ -18,7 +18,7 @@
 //-------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-	Main *main = Main::GetInstance();
+	Main* main = Main::GetInstance();
 
 	main->Init(hInstance, nCmdShow);
 	main->Loop();
