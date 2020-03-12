@@ -13,16 +13,16 @@
 class TextureBinaryLoader {
 
 private:
-	static Texture *tex;
-	static SearchFile *sf;
+	static Texture* tex;
+	static SearchFile* sf;
 	static int texNum;
 
 	TextureBinaryLoader() {}
-	static void TextureGetBuffer(char *Bpass);
-	static void TextureBinaryDecode(char *Bpass);
-	static void TextureBinaryDecode(char *Bpass, bool UpKeep);//暗号化済み画像バイナリデコード
-	static void InputTextureFileName(char *Bpass);//ファイル直接読み込み
-	static void SetUpKeep(char *Bpass, bool UpKeep);
+	static void TextureGetBuffer(char* Bpass);
+	static void TextureBinaryDecode(char* Bpass);
+	static void TextureBinaryDecode(char* Bpass, bool UpKeep);//暗号化済み画像バイナリデコード
+	static void InputTextureFileName(char* Bpass);//ファイル直接読み込み
+	static void SetUpKeep(char* Bpass, bool UpKeep);
 
 public:
 	static void TextureGetBufferAll();

@@ -253,7 +253,7 @@ unsigned __stdcall ResourceLoading(void *) {
 	return 0;
 }
 
-unsigned __stdcall InstanceLoadingHero(void *) {
+unsigned __stdcall InstanceLoadingHero(void*) {
 	InstanceCreate::HeroGetBuffer();
 	InstanceCreate::HeroSetVertex();
 	InstanceCreate::HeroCreate();

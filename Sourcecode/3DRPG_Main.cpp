@@ -20,9 +20,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	Main* main = Main::GetInstance();
 
-	main->Init(hInstance, nCmdShow);
-	main->Loop();
-
+	if (main->Init(hInstance, nCmdShow)) {
+		main->Loop();
+	}
 	Main::DeleteInstance();
-	return (int)main->msg.wParam;
+	return 0;
 }

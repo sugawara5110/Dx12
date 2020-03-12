@@ -45,8 +45,9 @@ void Main::CreateThreadUpdate() {
 
 void Main::DeleteThreadUpdate() {
 	UpDateThreadLoop = FALSE;
-	//WaitForSingleObject(update_h, INFINITE);//スレッドが終了するまで待つ
-	CloseHandle(update_h);                 //ハンドルを閉じる
+	SetEvent(event[0]);
+	WaitForSingleObject(event[1], INFINITE);
+	CloseHandle(update_h);                 
 	update_h = NULL;
 }
 
@@ -154,7 +155,6 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	blur->ComCreateBlur();
 	dx->End(0);
 	dx->WaitFenceCurrent();
-
 	CreateThreadUpdate();
 
 	return TRUE;
@@ -168,7 +168,9 @@ void Main::Loop() {
 	statemenu->SetCommandList(0);
 	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
 	while (1) {//アプリ実行中ループ
-		if (!DispatchMSG(&msg))break;
+		if (!DispatchMSG(&msg)) {
+			break;
+		}
 
 		T_float::GetTime(hWnd);
 		SetEvent(event[0]);
@@ -177,6 +179,8 @@ void Main::Loop() {
 		WaitForSingleObject(event[1], INFINITE);
 		sync = 1 - sync;
 	}
+
+	DeleteThreadUpdate();
 	for (int i = 0; i < 2; i++)
 		CloseHandle(event[i]);
 }
@@ -373,7 +377,6 @@ void Main::ObjDel() {
 }
 
 Main::~Main() {
-	DeleteThreadUpdate();
 	Control::DeleteInstance();
 	S_DELETE(statemenu);
 	MovieSoundManager::ObjDelete();

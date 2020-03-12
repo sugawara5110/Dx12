@@ -85,6 +85,7 @@ void TextureBinaryLoader::DeleteTextureBinary() {
 }
 
 void TextureBinaryLoader::DeleteTextureStruct() {
-	ARR_DELETE(tex);
 	S_DELETE(sf);
+	ARR_DELETE(tex);
 }
+
