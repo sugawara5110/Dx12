@@ -255,12 +255,15 @@ void Hero::Draw(Encount enc, bool ending) {
 		return;
 	}
 	if (enc == NOENCOUNT) {
-		if (o_no == 0)p_att->Draw(); else {
+		if (o_no == 0) {
+			p_att->Draw();
+		}
+		else {
 			p_att->DrawOff();
 		}
 		if (torchWood) {//o_no==0ˆÈŠO‚ÍNULL‚É‚È‚Á‚Ä‚é
 			torchWood->Draw();
-			torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
+			torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
 			torchFlame->Draw();
 		}
 	}

@@ -218,12 +218,12 @@ void MovieSoundManager::ObjDelete(){
 	S_DELETE(enter_so);
 }
 
-UINT **MovieSoundManager::Torch_GetFrame(int width, int height){
-	return mo->GetFrame(width, height);
+BYTE* MovieSoundManager::Torch_GetFrame(int width, int height) {
+	return mo->GetFrame(width, height, 20);
 }
 
-UINT **MovieSoundManager::FireWall_GetFrame(int width, int height){
-	return f_wall->GetFrame(width, height);
+BYTE* MovieSoundManager::FireWall_GetFrame(int width, int height) {
+	return f_wall->GetFrame(width, height, 20);
 }
 
 void MovieSoundManager::Dungeon_sound(bool repeat, int map){

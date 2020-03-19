@@ -9,6 +9,7 @@
 
 #include "../../Common/Direct3DWrapper/Dx12Process.h"
 #include "../../Common/SearchFile\SearchFile.h"
+#include "../../Common/TextureLoader/TextureLoader.h"
 
 class TextureBinaryLoader {
 
@@ -22,11 +23,12 @@ private:
 	static void TextureBinaryDecode(char* Bpass);
 	static void TextureBinaryDecode(char* Bpass, bool UpKeep);//暗号化済み画像バイナリデコード
 	static void InputTextureFileName(char* Bpass);//ファイル直接読み込み
-	static void SetUpKeep(char* Bpass, bool UpKeep);
 
 public:
 	static void TextureGetBufferAll();
 	static void TextureBinaryDecodeAll();
+	static int getTexNum();
+	static Texture* getTexture();
 	static void DeleteTextureBinary();
 	static void DeleteTextureStruct();
 };

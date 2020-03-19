@@ -28,8 +28,8 @@ class Map {
 private:
 	//地図
 	static MapHistoryData maphis;
-	static UINT *maphistory[5];
-	UINT **mapdata;
+	static UINT* maphistory[5];
+	UINT** mapdata;
 	PolygonData2D MapHistory;
 
 	static int map_no_s;    //マップナンバー
@@ -37,8 +37,8 @@ private:
 	int comNo;
 	static MapStPos MPos;     //マップスタート位置
 	static int boss_killed[5];//各ボス撃破履歴
-	Dx12Process *dx;
-	DxText *text;
+	Dx12Process* dx;
+	DxText* text;
 	T_float tfloat;
 	Position::mapxy mxy;
 	bool menuSt = FALSE;
@@ -51,7 +51,7 @@ private:
 		float attenuation;
 		bool on_off;
 	};
-	LightPos *light;
+	LightPos* light;
 	int lightcount;
 
 	float cax1;//現在位置
@@ -95,7 +95,7 @@ private:
 			y = (rand() % 100) - 50.0f;
 		}
 	};
-	OBJPosRandomValue *wood, *wall1;
+	OBJPosRandomValue* wood, * wall1;
 
 	Wave wav;
 	MeshData mWood, mountain;
@@ -105,11 +105,11 @@ private:
 	ParticleData poMo;
 	Position::E_Pos e_pos[4];
 	Position::H_Pos h_pos;
-	Hero *he;//移動用
+	Hero* he;//移動用
 
 	void Debug();
-	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int *cnt);
-	void Mapfilter(Position::H_Pos *h_p);
+	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int* cnt);
+	void Mapfilter(Position::H_Pos* h_p);
 	void MapupdateWave();
 	void Mapupdate_Wood();
 	void Mapdraw_Wood();
@@ -118,9 +118,9 @@ private:
 	void Mapcreate_Wall1(int i);
 	void Mapupdate_Wall1();
 	void Mapdraw_Wall1();
-	void Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2);
-	void Mapcreate_Ground(PolygonData *pd, int pcsx, int pcsy, float height, float adjust);
-	void Mapcreate_Ceiling(PolygonData *pd, int pcsx, int pcsy, float height, float adjust);
+	void Mapcreate_Wall(PolygonData* pd, int no1, int no2, float height, float adjust, float adjust2);
+	void Mapcreate_Ground(PolygonData* pd, int pcsx, int pcsy, float height, float adjust);
+	void Mapcreate_Ceiling(PolygonData* pd, int pcsx, int pcsy, float height, float adjust);
 	void Mapcreate_Background(float st, float end);
 	void Mapupdate_Rain();
 	void Mapdraw_Rain();
@@ -138,12 +138,12 @@ private:
 	bool MoveUpCond(int Ind);
 	bool MoveDownCond(int Ind);
 	bool MoveCamCond(int Ind);
-	Encount Move(MapState *mapstate, Directionkey direction);
+	Encount Move(MapState* mapstate, Directionkey direction);
 	void MapText(TCHAR str[30]);
 	bool ViewCulling(float obj_x, float obj_y, float obj_z);
 	void HeroUpdate(bool mf);
 	bool CollisionDetection(float in_y, float in_x, Directionkey dir);
-	void GetCamDelayPos(Directionkey dir, float inX, float inY, float *outX, float *outY);
+	void GetCamDelayPos(Directionkey dir, float inX, float inY, float* outX, float* outY);
 	void RecordMap();
 
 	//四捨五入
@@ -167,22 +167,22 @@ public:
 	static int GetMapNo();
 	static void SetMapNo(int no);
 	static void SetBossKilled(int i, int f);
-	static int *GetBossKilled();
+	static int* GetBossKilled();
 	static int GetBossKilled(int map_no);
-	static void SetMapHistory(MapHistoryData *maphis);
-	static MapHistoryData *GetMapHistory();
+	static void SetMapHistory(MapHistoryData* maphis);
+	static MapHistoryData* GetMapHistory();
 	Map() {}
-	Map(Position::H_Pos *h_p, Hero *hero);
+	Map(Position::H_Pos* h_p, Hero* hero);
 	void SetVertex();
 	void SetCommandList(int com_no);
 	void CreateMap();
-	Encount MapUpdate(MapState *mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
+	Encount MapUpdate(MapState* mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
 	void MapDraw();
-	Position::E_Pos *Getposition(int p);
-	Position::H_Pos *Getposition();
-	void Setposition(Position::H_Pos *pos);
-	Position::mapxy *Getmap();
-	bool GetMenuState(int *cnt);
+	Position::E_Pos* Getposition(int p);
+	Position::H_Pos* Getposition();
+	void Setposition(Position::H_Pos* pos);
+	Position::mapxy* Getmap();
+	bool GetMenuState(int* cnt);
 	~Map();
 };
 

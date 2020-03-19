@@ -11,24 +11,24 @@
 #include "../../Common/DirectShowWrapper/Movie.h"
 #include "../../Common/DirectShowWrapper/Sound_.h"
 
-class MovieSoundManager{
+class MovieSoundManager {
 
 private:
-	static Movie *mo;
-	static Movie *f_wall;
-	static Sound_ *dungeon_so[5];
-	static Sound_ *rain_so;
-	static Sound_ *enemy_so[2];
-	static Sound_ *title_so;
-	static Sound_ *die_so;
-	static Sound_ *att_so, *flame_so, *heal_so, *magic_so;
-	static Sound_ *select_so, *enter_so;
-	static Sound_ *ending_so;
-	static Sound_ *bosslost_so;
+	static Movie* mo;
+	static Movie* f_wall;
+	static Sound_* dungeon_so[5];
+	static Sound_* rain_so;
+	static Sound_* enemy_so[2];
+	static Sound_* title_so;
+	static Sound_* die_so;
+	static Sound_* att_so, * flame_so, * heal_so, * magic_so;
+	static Sound_* select_so, * enter_so;
+	static Sound_* ending_so;
+	static Sound_* bosslost_so;
 	static int map_n;//dungeon_so[5]添え字
-	
-	MovieSoundManager(){}
-	static char *binaryDecode(char *bpass);//ファイルのデコード,生成,ファイル名を返す
+
+	MovieSoundManager() {}
+	static char* binaryDecode(char* bpass);//ファイルのデコード,生成,ファイル名を返す
 
 public:
 	static void ObjInit();
@@ -42,8 +42,8 @@ public:
 	static void ObjCreate_ending();
 	static void ObjDelete_ending();
 	static void ObjDelete();
-	static UINT **Torch_GetFrame(int width, int height);
-	static UINT **FireWall_GetFrame(int width, int height);
+	static BYTE* Torch_GetFrame(int width, int height);
+	static BYTE* FireWall_GetFrame(int width, int height);
 	static void Dungeon_sound(bool repeat, int map);
 	static void Dungeon_soundoff(int map);
 	static void Rain_sound(bool repeat);

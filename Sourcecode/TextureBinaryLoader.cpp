@@ -23,17 +23,12 @@ void TextureBinaryLoader::TextureBinaryDecode(char *Bpass) {
 void TextureBinaryLoader::TextureBinaryDecode(char *Bpass, bool UpKeep) {
 	BinaryDecode(Bpass, &tex[texNum].binary_ch, &tex[texNum].binary_size);
 	tex[texNum].texName = Dx12Process::GetInstance()->GetNameFromPass(Bpass);
-	tex[texNum].UpKeep = UpKeep;
 	texNum++;
 }
 
 void TextureBinaryLoader::InputTextureFileName(char *Bpass) {
 	tex[texNum].texName = Bpass;
 	texNum++;
-}
-
-void TextureBinaryLoader::SetUpKeep(char *Bpass, bool UpKeep) {
-	tex[Dx12Process::GetInstance()->GetTexNumber(Dx12Process::GetInstance()->GetNameFromPass(Bpass))].UpKeep = UpKeep;
 }
 
 void TextureBinaryLoader::TextureGetBufferAll() {
@@ -71,9 +66,14 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 			TextureBinaryDecode(sf->GetFileName(k, j));
 		}
 	}
+}
 
-	Dx12Process::GetInstance()->SetTextureBinary(tex, texNum);
-	SetUpKeep("dat/texture/magic/boss_magic.da", TRUE);
+int TextureBinaryLoader::getTexNum() {
+	return texNum;
+}
+
+Texture* TextureBinaryLoader::getTexture() {
+	return tex;
 }
 
 void TextureBinaryLoader::DeleteTextureBinary() {

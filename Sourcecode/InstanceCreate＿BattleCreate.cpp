@@ -6,6 +6,7 @@
 
 #include "InstanceCreate.h"
 #include "TextureBinaryLoader.h"
+#include "../../Common/TextureLoader/TextureLoader.h"
 
 int InstanceCreate::progress = 0;
 HANDLE *InstanceCreate::resource_loading_h = NULL;
@@ -46,7 +47,8 @@ void InstanceCreate::DeleteThread_R() {
 	CloseHandle(resource_loading_h);                 //ƒnƒ“ƒhƒ‹‚ð•Â‚¶‚é
 	resource_loading_h = NULL;
 	MovieSoundManager::ObjInit();
-	Dx12Process::GetInstance()->GetTexture(0);
+	TextureLoader::GetTexture(TextureBinaryLoader::getTexNum(), TextureBinaryLoader::getTexture(),
+		Dx12Process::GetInstance());
 	progress = 30;
 }
 

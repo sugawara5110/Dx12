@@ -285,16 +285,16 @@ void Map::MapDraw() {
 	wav.Draw();//ƒuƒŒƒ“ƒh‚·‚é‚Ì‚ÅÅŒã‚Ì•û‚É
 
 	//’n}
-	MapHistory.SetTextureMPixel(mapdata, 0xff, 0xff, 0xff, 200);
-	MapHistory.Draw();
+	//MapHistory.SetTextureMPixel(mapdata1);
+	//MapHistory.Draw();
 
 	if (mo_count >= 1) {
-		poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128), 0xff, 0xff, 0xff, 200);
+		poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
 		Mapdraw_Ds();
 	}
 
 	if (f_wall_count >= 1) {
-		poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256), 0xff, 0xff, 0xff, 255);
+		poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256));
 		poF_Wall.Draw();
 	}
 }

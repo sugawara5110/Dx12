@@ -113,7 +113,6 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 				break;
 			case 2:
 				TextureBinaryLoader::DeleteTextureBinary();
-				Dx12Process::GetInstance()->UpTextureRelease();
 				InstanceCreate::CreateThread_H();
 				thNo = 3;
 				break;
