@@ -7,7 +7,7 @@
 #include "EnemyBoss.h"
 #include <time.h>
 
-EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e_po) :Enemy(t_no, no) {
+EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e_po) :Enemy(t_no, no) {
 
 	h_pos = h_po;
 	e_pos = e_po;
@@ -128,13 +128,13 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 
 	if (t_no == 2) {
 		en_boss_att0 = new MeshData();
-		en_boss_att0->SetState(TRUE, TRUE, FALSE);
+		en_boss_att0->SetState(TRUE, TRUE, FALSE, 0.0f, 0.0f, -0.8f);
 		en_boss_att0->GetBuffer("./dat/mesh/boss3.obj");
 	}
 
 	if (t_no != 2) {
 		en_boss_att = new SkinMesh();
-		en_boss_att->SetState(TRUE, TRUE);
+		en_boss_att->SetState(TRUE, TRUE, 0.0f, 0.0f, -0.8f);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 0);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 1);
 		en_boss_att->ObjOffset(0.0f, 0.0f, 0.0f, 0.0f, 180.0f, 90.0f, 2);
@@ -324,12 +324,16 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	if (count != 0.0f) {
 		mag_boss->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
 	}
-	dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 500.0f, mag_size * 100.0f, 2.0f, TRUE);
+	dx->PointLightPosSet(3, x, y, z,
+		0.7f, 0.2f, 0.2f, 1.0f,
+		true, mag_size * 1000.0f);
 
 	if ((count += m) > 900) {
 		count = 0.0f;
 		magicAttOn = FALSE;//最終フレームで止めたままにするので終わるタイミングまでOnのまま
-		dx->PointLightPosSet(3, x, y, z, 0.7f, 0.2f, 0.2f, 1.0f, mag_size * 1000.0f, 100.0f, 2.0f, FALSE);
+		dx->PointLightPosSet(3, x, y, z,
+			0.7f, 0.2f, 0.2f, 1.0f,
+			false, mag_size * 1000.0f);
 		mag_boss->DrawOff();
 		return FALSE;
 	}

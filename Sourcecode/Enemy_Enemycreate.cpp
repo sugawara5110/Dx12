@@ -74,23 +74,23 @@ void Enemy::Enemycreate(float x, float y) {
 		0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f);
 
+	//“G‰E‘O
+	en->SetVertex(1, 4, 1,
+		(float)(x / 2), (float)0.0f, y,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 0.0f);
+
 	//“G¶‰œ
-	en->SetVertex(1, 1,
+	en->SetVertex(2, 3, 2,
 		(float)-(x / 2), (float)0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
 		0.0f, 1.0f);
 
 	//“G‰E‰œ
-	en->SetVertex(2, 2,
+	en->SetVertex(5, 3,
 		(float)(x / 2), (float)0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
 		1.0f, 1.0f);
-
-	//“G‰E‘O
-	en->SetVertex(3, 3,
-		(float)(x / 2), (float)0.0f, y,
-		0.0f, 1.0f, 0.0f,
-		1.0f, 0.0f);
 }
 
 void Enemy::SetVertex() {}
@@ -113,7 +113,7 @@ bool Enemy::Magiccreate(float x, float y, float z) { return TRUE; }
 
 void Enemy::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {}
 
-bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
+bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 
 	float px, py;
 	float u_cnt;
@@ -144,7 +144,9 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 	if ((tt += tfloat.Add(0.8f)) > 10.0f) {//‘¬“x’²®—p
 		tt = 0;
 		if ((tx += px) + px > 1.0f) {
-			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, FALSE);
+			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, 0, 0, 0,
+				0, 0, 0, 0,
+				false, 0);
 			for (int i = 0; i < 4; i++)effect[i].DrawOff();
 			tx = 0; return FALSE;
 		}
@@ -177,19 +179,23 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 		if (effect_no == 3) { r = 0.2f, g = 0.3f, b = 0.7f; }
 		if (*E_select_obj != 4) {
 			effect[effect_no].Update(e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z, 0, 0, 0, 0, e_pos[*E_select_obj].theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+			dx->PointLightPosSet(3, e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z,
+				r, g, b, 1.0f,
+				true, 500.0f);
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_RCV(i) == FALSE)continue;
 				effect[effect_no].InstancedMap(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, e_pos[i].theta);
-				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z,
+					r, g, b, 1.0f,
+					true, 500.0f);
 			}
 			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 
-	Position::Bt_H_Pos *b_pos = battle->GetBtPos(h_pos);
+	Position::Bt_H_Pos* b_pos = battle->GetBtPos(h_pos);
 	if (effect_no == 0 || effect_no == 1) {
 		if (effect_no == 0)MovieSoundManager::Att_sound(TRUE);
 		if (effect_no == 1)MovieSoundManager::Flame_sound(TRUE);
@@ -198,13 +204,17 @@ bool Enemy::EffectUpdate(Battle *battle, int *E_select_obj) {
 		if (effect_no == 1) { r = 0.7f, g = 0.3f, b = 0.2f; }
 		if (*E_select_obj != 4) {
 			effect[effect_no].Update(b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, 0, h_pos->theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+			dx->PointLightPosSet(3, b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f,
+				r, g, b, 1.0f,
+				true, 500.0f);
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_DM(i) == FALSE)continue;
 				effect[effect_no].InstancedMap(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, h_pos->theta);
-				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f,
+					r, g, b, 1.0f,
+					true, 500.0f);
 			}
 			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}

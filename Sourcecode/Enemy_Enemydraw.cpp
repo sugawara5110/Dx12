@@ -11,7 +11,7 @@
 #include "Enemy.h"
 #include "Battle.h"
 
-Act_fin_flg Enemy::EnemyUpdate(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun) {
+Act_fin_flg Enemy::EnemyUpdate(Battle* battle, int* E_select_obj, Action action, MagicSelect E_Magrun) {
 
 	//MOVE,LOST以外のアクション中にMOVE,LOST以外のアクション発生時の初期化
 	if (action != NORMAL && action != MOVE && action != LOST) {
@@ -125,7 +125,6 @@ Act_fin_flg Enemy::EnemyUpdate(Battle *battle, int *E_select_obj, Action action,
 		RecoverAction();
 		break;
 	}
-	dx->P_ShadowBright(0.3f);
 	ObjUpdate(e_pos[o_no].x + mov_x, e_pos[o_no].y + mov_y, e_pos[o_no].z + mov_z, cr, cg, cb, e_pos[o_no].theta);
 
 	return NOT_FIN;

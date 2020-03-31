@@ -52,7 +52,9 @@ void Hero::CreateTorchFlame() {
 
 void Hero::TorchSwitch(bool f) {
 	torchOn = f;
-	if (!torchOn)dx->PointLightPosSet(0, 0, 0, 0, 1.0f, 0.4f, 0.4f, 1.0f, 80.0f, 0.6f, 2.0f, FALSE);
+	if (!torchOn)dx->PointLightPosSet(0, 0, 0, 0,
+		1.0f, 0.4f, 0.4f, 1.0f,
+		false, 80.0f);
 }
 
 Hero::Hero(int no) {
@@ -204,7 +206,7 @@ void Hero::SetCommandList(int com_no) {
 }
 
 void Hero::CreateHero() {
-	p_att->CreateFromFBX(true);
+	p_att->CreateFromFBX();
 	if (o_no == 0) {
 		torchWood->CreateFromFBX();
 		torchFlame->TextureInit(128, 128);
@@ -285,7 +287,7 @@ void Hero::Magiccreate() {
 		1.0f, 1.0f);
 }
 
-bool Hero::EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos) {
+bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos, Position::E_Pos* e_pos) {
 
 	float px, py;
 	float u_cnt;
@@ -316,7 +318,9 @@ bool Hero::EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos,
 	if ((tt += tfloat.Add(0.8f)) > 10.0f) {//‘¬“x’²®—p
 		tt = 0;
 		if ((tx += px) + px > 1.0f) {
-			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, FALSE);
+			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, 0, 0, 0,
+				0, 0, 0, 0,
+				false, 0);
 			for (int i = 0; i < 4; i++)effect[i].DrawOff();
 			tx = 0; return FALSE;
 		}
@@ -350,19 +354,23 @@ bool Hero::EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos,
 		if (effect_no == 1) { r = 0.7f, g = 0.3f, b = 0.2f; }
 		if (*select_obj != 4) {
 			effect[effect_no].Update(e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z, 0, 0, 0, 0, e_pos[*select_obj].theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+			dx->PointLightPosSet(3, e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z,
+				r, g, b, 1.0f,
+				true, 500.0f);
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_DM(i) == FALSE)continue;
 				effect[effect_no].InstancedMap(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, e_pos[i].theta);
-				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z,
+					r, g, b, 1.0f,
+					true, 500.0f);
 			}
 			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 
-	Position::Bt_H_Pos *b_pos = battle->GetBtPos(h_pos);
+	Position::Bt_H_Pos* b_pos = battle->GetBtPos(h_pos);
 	if (effect_no == 2 || effect_no == 3) {
 		MovieSoundManager::Heal_sound(TRUE);
 		float r, g, b;
@@ -370,13 +378,17 @@ bool Hero::EffectUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos,
 		if (effect_no == 3) { r = 0.2f, g = 0.3f, b = 0.7f; }
 		if (*select_obj != 4) {
 			effect[effect_no].Update(b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, 0, h_pos->theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+			dx->PointLightPosSet(3, b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f,
+				r, g, b, 1.0f,
+				true, 500.0f);
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_RCV(i) == FALSE)continue;
 				effect[effect_no].InstancedMap(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, h_pos->theta);
-				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, r, g, b, 1.0f, 50.0f, 20.0f, 2.0f, TRUE);
+				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f,
+					r, g, b, 1.0f,
+					true, 500.0f);
 			}
 			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
 		}

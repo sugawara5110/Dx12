@@ -76,7 +76,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		break;
 	case 1:
 		//山
-		mountain.SetState(TRUE, TRUE, TRUE, 0.8f, 0.8f);//3角形化必要
+		mountain.SetState(TRUE, TRUE, FALSE, 0.8f, 0.8f);//3角形化必要
 		mountain.GetBuffer("./dat/mesh/mountain.obj");
 		//地面入り口
 		poGroundF.GetVBarray(CONTROL_POINT, 6);
@@ -89,7 +89,7 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 		//雨
 		poRain.GetVBarray(LINE_L, 1);
 		//地面出口
-		poGroundE.GetVBarray(CONTROL_POINT, 6);
+		poGroundE.GetVBarray(SQUARE, 6);
 		//空出口
 		poCeilingE.GetVBarray(CONTROL_POINT, 6);
 		break;
@@ -583,9 +583,10 @@ void Map::Mapdraw_Wall1() {
 	for (int i = 0; i < 3; i++)poWall1[i].Draw();
 }
 
-void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float adjust, float adjust2) {
+void Map::Mapcreate_Wall(PolygonData* pd, int no1, int no2, float height, float adjust, float adjust2) {
 
 	int k = 0;
+	int kI = 0;
 	for (int k3 = 0; k3 < mxy.z; k3++) {
 		for (int j = 0; j < mxy.y; j++) {
 			for (int i = 0; i < mxy.x; i++) {
@@ -596,252 +597,260 @@ void Map::Mapcreate_Wall(PolygonData *pd, int no1, int no2, float height, float 
 				if (k3 < mxy.z - 1 && mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no1 &&
 					mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no2) {
 					//正面左上
-					pd->SetVertex(k, k,
+					pd->SetVertex(kI, k,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
 						0.0f, 0.0f);
 
+					//正面右上
+					pd->SetVertex(kI + 1, kI + 4, k + 1,
+						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust,
+						0.0f, 0.0f, 1.0f,
+						1.0f, 0.0f);
+
 					//正面左下
-					pd->SetVertex(k + 1, k + 1,
+					pd->SetVertex(kI + 2, kI + 3, k + 2,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
 						0.0f, 1.0f);
 
 					//正面右下
-					pd->SetVertex(k + 2, k + 2,
+					pd->SetVertex(kI + 5, k + 3,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust,
 						0.0f, 0.0f, 1.0f,
 						1.0f, 1.0f);
-
-					//正面右上
-					pd->SetVertex(k + 3, k + 3,
-						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust,
-						0.0f, 0.0f, 1.0f,
-						1.0f, 0.0f);
 					k += 4;
+					kI += 6;
 				}
 
 				//左面検査
 				if (i > 0 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no1 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no2) {
 					//左面上前
-					pd->SetVertex(k, k,
+					pd->SetVertex(kI, k,
 						(float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2,
 						-1.0f, 0.0f, 0.0f,
 						0.0f, 0.0f);
 
+					//左面下前
+					pd->SetVertex(kI + 1, kI + 4, k + 1,
+						(float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2,
+						-1.0f, 0.0f, 0.0f,
+						1.0f, 0.0f);
+
 					//左面上後
-					pd->SetVertex(k + 1, k + 1,
+					pd->SetVertex(kI + 2, kI + 3, k + 2,
 						(float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2,
 						-1.0f, 0.0f, 0.0f,
 						0.0f, 1.0f);
 
 					//左面下後
-					pd->SetVertex(k + 2, k + 2,
+					pd->SetVertex(kI + 5, k + 3,
 						(float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2,
 						-1.0f, 0.0f, 0.0f,
 						1.0f, 1.0f);
-
-					//左面下前
-					pd->SetVertex(k + 3, k + 3,
-						(float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2,
-						-1.0f, 0.0f, 0.0f,
-						1.0f, 0.0f);
 					k += 4;
+					kI += 6;
 				}
 
 				//右面検査
 				if (i < mxy.x - 1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no1 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no2) {
 					//右面下前
-					pd->SetVertex(k, k,
+					pd->SetVertex(kI, k,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2,
 						1.0f, 0.0f, 0.0f,
 						0.0f, 0.0f);
 
+					//右面上前
+					pd->SetVertex(kI + 1, kI + 4, k + 1,
+						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2,
+						1.0f, 0.0f, 0.0f,
+						1.0f, 0.0f);
+
 					//右面下後
-					pd->SetVertex(k + 1, k + 1,
+					pd->SetVertex(kI + 2, kI + 3, k + 2,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2,
 						1.0f, 0.0f, 0.0f,
 						0.0f, 1.0f);
 
 					//右面上後
-					pd->SetVertex(k + 2, k + 2,
+					pd->SetVertex(kI + 5, k + 3,
 						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2,
 						1.0f, 0.0f, 0.0f,
 						1.0f, 1.0f);
-
-					//右面上前
-					pd->SetVertex(k + 3, k + 3,
-						(float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2,
-						1.0f, 0.0f, 0.0f,
-						1.0f, 0.0f);
 					k += 4;
+					kI += 6;
 				}
 
 				//上面検査
 				if (j > 0 && mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no1 &&
 					mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no2) {
 					//上面右前
-					pd->SetVertex(k, k,
+					pd->SetVertex(kI, k,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2,
 						0.0f, -1.0f, 0.0f,
 						0.0f, 0.0f);
 
+					//上面左前
+					pd->SetVertex(kI + 1, kI + 4, k + 1,
+						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2,
+						0.0f, -1.0f, 0.0f,
+						1.0f, 0.0f);
+
 					//上面右後
-					pd->SetVertex(k + 1, k + 1,
+					pd->SetVertex(kI + 2, kI + 3, k + 2,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, -1.0f, 0.0f,
 						0.0f, 1.0f);
 
 					//上面左後
-					pd->SetVertex(k + 2, k + 2,
+					pd->SetVertex(kI + 5, k + 3,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, -1.0f, 0.0f,
 						1.0f, 1.0f);
-
-					//上面左前
-					pd->SetVertex(k + 3, k + 3,
-						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2,
-						0.0f, -1.0f, 0.0f,
-						1.0f, 0.0f);
 					k += 4;
+					kI += 6;
 				}
 
 				//裏面検査
 				if (k3 > 0 && mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no1 &&
 					mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no2) {
 					//裏面右上
-					pd->SetVertex(k, k,
+					pd->SetVertex(kI, k,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
 						0.0f, 0.0f);
 
+					//裏面左上
+					pd->SetVertex(kI + 1, kI + 4, k + 1,
+						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust,
+						0.0f, 0.0f, -1.0f,
+						1.0f, 0.0f);
+
 					//裏面右下
-					pd->SetVertex(k + 1, k + 1,
+					pd->SetVertex(kI + 2, kI + 3, k + 2,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
 						0.0f, 1.0f);
 
 					//裏面左下
-					pd->SetVertex(k + 2, k + 2,
+					pd->SetVertex(kI + 5, k + 3,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust,
 						0.0f, 0.0f, -1.0f,
 						1.0f, 1.0f);
-
-					//裏面左上
-					pd->SetVertex(k + 3, k + 3,
-						(float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust,
-						0.0f, 0.0f, -1.0f,
-						1.0f, 0.0f);
 					k += 4;
+					kI += 6;
 				}
 
 				//底面検査
 				if (j < mxy.y - 1 && mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no1 &&
 					mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no2) {
 					//底面左前
-					pd->SetVertex(k, k,
+					pd->SetVertex(kI, k,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2,
 						0.0f, 1.0f, 0.0f,
 						0.0f, 0.0f);
 
+					//底面右前
+					pd->SetVertex(kI + 1, kI + 4, k + 1,
+						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2,
+						0.0f, 1.0f, 0.0f,
+						1.0f, 0.0f);
+
 					//底面左後
-					pd->SetVertex(k + 1, k + 1,
+					pd->SetVertex(kI + 2, kI + 3, k + 2,
 						(float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, 1.0f, 0.0f,
 						0.0f, 1.0f);
 
 					//底面右後
-					pd->SetVertex(k + 2, k + 2,
+					pd->SetVertex(kI + 5, k + 3,
 						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2,
 						0.0f, 1.0f, 0.0f,
 						1.0f, 1.0f);
-
-					//底面右前
-					pd->SetVertex(k + 3, k + 3,
-						(float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2,
-						0.0f, 1.0f, 0.0f,
-						1.0f, 0.0f);
 					k += 4;
+					kI += 6;
 				}
 			}
 		}
 	}
 }
 
-void Map::Mapcreate_Ground(PolygonData *pd, int pcsx, int pcsy, float height, float adjust) {
+void Map::Mapcreate_Ground(PolygonData* pd, int pcsx, int pcsy, float height, float adjust) {
 
 	//地面頂点
 	int k = 0;
+	int kI = 0;
 	float size = 100.0f;//1マスの大きさ
 	for (int j = 0; j < pcsy; j++) {
 		for (int i = 0; i < pcsx; i++) {
 			float x = size * i;
 			float y = size * j;
 			//地面左上
-			pd->SetVertex(k, k,
+			pd->SetVertex(kI, k,
 				x - adjust, y - adjust, height,
 				0.0f, 0.0f, 1.0f,
 				0.0f, 0.0f);
 
+			//地面右上
+			pd->SetVertex(kI + 1, kI + 4, k + 1,
+				x + size + adjust, y - adjust, height,
+				0.0f, 0.0f, 1.0f,
+				1.0f, 0.0f);
+
 			//地面左下
-			pd->SetVertex(k + 1, k + 1,
+			pd->SetVertex(kI + 2, kI + 3, k + 2,
 				x - adjust, y + size + adjust, height,
 				0.0f, 0.0f, 1.0f,
 				0.0f, 1.0f);
 
 			//地面右下
-			pd->SetVertex(k + 2, k + 2,
+			pd->SetVertex(kI + 5, k + 3,
 				x + size + adjust, y + size + adjust, height,
 				0.0f, 0.0f, 1.0f,
 				1.0f, 1.0f);
-
-			//地面右上
-			pd->SetVertex(k + 3, k + 3,
-				x + size + adjust, y - adjust, height,
-				0.0f, 0.0f, 1.0f,
-				1.0f, 0.0f);
-
 			k += 4;
+			kI += 6;
 		}
 	}
 }
 
-void Map::Mapcreate_Ceiling(PolygonData *pd, int pcsx, int pcsy, float height, float adjust) {
+void Map::Mapcreate_Ceiling(PolygonData* pd, int pcsx, int pcsy, float height, float adjust) {
 
 	//天井頂点
 	int k = 0;
+	int kI = 0;
 	float size = 100.0f;//1マスの大きさ
 	for (int j = 0; j < pcsy; j++) {
 		for (int i = 0; i < pcsx; i++) {
 			float x = size * i;
 			float y = size * j;
 			//天井左上
-			pd->SetVertex(k, k,
+			pd->SetVertex(kI, k,
 				x - adjust, y - adjust, height,
 				0.0f, 0.0f, -1.0f,
 				0.0f, 0.0f);
 
+			//天井左下
+			pd->SetVertex(kI + 1, kI + 4, k + 1,
+				x - adjust, y + size + adjust, height,
+				0.0f, 0.0f, -1.0f,
+				0.0f, 1.0f);
+
 			//天井右上
-			pd->SetVertex(k + 1, k + 1,
+			pd->SetVertex(kI + 2, kI + 3, k + 2,
 				x + size + adjust, y - adjust, height,
 				0.0f, 0.0f, -1.0f,
 				1.0f, 0.0f);
 
 			//天井右下
-			pd->SetVertex(k + 2, k + 2,
+			pd->SetVertex(kI + 5, k + 3,
 				x + size + adjust, y + size + adjust, height,
 				0.0f, 0.0f, -1.0f,
 				1.0f, 1.0f);
-
-			//天井左下
-			pd->SetVertex(k + 3, k + 3,
-				x - adjust, y + size + adjust, height,
-				0.0f, 0.0f, -1.0f,
-				0.0f, 1.0f);
-
 			k += 4;
+			kI += 6;
 		}
 	}
 }
@@ -1056,7 +1065,9 @@ void Map::Mapupdate_Recover() {
 		}
 		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	}
-	dx->PointLightPosSet(7, recovPosX, recovPosY, 2.0f, 0.2f, 0.8f, 0.2f, 1.0f, 100.0f, 10.0f, 2.0f, TRUE);
+	dx->PointLightPosSet(7, recovPosX, recovPosY, 2.0f,
+		0.2f, 0.8f, 0.2f, 1.0f,
+		true, 500.0f);
 	poRecover.Update(0, 0, 4.0f, 0, 0, 0, 0, 0, 0);
 }
 
@@ -1118,7 +1129,7 @@ void Map::Mapupdate_Ds() {
 						light[licnt].g = 0.4f;
 						light[licnt].b = 0.4f;
 						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
+						light[licnt].range = 800.0f;
 						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
 						light[licnt].attenuation = 2.0f;
 						light[licnt].on_off = TRUE;
@@ -1136,7 +1147,7 @@ void Map::Mapupdate_Ds() {
 						light[licnt].g = 0.4f;
 						light[licnt].b = 0.4f;
 						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
+						light[licnt].range = 800.0f;
 						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
 						light[licnt].attenuation = 2.0f;
 						light[licnt].on_off = TRUE;
@@ -1154,7 +1165,7 @@ void Map::Mapupdate_Ds() {
 						light[licnt].g = 0.4f;
 						light[licnt].b = 0.4f;
 						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
+						light[licnt].range = 800.0f;
 						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
 						light[licnt].attenuation = 2.0f;
 						light[licnt].on_off = TRUE;
@@ -1172,7 +1183,7 @@ void Map::Mapupdate_Ds() {
 						light[licnt].g = 0.4f;
 						light[licnt].b = 0.4f;
 						light[licnt].a = 1.0f;
-						light[licnt].range = 80.0f;
+						light[licnt].range = 800.0f;
 						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
 						light[licnt].attenuation = 2.0f;
 						light[licnt].on_off = TRUE;
@@ -1186,7 +1197,9 @@ void Map::Mapupdate_Ds() {
 	int loopcount = 8;//ライトのインデックス(0:手持ち松明用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定, 7:リカバーポイント)
 	//各ライト設定
 	for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
-		dx->PointLightPosSet(loopcount, light[i].x, light[i].y, light[i].z, light[i].r, light[i].g, light[i].b, light[i].a, light[i].range, light[i].brightness, light[i].attenuation, light[i].on_off);
+		dx->PointLightPosSet(loopcount, light[i].x, light[i].y, light[i].z,
+			light[i].r, light[i].g, light[i].b, light[i].a,
+			light[i].on_off, light[i].range);
 		loopcount++;
 	}
 
