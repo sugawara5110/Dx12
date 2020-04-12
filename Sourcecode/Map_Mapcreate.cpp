@@ -67,6 +67,12 @@ Map::Map(Position::H_Pos *h_p, Hero *hero) {
 
 	switch (map_no) {
 	case 0:
+		//ドラゴン
+		/*dragon = new SkinMesh();
+		dragon->SetState(true, true);
+		dragon->GetFbx("../Black Dragon NEW/Dragon_Baked_Actions2.fbx");
+		dragon->GetBuffer(300.0f);
+		dragon->SetVertex();*/
 		//出口
 		poEXIT.GetVBarray(SQUARE, 1);
 		//地面メイン
@@ -327,6 +333,7 @@ void Map::SetCommandList(int com_no) {
 	wav.SetCommandList(comNo);
 	mWood.SetCommandList(comNo);
 	mountain.SetCommandList(comNo);
+	//dragon->SetCommandList(comNo);
 	poWallA.SetCommandList(comNo);
 	poWallB.SetCommandList(comNo);
 	poWallC.SetCommandList(comNo);
@@ -357,6 +364,8 @@ void Map::CreateMap() {
 
 	switch (map_no) {
 	case 0:
+		//ドラゴン
+		//dragon->CreateFromFBX();
 		//出口
 		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
@@ -393,7 +402,7 @@ void Map::CreateMap() {
 	case 2:
 		//波
 		wav.Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
-			dx->GetTexNumber("./dat/texture/map/waveNor.da"), TRUE, TRUE, 1.0f, 64.0f);
+			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 1.0f, 64.0f);
 		//入口
 		poEXIT.Create(FALSE, -1, FALSE, FALSE);
 		//地面メイン
@@ -448,6 +457,7 @@ void Map::CreateMap() {
 
 	//壁(ブロック)
 	if (blockcountA >= 1) {
+		poWallA.SetCol(0.6f, 0.6f, 0.6f, 0.1f, 0.1f, 0.1f, 0, 0, 0);
 		poWallA.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall1Nor.da"), TRUE, FALSE);
 	}
@@ -1313,6 +1323,7 @@ void Map::Mapcreate_EXIT(float x, float y, float z, float xsize) {
 }
 
 Map::~Map() {
+	S_DELETE(dragon);
 	dx->WaitFenceCurrent();
 	dx->ResetPointLight();
 	ARR_DELETE(wood);

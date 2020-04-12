@@ -326,14 +326,14 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	}
 	dx->PointLightPosSet(3, x, y, z,
 		0.7f, 0.2f, 0.2f, 1.0f,
-		true, mag_size * 1000.0f);
+		true, mag_size * 1000.0f, 0.001f, 0.0001f, 0.0001f);
 
 	if ((count += m) > 900) {
 		count = 0.0f;
 		magicAttOn = FALSE;//最終フレームで止めたままにするので終わるタイミングまでOnのまま
 		dx->PointLightPosSet(3, x, y, z,
 			0.7f, 0.2f, 0.2f, 1.0f,
-			false, mag_size * 1000.0f);
+			false, mag_size * 1000.0f, 0.001f, 0.0001f, 0.0001f);
 		mag_boss->DrawOff();
 		return FALSE;
 	}

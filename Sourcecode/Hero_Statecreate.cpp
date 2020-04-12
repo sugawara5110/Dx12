@@ -353,7 +353,8 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 		if (effect_no == 0) { r = 1.0f, g = 1.0f, b = 1.0f; }
 		if (effect_no == 1) { r = 0.7f, g = 0.3f, b = 0.2f; }
 		if (*select_obj != 4) {
-			effect[effect_no].Update(e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z, 0, 0, 0, 0, e_pos[*select_obj].theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].Update(e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z,
+				0, 0, 0, 0, e_pos[*select_obj].theta, 0.0f, 4.0f, 1.0f, px, py, u_cnt, v_cnt);
 			dx->PointLightPosSet(3, e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z,
 				r, g, b, 1.0f,
 				true, 500.0f);
@@ -366,7 +367,7 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 					r, g, b, 1.0f,
 					true, 500.0f);
 			}
-			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 
@@ -377,7 +378,8 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 		if (effect_no == 2) { r = 0.2f, g = 0.7f, b = 0.3f; }
 		if (effect_no == 3) { r = 0.2f, g = 0.3f, b = 0.7f; }
 		if (*select_obj != 4) {
-			effect[effect_no].Update(b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f, 0, 0, 0, 0, h_pos->theta, 0.0f, 1.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].Update(b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f,
+				0, 0, 0, 0, h_pos->theta, 0.0f, 4.0f, 1.0f, px, py, u_cnt, v_cnt);
 			dx->PointLightPosSet(3, b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f,
 				r, g, b, 1.0f,
 				true, 500.0f);
@@ -390,7 +392,7 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 					r, g, b, 1.0f,
 					true, 500.0f);
 			}
-			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, px, py, u_cnt, v_cnt);
+			effect[effect_no].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 	return TRUE;

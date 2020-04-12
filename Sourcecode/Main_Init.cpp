@@ -277,7 +277,7 @@ void Main::UpDate() {
 				posget = TRUE;
 			}
 			//‹“_Ø‚è‘Ö‚¦
-			dx->Cameraset(h_posOut.cx, h_posOut.cx2, h_posOut.cy, h_posOut.cy2, h_posOut.cz, h_posOut.cz);
+			dx->Cameraset(h_posOut.cx, h_posOut.cy, h_posOut.cz, h_posOut.cx2, h_posOut.cy2, h_posOut.cz);
 			//‹“_Ø‚è‘Ö‚¦’†obj
 			hero[0].OBJWalkUpdate(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
 			//battleInstance¶¬, Š®—¹TRUE

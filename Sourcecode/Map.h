@@ -97,6 +97,7 @@ private:
 	};
 	OBJPosRandomValue* wood, * wall1;
 
+	SkinMesh* dragon = nullptr;
 	Wave wav;
 	MeshData mWood, mountain;
 	PolygonData poWallA, poWallB, poWallC, poWallD, poWallE, poWall1[3], poF_Wall,

@@ -15,8 +15,8 @@
 #include "Battle.h"
 #include "Hero.h"
 
-Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
-	
+Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
+
 	Position::H_Pos h_posOut;//視点変換後用
 	//視点初期値
 	h_posOut.cx = h_pos.cx;//視点
@@ -47,7 +47,7 @@ Result Battle::FightUpdate(Hero *hero, Directionkey direction, Result result) {
 	float cy2 = h_posOut.cy2;//注視点
 	float cz = h_posOut.cz;
 
-	dx->Cameraset(cx, cx2, cy, cy2, cz, cz);
+	dx->Cameraset(cx, cy, cz, cx2, cy2, cz);
 	Act_fin_flg act;
 	//敵戦闘不能アクションフラグ
 	//LOSTは発生したらずっとなので注意

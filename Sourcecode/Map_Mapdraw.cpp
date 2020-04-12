@@ -10,7 +10,7 @@
 void Map::MapUpdateObj() {
 	if (woodcount > 0)Mapupdate_Wood();
 	if (squarecount >= 1)Mapupdate_Wall1();
-	if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	if (blockcountA >= 1) poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0, 1.0f, 1.0f);
 	if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
@@ -88,7 +88,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	float cz = (float)posz * 100.0f + 40.0f + elevator_step;
 	float out_x, out_y;
 	GetCamDelayPos(direction, cx, cy, &out_x, &out_y);
-	if (encount == NOENCOUNT)dx->Cameraset(out_x, cax2, out_y, cay2, cz, cz);
+	if (encount == NOENCOUNT)dx->Cameraset(out_x, out_y, cz, cax2, cay2, cz);
 
 	//外の明るさ変化
 	bool mainlight = TRUE;
@@ -134,24 +134,24 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	}
 	if (map_no == 3 || encount != NOENCOUNT)mainlight = FALSE;
 
-	//戦闘時,非戦闘時のディレクショナルライト
-	float btr = 1.0f;
-	if (encount != NOENCOUNT)btr = 2.0f;
-
 	//フォグoff
 	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 	if (map_no == 4)dx->PointLightPosSet(1, 1450.0f, 900.0f, 650.0f,
 		0.4f, 0.4f, 0.8f, 1.0f,
 		true, 2000.0f);
 
+	dx->setGlobalAmbientLight(0.2f, 0.2f, 0.2f);
+
 	switch (map_no) {
 	case 0:
-		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.0f, 0.0f, -1.0f, 0.1f * btr, 0.1f * btr, 0.1f * btr);
+		dx->SetDirectionLight(true);
+		dx->DirectionLight(0.0f, 0.4f, -1.0f, 0.1f, 0.1f, 0.1f);
 		//出口光源
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			true, 600.0f);
+		/*dragon->Update(0, 1200, 3100, 0, 0, 0, 0, 
+			0, 0, 0, 0, 1);*/
 		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		poEXIT.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -196,12 +196,12 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		break;
 	case 2:
 		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f * btr, 0.15f * btr, 0.15f * btr);
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
 		poEXIT.Update(150.0f, 3930.0f, 0, 0, 0, 0, 0, 180.0f, 0);
 		//入口光源
 		dx->PointLightPosSet(2, 150.0f, 3980.0f, 50.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
-			true,650.0f);
+			true, 650.0f);
 		MapupdateWave();
 		poGroundM.Update(0, 500, 0, 0, 0, 0, 0, 0, 0);
 		poCeilingM.Update(0, 500, 0, 0, 0, 0, 0, 0, 0);
@@ -241,7 +241,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	case 4:
 		//入り口に何か細工する予定
 		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f * btr, 0.25f * btr, 0.25f * btr);
+		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f, 0.25f, 0.25f);
 		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
 		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
 		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
@@ -271,6 +271,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 
 void Map::MapDraw() {
 
+	//if (dragon)dragon->Draw();
 	poGroundM.Draw();
 	poCeilingM.Draw();
 	poEXIT.Draw();

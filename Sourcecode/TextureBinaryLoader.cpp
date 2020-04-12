@@ -37,8 +37,8 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 
 	texNum = 0;
 
-	sf = new SearchFile(8);
-	char **str = new char*[1];
+	sf = new SearchFile(9);
+	char** str = new char* [1];
 	str[0] = "da";
 	sf->Search(L"./dat/texture/map/*", 0, str, 1);
 	sf->Search(L"./dat/texture/enemy/*", 1, str, 1);
@@ -48,10 +48,11 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	sf->Search(L"./dat/texture/player/p2/*", 5, str, 1);
 	sf->Search(L"./dat/texture/player/p3/*", 6, str, 1);
 	sf->Search(L"./dat/texture/player/p4/*", 7, str, 1);
+	sf->Search(L"../Black Dragon NEW/textures/*", 8, str, 1);
 	delete[]str;
 	str = nullptr;
 
-	for (UINT k = 0; k < 8; k++) {
+	for (UINT k = 0; k < 9; k++) {
 		for (UINT j = 0; j < sf->GetFileNum(k); j++) {
 			TextureGetBuffer(sf->GetFileName(k, j));
 		}
