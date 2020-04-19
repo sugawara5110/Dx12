@@ -53,7 +53,7 @@ private:
 	T_float tfloat;
 
 	static Main* main;
-
+	
 	//‚»‚Ì‘¼Loop“à‚Åg—p‚·‚é•Ï”
 	int map_no = 0;
 	MapState mapstate = NORMAL_MAP;
@@ -65,6 +65,7 @@ private:
 	volatile bool btDel_f = FALSE;
 	HANDLE* update_h;
 	int sync = 0;
+	SkinMesh* dragon = nullptr;
 
 	void DrawNowLoading(int com_no);
 	void CreateThreadUpdate();

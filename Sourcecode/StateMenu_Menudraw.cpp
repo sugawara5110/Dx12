@@ -111,19 +111,19 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 10;//ボス前
 
 			//通常のスタート位置
-			savedata.h_pos.cx1 = 1150.0f;
+			/*savedata.h_pos.cx1 = 1150.0f;
 			savedata.h_pos.cx2 = 1150.0f;
 			savedata.h_pos.cy1 = 3250.0f;
 			savedata.h_pos.cy2 = 3180.0f;
 			savedata.h_pos.px = 11;
-			savedata.h_pos.py = 32;
+			savedata.h_pos.py = 32;*/
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
 			savedata.map_no = 0;
 			//通常のスタート位置
 
 
-			/*savedata.h_pos.cx1 = 950.0f;//ボス前
+			savedata.h_pos.cx1 = 950.0f;//ボス前
 			savedata.h_pos.cx2 = 950.0f;
 			savedata.h_pos.cy1 = 950.0f;
 			savedata.h_pos.cy2 = 880.0f;
@@ -137,7 +137,7 @@ bool StateMenu::TitleMenu(Directionkey direction) {
 			savedata.h_pos.py = 32;
 			savedata.h_pos.pz = 0;
 			savedata.h_pos.theta = 0.0f;
-			savedata.map_no = 1;*/
+			savedata.map_no = 1;
 
 
 			/*savedata.h_pos.cx1 = 150.0f;//ボス前

@@ -10,7 +10,7 @@
 void Map::MapUpdateObj() {
 	if (woodcount > 0)Mapupdate_Wood();
 	if (squarecount >= 1)Mapupdate_Wall1();
-	if (blockcountA >= 1) poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0, 1.0f, 1.0f);
+	if (blockcountA >= 1)poWallA.Update(0, 0, 0, 0, 0, 0, 0, 0, 1.0f, 1.0f);
 	if (blockcountB >= 1)poWallB.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	if (blockcountC >= 1)poWallC.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	if (blockcountD >= 1)poWallD.Update(0, 0, 0, 0, 0, 0, 0, 0, 8.0f);
@@ -150,8 +150,6 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		dx->PointLightPosSet(2, 450.0f, 0.0f, 50.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			true, 600.0f);
-		/*dragon->Update(0, 1200, 3100, 0, 0, 0, 0, 
-			0, 0, 0, 0, 1);*/
 		poGroundM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		poCeilingM.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		poEXIT.Update(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -271,7 +269,6 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 
 void Map::MapDraw() {
 
-	//if (dragon)dragon->Draw();
 	poGroundM.Draw();
 	poCeilingM.Draw();
 	poEXIT.Draw();
@@ -287,7 +284,7 @@ void Map::MapDraw() {
 	Mapdraw_Mountain();
 	Mapdraw_Rain();
 	wav.Draw();//ƒuƒŒƒ“ƒh‚·‚é‚Ì‚ÅÅŒã‚Ì•û‚É
-
+	
 	//’n}
 	//MapHistory.SetTextureMPixel(mapdata1);
 	//MapHistory.Draw();

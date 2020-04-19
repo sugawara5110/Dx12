@@ -62,7 +62,7 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 void TextureBinaryLoader::TextureBinaryDecodeAll() {
 
 	texNum = 0;
-	for (UINT k = 0; k < 8; k++) {
+	for (UINT k = 0; k < 9; k++) {
 		for (UINT j = 0; j < sf->GetFileNum(k); j++) {
 			TextureBinaryDecode(sf->GetFileName(k, j));
 		}

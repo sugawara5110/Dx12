@@ -146,7 +146,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 			en_boss_att->GetBuffer_Sub(1, 200.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss1att/boss1bone_magic.fbx", 2);
 			en_boss_att->GetBuffer_Sub(2, 200.0f);
-			en_boss_att->SetNormalTextureName("./dat/texture/enemy/boss1_normal.da", 0);
 			break;
 		case 1:
 			en_boss_att->GetFbx("./dat/mesh/boss2att/boss2bone.fbx");
@@ -155,7 +154,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 			en_boss_att->GetBuffer_Sub(1, 200.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss2att/boss2bone_magic.fbx", 2);
 			en_boss_att->GetBuffer_Sub(2, 200.0f);
-			en_boss_att->SetNormalTextureName("./dat/texture/enemy/boss2_normal.da", 0);
 			break;
 		case 3:
 			en_boss_att->GetFbx("./dat/mesh/boss4att/boss4bone.fbx");
@@ -164,7 +162,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 			en_boss_att->GetBuffer_Sub(1, 200.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss4att/boss4bone_magic.fbx", 2);
 			en_boss_att->GetBuffer_Sub(2, 200.0f);
-			en_boss_att->SetNormalTextureName("./dat/texture/enemy/boss4_normal.da", 0);
 			break;
 		case 4:
 			en_boss_att->GetFbx("./dat/mesh/lastbossatt/lastbossbone.fbx");
@@ -173,7 +170,6 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 			en_boss_att->GetBuffer_Sub(1, 200.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/lastbossatt/lastbossbone_magic.fbx", 2);
 			en_boss_att->GetBuffer_Sub(2, 200.0f);
-			en_boss_att->SetNormalTextureName("./dat/texture/enemy/lastboss_normal.da", 0);
 			break;
 		}
 	}
@@ -190,6 +186,20 @@ void EnemyBoss::SetVertex() {
 		en_boss_att->SetVertex();
 		en_boss_att->CreateFromFBX_SubAnimation(1);
 		en_boss_att->CreateFromFBX_SubAnimation(2);
+		switch (e_no) {
+		case 0:
+			en_boss_att->SetNormalTextureName("./dat/texture/enemy/boss1_normal.da", 0, 0);
+			break;
+		case 1:
+			en_boss_att->SetNormalTextureName("./dat/texture/enemy/boss2_normal.da", 0, 0);
+			break;
+		case 3:
+			en_boss_att->SetNormalTextureName("./dat/texture/enemy/boss4_normal.da", 0, 0);
+			break;
+		case 4:
+			en_boss_att->SetNormalTextureName("./dat/texture/enemy/lastboss_normal.da", 0, 0);
+			break;
+		}
 	}
 }
 

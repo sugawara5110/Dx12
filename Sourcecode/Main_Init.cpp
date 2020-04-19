@@ -147,6 +147,16 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 	control = Control::GetInstance();
 	dx->Bigin(0);
+	//ƒhƒ‰ƒSƒ“
+	dragon = new SkinMesh();
+	dragon->SetCommandList(0);
+	dragon->SetState(true, true);
+	dragon->ObjOffset(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0);
+	dragon->GetFbx("../Black Dragon NEW/Dragon_Baked_Actions2.fbx");
+	//dragon->GetFbx("./dat/mesh/player1att/player1_FBX_att.fbx");
+	dragon->GetBuffer(3000.0f);
+	dragon->SetVertex();
+	dragon->CreateFromFBX();
 	statemenu = new StateMenu();
 	mosaic = new PostEffect();
 	mosaic->ComCreateMosaic();
@@ -221,6 +231,8 @@ void Main::UpDate() {
 	encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
 
 	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
+
+	dragon->Update(1.5f, 1150, 3000, 0, 0, 0, 0, 0, 0, 0, 0, 1);
 
 	switch (mapstate) {
 	case CHANGE_MAP:
@@ -352,6 +364,7 @@ void Main::Draw() {
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw2D(encount, ending);
 	}
+	dragon->Draw();
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
@@ -381,6 +394,7 @@ Main::~Main() {
 	MovieSoundManager::ObjDelete();
 	InstanceCreate::BattleDelete();
 	InstanceCreate::MapDelete();
+	S_DELETE(dragon);
 	ARR_DELETE(hero);
 	S_DELETE(ending);
 	TextureBinaryLoader::DeleteTextureStruct();
