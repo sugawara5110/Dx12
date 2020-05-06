@@ -187,7 +187,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_RCV(i) == FALSE)continue;
-				effect[effect_no].InstancedMap(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, e_pos[i].theta);
+				effect[effect_no].InstancedMap(e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z, e_pos[i].theta, 0, 0);
 				dx->PointLightPosSet(i + 3, e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z,
 					r, g, b, 1.0f,
 					true, 500.0f);
@@ -213,7 +213,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_DM(i) == FALSE)continue;
-				effect[effect_no].InstancedMap(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, h_pos->theta);
+				effect[effect_no].InstancedMap(b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f, h_pos->theta, 0, 0);
 				dx->PointLightPosSet(i + 3, b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f,
 					r, g, b, 1.0f,
 					true, 500.0f);

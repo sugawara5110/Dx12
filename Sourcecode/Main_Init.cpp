@@ -355,6 +355,7 @@ void Main::Draw() {
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
 	}
+	dragon->Draw();
 	InstanceCreate::GetInstance_M()->MapDraw();
 	int cnt = 0;
 	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
@@ -364,7 +365,6 @@ void Main::Draw() {
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw2D(encount, ending);
 	}
-	dragon->Draw();
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);

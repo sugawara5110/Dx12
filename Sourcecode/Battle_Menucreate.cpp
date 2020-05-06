@@ -211,7 +211,7 @@ void Battle::Cursor_h(int no) {
 	h_select.InstancedSetConstBf(x - 5.0f, 555.0f, r, r, 0.7f, 1.0f, 130.0f, 5.0f);
 }
 
-void Battle::Cursor_e(int select, float *pr, float *pb) {
+void Battle::Cursor_e(int select, float* pr, float* pb) {
 
 	static float theta = 0.0f;
 	static float r = 1.0f;
@@ -231,7 +231,7 @@ void Battle::Cursor_e(int select, float *pr, float *pb) {
 	if ((theta += m) > 360.0f)theta = 0.0f;
 	*pr = r;
 	*pb = b;
-	E_select.InstancedMap(e_pos[select].x, e_pos[select].y, e_pos[select].z, theta);
+	E_select.InstancedMap(e_pos[select].x, e_pos[select].y, e_pos[select].z, theta, 0, 0);
 }
 
 void Battle::SelectPermissionMove(Hero *hero) {

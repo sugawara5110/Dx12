@@ -133,7 +133,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 
 	//–Ø
 	if (woodcount > 0) {
-		mWood.SetState(TRUE, TRUE, TRUE);
+		mWood.SetState(TRUE, TRUE, FALSE);
 		mWood.GetBuffer("./dat/mesh/tree.obj");
 	}
 
@@ -369,7 +369,6 @@ void Map::CreateMap() {
 	case 1:
 		//ŽR
 		mountain.CreateMesh();
-		mountain.GetTexture();
 		//’n–Ê“ü‚èŒû
 		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
@@ -436,7 +435,6 @@ void Map::CreateMap() {
 	//–Ø
 	if (woodcount > 0) {
 		mWood.CreateMesh();
-		mWood.GetTexture();
 	}
 
 	//•Ç(”Â)
@@ -573,7 +571,7 @@ void Map::Mapupdate_Wall1() {
 				float x = (float)i * 100.0f + 50.0f + wall1[p].x;
 				float y = (float)j * 100.0f + 50.0f + wall1[p++].y;
 				float z = (float)k3 * 100.0f;
-				poWall1[i % 3].InstancedMap(x, y, z, src_theta);
+				poWall1[i % 3].InstancedMap(x, y, z, src_theta, 0, 0);
 			}
 		}
 	}
@@ -991,7 +989,8 @@ void Map::Mapupdate_Rain() {
 	for (int i = 0; i < 148; i++) {
 		x = rand() % 500;
 		y = rand() % 500;
-		poRain.InstancedMap(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f, 0.0f, (float)(rand() % 300));
+		poRain.InstancedMap(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f,
+			0.0f, 0.0f, 0.0f, (float)(rand() % 300));
 	}
 	poRain.InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -1062,7 +1061,8 @@ void Map::Mapupdate_Recover() {
 			float line_y = -cos(i * 3.14f / 180.0f) * 50.0f;
 			float line_x = sin(i * 3.14f / 180.0f) * 50.0f;
 			int rnd = rand() % 20;
-			poRecoverLine[(int)j].InstancedMap(line_x, line_y, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
+			poRecoverLine[(int)j].InstancedMap(line_x, line_y, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
 		}
 		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	}

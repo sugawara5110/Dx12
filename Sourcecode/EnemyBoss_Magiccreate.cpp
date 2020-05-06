@@ -217,7 +217,6 @@ void EnemyBoss::CreateEnemy() {
 	EffectCreate();
 	if (e_no == 2) {
 		en_boss_att0->CreateMesh();
-		en_boss_att0->GetTexture();
 	}
 	if (e_no != 2) {
 		en_boss_att->CreateFromFBX(dispOn);
