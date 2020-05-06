@@ -25,29 +25,26 @@ void Hero::P_DataInput(P_Data *p_dat) {
 }
 
 void Hero::CreateTorchFlame() {
-	//左前
-	torchFlame->SetVertex(0, 0,
+	Vertex to[4] = {
+		//左前
 		-15.0f, 0.0f, 15.0f,
 		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f);
-
-	//右前
-	torchFlame->SetVertex(1, 4, 1,
+		0.0f, 0.0f,
+		//右前
 		15.0f, 0.0f, 15.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 0.0f);
-
-	//左奥
-	torchFlame->SetVertex(2, 3, 2,
+		1.0f, 0.0f,
+		//左奥
 		-15.0f, 0.0f, -15.0f,
 		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f);
-
-	//右奥
-	torchFlame->SetVertex(5, 3,
+		0.0f, 1.0f,
+		//右奥
 		15.0f, 0.0f, -15.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f);
+		1.0f, 1.0f
+	};
+	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+	torchFlame->setVertex(to, 4, ind, 6);
 }
 
 void Hero::TorchSwitch(bool f) {
@@ -129,14 +126,14 @@ Hero::Hero(int no) {
 		torchWood->GetFbxSub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4);
 		torchWood->GetBuffer_Sub(4, frameMaxWait);
 		torchFlame = new PolygonData();
-		torchFlame->GetVBarray(SQUARE, 1);
+		torchFlame->GetVBarray(SQUARE);
 	}
 
 	state.GetVBarray2D(1);
 	meter.GetVBarray2D(1);
-	mag.GetVBarray(SQUARE, 1);
+	mag.GetVBarray(SQUARE);
 	for (int i = 0; i < 4; i++)
-		effect[i].GetVBarray(SQUARE, 1);
+		effect[i].GetVBarray(SQUARE);
 	mov_y = 0.0f;
 	mov_x = 0.0f;
 	mov_z = 0.0f;
@@ -165,29 +162,26 @@ void Hero::SetVertex() {
 	Magiccreate();
 	for (int i = 0; i < 4; i++) {
 		float ver = 25;
-		//左前
-		effect[i].SetVertex(0, 0,
+		Vertex ef[4] = {
+			//左前
 			-ver, 0.0f, ver * 2,
 			0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f);
-
-		//右前
-		effect[i].SetVertex(1, 4, 1,
+			0.0f, 0.0f,
+			//右前
 			ver, 0.0f, ver * 2,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 0.0f);
-
-		//左奥
-		effect[i].SetVertex(2, 3, 2,
+			1.0f, 0.0f,
+			//左奥
 			-ver, 0.0f, 0.0f,
 			0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f);
-
-		//右奥
-		effect[i].SetVertex(5, 3,
+			0.0f, 1.0f,
+			//右奥
 			ver, 0.0f, 0.0f,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f);
+			1.0f, 1.0f
+		};
+		UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+		effect[i].setVertex(ef, 4, ind, 6);
 	}
 }
 
@@ -261,30 +255,26 @@ void Hero::Metercreate(float me) {
 }
 
 void Hero::Magiccreate() {
-
-	//マジック左上
-	mag.SetVertex(0, 0,
+	Vertex m[4] = {
+		//マジック左上
 		(float)-25.0f, (float)-25.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f);
-
-	//マジック右上
-	mag.SetVertex(1, 4, 1,
+		0.0f, 0.0f,
+		//マジック右上
 		(float)25.0f, (float)-25.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 0.0f);
-
-	//マジック左下
-	mag.SetVertex(2, 3, 2,
+		1.0f, 0.0f,
+		//マジック左下
 		(float)-25.0f, (float)25.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f);
-
-	//マジック右下
-	mag.SetVertex(5, 3,
+		0.0f, 1.0f,
+		//マジック右下
 		(float)25.0f, (float)25.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f);
+		1.0f, 1.0f
+	};
+	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+	mag.setVertex(m, 4, ind, 6);
 }
 
 bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos, Position::E_Pos* e_pos) {

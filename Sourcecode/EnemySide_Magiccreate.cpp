@@ -367,38 +367,35 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	EffectGetBuffer();
 
 	en = new PolygonData();
-	en->GetVBarray(CONTROL_POINT, 1);
+	en->GetVBarray(CONTROL_POINT);
 
 	mag = new PolygonData();
-	mag->GetVBarray(SQUARE, 1);
+	mag->GetVBarray(SQUARE);
 }
 
 //@Override
 void EnemySide::SetVertex() {
 	Enemycreate(size_x, size_y);
-	//マジック左上
-	mag->SetVertex(0, 0,
+	Vertex m[4] = {
+		//マジック左上
 		(float)-35.0f, (float)-35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f);
-
-	//マジック右上
-	mag->SetVertex(1, 4, 1,
+		0.0f, 0.0f,
+		//マジック右上
 		(float)35.0f, (float)-35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 0.0f);
-
-	//マジック左下
-	mag->SetVertex(2, 3, 2,
+		1.0f, 0.0f,
+		//マジック左下
 		(float)-35.0f, (float)35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f);
-
-	//マジック右下
-	mag->SetVertex(5, 3,
+		0.0f, 1.0f,
+		//マジック右下
 		(float)35.0f, (float)35.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f);
+		1.0f, 1.0f
+	};
+	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+	mag->setVertex(m, 4, ind, 6);
 }
 
 //@Override

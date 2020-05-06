@@ -31,31 +31,28 @@ Enemy::Enemy(int t_no, int no) {
 
 void Enemy::EffectGetBuffer() {
 	for (int i = 0; i < 4; i++) {
-		effect[i].GetVBarray(SQUARE, 1);
+		effect[i].GetVBarray(SQUARE);
 		float ver = 25;
-		//¶‘O
-		effect[i].SetVertex(0, 0,
+		Vertex ef[4] = {
+			//¶‘O
 			-ver, 0.0f, ver * 2,
 			0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f);
-
-		//‰E‘O
-		effect[i].SetVertex(1, 4, 1,
+			0.0f, 0.0f,
+			//‰E‘O
 			ver, 0.0f, ver * 2,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 0.0f);
-
-		//¶‰œ
-		effect[i].SetVertex(2, 3, 2,
+			1.0f, 0.0f,
+			//¶‰œ
 			-ver, 0.0f, 0.0f,
 			0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f);
-
-		//‰E‰œ
-		effect[i].SetVertex(5, 3,
+			0.0f, 1.0f,
+			//‰E‰œ
 			ver, 0.0f, 0.0f,
 			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f);
+			1.0f, 1.0f
+		};
+		UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+		effect[i].setVertex(ef, 4, ind, 6);
 	}
 }
 
@@ -67,30 +64,26 @@ void Enemy::EffectCreate() {
 }
 
 void Enemy::Enemycreate(float x, float y) {
-
-	//“G¶‘O
-	en->SetVertex(0, 0,
+	Vertex e[4] = {
+		//“G¶‘O
 		(float)-(x / 2), (float)0.0f, y,
 		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f);
-
-	//“G‰E‘O
-	en->SetVertex(1, 4, 1,
+		0.0f, 0.0f,
+		//“G‰E‘O
 		(float)(x / 2), (float)0.0f, y,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 0.0f);
-
-	//“G¶‰œ
-	en->SetVertex(2, 3, 2,
+		1.0f, 0.0f,
+		//“G¶‰œ
 		(float)-(x / 2), (float)0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f);
-
-	//“G‰E‰œ
-	en->SetVertex(5, 3,
+		0.0f, 1.0f,
+		//“G‰E‰œ
 		(float)(x / 2), (float)0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f);
+		1.0f, 1.0f
+	};
+	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+	en->setVertex(e, 4, ind, 6);
 }
 
 void Enemy::SetVertex() {}

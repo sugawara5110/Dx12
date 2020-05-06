@@ -36,7 +36,7 @@ void Battle::Init() {
 	h_select.GetVBarray2D(1);
 	Escape_f = 0;
 	Escape_s = FALSE;
-	E_select.GetVBarray(SQUARE, 1);
+	E_select.GetVBarray(SQUARE);
 	CreateFin = FALSE;
 	battlefirst = FALSE;
 	CamActOn = FALSE;
@@ -129,22 +129,22 @@ void Battle::Init() {
 }
 
 void Battle::SetVertex() {
-	//カーソル左上
-	E_select.SetVertexBC(0, 0,
+	VertexBC se[4] = {
+		//カーソル左上
 		-25.0f, -25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
-	//カーソル右上
-	E_select.SetVertexBC(1, 4, 1,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		//カーソル右上
 		25.0f, -25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
-	//カーソル左下
-	E_select.SetVertexBC(2, 3, 2,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		//カーソル左下
 		-25.0f, 25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
-	//カーソル右下
-	E_select.SetVertexBC(5, 3,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		//カーソル右下
 		25.0f, 25.0f, 4.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+	E_select.setVertex(se, 4, ind, 6);
 
 	for (int i = 0; i < e_num; i++) {
 		enemy[i].SetVertex();
