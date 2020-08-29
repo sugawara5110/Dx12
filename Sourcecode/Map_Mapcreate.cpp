@@ -1301,7 +1301,7 @@ void Map::Mapcreate_EXIT(float x, float y, float z, float xsize) {
 }
 
 Map::~Map() {
-	dx->WaitFenceCurrent();
+	dx->WaitFence();
 	dx->ResetPointLight();
 	ARR_DELETE(wood);
 	ARR_DELETE(wall1);

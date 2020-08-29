@@ -275,7 +275,7 @@ void Battle::SelectPermissionMove(Hero *hero) {
 }
 
 Battle::~Battle() {
-	dx->WaitFenceCurrent();
+	dx->WaitFence();
 	MovieSoundManager::ObjDelete_battle();
 	ARR_DELETE(enemy);
 	ARR_DELETE(e_draw);

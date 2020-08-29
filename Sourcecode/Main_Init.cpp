@@ -128,11 +128,11 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 				break;
 			}
 
-			dx->Sclear(0);
+			dx->BiginDraw(0);
 			DrawNowLoading(0);
-
+			dx->EndDraw(0);
 			dx->End(0);
-			dx->WaitFenceCurrent();
+			dx->WaitFence();
 			dx->DrawScreen();
 
 			if (fin) break;
@@ -147,23 +147,13 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 	control = Control::GetInstance();
 	dx->Bigin(0);
-	//ドラゴン
-	dragon = new SkinMesh();
-	dragon->SetCommandList(0);
-	dragon->SetState(true, true);
-	dragon->ObjOffset(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0);
-	dragon->GetFbx("../Black Dragon NEW/Dragon_Baked_Actions2.fbx");
-	//dragon->GetFbx("./dat/mesh/player1att/player1_FBX_att.fbx");
-	dragon->GetBuffer(3000.0f);
-	dragon->SetVertex();
-	dragon->CreateFromFBX();
 	statemenu = new StateMenu();
 	mosaic = new PostEffect();
 	mosaic->ComCreateMosaic();
 	blur = new PostEffect();
 	blur->ComCreateBlur();
 	dx->End(0);
-	dx->WaitFenceCurrent();
+	dx->WaitFence();
 	CreateThreadUpdate();
 
 	return TRUE;
@@ -231,9 +221,8 @@ void Main::UpDate() {
 	encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
 
 	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
-
-	dragon->Update(1.5f, 1150, 3000, 0, 0, 0, 0, 0, 0, 0, 0, 1);
-
+	T_float tfloat;
+	
 	switch (mapstate) {
 	case CHANGE_MAP:
 		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
@@ -345,7 +334,7 @@ void Main::UpDate() {
 void Main::Draw() {
 	dx->setDrawSwapIndex(1 - sync);
 	dx->Bigin(0);
-	dx->Sclear(0);
+	dx->BiginDraw(0);
 	float blu = 0.0f;
 	bool bluRet = FALSE;
 	if (battleSwitch == 2) {
@@ -355,7 +344,7 @@ void Main::Draw() {
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw(encount, ending);
 	}
-	dragon->Draw();
+	
 	InstanceCreate::GetInstance_M()->MapDraw();
 	int cnt = 0;
 	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
@@ -368,21 +357,22 @@ void Main::Draw() {
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
+	dx->EndDraw(0);
 	dx->End(0);
-	dx->WaitFencePast();
+	dx->WaitFence();
 	dx->DrawScreen();
 }
 
 void Main::ObjDel() {
 	//battle削除(コマンドリストClose後に削除)
 	if (btDel_f) {
-		dx->WaitFenceCurrent();
+		dx->WaitFence();
 		InstanceCreate::BattleDelete();
 		btDel_f = FALSE;
 	}
 	//map削除
 	if (mpDel_f) {
-		dx->WaitFenceCurrent();
+		dx->WaitFence();
 		InstanceCreate::InsDelete();
 		mpDel_f = FALSE;
 	}
@@ -394,7 +384,6 @@ Main::~Main() {
 	MovieSoundManager::ObjDelete();
 	InstanceCreate::BattleDelete();
 	InstanceCreate::MapDelete();
-	S_DELETE(dragon);
 	ARR_DELETE(hero);
 	S_DELETE(ending);
 	TextureBinaryLoader::DeleteTextureStruct();

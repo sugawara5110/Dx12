@@ -65,8 +65,6 @@ private:
 	volatile bool btDel_f = FALSE;
 	HANDLE* update_h;
 	int sync = 0;
-	SkinMesh* dragon = nullptr;
-
 	void DrawNowLoading(int com_no);
 	void CreateThreadUpdate();
 	void DeleteThreadUpdate();

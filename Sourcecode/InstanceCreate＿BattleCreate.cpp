@@ -47,7 +47,7 @@ void InstanceCreate::DeleteThread_R() {
 	CloseHandle(resource_loading_h);                 //ハンドルを閉じる
 	resource_loading_h = NULL;
 	MovieSoundManager::ObjInit();
-	TextureLoader::GetTexture(TextureBinaryLoader::getTexNum(), TextureBinaryLoader::getTexture(),
+	TextureLoader::GetTexture2(TextureBinaryLoader::getTexNum(), TextureBinaryLoader::getTexture(),
 		Dx12Process::GetInstance());
 	progress = 30;
 }
@@ -62,7 +62,7 @@ void InstanceCreate::DeleteThread_B() {
 	WaitForSingleObject(battle_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(battle_loading_h);                 //ハンドルを閉じる
 	battle_loading_h = NULL;
-	Dx12Process::GetInstance()->WaitFenceCurrent();
+	Dx12Process::GetInstance()->WaitFence();
 	battle->SetCommandList(0);
 }
 
@@ -70,7 +70,7 @@ void InstanceCreate::DeleteThread_M() {
 	WaitForSingleObject(map_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(map_loading_h);                 //ハンドルを閉じる
 	map_loading_h = NULL;
-	Dx12Process::GetInstance()->WaitFenceCurrent();
+	Dx12Process::GetInstance()->WaitFence();
 	map[1 - mapInd]->SetCommandList(0);
 	mapInd = 1 - mapInd;
 	MapObjSet();//マップのセット
