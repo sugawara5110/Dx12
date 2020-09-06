@@ -231,7 +231,7 @@ void Battle::Cursor_e(int select, float* pr, float* pb) {
 	if ((theta += m) > 360.0f)theta = 0.0f;
 	*pr = r;
 	*pb = b;
-	E_select.InstancedMap(e_pos[select].x, e_pos[select].y, e_pos[select].z, theta, 0, 0);
+	E_select.Instancing({ e_pos[select].x, e_pos[select].y, e_pos[select].z }, { 0, 0,theta }, { 1,1,1 });
 }
 
 void Battle::SelectPermissionMove(Hero *hero) {

@@ -507,7 +507,11 @@ bool EnemySide::LostAction(float x, float y, float z) {
 bool EnemySide::Magiccreate(float x, float y, float z) {
 
 	MovieSoundManager::Magic_sound(TRUE);
-	mag->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, 0, 0, 0, 0, count, 0);
+	mag->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z },
+		{ 0, 0, 0, 0 },
+		{ 0,0,count },
+		{ 1,1,1 },
+		0);
 	float m = tfloat.Add(0.15f);
 	if ((count += m) > 100) {
 		count = 0.0f;
@@ -519,7 +523,11 @@ bool EnemySide::Magiccreate(float x, float y, float z) {
 
 //@Override
 void EnemySide::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {
-	en->Update(x, y, z, r, g, b, 0.0f, theta, 0);
+	en->Update({ x, y, z },
+		{ r, g, b, 0.0f },
+		{ 0,0,theta },
+		{ 1,1,1 },
+		0);
 }
 
 //@Override

@@ -47,7 +47,7 @@ Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 	float cy2 = h_posOut.cy2;//注視点
 	float cz = h_posOut.cz;
 
-	dx->Cameraset(cx, cy, cz, cx2, cy2, cz);
+	dx->Cameraset({ cx, cy, cz }, { cx2, cy2, cz });
 	Act_fin_flg act;
 	//敵戦闘不能アクションフラグ
 	//LOSTは発生したらずっとなので注意

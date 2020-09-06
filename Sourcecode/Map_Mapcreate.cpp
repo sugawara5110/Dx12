@@ -95,7 +95,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 		break;
 	case 2:
 		//波
-		wav.GetVBarray(4);
+		wav.GetVBarray();
 		//入口
 		poEXIT.GetVBarray(SQUARE);
 		//地面メイン
@@ -206,6 +206,17 @@ void Map::SetVertex() {
 		0.0f, 0.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f };
 	UINT ri[2] = { 0,1 };
+	Vertex w[] = {
+		{{-50.0f, -50.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f }},
+		{{50.0f, -50.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f }},
+		{{50.0f, 50.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f }},
+		{{-50.0f, 50.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
+	};
+	static UINT index[] =
+	{
+		2,0,1,
+		3,0,2
+	};
 	switch (map_no) {
 	case 0:
 		//出口
@@ -235,10 +246,7 @@ void Map::SetVertex() {
 		break;
 	case 2:
 		//波
-		wav.SetVertex(0, -50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-		wav.SetVertex(1, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-		wav.SetVertex(2, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-		wav.SetVertex(3, 50.0f, -50.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+		wav.SetVertex(w, 4, index, 6);
 		//入口
 		Mapcreate_EXIT(-50.0f, -50.0f, 100.0f, 100.0f);
 		//地面メイン
@@ -516,11 +524,11 @@ void Map::Mapupdate_Wood() {
 				float yy = cay1 - y;
 				float zz = (float)posz * 100.0f - z;
 				if (sqrt(xx * xx + yy * yy + zz * zz) > 600.0f)continue;
-				mWood.InstancedMap(x, y, z, 0, 0, 0, 10.0f);
+				mWood.Instancing({ x, y, z }, { 0, 0, 0 }, { 10.0f,10.0f,10.0f });
 			}
 		}
 	}
-	mWood.InstanceUpdate(0, 0, 0, 0, 0.2f);
+	mWood.InstancingUpdate({ 0, 0, 0, 0 }, 0.2f);
 }
 
 void Map::Mapdraw_Wood() {
@@ -528,8 +536,11 @@ void Map::Mapdraw_Wood() {
 }
 
 void Map::Mapupdate_Mountain() {
-	mountain.InstancedMap(-1500.0f, 2000.0f, 0, 0, 0, 0, 500.0f);
-	mountain.Update(5500.0f, 2000.0f, 0, 0, 0, 0, 0, 0, 0, 0, 500.0f, 0);
+	mountain.Instancing({ -1500.0f, 2000.0f, 0 }, { 0, 0, 0 }, { 500.0f,500.0f,500.0f });
+	mountain.Update({ 5500.0f, 2000.0f, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0 },
+		{ 500.0f,500.0f,500.0f }, 0);
 }
 
 void Map::Mapdraw_Mountain() {
@@ -569,11 +580,13 @@ void Map::Mapupdate_Wall1() {
 				float x = (float)i * 100.0f + 50.0f + wall1[p].x;
 				float y = (float)j * 100.0f + 50.0f + wall1[p++].y;
 				float z = (float)k3 * 100.0f;
-				poWall1[i % 3].InstancedMap(x, y, z, src_theta, 0, 0);
+				poWall1[i % 3].Instancing({ x, y, z },
+					{ 0, 0,src_theta },
+					{ 1,1,1 });
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i].InstanceUpdate(0, 0, 0, 0, 0);
+	for (int i = 0; i < 3; i++)poWall1[i].InstancingUpdate({ 0, 0, 0, 0 }, 0);
 }
 
 void Map::Mapdraw_Wall1() {
@@ -964,10 +977,12 @@ void Map::Mapupdate_Rain() {
 	for (int i = 0; i < 148; i++) {
 		x = rand() % 500;
 		y = rand() % 500;
-		poRain.InstancedMap(cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f,
-			0.0f, 0.0f, 0.0f, (float)(rand() % 300));
+		float size = (float)(rand() % 300);
+		poRain.Instancing({ cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f },
+			{ 0.0f, 0.0f, 0.0f },
+			{ size,size,size });
 	}
-	poRain.InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	poRain.InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f);
 }
 
 void Map::Mapdraw_Rain() {
@@ -1049,15 +1064,20 @@ void Map::Mapupdate_Recover() {
 			float line_y = -cos(i * 3.14f / 180.0f) * 50.0f;
 			float line_x = sin(i * 3.14f / 180.0f) * 50.0f;
 			int rnd = rand() % 20;
-			poRecoverLine[(int)j].InstancedMap(line_x, line_y, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, (float)rnd);
+			poRecoverLine[(int)j].Instancing({ line_x, line_y, 0.0f },
+				{ 0.0f, 0.0f, 0.0f },
+				{ 1.0f, 1.0f, (float)rnd });
 		}
-		poRecoverLine[(int)j].InstanceUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		poRecoverLine[(int)j].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f);
 	}
-	dx->PointLightPosSet(7, recovPosX, recovPosY, 2.0f,
-		0.2f, 0.8f, 0.2f, 1.0f,
+	dx->PointLightPosSet(7, { recovPosX, recovPosY, 2.0f },
+		{ 0.2f, 0.8f, 0.2f, 1.0f },
 		true, 500.0f);
-	poRecover.Update(0, 0, 4.0f, 0, 0, 0, 0, 0, 0);
+	poRecover.Update({ 0, 0, 4.0f },
+		{ 0, 0, 0, 0 },
+		{ 0,0,0 },
+		{ 1,1,1 },
+		0);
 }
 
 void Map::Mapdraw_Recover() {
@@ -1185,8 +1205,8 @@ void Map::Mapupdate_Ds() {
 	int loopcount = 8;//ライトのインデックス(0:手持ち松明用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定, 7:リカバーポイント)
 	//各ライト設定
 	for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
-		dx->PointLightPosSet(loopcount, light[i].x, light[i].y, light[i].z,
-			light[i].r, light[i].g, light[i].b, light[i].a,
+		dx->PointLightPosSet(loopcount, { light[i].x, light[i].y, light[i].z },
+			{ light[i].r, light[i].g, light[i].b, light[i].a },
 			light[i].on_off, light[i].range);
 		loopcount++;
 	}
@@ -1386,9 +1406,11 @@ void Map::MapupdateWave() {
 		for (int x = stX; x <= enX; x++) {
 			if (mxy.m[mxy.x * y + x] == 48 || mxy.m[mxy.x * y + x] == 51 ||
 				mxy.m[mxy.x * y + x] == 50 || mxy.m[mxy.x * y + x] == 54 || mxy.m[mxy.x * y + x] == 55) {
-				wav.InstancedMap(x * 100.0f + 50.0f, y * 100.0f + 50.0f, 5.0f, 0.0f, 1.3f);
+				wav.Instancing(0.05f, { x * 100.0f + 50.0f, y * 100.0f + 50.0f, 5.0f },
+					{ 0,0,0 },
+					{ 1.3f,1.3f,1.3f });
 			}
 		}
 	}
-	wav.InstanceUpdate(0, 0, 0, -0.4f, 0.4f);
+	wav.InstancingUpdate({ 0, 0, 0, -0.4f }, 0.4f);
 }

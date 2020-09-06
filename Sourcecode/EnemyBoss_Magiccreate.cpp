@@ -328,21 +328,21 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	MovieSoundManager::Magic_sound(TRUE);
 	if (count == 0.0f) {
 		magicAttOn = TRUE;
-		mag_boss->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
 	}
 	if (count != 0.0f) {
-		mag_boss->Update(x + mov_x, y + mov_y, z + 5.0f + mov_z, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
+		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
 	}
-	dx->PointLightPosSet(3, x, y, z,
-		0.7f, 0.2f, 0.2f, 1.0f,
-		true, mag_size * 1000.0f, 0.001f, 0.0001f, 0.0001f);
+	dx->PointLightPosSet(3, { x, y, z },
+		{ 0.7f, 0.2f, 0.2f, 1.0f },
+		true, mag_size * 1000.0f, { 0.001f, 0.0001f, 0.0001f });
 
 	if ((count += m) > 900) {
 		count = 0.0f;
 		magicAttOn = FALSE;//最終フレームで止めたままにするので終わるタイミングまでOnのまま
-		dx->PointLightPosSet(3, x, y, z,
-			0.7f, 0.2f, 0.2f, 1.0f,
-			false, mag_size * 1000.0f, 0.001f, 0.0001f, 0.0001f);
+		dx->PointLightPosSet(3, { x, y, z },
+			{ 0.7f, 0.2f, 0.2f, 1.0f },
+			false, mag_size * 1000.0f, { 0.001f, 0.0001f, 0.0001f });
 		mag_boss->DrawOff();
 		return FALSE;
 	}
@@ -352,17 +352,32 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 //@Override
 void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, float theta) {
 	if (e_no == 2) {
-		en_boss_att0->Update(x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, 0);
+		en_boss_att0->Update({ x, y, z + size_y * 0.5f }, { cr, cg, cb, 0.0f },
+			{ 0, 0,theta }, { size_x * 0.5f,size_x * 0.5f,size_x * 0.5f }, 0);
 		return;
 	}
 	if (attOn) {
-		attFin = en_boss_att->Update(0, tfloat.Add(1.0f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, disp_size);
+		attFin = en_boss_att->Update(0, tfloat.Add(1.0f),
+			{ x, y, z + size_y * 0.5f },
+			{ cr, cg, cb , 0.0f }, { 0, 0,theta },
+			{ size_x * 0.5f,size_x * 0.5f,size_x * 0.5f },
+			disp_size);
 	}
 	if (magicAttOn) {
-		en_boss_att->Update(2, tfloat.Add(0.5f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, disp_size);
+		en_boss_att->Update(2, tfloat.Add(0.5f),
+			{ x, y, z + size_y * 0.5f },
+			{ cr, cg, cb, 0.0f },
+			{ 0, 0,theta },
+			{ size_x * 0.5f,size_x * 0.5f,size_x * 0.5f },
+			disp_size);
 	}
 	if (!attOn && !magicAttOn) {
-		en_boss_att->Update(1, tfloat.Add(0.2f), x, y, z + size_y * 0.5f, cr, cg, cb, 0.0f, theta, 0, 0, size_x * 0.5f, disp_size);
+		en_boss_att->Update(1, tfloat.Add(0.2f),
+			{ x, y, z + size_y * 0.5f },
+			{ cr, cg, cb, 0.0f },
+			{ 0, 0,theta },
+			{ size_x * 0.5f,size_x * 0.5f,size_x * 0.5f },
+			disp_size);
 	}
 }
 

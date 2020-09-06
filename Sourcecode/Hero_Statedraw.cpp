@@ -12,7 +12,7 @@
 #define DISP_SIZE 0.3f
 
 void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta) {
-	p_att->Update(3, -1.0f, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f);
+	p_att->Update(3, -1.0f, { x, y, z }, { r, g, b, 0.0f }, { 0,0,theta }, { 2.0f,2.0f,2.0f });
 }
 
 void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta, bool walkOn) {
@@ -28,14 +28,14 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 		//移動
 		i = 3;
 	}
-	p_att->Update(i, m, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f, DISP_SIZE);
+	p_att->Update(i, m, { x, y, z }, { r, g, b, 0.0f }, { 0,0,theta }, { 2.0f,2.0f,2.0f }, DISP_SIZE);
 	if (torchOn) {
-		torchWood->Update(i, m, x, y, z, r, g, b, 0.0f, theta, 0, 0, 2.0f);
+		torchWood->Update(i, m, { x, y, z }, { r, g, b, 0.0f }, { 0,0,theta }, { 2.0f,2.0f,2.0f });
 		v3 = torchWood->GetVertexPosition(0, 4, 3.0f, -1.0f, 0.0f, theta, 0, 0, 2.0f);
-		dx->PointLightPosSet(0, v3.x + x, v3.y + y, v3.z + z,
-			1.0f, 0.4f, 0.4f, 1.0f,
+		dx->PointLightPosSet(0, { v3.x + x, v3.y + y, v3.z + z },
+			{ 1.0f, 0.4f, 0.4f, 1.0f },
 			true, 800.0f);
-		torchFlame->Update(v3.x + x, v3.y + y, v3.z + z, r, g, b, -0.2f, theta, 0.0f);
+		torchFlame->Update({ v3.x + x, v3.y + y, v3.z + z }, { r, g, b, -0.2f }, { 0,0,theta }, { 1,1,1 }, 0.0f);
 	}
 	else {
 		torchWood->DrawOff();
@@ -43,7 +43,7 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 	}
 }
 
-Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h_pos, Position::E_Pos *e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun) {
+Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos, Position::E_Pos* e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun) {
 
 	static bool clr_f = TRUE;
 	static float r = 1.0f;
@@ -53,10 +53,10 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 	if (o_no == 2)x = 370.0f;
 	if (o_no == 3)x = 540.0f;
 
-	Position::Bt_H_Pos *b_pos = battle->GetBtPos(h_pos);
+	Position::Bt_H_Pos* b_pos = battle->GetBtPos(h_pos);
 
 	//NORMAL,LOST以外のアクション中にNORMAL,LOST以外のアクション発生時の初期化
-	if (action != NORMAL&& action != LOST) {
+	if (action != NORMAL && action != LOST) {
 		mov_y = 0.0f;
 		mov_x = 0.0f;
 		mov_z = 0.0f;
@@ -108,7 +108,10 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 		m = tfloat.Add(0.15f);
 		float mx, my;
 		MovieSoundManager::Magic_sound(TRUE);
-		mag.Update(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 5.0f, 0, 0, 0, 0, count += m, 0);
+		mag.Update({ b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 5.0f },
+			{ 0, 0, 0, 0 },
+			{ 0,0,count += m },
+			{ 1,1,1 }, 0);
 		VECTOR3 p3;
 		p3.as(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 20.0f);
 		PolygonData2D::Pos2DCompute(&p3);
@@ -210,13 +213,28 @@ Act_fin_flg Hero::HeroUpdate(Battle *battle, int *select_obj, Position::H_Pos *h
 	m = tfloat.Add(2.0f);
 	if (Dieflg() == TRUE)m = 0.0f;
 	if (attOn) {
-		attFin = p_att->Update(0, m, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f, DISP_SIZE);
+		attFin = p_att->Update(0, m,
+			{ b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f },
+			{ 0, 0, 0, 0 },
+			{ LA_x, LA_y,h_pos->theta },
+			{ 2.0f,2.0f,2.0f },
+			DISP_SIZE);
 	}
 	if (magicAttOn) {
-		p_att->Update(2, m * 0.3f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f, DISP_SIZE);
+		p_att->Update(2, m * 0.3f,
+			{ b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f },
+			{ 0, 0, 0, 0 },
+			{ LA_x, LA_y,h_pos->theta },
+			{ 2.0f,2.0f,2.0f },
+			DISP_SIZE);
 	}
 	if (!attOn && !magicAttOn) {
-		p_att->Update(1, m * 0.5f, b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f, 0, 0, 0, 0, h_pos->theta, LA_y, LA_x, 2.0f, DISP_SIZE);
+		p_att->Update(1, m * 0.5f,
+			{ b_pos[o_no].BtPos_x1 + mov_x, b_pos[o_no].BtPos_y1 + mov_y, (float)h_pos->pz * 100.0f + mov_z + LA / 9.0f },
+			{ 0, 0, 0, 0 },
+			{ LA_x, LA_y,h_pos->theta },
+			{ 2.0f,2.0f,2.0f },
+			DISP_SIZE);
 	}
 
 	Statecreate(command_run);
