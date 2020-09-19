@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\Direct3DWrapper\DxText_DrawText.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx12ProcessCore_Initialize.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxFunction.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR_Basic.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Common.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData_GetVBarray.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData_CreateParticle.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData2D_GetVBarray2D.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData_GetVBarray.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.cpp" />
+    <ClCompile Include="..\Common\DirectShowWrapper\Camera.cpp" />
+    <ClCompile Include="..\Common\DirectShowWrapper\DsProcess_DsProcess.cpp" />
+    <ClCompile Include="..\Common\DirectShowWrapper\Movie_GetFrame.cpp" />
+    <ClCompile Include="..\Common\DirectShowWrapper\Sound__sound.cpp" />
+    <ClCompile Include="..\Common\SearchFile\SearchFile.cpp" />
+    <ClCompile Include="..\Common\TextureLoader\MicroSoftLibrary\WICTextureLoader12.cpp" />
+    <ClCompile Include="..\Common\TextureLoader\TextureLoader.cpp" />
+    <ClCompile Include="..\Common\Window\Control_Direction.cpp" />
+    <ClCompile Include="..\Common\Window\Win.cpp" />
+    <ClCompile Include="..\DecompressDeflate\DecompressDeflate.cpp" />
+    <ClCompile Include="..\FbxLoader\FbxLoader.cpp" />
+    <ClCompile Include="..\FbxLoader\FbxMeshNode.cpp" />
+    <ClCompile Include="..\JPGLoader\JPGLoader.cpp" />
+    <ClCompile Include="..\PNGLoader\PNGLoader.cpp" />
+    <ClCompile Include="Sourcecode\3DRPG_Main.cpp" />
+    <ClCompile Include="Sourcecode\Battle_E_AT_select.cpp" />
+    <ClCompile Include="Sourcecode\Battle_Fight.cpp" />
+    <ClCompile Include="Sourcecode\Battle_H_AT_select.cpp" />
+    <ClCompile Include="Sourcecode\Battle_Menucreate.cpp" />
+    <ClCompile Include="Sourcecode\Battle_Menu_main.cpp" />
+    <ClCompile Include="Sourcecode\Decode.cpp" />
+    <ClCompile Include="Sourcecode\Ending_StaffRoll.cpp" />
+    <ClCompile Include="Sourcecode\EnemyBoss_Magiccreate.cpp" />
+    <ClCompile Include="Sourcecode\EnemySide_Magiccreate.cpp" />
+    <ClCompile Include="Sourcecode\Enemy_Enemycreate.cpp" />
+    <ClCompile Include="Sourcecode\Enemy_Enemydraw.cpp" />
+    <ClCompile Include="Sourcecode\Hero_Statecreate.cpp" />
+    <ClCompile Include="Sourcecode\Hero_Statedraw.cpp" />
+    <ClCompile Include="Sourcecode\InstanceCreate＿BattleCreate.cpp" />
+    <ClCompile Include="Sourcecode\Main_Init.cpp" />
+    <ClCompile Include="Sourcecode\Map_Mapcreate.cpp" />
+    <ClCompile Include="Sourcecode\Map_Mapdraw.cpp" />
+    <ClCompile Include="Sourcecode\Map_Mapfilter.cpp" />
+    <ClCompile Include="Sourcecode\Map_Move.cpp" />
+    <ClCompile Include="Sourcecode\MovieSoundManager_ObjCreate.cpp" />
+    <ClCompile Include="Sourcecode\Parameter_ GetAttack.cpp" />
+    <ClCompile Include="Sourcecode\Position_CamAdvance.cpp" />
+    <ClCompile Include="Sourcecode\StateMenu_Menucreate.cpp" />
+    <ClCompile Include="Sourcecode\StateMenu_Menudraw.cpp" />
+    <ClCompile Include="Sourcecode\TextureBinaryLoader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\Direct3DWrapper\Dx12Process.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DxText.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx12ProcessCore.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxEnum.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxFunction.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR_Basic.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxStruct.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\Shader2D.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\Shader3D.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCalculateLighting.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonParameters.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonPS.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonTriangleGS.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonTriangleHSDS.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderFunction.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderMesh.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderMesh_D.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderNormalTangent.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderParticle.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderPostEffect.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMesh.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMesh_D.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderWaveCom.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderWaveDraw.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderDXR\ShaderBasicDXR.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\MicroSoftLibrary\d3dx12.h" />
+    <ClInclude Include="..\Common\DirectShowWrapper\Camera.h" />
+    <ClInclude Include="..\Common\DirectShowWrapper\DsProcess.h" />
+    <ClInclude Include="..\Common\DirectShowWrapper\Movie.h" />
+    <ClInclude Include="..\Common\DirectShowWrapper\Sound_.h" />
+    <ClInclude Include="..\Common\SearchFile\SearchFile.h" />
+    <ClInclude Include="..\Common\TextureLoader\MicroSoftLibrary\d3dx12.h" />
+    <ClInclude Include="..\Common\TextureLoader\MicroSoftLibrary\WICTextureLoader12.h" />
+    <ClInclude Include="..\Common\TextureLoader\TextureLoader.h" />
+    <ClInclude Include="..\Common\Window\Control.h" />
+    <ClInclude Include="..\Common\Window\Win.h" />
+    <ClInclude Include="..\DecompressDeflate\DecompressDeflate.h" />
+    <ClInclude Include="..\FbxLoader\FbxLoader.h" />
+    <ClInclude Include="..\FbxLoader\FbxMeshNode.h" />
+    <ClInclude Include="..\JPGLoader\JPGLoader.h" />
+    <ClInclude Include="..\PNGLoader\PNGLoader.h" />
+    <ClInclude Include="Sourcecode\Battle.h" />
+    <ClInclude Include="Sourcecode\Decode.h" />
+    <ClInclude Include="Sourcecode\Ending.h" />
+    <ClInclude Include="Sourcecode\Enemy.h" />
+    <ClInclude Include="Sourcecode\EnemyBoss.h" />
+    <ClInclude Include="Sourcecode\EnemySide.h" />
+    <ClInclude Include="Sourcecode\Enum.h" />
+    <ClInclude Include="Sourcecode\Hero.h" />
+    <ClInclude Include="Sourcecode\InstanceCreate.h" />
+    <ClInclude Include="Sourcecode\Main.h" />
+    <ClInclude Include="Sourcecode\Map.h" />
+    <ClInclude Include="Sourcecode\MovieSoundManager.h" />
+    <ClInclude Include="Sourcecode\Parameter.h" />
+    <ClInclude Include="Sourcecode\Position.h" />
+    <ClInclude Include="Sourcecode\StateMenu.h" />
+    <ClInclude Include="Sourcecode\TextureBinaryLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7A886188-2BB3-438E-BC71-07E943B52FAC}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>My3DRPG</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\Info_tech_eng\FE\VS Express 2013 for Desktop\カメラライブラリ;C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\lib\vs2015\x64\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2017.1\include;D:\Info_tech_eng\FE\VS Express 2013 for Desktop\カメラライブラリ;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2017.1\lib\vs2015\x64\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\Info_tech_eng\FE\VS Express 2013 for Desktop\カメラライブラリ;C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\lib\vs2015\x64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2017.1\include;D:\Info_tech_eng\FE\VS Express 2013 for Desktop\カメラライブラリ;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2017.1\lib\vs2015\x64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -328,10 +328,10 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	MovieSoundManager::Magic_sound(TRUE);
 	if (count == 0.0f) {
 		magicAttOn = TRUE;
-		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
 	}
 	if (count != 0.0f) {
-		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
+		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
 	}
 	dx->PointLightPosSet(3, { x, y, z },
 		{ 0.7f, 0.2f, 0.2f, 1.0f },

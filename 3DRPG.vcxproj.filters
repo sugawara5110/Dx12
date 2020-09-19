@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Sourcecode\3DRPG_Main.cpp" />
+    <ClCompile Include="Sourcecode\Battle_E_AT_select.cpp">
+      <Filter>Battle</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Battle_Fight.cpp">
+      <Filter>Battle</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Battle_H_AT_select.cpp">
+      <Filter>Battle</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Battle_Menu_main.cpp">
+      <Filter>Battle</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Battle_Menucreate.cpp">
+      <Filter>Battle</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Enemy_Enemycreate.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Enemy_Enemydraw.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\EnemyBoss_Magiccreate.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\EnemySide_Magiccreate.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Ending_StaffRoll.cpp">
+      <Filter>Ending</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Hero_Statecreate.cpp">
+      <Filter>Hero</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Hero_Statedraw.cpp">
+      <Filter>Hero</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\InstanceCreate＿BattleCreate.cpp">
+      <Filter>InstanceCreate</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Map_Mapcreate.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Map_Mapdraw.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Map_Mapfilter.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Map_Move.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\MovieSoundManager_ObjCreate.cpp">
+      <Filter>MovieSoundManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Parameter_ GetAttack.cpp">
+      <Filter>Parameter</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Position_CamAdvance.cpp">
+      <Filter>Position</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\StateMenu_Menucreate.cpp">
+      <Filter>StateMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\StateMenu_Menudraw.cpp">
+      <Filter>StateMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\TextureBinaryLoader.cpp">
+      <Filter>TextureBinaryLoad</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Main_Init.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Sourcecode\Decode.cpp">
+      <Filter>Decode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DxText_DrawText.cpp">
+      <Filter>Common\Direct3DWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Common.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData_GetVBarray.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData_CreateParticle.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData_GetVBarray.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData2D_GetVBarray2D.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx12ProcessCore_Initialize.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxFunction.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\DirectShowWrapper\Camera.cpp">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\DirectShowWrapper\DsProcess_DsProcess.cpp">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\DirectShowWrapper\Movie_GetFrame.cpp">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\DirectShowWrapper\Sound__sound.cpp">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\SearchFile\SearchFile.cpp">
+      <Filter>Common\SearchFile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Window\Control_Direction.cpp">
+      <Filter>Common\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Window\Win.cpp">
+      <Filter>Common\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FbxLoader\FbxLoader.cpp">
+      <Filter>FbxLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FbxLoader\FbxMeshNode.cpp">
+      <Filter>FbxLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DecompressDeflate\DecompressDeflate.cpp">
+      <Filter>DecompressDeflate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\JPGLoader\JPGLoader.cpp">
+      <Filter>JPGLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PNGLoader\PNGLoader.cpp">
+      <Filter>PNGLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\TextureLoader\MicroSoftLibrary\WICTextureLoader12.cpp">
+      <Filter>Common\TextureLoader\MicroSoftLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\TextureLoader\TextureLoader.cpp">
+      <Filter>Common\TextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR_Basic.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Sourcecode\Battle.h">
+      <Filter>Battle</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Enemy.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\EnemyBoss.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\EnemySide.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Ending.h">
+      <Filter>Ending</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Hero.h">
+      <Filter>Hero</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\InstanceCreate.h">
+      <Filter>InstanceCreate</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Map.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\MovieSoundManager.h">
+      <Filter>MovieSoundManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Parameter.h">
+      <Filter>Parameter</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Position.h">
+      <Filter>Position</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\StateMenu.h">
+      <Filter>StateMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\TextureBinaryLoader.h">
+      <Filter>TextureBinaryLoad</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Main.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Enum.h">
+      <Filter>Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="Sourcecode\Decode.h">
+      <Filter>Decode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\Dx12Process.h">
+      <Filter>Common\Direct3DWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DxText.h">
+      <Filter>Common\Direct3DWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\MicroSoftLibrary\d3dx12.h">
+      <Filter>Common\Direct3DWrapper\MicroSoftLibrary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx12ProcessCore.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxEnum.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxFunction.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxStruct.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\Shader2D.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\Shader3D.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonPS.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonTriangleHSDS.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderFunction.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderMesh.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderMesh_D.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderParticle.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderPostEffect.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMesh.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMesh_D.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderWaveCom.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderWaveDraw.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\DirectShowWrapper\Camera.h">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\DirectShowWrapper\DsProcess.h">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\DirectShowWrapper\Movie.h">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\DirectShowWrapper\Sound_.h">
+      <Filter>Common\DirectShowWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\SearchFile\SearchFile.h">
+      <Filter>Common\SearchFile</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Window\Control.h">
+      <Filter>Common\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Window\Win.h">
+      <Filter>Common\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FbxLoader\FbxLoader.h">
+      <Filter>FbxLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FbxLoader\FbxMeshNode.h">
+      <Filter>FbxLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DecompressDeflate\DecompressDeflate.h">
+      <Filter>DecompressDeflate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\JPGLoader\JPGLoader.h">
+      <Filter>JPGLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PNGLoader\PNGLoader.h">
+      <Filter>PNGLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\TextureLoader\MicroSoftLibrary\d3dx12.h">
+      <Filter>Common\TextureLoader\MicroSoftLibrary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\TextureLoader\MicroSoftLibrary\WICTextureLoader12.h">
+      <Filter>Common\TextureLoader\MicroSoftLibrary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\TextureLoader\TextureLoader.h">
+      <Filter>Common\TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonTriangleGS.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonParameters.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderDXR\ShaderBasicDXR.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderDXR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderNormalTangent.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR_Basic.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCalculateLighting.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\ShaderCG</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Battle">
+      <UniqueIdentifier>{0e0ec8a7-f676-4e74-a970-faac0ce16dc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy">
+      <UniqueIdentifier>{0b502898-96a6-4824-b483-e229a37349bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ending">
+      <UniqueIdentifier>{a6d5cbbb-a382-42c7-8d9e-87921509085a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hero">
+      <UniqueIdentifier>{f33e303b-e6bc-43c8-a94e-6efc09f6b123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InstanceCreate">
+      <UniqueIdentifier>{fc492dc0-fbe0-4884-a0b3-79228dfc0ec3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{5b7c8c85-faa1-43f0-8e9c-e3e47464462f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parameter">
+      <UniqueIdentifier>{b0372088-c541-46d7-82b9-dd5b61bceade}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Position">
+      <UniqueIdentifier>{553d1500-1771-4411-9340-4a8ffdcc52fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StateMenu">
+      <UniqueIdentifier>{928c4720-3d18-4358-b405-4a357cc4ce3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MovieSoundManager">
+      <UniqueIdentifier>{f1b0d920-cfbc-41f8-8d75-be71e97f900f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextureBinaryLoad">
+      <UniqueIdentifier>{bcd795c6-7de7-4d23-b932-cb4a5d2d9935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{93f2e9d2-43b9-4fd6-9d96-e9e2eae48205}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enum">
+      <UniqueIdentifier>{f11947bb-abc1-49a9-b7f0-dee7da029a7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Decode">
+      <UniqueIdentifier>{6eca04b0-2b0b-4991-a436-101e7911b667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{467ae2e4-1447-4c53-b79f-ffaf28a6e79c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Window">
+      <UniqueIdentifier>{fef2b75e-7fc0-449c-a83f-218c8c7d6c37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\SearchFile">
+      <UniqueIdentifier>{2ee5dc3a-2fa6-4218-9222-9ffcd4fd505b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapper">
+      <UniqueIdentifier>{5b85d52f-6aaf-40ca-9383-887e52af6b2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapper\DX_3DCG">
+      <UniqueIdentifier>{50cb6d73-6993-4c6d-9307-18982e9c3a08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapper\DX_3DCG\ShaderCG">
+      <UniqueIdentifier>{25647de0-5592-42e0-afeb-0b7e58c77ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapper\MicroSoftLibrary">
+      <UniqueIdentifier>{2212d64d-2539-4931-958d-87935b9e7f1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\DirectShowWrapper">
+      <UniqueIdentifier>{0b2f0b03-9f60-4cf4-bfb2-62610f6099ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FbxLoader">
+      <UniqueIdentifier>{408a7a0b-5cf5-46fe-9c74-0ce3364edcb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DecompressDeflate">
+      <UniqueIdentifier>{4191264b-9580-488d-a7cc-df54982a5677}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JPGLoader">
+      <UniqueIdentifier>{77558c58-b8f2-4185-84ce-881c90cf200c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PNGLoader">
+      <UniqueIdentifier>{51c4d31b-4b97-480f-8c60-2d87fab6ddd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\TextureLoader">
+      <UniqueIdentifier>{e1e8e18a-78c4-4581-8531-1cb971fbb5cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\TextureLoader\MicroSoftLibrary">
+      <UniqueIdentifier>{086f6f3a-998e-48ed-80e0-994d10db7608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapper\DX_3DCG\ShaderDXR">
+      <UniqueIdentifier>{1a26fc44-2be9-48b4-8797-360f2f00321c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+</Project>

@@ -1098,17 +1098,17 @@ void Map::Mapcreate_Ds(int num) {
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f,
-					1.0f, 1.0f, 1.0f, 0.8f);
+					{ (float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f },
+					{ 1.0f, 1.0f, 1.0f });
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f,
-					1.0f, 1.0f, 1.0f, 0.8f);
+					{ (float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f },
+					{ 1.0f, 1.0f, 1.0f });
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f,
-					1.0f, 1.0f, 1.0f, 0.8f);
+					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f },
+					{ 1.0f, 1.0f, 1.0f });
 				poMo.SetVertex(ind++,
-					(float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f,
-					1.0f, 1.0f, 1.0f, 0.8f);
+					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f },
+					{ 1.0f, 1.0f, 1.0f });
 			}
 		}
 	}
@@ -1211,7 +1211,7 @@ void Map::Mapupdate_Ds() {
 		loopcount++;
 	}
 
-	poMo.Update(20.0f);
+	poMo.Update(20.0f, { 0,0,0,0 });
 }
 
 void Map::Mapdraw_Ds() {
