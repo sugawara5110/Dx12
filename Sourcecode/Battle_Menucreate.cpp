@@ -36,7 +36,7 @@ void Battle::Init() {
 	h_select.GetVBarray2D(1);
 	Escape_f = 0;
 	Escape_s = FALSE;
-	E_select.GetVBarray(SQUARE);
+	E_select.GetVBarray(SQUARE,1);
 	CreateFin = FALSE;
 	battlefirst = FALSE;
 	CamActOn = FALSE;
@@ -131,16 +131,16 @@ void Battle::Init() {
 void Battle::SetVertex() {
 	VertexBC se[4] = {
 		//カーソル左上
-		-25.0f, -25.0f, 4.0f,
+		-25.0f, -25.0f, 10.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
 		//カーソル右上
-		25.0f, -25.0f, 4.0f,
+		25.0f, -25.0f, 10.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
 		//カーソル左下
-		-25.0f, 25.0f, 4.0f,
+		-25.0f, 25.0f, 10.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
 		//カーソル右下
-		25.0f, 25.0f, 4.0f,
+		25.0f, 25.0f, 10.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	};
 	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };

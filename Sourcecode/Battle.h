@@ -30,21 +30,21 @@ class Battle {
 
 private:
 	//初期パラメーター
-	Hero *he_para;
-	Position::E_Pos *e_po_para;
-	Position::H_Pos *h_po_para;
+	Hero* he_para;
+	Position::E_Pos* e_po_para;
+	Position::H_Pos* h_po_para;
 	Encount encount_para;
 	int no_para, e_nu_para;
 
-	Dx12Process *dx;
-	DxText *text;
+	Dx12Process* dx;
+	DxText* text;
 	T_float tfloat;
 	int comNo;
 	PolygonData2D command, h_select;//コマンド選択ウインドウ, 回復選択カーソル
 	PolygonData E_select;//敵選択カーソル
-	Enemy *enemy;
-	EnemySide *enemyside;
-	EnemyBoss *enemyboss;
+	Enemy* enemy;
+	EnemySide* enemyside;
+	EnemyBoss* enemyboss;
 	int e_num;            //敵出現数
 	bool command_run_first_flg;//コマンド選択権無の状態 == FALSE、コマンド選択後TRUEとなる。1体ずつ
 	bool time_stop_flg;       //時間ストップフラグ, 1連のアクション～HPMP増減は1体ずつ処理なのでフラグは1個でok
@@ -84,28 +84,28 @@ private:
 		int R_select; //回復対象カーソル位置 
 	}Draw;
 	Draw h_draw[4];
-	Draw *e_draw;
+	Draw* e_draw;
 	Position::E_Pos e_pos[4];
 	Position::H_Pos h_pos;
-	Position::Bt_H_Pos *b_pos;
+	Position::Bt_H_Pos* b_pos;
 
-	void Debug(Enemy *enemy);//デバック用
+	void Debug(Enemy* enemy);//デバック用
 	void Menucreate();
 	void Cursor_h(int no);
-	void Cursor_e(int select, float *r, float *b);
-	void SelectPermissionMove(Hero *hero);
-	CommandSelect E_AT_select(Hero *hero);
-	CommandSelect Menu_main(Hero *hero, int i, Directionkey direction);
+	void Cursor_e(int select, float* r, float* b);
+	void SelectPermissionMove(Hero* hero);
+	CommandSelect E_AT_select(Hero* hero);
+	CommandSelect Menu_main(Hero* hero, int i, Directionkey direction);
 	CommandSelect Menu_AT(int i, Directionkey direction);
 	CommandSelect Menu_MAG_AT(int i, Directionkey direction);
-	CommandSelect Menu_RCV(Hero *hero, int i, Directionkey direction);
-	CommandSelect H_AT_select(Hero *hero, int i, Directionkey direction);
+	CommandSelect Menu_RCV(Hero* hero, int i, Directionkey direction);
+	CommandSelect H_AT_select(Hero* hero, int i, Directionkey direction);
 	bool Escapedraw();
 	void E_drawPos(int i);
 	void H_drawPos(int i);
 
 	template<typename T_rcv>
-	void ValueDraw(T_rcv *rcv, Draw *dm, Draw *rc, int dmI, int rcI) {
+	void ValueDraw(T_rcv* rcv, Draw* dm, Draw* rc, int dmI, int rcI) {
 		//↓攻撃対象又は回復対象のアクション,データ処理開始
 		bool draw_flg = FALSE;
 		for (int i1 = 0; i1 < dmI; i1++) {
@@ -134,7 +134,7 @@ private:
 	}
 
 	template<typename T_dm, typename T_att>
-	void ATprocess(T_dm *dm, T_att *att, Draw *d, Draw *at) {
+	void ATprocess(T_dm* dm, T_att* att, Draw* d, Draw* at) {
 		if (dm->Dieflg() == FALSE) {
 			at->action = ATTACK;
 			d->DMdata = att->GetAttack();
@@ -144,7 +144,7 @@ private:
 	}
 
 	template<typename T_dm, typename T_att>
-	void MAGprocess(T_dm *p_dm, T_att *p_att, T_att *att, Draw *at, Draw *p_at, Draw *p_d, int *select_ob, MagicSelect *select_M, TemplateType type) {
+	void MAGprocess(T_dm* p_dm, T_att* p_att, T_att* att, Draw* at, Draw* p_at, Draw* p_d, int* select_ob, MagicSelect* select_M, TemplateType type) {
 		int att_n;
 		int dm_n;
 		if (type == E_ATT) {
@@ -223,7 +223,7 @@ private:
 	}
 
 	template<typename T_rcv>
-	void RCVdraw(T_rcv *rcv, Draw *at, float adjustX, float adjustY) {
+	void RCVdraw(T_rcv* rcv, Draw* at, float adjustX, float adjustY) {
 		if (at->RCVdrawY != 0) {
 			if ((at->RCVdrawY += tfloat.Add(0.1f)) < DrawYMAX) {
 				text->UpDateValue(at->RCVdata, at->draw_x + adjustX, at->draw_y + at->RCVdrawY + adjustY, 30.0f, 5, { 0.3f, 1.0f, 0.3f, 1.0f });
@@ -242,7 +242,7 @@ private:
 	}
 
 	template<typename T_dm>
-	void DMdraw(T_dm *dm, Draw *d, float adjustX, float adjustY) {
+	void DMdraw(T_dm* dm, Draw* d, float adjustX, float adjustY) {
 		if (d->DMdrawY != 0) {
 			if ((d->DMdrawY += tfloat.Add(0.1f)) < DrawYMAX) {
 				text->UpDateValue(d->DMdata, d->draw_x + adjustX, d->draw_y + d->DMdrawY + adjustY, 30.0f, 5, { 1.0f, 0.3f, 0.3f, 1.0f });
@@ -262,22 +262,28 @@ private:
 
 public:
 	Battle() {}
-	void SetParameter(Hero *he, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
+	void SetParameter(Hero* he, Position::E_Pos* e_pos, Position::H_Pos* h_pos, Encount encount, int no, int e_nu);
 	void Init();
 	void SetVertex();
 	void SetCommandList(int com_no);
 	void CreateBattle();
 	bool CreateB_Fin();
-	Result FightUpdate(Hero *he, Directionkey direction, Result result);
+	Result FightUpdate(Hero* he, Directionkey direction, Result result);
 	void FightDraw(Encount enc);
+	void StreamOutput(Encount enc);
+	void StreamOutputAfterDraw(Encount enc);
 	void Draw2D(Encount enc);
-	Position::Bt_H_Pos *GetBtPos(Position::H_Pos *h_p);
+	Position::Bt_H_Pos* GetBtPos(Position::H_Pos* h_p);
 	bool GetH_DM(int element);
 	bool GetH_RCV(int element);
 	bool GetE_DM(int element);
 	bool GetE_RCV(int element);
-	bool GetBossEffectState(float *blur);
+	bool GetBossEffectState(float* blur);
 	~Battle();
+
+	ParameterDXR** getParameterDXR(int* numPara);
+	MaterialType* getMaterialType();
+	void setPointLightNo();
 };
 
 #endif

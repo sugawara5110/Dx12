@@ -55,7 +55,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 	srand((unsigned)time(NULL));
 
-	if (Createwindow(&hWnd, hInstance, nCmdShow, CURRWIDTH, CURRHEIGHT, L"3DRPG") == -1)return FALSE;
+	if (Createwindow(&hWnd, hInstance, nCmdShow, CURRWIDTH, CURRHEIGHT, L"3DRPG", 10) == -1)return FALSE;
 
 	//Dx12Processオブジェクト生成
 	Dx12Process::InstanceCreate();
@@ -63,6 +63,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	dx = Dx12Process::GetInstance();
 	try {
 		//DirectX初期化
+		dx->dxrCreateResource();
 		dx->Initialize(hWnd, CURRWIDTH, CURRHEIGHT);
 		float cuw = CURRWIDTH;
 		float cuh = CURRHEIGHT;
@@ -132,6 +133,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 			DrawNowLoading(0);
 			dx->EndDraw(0);
 			dx->End(0);
+			dx->RunGpu();
 			dx->WaitFence();
 			dx->DrawScreen();
 
@@ -146,17 +148,102 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	}
 
 	control = Control::GetInstance();
+	DxInput* di = DxInput::GetInstance();
+	di->create(hWnd);
+	di->SetWindowMode(true);
+
+	DivideArr divArr[1];
+	divArr[0].distance = 7000.0f;
+	divArr[0].divide = 12;
+	UINT numDiv = 1;
+
 	dx->Bigin(0);
 	statemenu = new StateMenu();
 	mosaic = new PostEffect();
 	mosaic->ComCreateMosaic();
 	blur = new PostEffect();
 	blur->ComCreateBlur();
+
 	dx->End(0);
+	dx->RunGpu();
 	dx->WaitFence();
+	changeMap();
 	CreateThreadUpdate();
 
 	return TRUE;
+}
+
+void Main::changeMap() {
+	if (dxr)S_DELETE(dxr);
+	EmissiveCount::reset();
+	dxr = new DXR_Basic();
+	int mapN = 0;
+	int mapTN = 0;
+	MaterialType* mtype = InstanceCreate::GetInstance_M()->getMaterialType(&mapTN);
+	ParameterDXR** mDXR = InstanceCreate::GetInstance_M()->getParameterDXR(&mapN);
+	InstanceCreate::GetInstance_M()->setPointLightNo();
+	int heN = 0;
+	ParameterDXR** hDXR = hero[0].getParameterDXRMap(&heN);
+	MaterialType* htype = hero[0].getMaterialTypeMap();
+	hero[0].setPointLightNoMap();
+	memcpy(&pdx[0], mDXR, sizeof(ParameterDXR*) * mapN);
+	memcpy(&pdx[mapN], hDXR, sizeof(ParameterDXR*) * heN);
+	memcpy(&materialType[0], mtype, sizeof(MaterialType) * mapTN);
+	memcpy(&materialType[mapTN], htype, sizeof(MaterialType) * heN);
+
+	for (int i = 0; i < mapN + heN; i++) {
+		pdx[i]->resetCreateAS();
+	}
+
+	dxr->initDXR(mapN + heN, pdx, materialType, 4);
+}
+
+void Main::changeBattle() {
+	if (dxr)S_DELETE(dxr);
+	EmissiveCount::reset();
+	dxr = new DXR_Basic();
+	int mapN = 0;
+	int mapTN = 0;
+	MaterialType* typeM = InstanceCreate::GetInstance_M()->getMaterialType(&mapTN);
+	ParameterDXR** DxrM = InstanceCreate::GetInstance_M()->getParameterDXR(&mapN);
+	InstanceCreate::GetInstance_M()->setPointLightNo();
+
+	MaterialType* typeH[4];
+	ParameterDXR** DxrH[4];
+	int heroN[4] = {};
+
+	for (int i = 0; i < 4; i++) {
+		DxrH[i] = hero[i].getParameterDXRBat(&heroN[i]);
+		typeH[i] = hero[i].getMaterialTypeBat();
+		hero[i].setPointLightNoBat();
+	}
+
+	int batN = 0;
+	MaterialType* typeB = InstanceCreate::GetInstance_B()->getMaterialType();
+	ParameterDXR** DxrB = InstanceCreate::GetInstance_B()->getParameterDXR(&batN);
+	InstanceCreate::GetInstance_B()->setPointLightNo();
+
+	memcpy(&pdx[0], DxrM, sizeof(ParameterDXR*) * mapN);
+	memcpy(&materialType[0], typeM, sizeof(MaterialType) * mapTN);
+	int size = mapN;
+	int size2 = mapTN;
+	for (int i = 0; i < 4; i++) {
+		memcpy(&pdx[size], DxrH[i], sizeof(ParameterDXR*) * heroN[i]);
+		memcpy(&materialType[size2], typeH[i], sizeof(MaterialType) * heroN[i]);
+		size += heroN[i];
+		size2 += heroN[i];
+	}
+
+	memcpy(&pdx[size], DxrB, sizeof(ParameterDXR*) * batN);
+	memcpy(&materialType[size2], typeB, sizeof(MaterialType) * batN);
+	size += batN;
+
+	for (int i = 0; i < size; i++) {
+		pdx[i]->updateDXR[0].createAS = false;
+		pdx[i]->updateDXR[1].createAS = false;
+	}
+
+	dxr->initDXR(size, pdx, materialType, 4);
 }
 
 void Main::Loop() {
@@ -172,11 +259,32 @@ void Main::Loop() {
 		}
 
 		T_float::GetTime(hWnd);
+
+		Sync::sync[0] = 1 - Sync::sync[0];
+		Sync::sync[1] = 1 - Sync::sync[1];
+		Sync::sync[2] = 1 - Sync::sync[2];
+		dx->setUpSwapIndex(Sync::sync[0]);
+		dx->setDrawSwapIndex(1 - Sync::sync[0]);
+		dx->setStreamOutputSwapIndex(Sync::sync[1]);
+		dx->setRaytraceSwapIndex(1 - Sync::sync[1]);
+		dxr->setASswapIndex(Sync::sync[2]);
+		dxr->setRaytraceSwapIndex(1 - Sync::sync[2]);
+
 		SetEvent(event[0]);
-		Draw();
-		ObjDel();
+		dx->Bigin(0);
+		SetMovie();
+		dx->End(0);
+		dx->RunGpu();
+		dx->WaitFence();
+		//Draw();
+		StreamOutput();
+		StreamOutputAfterDraw();
 		WaitForSingleObject(event[1], INFINITE);
-		sync = 1 - sync;
+		if (changeBattleF) {
+			changeBattle();
+			changeBattleF = false;
+		}
+		ObjDel();
 	}
 
 	DeleteThreadUpdate();
@@ -186,7 +294,6 @@ void Main::Loop() {
 
 void Main::UpDate() {
 
-	dx->setUpSwapIndex(sync);
 	T_float::GetTimeUp(hWnd);
 	T_float::AddAdjust(0.8f);
 
@@ -218,7 +325,8 @@ void Main::UpDate() {
 	//タイトル表示
 	if (Drawtitle)Drawtitle = statemenu->TitleMenu(control->Direction());
 
-	encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
+	if (InstanceCreate::GetInstance_M())
+		encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
 
 	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
 	T_float tfloat;
@@ -292,12 +400,12 @@ void Main::UpDate() {
 				Position::CamAdvance(h, NULL, NULL, 0, NULL, encount);//初期化
 				posget = FALSE;
 				battleSwitch = 2;
+				changeBattleF = true;
 			}
 			break;
 		case 2:
 			//battle表示
 			result = InstanceCreate::GetInstance_B()->FightUpdate(hero, control->Direction(), result);
-
 			switch (result) {
 			case WIN:
 				if (encount == BOSS)Map::SetBossKilled(map_no, 1);//ボス撃破履歴更新
@@ -332,8 +440,12 @@ void Main::UpDate() {
 	DxText::GetInstance()->UpDate();
 }
 
+void Main::SetMovie() {
+	if(InstanceCreate::GetInstance_M())InstanceCreate::GetInstance_M()->SetMovie();
+	hero[0].SetMovie(encount);
+}
+
 void Main::Draw() {
-	dx->setDrawSwapIndex(1 - sync);
 	dx->Bigin(0);
 	dx->BiginDraw(0);
 	float blu = 0.0f;
@@ -360,6 +472,68 @@ void Main::Draw() {
 	DxText::GetInstance()->Draw(0);
 	dx->EndDraw(0);
 	dx->End(0);
+	dx->RunGpu();
+	dx->WaitFence();
+	dx->DrawScreen();
+}
+
+void Main::StreamOutput() {
+	dx->Bigin(0);
+	if (battleSwitch == 2) {
+		InstanceCreate::GetInstance_B()->StreamOutput(encount);
+	}
+	for (int i = 0; i < 4; i++) {
+		hero[i].StreamOutput(encount, ending);
+	}
+	if (InstanceCreate::GetInstance_M()) {
+		InstanceCreate::GetInstance_M()->StreamOutput();
+	}
+	
+	dx->End(0);
+	dx->RunGpu();
+	dx->WaitFence();
+
+	dx->BiginCom(0);
+	dxr->update_c(0, 3);
+	dx->EndCom(0);
+	dx->Bigin(0);
+	dxr->updateVertexBuffer(0);
+	dxr->raytrace_g(0);
+	dxr->copyBackBuffer(0);
+	dxr->copyDepthBuffer(0);
+	dx->End(0);
+	dx->RunGpuCom();
+	dx->RunGpu();
+	dx->WaitFenceCom();
+	dx->WaitFence();
+}
+
+void Main::StreamOutputAfterDraw() {
+	dx->Bigin(0);
+	dx->BiginDraw(0, false);
+
+	float blu = 0.0f;
+	bool bluRet = FALSE;
+	if (battleSwitch == 2) {
+		bluRet = InstanceCreate::GetInstance_B()->GetBossEffectState(&blu);
+		InstanceCreate::GetInstance_B()->StreamOutputAfterDraw(encount);
+	}
+	int cnt = 0;
+	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
+	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
+	bluRet = FALSE;
+	blu = 0.0f;
+	for (int i = 0; i < 4; i++) {
+		hero[i].Draw2D(encount, ending);
+	}
+	if (InstanceCreate::GetInstance_M())
+		InstanceCreate::GetInstance_M()->StreamOutputAfterDraw();
+	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
+	statemenu->Draw();
+	DxText::GetInstance()->Draw(0);
+	dx->EndDraw(0);
+	dx->End(0);
+	dx->RunGpu();
 	dx->WaitFence();
 	dx->DrawScreen();
 }
@@ -367,19 +541,25 @@ void Main::Draw() {
 void Main::ObjDel() {
 	//battle削除(コマンドリストClose後に削除)
 	if (btDel_f) {
+		dx->RunGpu();
 		dx->WaitFence();
 		InstanceCreate::BattleDelete();
+		changeMap();
 		btDel_f = FALSE;
 	}
 	//map削除
 	if (mpDel_f) {
+		dx->RunGpu();
 		dx->WaitFence();
 		InstanceCreate::InsDelete();
+		changeMap();
 		mpDel_f = FALSE;
 	}
 }
 
 Main::~Main() {
+	dx->WaitFenceCom();
+	dx->WaitFence();
 	Control::DeleteInstance();
 	S_DELETE(statemenu);
 	MovieSoundManager::ObjDelete();
@@ -390,6 +570,7 @@ Main::~Main() {
 	TextureBinaryLoader::DeleteTextureStruct();
 	S_DELETE(mosaic);
 	S_DELETE(blur);
+	S_DELETE(dxr);
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();
 }

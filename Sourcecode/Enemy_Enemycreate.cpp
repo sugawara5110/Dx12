@@ -27,40 +27,45 @@ Enemy::Enemy(int t_no, int no) {
 	en_boss_att = NULL;
 	attFin = attOn = magicAttOn = FALSE;
 	magicSel = NOSEL;
+	for (int i = 0; i < 4; i++)for (int j = 0; j < 4; j++)effectOn[i][j] = false;
 }
 
 void Enemy::EffectGetBuffer() {
 	for (int i = 0; i < 4; i++) {
-		effect[i].GetVBarray(SQUARE);
-		float ver = 25;
-		Vertex ef[4] = {
-			//左前
-			-ver, 0.0f, ver * 2,
-			0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f,
-			//右前
-			ver, 0.0f, ver * 2,
-			0.0f, 0.0f, 0.0f,
-			1.0f, 0.0f,
-			//左奥
-			-ver, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f,
-			//右奥
-			ver, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f
-		};
-		UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
-		effect[i].setVertex(ef, 4, ind, 6);
+		for (int j = 0; j < 4; j++) {
+			effect[i][j].GetVBarray(SQUARE, 1);
+			float ver = 25;
+			Vertex ef[4] = {
+				//左前
+				-ver, 0.0f, ver * 2,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f,
+				//右前
+				ver, 0.0f, ver * 2,
+				0.0f, 0.0f, 0.0f,
+				1.0f, 0.0f,
+				//左奥
+				-ver, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f,
+				//右奥
+				ver, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				1.0f, 1.0f
+			};
+			UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+			effect[i][j].setVertex(ef, 4, ind, 6);
+		}
 	}
 }
 
 void Enemy::EffectCreate() {
-	effect[0].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
-	effect[1].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
-	effect[2].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
-	effect[3].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+	for (int i = 0; i < 4; i++) {
+		effect[0][i].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
+		effect[1][i].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
+		effect[2][i].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
+		effect[3][i].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+	}
 }
 
 void Enemy::Enemycreate(float x, float y) {
@@ -137,13 +142,19 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 	if ((tt += tfloat.Add(0.8f)) > 10.0f) {//速度調整用
 		tt = 0;
 		if ((tx += px) + px > 1.0f) {
-			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, { 0, 0, 0 },
-				{ 0, 0, 0, 0 },
-				false, 0);
-			for (int i = 0; i < 4; i++)effect[i].DrawOff();
+			for (int k = 0; k < 4; k++) {
+				for (int j = 0; j < 4; j++) {
+					int emissiveNo = effect[k][j].emissiveNo;
+					dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
+						{ 0, 0, 0, 0 },
+						false, 0);
+					effectOn[k][j] = false;
+				}
+			}
 			tx = 0; return FALSE;
 		}
 	}
+
 	u_cnt = tx / px;
 	v_cnt = ty / py;
 
@@ -171,23 +182,26 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 		if (effect_no == 2) { r = 0.2f, g = 0.7f, b = 0.3f; }
 		if (effect_no == 3) { r = 0.2f, g = 0.3f, b = 0.7f; }
 		if (*E_select_obj != 4) {
-			effect[effect_no].Update({ e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z },
+			effect[effect_no][0].Update({ e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z },
 				{ 0, 0, 0, 0 },
 				{ 0,0,e_pos[*E_select_obj].theta }, { 1,1,1 }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, { e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z },
+			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z },
 				{ r, g, b , 1.0f },
 				true, 500.0f);
+			effectOn[effect_no][0] = true;
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_RCV(i) == FALSE)continue;
-				effect[effect_no].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
+				effect[effect_no][i].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ 0,0, e_pos[i].theta }, { 1,1,1 });
-				dx->PointLightPosSet(i + 3, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
+				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
+				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effectOn[effect_no][i] = true;
 			}
-			effect[effect_no].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+
 		}
 	}
 
@@ -196,28 +210,30 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 		if (effect_no == 0)MovieSoundManager::Att_sound(TRUE);
 		if (effect_no == 1)MovieSoundManager::Flame_sound(TRUE);
 		float r, g, b;
-		if (effect_no == 0) { r = 1.0f, g = 1.0f, b = 1.0f; }
+		if (effect_no == 0) { r = 1.0f, g = 0.0f, b = 0.0f; }
 		if (effect_no == 1) { r = 0.7f, g = 0.3f, b = 0.2f; }
 		if (*E_select_obj != 4) {
-			effect[effect_no].Update({ b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
+			effect[effect_no][0].Update({ b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
 				{ 0, 0, 0, 0 },
 				{ 0,0,h_pos->theta },
 				{ 1,1,1 },
 				0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, { b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
+			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
 				{ r, g, b, 1.0f },
 				true, 500.0f);
+			effectOn[effect_no][0] = true;
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_DM(i) == FALSE)continue;
-				effect[effect_no].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
+				effect[effect_no][i].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ 0, 0,h_pos->theta }, { 1,1,1 });
-				dx->PointLightPosSet(i + 3, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
+				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
+				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effectOn[effect_no][i] = true;
 			}
-			effect[effect_no].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 	return TRUE;

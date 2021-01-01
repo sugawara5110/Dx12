@@ -11,29 +11,29 @@
 #include "Map.h"
 #include <Process.h>
 
-class InstanceCreate{
+class InstanceCreate {
 
 private:
 	//進行状況
 	static int progress;
 	//初期リソース読み込み
-	static HANDLE *resource_loading_h;
-	static HANDLE *hero_loading_h;
+	static HANDLE* resource_loading_h;
+	static HANDLE* hero_loading_h;
 
 	//Battle生成用パラメータ
-	static HANDLE *battle_loading_h;
-	static Battle *battle;
+	static HANDLE* battle_loading_h;
+	static Battle* battle;
 
 	//Map生成用パラメータ
-	static HANDLE *map_loading_h;
-	static Position::H_Pos *h_p;
-	static Map *map[2];
-	static int mapInd;
+	static HANDLE* map_loading_h;
+	static Position::H_Pos* h_p;
+	static Map* map[2];
+	static int mapInd;//セットするindex
 
 	//Heroオブジェクト保持用
-	static Hero *he;
+	static Hero* he;
 
-	InstanceCreate(){}//インスタンス生成無
+	InstanceCreate() {}//インスタンス生成無
 
 public:
 	static int GetProgress();
@@ -50,22 +50,22 @@ public:
 	static void HeroGetBuffer();//シングルスレッド使用
 	static void HeroSetVertex();//マルチスレッド使用
 	static void HeroCreate();//シングルスレッド使用
-	static Hero *HeroCreate_f();
+	static Hero* HeroCreate_f();
 
 	static void ResourceLoad();
 	static bool Resource_load_f();
 
-	static HANDLE *GetHANDLE_B();
-	static void SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu);
+	static HANDLE* GetHANDLE_B();
+	static void SetInstanceParameter_B(Hero* h, Position::E_Pos* e_pos, Position::H_Pos* h_pos, Encount encount, int no, int e_nu);
 	static void BattleGetBuffer();
 	static void BattleSetVertex();
 	static void BattleCreate();
 	static bool BattleCreate_f();
 	static void BattleDelete();
-	static Battle *GetInstance_B();//マルチスレッドで生成する為NULLチェックでは無く終了フラグBattleCreate_f()で生成確認する
+	static Battle* GetInstance_B();//マルチスレッドで生成する為NULLチェックでは無く終了フラグBattleCreate_f()で生成確認する
 
-	static HANDLE *GetHANDLE_M();
-	static void SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h);
+	static HANDLE* GetHANDLE_M();
+	static void SetInstanceParameter_M(Position::H_Pos* h_pos, Hero* h);
 	static void MapGetBuffer();
 	static void MapSetVertex();
 	static void MapCreate();
@@ -73,10 +73,10 @@ public:
 	static void MapObjSet();
 	static void InsDelete();
 	static void MapDelete();
-	static Map *GetInstance_M();//マルチスレッドで生成する為NULLチェックでは無く終了フラグMapCreate_f()で生成確認する
+	static Map* GetInstance_M();//マルチスレッドで生成する為NULLチェックでは無く終了フラグMapCreate_f()で生成確認する
 
-	static bool CreateBattleIns(Hero *h, Encount encount, int no, int e_nu);
-	static bool CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no);
+	static bool CreateBattleIns(Hero* h, Encount encount, int no, int e_nu);
+	static bool CreateMapIns(Position::H_Pos* h_pos, Hero* h, int* map_no);
 };
 
 unsigned __stdcall ResourceLoading(void *);

@@ -125,7 +125,18 @@ Act_fin_flg Enemy::EnemyUpdate(Battle* battle, int* E_select_obj, Action action,
 		RecoverAction();
 		break;
 	}
+
 	ObjUpdate(e_pos[o_no].x + mov_x, e_pos[o_no].y + mov_y, e_pos[o_no].z + mov_z, cr, cg, cb, e_pos[o_no].theta);
+
+	for (int i = 0; i < 4; i++)for (int j = 0; j < 4; j++) {
+		if (!effectOn[i][j]) {
+			effect[i][j].DrawOff();
+			int emissiveNo = effect[i][j].emissiveNo;
+			dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
+				{ 0, 0, 0, 0 },
+				false, 0);
+		}
+	}
 
 	return NOT_FIN;
 }
@@ -159,7 +170,9 @@ void Enemy::Draw(Encount enc) {
 		//BossMag
 		if (mag_boss)mag_boss->DrawOff();
 		//エフェクト
-		for (int i = 0; i < 4; i++)effect[i].DrawOff();
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				effect[i][j].DrawOff();
 	}
 	else {
 		//SideEnemy
@@ -174,8 +187,91 @@ void Enemy::Draw(Encount enc) {
 		//BossMag
 		if (mag_boss)mag_boss->Draw();
 		//エフェクト
-		for (int i = 0; i < 4; i++)effect[i].Draw();
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				effect[i][j].Draw();
 	}
+}
+
+void Enemy::StreamOutput(Encount enc) {
+	if (enc == NOENCOUNT) {
+		//SideEnemy
+		if (en)en->DrawOff();
+		//Boss2
+		if (en_boss_att0)en_boss_att0->DrawOff();
+		//Boss 0,1,3,4
+		if (en_boss_att)en_boss_att->DrawOff();
+	}
+	else {
+		//SideEnemy
+		if (en)en->StreamOutput();
+		//Boss2
+		if (en_boss_att0)en_boss_att0->StreamOutput();
+		//Boss 0,1,3,4
+		if (en_boss_att)en_boss_att->StreamOutput();
+		//エフェクト
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++) {
+				effect[i][j].StreamOutput();
+			}
+	}
+}
+
+void Enemy::StreamOutputAfterDraw(Encount enc) {
+	if (enc == NOENCOUNT) {
+		//SideEnemy
+		if (en)mag->DrawOff();
+		//BossMag
+		if (mag_boss)mag_boss->DrawOff();
+	}
+	else {
+		//SideEnemy
+		if (en)mag->Draw();
+		//BossMag
+		if (mag_boss)mag_boss->Draw();
+	}
+
+	//SideEnemy
+	if (en)en->UpdateDxrDivideBuffer();
+	//Boss 0,1,3,4
+	if (en_boss_att)en_boss_att->UpdateDxrDivideBuffer();
+}
+
+ParameterDXR** Enemy::getParameterDXR(int* numPara) {
+	int numP = 0;
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			pdx[numP++] = effect[i][j].getParameter();
+
+	if (en)pdx[numP++] = en->getParameter();
+	if (en_boss_att0)pdx[numP++] = en_boss_att0->getParameter();
+	if (en_boss_att)pdx[numP++] = en_boss_att->getParameter(0);
+
+	*numPara = numP;
+	return pdx;
+}
+
+void Enemy::setPointLightNo() {
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			effect[i][j].emissiveNo = EmissiveCount::getNo();
+}
+
+MaterialType* Enemy::getMaterialType(int* numPara) {
+	//エフェクト
+	int numP = 16;
+	//SideEnemy
+	if (en)numP++;
+	//Boss2
+	if (en_boss_att0)numP++;
+	//Boss 0,1,3,4
+	if (en_boss_att)numP++;
+
+	for (int i = 0; i < 16; i++)materialType[i] = EMISSIVE;
+	for (int i = 16; i < numP; i++)materialType[i] = NONREFLECTION;
+
+	*numPara = numP;
+	return materialType;
 }
 
 Action Enemy::Normal_act_get(){

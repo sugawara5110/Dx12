@@ -367,10 +367,10 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	EffectGetBuffer();
 
 	en = new PolygonData();
-	en->GetVBarray(CONTROL_POINT);
+	en->GetVBarray(CONTROL_POINT,1);
 
-	mag = new PolygonData();
-	mag->GetVBarray(SQUARE);
+	mag = new EmissiveObj_Po();
+	mag->GetVBarray(SQUARE,1);
 }
 
 //@Override
@@ -401,7 +401,9 @@ void EnemySide::SetVertex() {
 //@Override
 void EnemySide::SetCommandList(int com_no) {
 	comNo = com_no;
-	for (int i = 0; i < 4; i++)effect[i].SetCommandList(comNo);
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			effect[i][j].SetCommandList(comNo);
 	en->SetCommandList(comNo);
 	mag->SetCommandList(comNo);
 }

@@ -10,21 +10,21 @@
 void Map::MapUpdateObj() {
 	if (woodcount > 0)Mapupdate_Wood();
 	if (squarecount >= 1)Mapupdate_Wall1();
-	if (blockcountA >= 1)poWallA.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 1.0f);
-	if (blockcountB >= 1)poWallB.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-	if (blockcountC >= 1)poWallC.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-	if (blockcountD >= 1)poWallD.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-	if (blockcountE >= 1)poWallE.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+	if (blockcountA >= 1)poWallA->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 1.0f);
+	if (blockcountB >= 1)poWallB->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+	if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+	if (blockcountD >= 1)poWallD->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+	if (blockcountE >= 1)poWallE->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
 }
 
 void Map::MapdrawObj() {
 	Mapdraw_Wood();
 	Mapdraw_Wall1();
-	poWallA.Draw();
-	poWallB.Draw();
-	poWallC.Draw();
-	poWallD.Draw();
-	poWallE.Draw();
+	if (poWallA)poWallA->Draw();
+	if (poWallB)poWallB->Draw();
+	if (poWallC)poWallC->Draw();
+	if (poWallD)poWallD->Draw();
+	if (poWallE)poWallE->Draw();
 }
 
 bool Map::GetMenuState(int *cnt) {
@@ -43,7 +43,7 @@ bool Map::GetMenuState(int *cnt) {
 		}
 	}
 	else {//menu開いているON
-		if (count < 100) {
+		if (count < 50) {
 			count++;
 			*cnt = count * 0.1f;
 			return TRUE;
@@ -87,7 +87,15 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	float cy = cay1 + cay1 - cay2;
 	float cz = (float)posz * 100.0f + 40.0f + elevator_step;
 	float out_x, out_y;
+
 	GetCamDelayPos(direction, cx, cy, &out_x, &out_y);
+	/*cx = 1150;
+	cy = 3320;
+	cz = 40;
+	out_x = 1150;
+	out_y = 3320;
+	cax2 = 1150;
+	cay2 = 3180;*/
 	if (encount == NOENCOUNT)dx->Cameraset({ out_x, out_y, cz }, { cax2, cay2, cz });
 
 	//外の明るさ変化
@@ -136,23 +144,24 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 
 	//フォグoff
 	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
-	if (map_no == 4)dx->PointLightPosSet(1, { 1450.0f, 900.0f, 650.0f },
+	/*if (map_no == 4)dx->PointLightPosSet(1, { 1450.0f, 900.0f, 650.0f },
 		{ 0.4f, 0.4f, 0.8f, 1.0f },
-		true, 2000.0f);
+		true, 2000.0f);*/
 
-	dx->setGlobalAmbientLight(0.2f, 0.2f, 0.2f);
+	dx->setGlobalAmbientLight(0.01f, 0.01f, 0.01f);
 
 	switch (map_no) {
 	case 0:
 		dx->SetDirectionLight(true);
-		dx->DirectionLight(0.0f, 0.4f, -1.0f, 0.1f, 0.1f, 0.1f);
+		dx->DirectionLight(0.4f, 0.4f, -1.0f, 0.3f, 0.1f, 0.1f);
 		//出口光源
-		dx->PointLightPosSet(2, { 450.0f, 0.0f, 50.0f },
+		dx->PointLightPosSet(poEXIT->emissiveNo, { 450.0f, 0.0f, 50.0f },
 			{ 1.0f, 1.0f, 1.0f, 1.0f },
-			true, 600.0f);
-		poGroundM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poEXIT.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+			true, 600.0f, { 0.01f,0.001f,0.01f });
+		MapupdateWave();
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poEXIT->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
 		MapUpdateObj();
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
@@ -163,51 +172,53 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	case 1:
 		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f);
-		dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, TRUE);
-		poGroundF.Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingF.Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poGroundE.Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingE.Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (blockcountA >= 1)poWallA.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (blockcountC >= 1)poWallC.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
+		//dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, false);
+		poGroundF->Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poCeilingF->Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poGroundE->Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poCeilingE->Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (blockcountA >= 1)poWallA->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		//dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
 		if (f_wall_count >= 1) {
-			poF_Wall.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 6.0f);
+			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 6.0f);
 		}
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
-		dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
+		//dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 		if (r_point_count >= 1)Mapupdate_Recover();
 		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob);
-		dx->Fog(1.0f, 1.0f, 1.0f, 800.0f, 0.17f, TRUE);
-		poBackground.Update({ 0, 0, -3500 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		dx->Fog(1.0f, 1.0f, 1.0f, 100.0f, 0.4f, TRUE);
+		dx->DirectionLight(0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 1.0f);
+		//dx->Fog(1.0f, 1.0f, 1.0f, 800.0f, 0.17f, TRUE);
+		poBackground->Update({ 0, 0, -3000 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poDirectionLight->Update({ 0, 0, -3200 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		//dx->Fog(1.0f, 1.0f, 1.0f, 100.0f, 0.4f, TRUE);
 		Mapupdate_Mountain();
-		dx->Fog(1.0f, 1.0f, 1.0f, 3.0f, 0.4f, TRUE);
-		poGroundM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		//dx->Fog(1.0f, 1.0f, 1.0f, 3.0f, 0.4f, TRUE);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
 		if (woodcount > 0)Mapupdate_Wood();
 		if (squarecount >= 1)Mapupdate_Wall1();
-		if (blockcountB >= 1)poWallB.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (blockcountB >= 1)poWallB->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
 		Mapupdate_Rain();
 		break;
 	case 2:
 		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
-		poEXIT.Update({ 150.0f, 3930.0f, 0 }, { 0, 0, 0, 0 }, { 0,0,180.0f }, { 1,1,1 }, 0);
+		poEXIT->Update({ 150.0f, 3930.0f, 0 }, { 0, 0, 0, 0 }, { 0,0,180.0f }, { 1,1,1 }, 0);
 		//入口光源
-		dx->PointLightPosSet(2, { 150.0f, 3980.0f, 50.0f },
+		dx->PointLightPosSet(poEXIT->emissiveNo, { 150.0f, 3980.0f, 50.0f },
 			{ 1.0f, 1.0f, 1.0f, 1.0f },
-			true, 650.0f);
+			true, 650.0f, { 0.01f,0.001f,0.01f });
 		MapupdateWave();
-		poGroundM.Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0);
-		poCeilingM.Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0);
-		poGroundE.Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f);
-		poCeilingE.Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f);
+		poGroundM->Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0);
+		poCeilingM->Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0);
+		poGroundE->Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f);
+		poCeilingE->Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f);
 		MapUpdateObj();
 		if (f_wall_count >= 1) {
-			poF_Wall.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f);
+			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f);
 		}
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
@@ -219,19 +230,19 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		//とりあえずOK後で光源設定する
 		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
-		poGroundF.Update({ 200, 3000, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingF.Update({ 200, 2990, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (blockcountC >= 1)poWallC.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poGroundF->Update({ 200, 3000, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poCeilingF->Update({ 200, 2990, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f, 1.0f, 1.0f);
 		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
-		poGroundM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-		poCeilingM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-		if (blockcountD >= 1)poWallD.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		if (blockcountD >= 1)poWallD->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
 		if (f_wall_count >= 1) {
-			poF_Wall.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f);
+			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f);
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
 		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
@@ -241,8 +252,8 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f, 0.25f, 0.25f);
 		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
-		poGroundM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-		poCeilingM.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
 		MapUpdateObj();
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
@@ -253,7 +264,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		break;
 	}
 
-	he->TorchSwitch(mainlight);
+	he->TorchSwitch(true/*mainlight*/);
 	if (encount == NOENCOUNT && !ending) {
 		HeroUpdate(Move_f);//Mov関数からフラグもらうようにする
 		MapHistory.Update(0, 0, 0, 0, 0, 0, 0, 1.0f, 1.0f);//地図
@@ -267,37 +278,171 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	return encount;
 }
 
+void Map::SetMovie() {
+	if (mo_count >= 1) {
+		poMo->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
+	}
+
+	if (f_wall_count >= 1) {
+		poF_Wall->SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256));
+	}
+}
+
 void Map::MapDraw() {
 
-	poGroundM.Draw();
-	poCeilingM.Draw();
-	poEXIT.Draw();
-	poGroundF.Draw();
-	poCeilingF.Draw();
-	poGroundE.Draw();
-	poCeilingE.Draw();
-	poBackground.Draw();
+	if (poGroundM)poGroundM->Draw();
+	if (poCeilingM)poCeilingM->Draw();
+	if (poEXIT)poEXIT->Draw();
+	if (poGroundF)poGroundF->Draw();
+	if (poCeilingF)poCeilingF->Draw();
+	if (poGroundE)poGroundE->Draw();
+	if (poCeilingE)poCeilingE->Draw();
+	if (poBackground)poBackground->Draw();
 	poBoss.Draw();
 	poElevator.Draw();
 	MapdrawObj();
 	Mapdraw_Recover();
 	Mapdraw_Mountain();
 	Mapdraw_Rain();
-	wav.Draw();//ブレンドするので最後の方に
-	
+	if (0)wav->Draw();//ブレンドするので最後の方に
+
 	//地図
 	//MapHistory.SetTextureMPixel(mapdata1);
 	//MapHistory.Draw();
 
 	if (mo_count >= 1) {
-		poMo.SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
 		Mapdraw_Ds();
 	}
 
 	if (f_wall_count >= 1) {
-		poF_Wall.SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256));
-		poF_Wall.Draw();
+		if (poF_Wall)poF_Wall->Draw();
 	}
+}
+
+void Map::StreamOutput() {
+	if (poGroundM)poGroundM->StreamOutput();
+	if (poCeilingM)poCeilingM->StreamOutput();
+	if (poGroundF)poGroundF->StreamOutput();
+	if (poCeilingF)poCeilingF->StreamOutput();
+	if (poGroundE)poGroundE->StreamOutput();
+	if (poCeilingE)poCeilingE->StreamOutput();
+	if (mWood)mWood->StreamOutput();
+	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->StreamOutput();
+	if (poWallA)poWallA->StreamOutput();
+	if (poWallB)poWallB->StreamOutput();
+	if (poWallC)poWallC->StreamOutput();
+	if (poWallD)poWallD->StreamOutput();
+	if (poWallE)poWallE->StreamOutput();
+	if (mountain)mountain->StreamOutput();
+	if (poEXIT)poEXIT->StreamOutput();
+	if (wav)wav->StreamOutput();
+	if (poDirectionLight)poDirectionLight->StreamOutput();
+
+	//地図
+	//MapHistory.SetTextureMPixel(mapdata1);
+	//MapHistory.Draw();
+
+	if (mo_count >= 1) {
+		if (poMo)poMo->StreamOutputBillboard();
+	}
+}
+
+void Map::StreamOutputAfterDraw() {
+	Mapdraw_Recover();
+	Mapdraw_Rain();
+	if (poBackground)poBackground->Draw();
+	poBoss.Draw();
+	poElevator.Draw();
+	if (wav)wav->UpdateDxrDivideBuffer();
+	if (poWallA)poWallA->UpdateDxrDivideBuffer();
+	if (poWallD)poWallD->UpdateDxrDivideBuffer();
+	if (f_wall_count >= 1) if (poF_Wall)poF_Wall->Draw();
+}
+
+ParameterDXR** Map::getParameterDXR(int* numPara) {
+
+	int n = 0;
+	pdx = std::make_unique<ParameterDXR* []>(21);
+
+	if (poWallA)pdx[n++] = poWallA->getParameter();
+	if (poWallB)pdx[n++] = poWallB->getParameter();
+	if (poWallC)pdx[n++] = poWallC->getParameter();
+	if (poWallD)pdx[n++] = poWallD->getParameter();
+	if (poWallE)pdx[n++] = poWallE->getParameter();
+
+	if (poWall1[0])pdx[n++] = poWall1[0]->getParameter();
+	if (poWall1[1])pdx[n++] = poWall1[1]->getParameter();
+	if (poWall1[2])pdx[n++] = poWall1[2]->getParameter();
+
+	if (poGroundF)pdx[n++] = poGroundF->getParameter();
+	if (poCeilingF)pdx[n++] = poCeilingF->getParameter();
+	if (poGroundM)pdx[n++] = poGroundM->getParameter();
+	if (poCeilingM)pdx[n++] = poCeilingM->getParameter();
+	if (poGroundE)pdx[n++] = poGroundE->getParameter();
+	if (poCeilingE)pdx[n++] = poCeilingE->getParameter();
+	if (wav)pdx[n++] = wav->getParameter();
+	if (poDirectionLight)pdx[n++] = poDirectionLight->getParameter();
+
+	if (mWood)pdx[n++] = mWood->getParameter();
+	if (mountain)pdx[n++] = mountain->getParameter();
+	if (poMo) {
+		pdx[n++] = poMo->getParameter();
+	}
+	if (poEXIT) {
+		pdx[n++] = poEXIT->getParameter();
+	}
+	*numPara = n;
+	return pdx.get();
+}
+
+void Map::setPointLightNo() {
+	if (poMo) {
+		poMo->firstNo = EmissiveCount::getNo();
+		for (int i = 0; i < lightcount - 1; i++)
+			EmissiveCount::getNo();
+	}
+	if (poEXIT) {
+		poEXIT->emissiveNo = EmissiveCount::getNo();
+	}
+}
+
+MaterialType* Map::getMaterialType(int* numType) {
+
+	int n = 0;
+	materialType = std::make_unique<MaterialType[]>(23);
+
+	if (poWallA)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (poWallB)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (poWallC)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (poWallD)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (poWallE)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+
+	if (poWall1[0])materialType[n++] = NONREFLECTION;
+	if (poWall1[1])materialType[n++] = NONREFLECTION;
+	if (poWall1[2])materialType[n++] = NONREFLECTION;
+
+	if (poGroundF)materialType[n++] = NONREFLECTION;
+	if (poCeilingF)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (poGroundM)materialType[n++] = NONREFLECTION;
+	if (poCeilingM)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (poGroundE)materialType[n++] = NONREFLECTION;
+	if (poCeilingE)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+	if (wav)materialType[n++] = METALLIC;
+	if (poDirectionLight)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
+
+	if (mWood) {
+		materialType[n++] = NONREFLECTION;
+		materialType[n++] = NONREFLECTION;
+	}
+	if (mountain) {
+		materialType[n++] = NONREFLECTION;
+		materialType[n++] = NONREFLECTION;
+	}
+	if (poMo)materialType[n++] = EMISSIVE;
+	if (poEXIT)materialType[n++] = EMISSIVE;
+
+	*numType = n;
+	return materialType.get();
 }
 
 void Map::HeroUpdate(bool mf) {

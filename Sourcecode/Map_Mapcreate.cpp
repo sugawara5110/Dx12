@@ -65,63 +65,95 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 	wood = NULL;
 	wall1 = NULL;
 
+	DivideArr divArr[1];
+	divArr[0].distance = 7000.0f;
+	divArr[0].divide = 6;
+	UINT numDiv = 1;
+
 	switch (map_no) {
 	case 0:
+		//波
+		wav = new Wave();
+		wav->GetVBarray(1);
 		//出口
-		poEXIT.GetVBarray(SQUARE);
+		poEXIT = new EmissiveObj_Po();
+		poEXIT->GetVBarray(SQUARE,1);
 		//地面メイン
-		poGroundM.GetVBarray(CONTROL_POINT);
+		poGroundM = new PolygonData();
+		poGroundM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空メイン
-		poCeilingM.GetVBarray(CONTROL_POINT);
+		poCeilingM = new PolygonData();
+		poCeilingM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		break;
 	case 1:
 		//山
-		mountain.SetState(TRUE, TRUE, FALSE, 0.8f, 0.8f);//3角形化必要
-		mountain.GetBuffer("./dat/mesh/mountain.obj");
+		mountain = new MeshData();
+		mountain->SetState(TRUE, TRUE, FALSE, 0.8f, 0.8f);//3角形化必要
+		mountain->GetBuffer("./dat/mesh/mountain.obj",1);
 		//地面入り口
-		poGroundF.GetVBarray(CONTROL_POINT);
+		poGroundF = new PolygonData();
+		poGroundF->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空入り口
-		poCeilingF.GetVBarray(CONTROL_POINT);
+		poCeilingF = new PolygonData();
+		poCeilingF->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//地面メイン
-		poGroundM.GetVBarray(CONTROL_POINT);
+		poGroundM = new PolygonData();
+		poGroundM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空メイン
-		poBackground.GetVBarray(SQUARE);
+		poBackground = new PolygonData();
+		poBackground->GetVBarray(SQUARE,1);
+		poDirectionLight = new PolygonData();
+		poDirectionLight->GetVBarray(SQUARE, 1);
 		//雨
-		poRain.GetVBarray(LINE_L);
+		poRain.GetVBarray(LINE_L,1);
 		//地面出口
-		poGroundE.GetVBarray(SQUARE);
+		poGroundE = new PolygonData();
+		poGroundE->GetVBarray(SQUARE,1);
 		//空出口
-		poCeilingE.GetVBarray(CONTROL_POINT);
+		poCeilingE = new PolygonData();
+		poCeilingE->GetVBarray(SQUARE,1);//CONTROL_POINT
 		break;
 	case 2:
 		//波
-		wav.GetVBarray();
+		wav = new Wave();
+		wav->GetVBarray(1);
 		//入口
-		poEXIT.GetVBarray(SQUARE);
+		poEXIT = new EmissiveObj_Po();
+		poEXIT->GetVBarray(SQUARE,1);
 		//地面メイン
-		poGroundM.GetVBarray(CONTROL_POINT);
+		poGroundM = new PolygonData();
+		poGroundM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空メイン
-		poCeilingM.GetVBarray(CONTROL_POINT);
+		poCeilingM = new PolygonData();
+		poCeilingM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//地面出口
-		poGroundE.GetVBarray(CONTROL_POINT);
+		poGroundE = new PolygonData();
+		poGroundE->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空出口
-		poCeilingE.GetVBarray(CONTROL_POINT);
+		poCeilingE = new PolygonData();
+		poCeilingE->GetVBarray(SQUARE,1);//CONTROL_POINT
 		break;
 	case 3:
 		//地面入り口
-		poGroundF.GetVBarray(CONTROL_POINT);
+		poGroundF = new PolygonData();
+		poGroundF->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空入り口
-		poCeilingF.GetVBarray(CONTROL_POINT);
+		poCeilingF = new PolygonData();
+		poCeilingF->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//地面メイン
-		poGroundM.GetVBarray(CONTROL_POINT);
+		poGroundM = new PolygonData();
+		poGroundM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空メイン
-		poCeilingM.GetVBarray(CONTROL_POINT);
+		poCeilingM = new PolygonData();
+		poCeilingM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		break;
 	case 4:
 		//地面メイン
-		poGroundM.GetVBarray(CONTROL_POINT);
+		poGroundM = new PolygonData();
+		poGroundM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		//空メイン
-		poCeilingM.GetVBarray(CONTROL_POINT);
+		poCeilingM = new PolygonData();
+		poCeilingM->GetVBarray(SQUARE,1);//CONTROL_POINT
 		break;
 	}
 
@@ -133,60 +165,72 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 
 	//木
 	if (woodcount > 0) {
-		mWood.SetState(TRUE, TRUE, FALSE);
-		mWood.GetBuffer("./dat/mesh/tree.obj");
+		mWood = new MeshData();
+		mWood->SetState(TRUE, TRUE, FALSE);
+		mWood->GetBuffer("./dat/mesh/tree.obj",1);
 	}
 
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i].GetVBarray(SQUARE);
+			poWall1[i] = new PolygonData();
+			poWall1[i]->GetVBarray(SQUARE,1);
 		}
 	}
 
 	//壁(ブロック)
 	if (blockcountA >= 1) {
-		poWallA.GetVBarray(CONTROL_POINT);
+		poWallA = new PolygonData();
+		poWallA->setDivideArr(divArr, numDiv);
+		poWallA->GetVBarray(CONTROL_POINT,1);//CONTROL_POINT
 	}
 	if (blockcountB >= 1) {
-		poWallB.GetVBarray(CONTROL_POINT);
+		poWallB = new PolygonData();
+		poWallB->GetVBarray(SQUARE,1);//CONTROL_POINT
 	}
 	if (blockcountC >= 1) {
-		poWallC.GetVBarray(CONTROL_POINT);
+		poWallC = new PolygonData();
+		poWallC->GetVBarray(SQUARE,1);//CONTROL_POINT
 	}
 	if (blockcountD >= 1) {
-		poWallD.GetVBarray(CONTROL_POINT);
+		poWallD = new PolygonData();
+		poWallD->setDivideArr(divArr, numDiv);
+		poWallD->GetVBarray(CONTROL_POINT,1);//CONTROL_POINT
 	}
 	if (blockcountE >= 1) {
-		poWallE.GetVBarray(CONTROL_POINT);
+		poWallE = new PolygonData();
+		poWallE->GetVBarray(SQUARE,1);//CONTROL_POINT
 	}
 
 	//リカバーポイント
 	if (r_point_count >= 1) {
-		poRecover.GetVBarray(SQUARE);
+		poRecover.GetVBarray(SQUARE,1);
 		for (int i = 0; i < 12; i++) {
-			poRecoverLine[i].GetVBarray(LINE_L);
+			poRecoverLine[i].GetVBarray(LINE_L,1);
 		}
 	}
 
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
-		poMo.GetBufferBill(lightcount);
+		poMo = new EmissiveObj_Pa();
+		poMo->GetBufferBill(lightcount);
 	}
 
 	//動画テクスチャ炎壁
 	if (f_wall_count >= 1) {
-		poF_Wall.GetVBarray(CONTROL_POINT);
+		poF_Wall = new PolygonData();
+		poF_Wall->setDivideArr(divArr, numDiv);
+		poF_Wall->GetVBarray(CONTROL_POINT,1);//CONTROL_POINT
 	}
 
 	//ボス出現ポイント
 	if (boss_count >= 1) {
-		poBoss.GetVBarray(SQUARE);
+		poBoss.GetVBarray(SQUARE,1);
 	}
 
 	//エレベーター
 	if (Elevator_count >= 1) {
-		poElevator.GetVBarray(SQUARE);
+		poElevator.GetVBarray(SQUARE,1);
 	}
 
 	//地図
@@ -207,10 +251,10 @@ void Map::SetVertex() {
 		1.0f, 1.0f, 1.0f, 1.0f };
 	UINT ri[2] = { 0,1 };
 	Vertex w[] = {
-		{{-50.0f, -50.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f }},
-		{{50.0f, -50.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f }},
-		{{50.0f, 50.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f }},
-		{{-50.0f, 50.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
+		{{-200.0f, -200.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f }},
+		{{200.0f, -200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f }},
+		{{200.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f }},
+		{{-200.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
 	};
 	static UINT index[] =
 	{
@@ -219,66 +263,68 @@ void Map::SetVertex() {
 	};
 	switch (map_no) {
 	case 0:
+		//波
+		wav->SetVertex(w, 4, index, 6);
 		//出口
 		Mapcreate_EXIT(400.0f, 0.5f, 100.0f, 100.0f);
 		//地面メイン
-		Mapcreate_Ground(&poGroundM, 30, 35, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundM, 30, 35, 0.0f, 1.0f);
 		//空メイン
-		Mapcreate_Ceiling(&poCeilingM, 30, 35, 100.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingM, 30, 35, 100.0f, 1.0f);
 		break;
 	case 1:
 		//山
-		mountain.SetVertex();
+		mountain->SetVertex();
 		//地面入り口
-		Mapcreate_Ground(&poGroundF, 2, 3, 2.0f, 1.0f);
+		Mapcreate_Ground(poGroundF, 2, 3, 2.0f, 1.0f);
 		//空入り口
-		Mapcreate_Ceiling(&poCeilingF, 2, 3, 100.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingF, 2, 3, 100.0f, 1.0f);
 		//地面メイン
-		Mapcreate_Ground(&poGroundM, 40, 40, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundM, 40, 40, 0.0f, 1.0f);
 		//空メイン
 		Mapcreate_Background(-3500.0f, 7500.0f);
 		//雨
 		poRain.setVertex(rv, 2, ri, 2);
 		//地面出口
-		Mapcreate_Ground(&poGroundE, 2, 3, 2.0f, 1.0f);
+		Mapcreate_Ground(poGroundE, 2, 3, 2.0f, 1.0f);
 		//空出口
-		Mapcreate_Ceiling(&poCeilingE, 2, 3, 100.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingE, 2, 3, 100.0f, 1.0f);
 		break;
 	case 2:
 		//波
-		wav.SetVertex(w, 4, index, 6);
+		wav->SetVertex(w, 4, index, 6);
 		//入口
 		Mapcreate_EXIT(-50.0f, -50.0f, 100.0f, 100.0f);
 		//地面メイン
-		Mapcreate_Ground(&poGroundM, 30, 35, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundM, 30, 35, 0.0f, 1.0f);
 		//空メイン
-		Mapcreate_Ceiling(&poCeilingM, 30, 35, 200.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingM, 30, 35, 200.0f, 1.0f);
 		//地面出口
-		Mapcreate_Ground(&poGroundE, 2, 4, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundE, 2, 4, 0.0f, 1.0f);
 		//空出口
-		Mapcreate_Ceiling(&poCeilingE, 2, 4, 200.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingE, 2, 4, 200.0f, 1.0f);
 		break;
 	case 3:
 		//地面入り口
-		Mapcreate_Ground(&poGroundF, 2, 3, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundF, 2, 3, 0.0f, 1.0f);
 		//空入り口
-		Mapcreate_Ceiling(&poCeilingF, 2, 3, 100.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingF, 2, 3, 100.0f, 1.0f);
 		//地面メイン
-		Mapcreate_Ground(&poGroundM, 30, 30, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundM, 30, 30, 0.0f, 1.0f);
 		//空メイン
-		Mapcreate_Ceiling(&poCeilingM, 30, 30, 200.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingM, 30, 30, 200.0f, 1.0f);
 		break;
 	case 4:
 		//地面メイン
-		Mapcreate_Ground(&poGroundM, 30, 30, 0.0f, 1.0f);
+		Mapcreate_Ground(poGroundM, 30, 30, 0.0f, 1.0f);
 		//空メイン
-		Mapcreate_Ceiling(&poCeilingM, 30, 30, 800.0f, 1.0f);
+		Mapcreate_Ceiling(poCeilingM, 30, 30, 800.0f, 1.0f);
 		break;
 	}
 
 	//木
 	if (woodcount > 0) {
-		mWood.SetVertex();
+		mWood->SetVertex();
 	}
 
 	//壁(板)
@@ -290,19 +336,19 @@ void Map::SetVertex() {
 
 	//壁(ブロック)
 	if (blockcountA >= 1) {
-		Mapcreate_Wall(blockcountA, &poWallA, 49, 52, 100.0f, -1.0f, 1.0f);
+		Mapcreate_Wall(blockcountA, poWallA, 49, 52, 100.0f, -1.0f, 1.0f);
 	}
 	if (blockcountB >= 1) {
-		Mapcreate_Wall(blockcountB, &poWallB, 74, 74, 100.0f, -1.0f, 1.0f);
+		Mapcreate_Wall(blockcountB, poWallB, 74, 74, 100.0f, -1.0f, 1.0f);
 	}
 	if (blockcountC >= 1) {
-		Mapcreate_Wall(blockcountC, &poWallC, 75, 79, 100.0f, -1.0f, 1.0f);
+		Mapcreate_Wall(blockcountC, poWallC, 75, 79, 100.0f, -1.0f, 1.0f);
 	}
 	if (blockcountD >= 1) {
-		Mapcreate_Wall(blockcountD, &poWallD, 76, 76, 100.0f, -2.0f, 2.0f);
+		Mapcreate_Wall(blockcountD, poWallD, 76, 76, 100.0f, -2.0f, 2.0f);
 	}
 	if (blockcountE >= 1) {
-		Mapcreate_Wall(blockcountE, &poWallE, 77, 78, 100.0f, -2.0f, 2.0f);
+		Mapcreate_Wall(blockcountE, poWallE, 77, 78, 100.0f, -2.0f, 2.0f);
 	}
 
 	//リカバーポイント
@@ -317,7 +363,7 @@ void Map::SetVertex() {
 
 	//動画テクスチャ炎壁
 	if (f_wall_count >= 1) {
-		Mapcreate_Wall(f_wall_count, &poF_Wall, 73, 73, 200.0f, -6.0f, 6.0f);
+		Mapcreate_Wall(f_wall_count, poF_Wall, 73, 73, 200.0f, -6.0f, 6.0f);
 	}
 
 	//ボス出現ポイント
@@ -333,32 +379,33 @@ void Map::SetVertex() {
 
 void Map::SetCommandList(int com_no) {
 	comNo = com_no;
-	wav.SetCommandList(comNo);
-	mWood.SetCommandList(comNo);
-	mountain.SetCommandList(comNo);
-	poWallA.SetCommandList(comNo);
-	poWallB.SetCommandList(comNo);
-	poWallC.SetCommandList(comNo);
-	poWallD.SetCommandList(comNo);
-	poWallE.SetCommandList(comNo);
+	if (wav)wav->SetCommandList(comNo);
+	if (mWood)mWood->SetCommandList(comNo);
+	if (mountain)mountain->SetCommandList(comNo);
+	if (poWallA)poWallA->SetCommandList(comNo);
+	if (poWallB)poWallB->SetCommandList(comNo);
+	if (poWallC)poWallC->SetCommandList(comNo);
+	if (poWallD)poWallD->SetCommandList(comNo);
+	if (poWallE)poWallE->SetCommandList(comNo);
 	for (int i = 0; i < 3; i++)
-		poWall1[i].SetCommandList(comNo);
-	poF_Wall.SetCommandList(comNo);
-	poGroundF.SetCommandList(comNo);
-	poCeilingF.SetCommandList(comNo);
-	poGroundM.SetCommandList(comNo);
-	poCeilingM.SetCommandList(comNo);
-	poGroundE.SetCommandList(comNo);
-	poCeilingE.SetCommandList(comNo);
-	poBackground.SetCommandList(comNo);
+		if (poWall1[i])poWall1[i]->SetCommandList(comNo);
+	if (poF_Wall)poF_Wall->SetCommandList(comNo);
+	if (poGroundF)poGroundF->SetCommandList(comNo);
+	if (poCeilingF)poCeilingF->SetCommandList(comNo);
+	if (poGroundM)poGroundM->SetCommandList(comNo);
+	if (poCeilingM)poCeilingM->SetCommandList(comNo);
+	if (poGroundE)poGroundE->SetCommandList(comNo);
+	if (poCeilingE)poCeilingE->SetCommandList(comNo);
+	if (poBackground)poBackground->SetCommandList(comNo);
+	if (poDirectionLight)poDirectionLight->SetCommandList(comNo);
 	poRain.SetCommandList(comNo);
 	poRecover.SetCommandList(comNo);
 	for (int i = 0; i < 12; i++)
 		poRecoverLine[i].SetCommandList(comNo);
 	poBoss.SetCommandList(comNo);
 	poElevator.SetCommandList(comNo);
-	poEXIT.SetCommandList(comNo);
-	poMo.SetCommandList(comNo);
+	if (poEXIT)poEXIT->SetCommandList(comNo);
+	if (poMo)poMo->SetCommandList(comNo);
 	MapHistory.SetCommandList(comNo);
 }
 
@@ -366,113 +413,117 @@ void Map::CreateMap() {
 
 	switch (map_no) {
 	case 0:
+		//波
+		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
+			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 1.0f, 512.0f);
 		//出口
-		poEXIT.Create(FALSE, -1, FALSE, FALSE);
+		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
+		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
+		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 1:
 		//山
-		mountain.CreateMesh();
+		mountain->CreateMesh();
 		//地面入り口
-		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
+		poGroundF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
 		//空入り口
-		poCeilingF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
+		poCeilingF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), -1, TRUE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"),
+		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"),
 			dx->GetTexNumber("./dat/texture/map/ground2Nor.da"), -1, TRUE, FALSE);
 		//空メイン
-		poBackground.Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);
+		poBackground->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), TRUE, FALSE);
+		poDirectionLight->Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);
 		//雨
 		poRain.Create(FALSE, -1, FALSE, FALSE);
 		//地面出口
-		poGroundE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空出口
-		poCeilingE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poCeilingE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 2:
 		//波
-		wav.Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
+		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
 			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 1.0f, 64.0f);
 		//入口
-		poEXIT.Create(FALSE, -1, FALSE, FALSE);
+		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		//地面出口
-		poGroundE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		//空出口
-		poCeilingE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poCeilingE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 3:
 		//地面入り口
-		poGroundF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+		poGroundF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空入り口
-		poCeilingF.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poCeilingF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 4:
 		//地面メイン
-		poGroundM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"),
+		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"),
 			dx->GetTexNumber("./dat/texture/map/ground5Nor.da"), -1, TRUE, FALSE);
 		//空メイン
-		poCeilingM.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"),
+		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling5Nor.da"), -1, TRUE, FALSE);
 		break;
 	}
 
 	//木
 	if (woodcount > 0) {
-		mWood.CreateMesh();
+		mWood->CreateMesh();
 	}
 
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i].Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);
+			poWall1[i]->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);
 		}
 	}
 
 	//壁(ブロック)
 	if (blockcountA >= 1) {
-		poWallA.SetCol(0.6f, 0.6f, 0.6f, 0.1f, 0.1f, 0.1f, 0, 0, 0);
-		poWallA.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
+		poWallA->SetCol(0.6f, 0.6f, 0.6f, 0.1f, 0.1f, 0.1f, 0, 0, 0);
+		poWallA->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall1Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountB >= 1) {
-		poWallB.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2-1.da"),
+		poWallB->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2-1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall2Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountC >= 1) {
-		poWallC.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poWallC->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountD >= 1) {
-		poWallD.Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poWallD->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountE >= 1) {
-		poWallE.Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"),
+		poWallE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"),
 			dx->GetTexNumber("./dat/texture/map/wall5Nor.da"), -1, TRUE, FALSE);
 	}
 
@@ -485,14 +536,14 @@ void Map::CreateMap() {
 
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
-		poMo.TextureInit(128, 128);
-		poMo.CreateBillboard();
+		poMo->TextureInit(128, 128);
+		poMo->CreateBillboard();
 	}
 
 	//動画テクスチャ炎壁
 	if (f_wall_count >= 1) {
-		poF_Wall.TextureInit(256, 256);
-		poF_Wall.Create(FALSE, -1, TRUE, TRUE);
+		poF_Wall->TextureInit(256, 256);
+		poF_Wall->Create(FALSE, -1, TRUE, TRUE);
 	}
 
 	//ボス出現ポイント
@@ -524,27 +575,27 @@ void Map::Mapupdate_Wood() {
 				float yy = cay1 - y;
 				float zz = (float)posz * 100.0f - z;
 				if (sqrt(xx * xx + yy * yy + zz * zz) > 600.0f)continue;
-				mWood.Instancing({ x, y, z }, { 0, 0, 0 }, { 10.0f,10.0f,10.0f });
+				mWood->Instancing({ x, y, z }, { 0, 0, 0 }, { 10.0f,10.0f,10.0f });
 			}
 		}
 	}
-	mWood.InstancingUpdate({ 0, 0, 0, 0 }, 0.2f);
+	mWood->InstancingUpdate({ 0, 0, 0, 0 }, 0.2f);
 }
 
 void Map::Mapdraw_Wood() {
-	mWood.Draw();
+	if (mWood)mWood->Draw();
 }
 
 void Map::Mapupdate_Mountain() {
-	mountain.Instancing({ -1500.0f, 2000.0f, 0 }, { 0, 0, 0 }, { 500.0f,500.0f,500.0f });
-	mountain.Update({ 5500.0f, 2000.0f, 0 },
+	mountain->Instancing({ -1500.0f, 2000.0f, 0 }, { 0, 0, 0 }, { 500.0f,500.0f,500.0f });
+	mountain->Update({ 5500.0f, 2000.0f, 0 },
 		{ 0, 0, 0, 0 },
 		{ 0, 0, 0 },
 		{ 500.0f,500.0f,500.0f }, 0);
 }
 
 void Map::Mapdraw_Mountain() {
-	mountain.Draw();
+	if (mountain)mountain->Draw();
 }
 
 void Map::Mapcreate_Wall1(int i) {
@@ -567,7 +618,7 @@ void Map::Mapcreate_Wall1(int i) {
 		1.0f, 1.0f
 	};
 	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
-	poWall1[i].setVertex(wa, 4, ind, 6);
+	poWall1[i]->setVertex(wa, 4, ind, 6);
 }
 
 void Map::Mapupdate_Wall1() {
@@ -580,17 +631,17 @@ void Map::Mapupdate_Wall1() {
 				float x = (float)i * 100.0f + 50.0f + wall1[p].x;
 				float y = (float)j * 100.0f + 50.0f + wall1[p++].y;
 				float z = (float)k3 * 100.0f;
-				poWall1[i % 3].Instancing({ x, y, z },
+				poWall1[i % 3]->Instancing({ x, y, z },
 					{ 0, 0,src_theta },
 					{ 1,1,1 });
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i].InstancingUpdate({ 0, 0, 0, 0 }, 0);
+	for (int i = 0; i < 3; i++)poWall1[i]->InstancingUpdate({ 0, 0, 0, 0 }, 0);
 }
 
 void Map::Mapdraw_Wall1() {
-	for (int i = 0; i < 3; i++)poWall1[i].Draw();
+	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->Draw();
 }
 
 void Map::Mapcreate_Wall(int numB, PolygonData* pd, int no1, int no2, float height, float adjust, float adjust2) {
@@ -604,179 +655,155 @@ void Map::Mapcreate_Wall(int numB, PolygonData* pd, int no1, int no2, float heig
 
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no2)continue;
 				//壁ブロック頂点設定
-				//正面検査
-				if (k3 < mxy.z - 1 && mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no1 &&
-					mxy.m[(k3 + 1) * mxy.y * mxy.x + j * mxy.x + i] != no2) {
 					//正面左上
-					bl[k].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust);
-					bl[k].normal.as(0.0f, 0.0f, 1.0f);
-					bl[k].tex.as(0.0f, 0.0f);
-					ind[kI] = k;
-					//正面右上
-					bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust);
-					bl[k + 1].normal.as(0.0f, 0.0f, 1.0f);
-					bl[k + 1].tex.as(1.0f, 0.0f);
-					ind[kI + 1] = k + 1;
-					ind[kI + 4] = k + 1;
-					//正面左下
-					bl[k + 2].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust);
-					bl[k + 2].normal.as(0.0f, 0.0f, 1.0f);
-					bl[k + 2].tex.as(0.0f, 1.0f);
-					ind[kI + 2] = k + 2;
-					ind[kI + 3] = k + 2;
-					//正面右下
-					bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust);
-					bl[k + 3].normal.as(0.0f, 0.0f, 1.0f);
-					bl[k + 3].tex.as(1.0f, 1.0f);
-					ind[kI + 5] = k + 3;
-					k += 4;
-					kI += 6;
-				}
+				bl[k].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust);
+				bl[k].normal.as(0.0f, 0.0f, 1.0f);
+				bl[k].tex.as(0.0f, 0.0f);
+				ind[kI] = k;
+				//正面右上
+				bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust);
+				bl[k + 1].normal.as(0.0f, 0.0f, 1.0f);
+				bl[k + 1].tex.as(1.0f, 0.0f);
+				ind[kI + 1] = k + 1;
+				ind[kI + 4] = k + 1;
+				//正面左下
+				bl[k + 2].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust);
+				bl[k + 2].normal.as(0.0f, 0.0f, 1.0f);
+				bl[k + 2].tex.as(0.0f, 1.0f);
+				ind[kI + 2] = k + 2;
+				ind[kI + 3] = k + 2;
+				//正面右下
+				bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust);
+				bl[k + 3].normal.as(0.0f, 0.0f, 1.0f);
+				bl[k + 3].tex.as(1.0f, 1.0f);
+				ind[kI + 5] = k + 3;
+				k += 4;
+				kI += 6;
 
-				//左面検査
-				if (i > 0 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i - 1)] != no2) {
-					//左面上前
-					bl[k].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2);
-					bl[k].normal.as(-1.0f, 0.0f, 0.0f);
-					bl[k].tex.as(0.0f, 0.0f);
-					ind[kI] = k;
-					//左面下前
-					bl[k + 1].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2);
-					bl[k + 1].normal.as(-1.0f, 0.0f, 0.0f);
-					bl[k + 1].tex.as(1.0f, 0.0f);
-					ind[kI + 1] = k + 1;
-					ind[kI + 4] = k + 1;
-					//左面上後
-					bl[k + 2].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2);
-					bl[k + 2].normal.as(-1.0f, 0.0f, 0.0f);
-					bl[k + 2].tex.as(0.0f, 1.0f);
-					ind[kI + 2] = k + 2;
-					ind[kI + 3] = k + 2;
-					//左面下後
-					bl[k + 3].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2);
-					bl[k + 3].normal.as(-1.0f, 0.0f, 0.0f);
-					bl[k + 3].tex.as(1.0f, 1.0f);
-					ind[kI + 5] = k + 3;
-					k += 4;
-					kI += 6;
-				}
+				//左面上前
+				bl[k].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2);
+				bl[k].normal.as(-1.0f, 0.0f, 0.0f);
+				bl[k].tex.as(0.0f, 0.0f);
+				ind[kI] = k;
+				//左面下前
+				bl[k + 1].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2);
+				bl[k + 1].normal.as(-1.0f, 0.0f, 0.0f);
+				bl[k + 1].tex.as(1.0f, 0.0f);
+				ind[kI + 1] = k + 1;
+				ind[kI + 4] = k + 1;
+				//左面上後
+				bl[k + 2].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2);
+				bl[k + 2].normal.as(-1.0f, 0.0f, 0.0f);
+				bl[k + 2].tex.as(0.0f, 1.0f);
+				ind[kI + 2] = k + 2;
+				ind[kI + 3] = k + 2;
+				//左面下後
+				bl[k + 3].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2);
+				bl[k + 3].normal.as(-1.0f, 0.0f, 0.0f);
+				bl[k + 3].tex.as(1.0f, 1.0f);
+				ind[kI + 5] = k + 3;
+				k += 4;
+				kI += 6;
 
-				//右面検査
-				if (i < mxy.x - 1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + (i + 1)] != no2) {
-					//右面下前
-					bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2);
-					bl[k].normal.as(1.0f, 0.0f, 0.0f);
-					bl[k].tex.as(0.0f, 0.0f);
-					ind[kI] = k;
-					//右面上前
-					bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2);
-					bl[k + 1].normal.as(1.0f, 0.0f, 0.0f);
-					bl[k + 1].tex.as(1.0f, 0.0f);
-					ind[kI + 1] = k + 1;
-					ind[kI + 4] = k + 1;
-					//右面下後
-					bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2);
-					bl[k + 2].normal.as(1.0f, 0.0f, 0.0f);
-					bl[k + 2].tex.as(0.0f, 1.0f);
-					ind[kI + 2] = k + 2;
-					ind[kI + 3] = k + 2;
-					//右面上後
-					bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2);
-					bl[k + 3].normal.as(1.0f, 0.0f, 0.0f);
-					bl[k + 3].tex.as(1.0f, 1.0f);
-					ind[kI + 5] = k + 3;
-					k += 4;
-					kI += 6;
-				}
+				//右面下前
+				bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2);
+				bl[k].normal.as(1.0f, 0.0f, 0.0f);
+				bl[k].tex.as(0.0f, 0.0f);
+				ind[kI] = k;
+				//右面上前
+				bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2);
+				bl[k + 1].normal.as(1.0f, 0.0f, 0.0f);
+				bl[k + 1].tex.as(1.0f, 0.0f);
+				ind[kI + 1] = k + 1;
+				ind[kI + 4] = k + 1;
+				//右面下後
+				bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2);
+				bl[k + 2].normal.as(1.0f, 0.0f, 0.0f);
+				bl[k + 2].tex.as(0.0f, 1.0f);
+				ind[kI + 2] = k + 2;
+				ind[kI + 3] = k + 2;
+				//右面上後
+				bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2);
+				bl[k + 3].normal.as(1.0f, 0.0f, 0.0f);
+				bl[k + 3].tex.as(1.0f, 1.0f);
+				ind[kI + 5] = k + 3;
+				k += 4;
+				kI += 6;
 
-				//上面検査
-				if (j > 0 && mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] != no2) {
-					//上面右前
-					bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2);
-					bl[k].normal.as(0.0f, -1.0f, 0.0f);
-					bl[k].tex.as(0.0f, 0.0f);
-					ind[kI] = k;
-					//上面左前
-					bl[k + 1].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2);
-					bl[k + 1].normal.as(0.0f, -1.0f, 0.0f);
-					bl[k + 1].tex.as(1.0f, 0.0f);
-					ind[kI + 1] = k + 1;
-					ind[kI + 4] = k + 1;
-					//上面右後
-					bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2);
-					bl[k + 2].normal.as(0.0f, -1.0f, 0.0f);
-					bl[k + 2].tex.as(0.0f, 1.0f);
-					ind[kI + 2] = k + 2;
-					ind[kI + 3] = k + 2;
-					//上面左後
-					bl[k + 3].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2);
-					bl[k + 3].normal.as(0.0f, -1.0f, 0.0f);
-					bl[k + 3].tex.as(1.0f, 1.0f);
-					ind[kI + 5] = k + 3;
-					k += 4;
-					kI += 6;
-				}
+				//上面右前
+				bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2);
+				bl[k].normal.as(0.0f, -1.0f, 0.0f);
+				bl[k].tex.as(0.0f, 0.0f);
+				ind[kI] = k;
+				//上面左前
+				bl[k + 1].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2);
+				bl[k + 1].normal.as(0.0f, -1.0f, 0.0f);
+				bl[k + 1].tex.as(1.0f, 0.0f);
+				ind[kI + 1] = k + 1;
+				ind[kI + 4] = k + 1;
+				//上面右後
+				bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2);
+				bl[k + 2].normal.as(0.0f, -1.0f, 0.0f);
+				bl[k + 2].tex.as(0.0f, 1.0f);
+				ind[kI + 2] = k + 2;
+				ind[kI + 3] = k + 2;
+				//上面左後
+				bl[k + 3].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2);
+				bl[k + 3].normal.as(0.0f, -1.0f, 0.0f);
+				bl[k + 3].tex.as(1.0f, 1.0f);
+				ind[kI + 5] = k + 3;
+				k += 4;
+				kI += 6;
 
-				//裏面検査
-				if (k3 > 0 && mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no1 &&
-					mxy.m[(k3 - 1) * mxy.y * mxy.x + j * mxy.x + i] != no2) {
-					//裏面右上
-					bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust);
-					bl[k].normal.as(0.0f, 0.0f, -1.0f);
-					bl[k].tex.as(0.0f, 0.0f);
-					ind[kI] = k;
-					//裏面左上
-					bl[k + 1].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust);
-					bl[k + 1].normal.as(0.0f, 0.0f, -1.0f);
-					bl[k + 1].tex.as(1.0f, 0.0f);
-					ind[kI + 1] = k + 1;
-					ind[kI + 4] = k + 1;
-					//裏面右下
-					bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust);
-					bl[k + 2].normal.as(0.0f, 0.0f, -1.0f);
-					bl[k + 2].tex.as(0.0f, 1.0f);
-					ind[kI + 2] = k + 2;
-					ind[kI + 3] = k + 2;
-					//裏面左下
-					bl[k + 3].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust);
-					bl[k + 3].normal.as(0.0f, 0.0f, -1.0f);
-					bl[k + 3].tex.as(1.0f, 1.0f);
-					ind[kI + 5] = k + 3;
-					k += 4;
-					kI += 6;
-				}
+				//裏面右上
+				bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust);
+				bl[k].normal.as(0.0f, 0.0f, -1.0f);
+				bl[k].tex.as(0.0f, 0.0f);
+				ind[kI] = k;
+				//裏面左上
+				bl[k + 1].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust);
+				bl[k + 1].normal.as(0.0f, 0.0f, -1.0f);
+				bl[k + 1].tex.as(1.0f, 0.0f);
+				ind[kI + 1] = k + 1;
+				ind[kI + 4] = k + 1;
+				//裏面右下
+				bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust);
+				bl[k + 2].normal.as(0.0f, 0.0f, -1.0f);
+				bl[k + 2].tex.as(0.0f, 1.0f);
+				ind[kI + 2] = k + 2;
+				ind[kI + 3] = k + 2;
+				//裏面左下
+				bl[k + 3].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust);
+				bl[k + 3].normal.as(0.0f, 0.0f, -1.0f);
+				bl[k + 3].tex.as(1.0f, 1.0f);
+				ind[kI + 5] = k + 3;
+				k += 4;
+				kI += 6;
 
-				//底面検査
-				if (j < mxy.y - 1 && mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no1 &&
-					mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] != no2) {
-					//底面左前
-					bl[k].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2);
-					bl[k].normal.as(0.0f, 1.0f, 0.0f);
-					bl[k].tex.as(0.0f, 0.0f);
-					ind[kI] = k;
-					//底面右前
-					bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2);
-					bl[k + 1].normal.as(0.0f, 1.0f, 0.0f);
-					bl[k + 1].tex.as(1.0f, 0.0f);
-					ind[kI + 1] = k + 1;
-					ind[kI + 4] = k + 1;
-					//底面左後
-					bl[k + 2].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2);
-					bl[k + 2].normal.as(0.0f, 1.0f, 0.0f);
-					bl[k + 2].tex.as(0.0f, 1.0f);
-					ind[kI + 2] = k + 2;
-					ind[kI + 3] = k + 2;
-					//底面右後
-					bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2);
-					bl[k + 3].normal.as(0.0f, 1.0f, 0.0f);
-					bl[k + 3].tex.as(1.0f, 1.0f);
-					ind[kI + 5] = k + 3;
-					k += 4;
-					kI += 6;
-				}
+				//底面左前
+				bl[k].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2);
+				bl[k].normal.as(0.0f, 1.0f, 0.0f);
+				bl[k].tex.as(0.0f, 0.0f);
+				ind[kI] = k;
+				//底面右前
+				bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2);
+				bl[k + 1].normal.as(0.0f, 1.0f, 0.0f);
+				bl[k + 1].tex.as(1.0f, 0.0f);
+				ind[kI + 1] = k + 1;
+				ind[kI + 4] = k + 1;
+				//底面左後
+				bl[k + 2].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2);
+				bl[k + 2].normal.as(0.0f, 1.0f, 0.0f);
+				bl[k + 2].tex.as(0.0f, 1.0f);
+				ind[kI + 2] = k + 2;
+				ind[kI + 3] = k + 2;
+				//底面右後
+				bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2);
+				bl[k + 3].normal.as(0.0f, 1.0f, 0.0f);
+				bl[k + 3].tex.as(1.0f, 1.0f);
+				ind[kI + 5] = k + 3;
+				k += 4;
+				kI += 6;
 			}
 		}
 	}
@@ -869,10 +896,10 @@ void Map::Mapcreate_Ceiling(PolygonData* pd, int pcsx, int pcsy, float height, f
 	ARR_DELETE(ind);
 }
 
-void Map::Mapcreate_Background(float st, float end) {
+static Vertex* background(float st, float end) {
 	float height = end - st;
 
-	Vertex bl[20] = {
+	static Vertex bl[20] = {
 		//正面
 		//右上
 		end, st, height,
@@ -959,6 +986,38 @@ void Map::Mapcreate_Background(float st, float end) {
 		1.0f, 0.0f, 0.0f,
 		5.0f, 0.0f
 	};
+	return bl;
+}
+
+static Vertex* background4(float st, float end) {
+	float height = end - st;
+
+	static Vertex bl[4] = {
+		//正面
+		//右上
+		end, st, height,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f,
+		//左上
+		st, st, height,
+		0.0f, 1.0f, 0.0f,
+		5.0f, 0.0f,
+		//右下
+		end, end, height,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 5.0f,
+		//左下
+		st, end, height,
+		0.0f, 1.0f, 0.0f,
+		5.0f, 5.0f,
+	};
+	return bl;
+}
+
+void Map::Mapcreate_Background(float st, float end) {
+
+	Vertex* bl = background(st, end);
+	Vertex* bl2 = background4(st - 500.0f, end + 500.0f);
 
 	UINT ind[30] = {
 	0,1,2,2,1,3,
@@ -968,7 +1027,12 @@ void Map::Mapcreate_Background(float st, float end) {
 	16,17,18,18,17,19
 	};
 
-	poBackground.setVertex(bl, 20, ind, 30);
+	UINT ind4[6] = {
+	0,1,2,2,1,3
+	};
+
+	poBackground->setVertex(bl, 20, ind, 30);
+	poDirectionLight->setVertex(bl2, 4, ind4, 6);
 }
 
 void Map::Mapupdate_Rain() {
@@ -1070,9 +1134,9 @@ void Map::Mapupdate_Recover() {
 		}
 		poRecoverLine[(int)j].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f);
 	}
-	dx->PointLightPosSet(7, { recovPosX, recovPosY, 2.0f },
+	/*dx->PointLightPosSet(7, { recovPosX, recovPosY, 2.0f },
 		{ 0.2f, 0.8f, 0.2f, 1.0f },
-		true, 500.0f);
+		true, 500.0f);*/
 	poRecover.Update({ 0, 0, 4.0f },
 		{ 0, 0, 0, 0 },
 		{ 0,0,0 },
@@ -1089,6 +1153,8 @@ void Map::Mapdraw_Recover() {
 
 void Map::Mapcreate_Ds(int num) {
 	int ind = 0;
+	poMo->numEmissive = lightcount;
+	poMo->pos = std::make_unique<VECTOR3[]>(lightcount);
 	for (int k3 = 0; k3 < mxy.z; k3++) {
 		for (int j = 0; j < mxy.y; j++) {
 			for (int i = 0; i < mxy.x; i++) {
@@ -1097,125 +1163,48 @@ void Map::Mapcreate_Ds(int num) {
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 52 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
-				poMo.SetVertex(ind++,
+				poMo->SetVertex(ind,
 					{ (float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f },
 					{ 1.0f, 1.0f, 1.0f });
-				poMo.SetVertex(ind++,
+				poMo->pos[ind++].as((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f - 65.0f);
+
+				poMo->SetVertex(ind,
 					{ (float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f },
 					{ 1.0f, 1.0f, 1.0f });
-				poMo.SetVertex(ind++,
+				poMo->pos[ind++].as((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f - 65.0f);
+
+				poMo->SetVertex(ind,
 					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f },
 					{ 1.0f, 1.0f, 1.0f });
-				poMo.SetVertex(ind++,
+				poMo->pos[ind++].as((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f - 65.0f);
+
+				poMo->SetVertex(ind,
 					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f },
 					{ 1.0f, 1.0f, 1.0f });
+				poMo->pos[ind++].as((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f - 665.0f);
+
 			}
 		}
 	}
 }
 
 void Map::Mapupdate_Ds() {
-
-	int licnt = 0;
-	for (int k3 = 0; k3 < mxy.z; k3++) {
-		for (int j = 0; j < mxy.y; j++) {
-			for (int i = 0; i < mxy.x; i++) {
-
-				//松明有壁以外スキップ
-				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 52 &&
-					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
-					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
-
-				//左(マップ端に配置する場合アクセス違反防止を追加すること)
-				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i - 1] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
-						light[licnt].x = i * 100.0f - 10.0f;
-						light[licnt].y = j * 100.0f + 50.0f;
-						light[licnt].z = k3 * 100.0f + 65.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 800.0f;
-						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
-					}
-				}
-				//右
-				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i + 1] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
-						light[licnt].x = i * 100.0f + 110.0f;
-						light[licnt].y = j * 100.0f + 50.0f;
-						light[licnt].z = k3 * 100.0f + 65.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 800.0f;
-						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
-					}
-				}
-				//上
-				if (mxy.m[k3 * mxy.y * mxy.x + (j - 1) * mxy.x + i] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
-						light[licnt].x = i * 100.0f + 50.0f;
-						light[licnt].y = j * 100.0f - 10.0f;
-						light[licnt].z = k3 * 100.0f + 65.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 800.0f;
-						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
-					}
-				}
-				//下
-				if (mxy.m[k3 * mxy.y * mxy.x + (j + 1) * mxy.x + i] == 48) {
-					//視野外スキップ
-					if (ViewCulling((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f) == TRUE) {
-						light[licnt].x = i * 100.0f + 50.0f;
-						light[licnt].y = j * 100.0f + 110.0f;
-						light[licnt].z = k3 * 100.0f + 65.0f;
-						light[licnt].r = 1.0f;
-						light[licnt].g = 0.4f;
-						light[licnt].b = 0.4f;
-						light[licnt].a = 1.0f;
-						light[licnt].range = 800.0f;
-						light[licnt].brightness = 0.4f + ((float)(rand() % 4) * 0.1f);
-						light[licnt].attenuation = 2.0f;
-						light[licnt].on_off = TRUE;
-						licnt++;
-					}
-				}
-			}
-		}
-	}
-
-	int loopcount = 8;//ライトのインデックス(0:手持ち松明用, 1:ラスボス用, 2:出入口用, 3,4,5,6:戦闘用は固定, 7:リカバーポイント)
 	//各ライト設定
-	for (int i = 0; i < licnt && loopcount < LIGHT_PCS; i++) {
-		dx->PointLightPosSet(loopcount, { light[i].x, light[i].y, light[i].z },
-			{ light[i].r, light[i].g, light[i].b, light[i].a },
-			light[i].on_off, light[i].range);
-		loopcount++;
+	for (int i = 0; i < lightcount; i++) {
+		double dist = sqrt((cax1 - poMo->pos[i].x) * (cax1 - poMo->pos[i].x) +
+			(cay1 - poMo->pos[i].y) * (cay1 - poMo->pos[i].y));
+		bool on = false;
+		if (dist < 1000.0)on = true;
+		dx->PointLightPosSet(poMo->firstNo + i, { 0, 0, 0 },
+			{ 1.0f, 0.4f, 0.4f, 1.0f },
+			on, 300.0f, { 0.01f,0.01f,0.01f });
 	}
 
-	poMo.Update(20.0f, { 0,0,0,0 });
+	poMo->Update(20.0f, { 0,0,0,0 });
 }
 
 void Map::Mapdraw_Ds() {
-	poMo.DrawBillboard();
+	if (poMo)poMo->DrawBillboard();
 }
 
 void Map::Mapcreate_BossPoint(int num) {
@@ -1302,22 +1291,26 @@ void Map::Mapcreate_Elevator(int num) {
 }
 
 void Map::Mapcreate_EXIT(float x, float y, float z, float xsize) {
-	VertexBC ex[4] = {
+	Vertex ex[4] = {
 		//左前
 		x, y, z,
-		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f,0.0f,
 		//右前
 		x + xsize, y, z,
-		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f,0.0f,
 		//左奥
 		x, y, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f,1.0f,
 		//右奥
 		x + xsize, y, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f
+		0.0f, 1.0f, 0.0f,
+		1.0f,1.0f
 	};
 	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
-	poEXIT.setVertex(ex, 4, ind, 6);
+	poEXIT->setVertex(ex, 4, ind, 6);
 }
 
 Map::~Map() {
@@ -1335,6 +1328,29 @@ Map::~Map() {
 	}
 	free(mapdata);
 	mapdata = NULL;
+
+	S_DELETE(wav);
+	S_DELETE(mWood);
+	S_DELETE(mountain);
+	S_DELETE(poWallA);
+	S_DELETE(poWallB);
+	S_DELETE(poWallC);
+	S_DELETE(poWallD);
+	S_DELETE(poWallE);
+	S_DELETE(poWall1[0]);
+	S_DELETE(poWall1[1]);
+	S_DELETE(poWall1[2]);
+	S_DELETE(poF_Wall);
+	S_DELETE(poGroundF);
+	S_DELETE(poCeilingF);
+	S_DELETE(poGroundM);
+	S_DELETE(poCeilingM);
+	S_DELETE(poGroundE);
+	S_DELETE(poCeilingE);
+	S_DELETE(poBackground);
+	S_DELETE(poMo);
+	S_DELETE(poEXIT);
+	S_DELETE(poDirectionLight);
 }
 
 bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
@@ -1394,23 +1410,8 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
 }
 
 void Map::MapupdateWave() {
-	int stX = posx - 6;
-	if (stX < 0)stX = 0;
-	int enX = posx + 6;
-	if (enX > 29)enX = 29;
-	int stY = posy - 6;
-	if (stY < 0)stY = 0;
-	int enY = posy + 6;
-	if (enY > 39)enY = 39;
-	for (int y = stY; y <= enY; y++) {
-		for (int x = stX; x <= enX; x++) {
-			if (mxy.m[mxy.x * y + x] == 48 || mxy.m[mxy.x * y + x] == 51 ||
-				mxy.m[mxy.x * y + x] == 50 || mxy.m[mxy.x * y + x] == 54 || mxy.m[mxy.x * y + x] == 55) {
-				wav.Instancing(0.05f, { x * 100.0f + 50.0f, y * 100.0f + 50.0f, 5.0f },
-					{ 0,0,0 },
-					{ 1.3f,1.3f,1.3f });
-			}
-		}
-	}
-	wav.InstancingUpdate({ 0, 0, 0, -0.4f }, 0.4f);
+	wav->Instancing(0.05f, { cax1, cay1, 5.0f },
+		{ 0,0,0 },
+		{ 1.3f,1.3f,1.3f });
+	wav->InstancingUpdate({ 0, 0, 0, -0.2f }, 0.0f);
 }

@@ -43,13 +43,14 @@ void Hero::CreateTorchFlame() {
 		0.0f, 1.0f, 0.0f,
 		1.0f, 1.0f
 	};
-	UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
-	torchFlame->setVertex(to, 4, ind, 6);
+	UINT ind[12] = { 0, 1, 2, 2, 1, 3,
+	                 1, 0, 3, 3, 0, 2};
+	torchFlame->setVertex(to, 4, ind, 12);
 }
 
 void Hero::TorchSwitch(bool f) {
 	torchOn = f;
-	if (!torchOn)dx->PointLightPosSet(0, { 0, 0, 0 },
+	if (!torchOn)dx->PointLightPosSet(torchFlame->emissiveNo, { 0, 0, 0 },
 		{ 1.0f, 0.4f, 0.4f, 1.0f },
 		false, 80.0f);
 }
@@ -125,15 +126,16 @@ Hero::Hero(int no) {
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
 		torchWood->GetFbxSub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4);
 		torchWood->GetBuffer_Sub(4, frameMaxWait);
-		torchFlame = new PolygonData();
-		torchFlame->GetVBarray(SQUARE);
+		torchFlame = new EmissiveObj_Po();
+		torchFlame->GetVBarray(SQUARE, 1);
 	}
 
 	state.GetVBarray2D(1);
 	meter.GetVBarray2D(1);
-	mag.GetVBarray(SQUARE);
+	mag.GetVBarray(SQUARE, 1);
 	for (int i = 0; i < 4; i++)
-		effect[i].GetVBarray(SQUARE);
+		for (int j = 0; j < 4; j++)
+			effect[i][j].GetVBarray(SQUARE, 1);
 	mov_y = 0.0f;
 	mov_x = 0.0f;
 	mov_z = 0.0f;
@@ -144,6 +146,7 @@ Hero::Hero(int no) {
 
 	Statecreate_clr_f = TRUE;
 	Statecreate_r = 1.0f;
+	for (int i = 0; i < 4; i++)for (int j = 0; j < 4; j++)effectOn[i][j] = false;
 }
 
 void Hero::SetVertex() {
@@ -161,27 +164,29 @@ void Hero::SetVertex() {
 	}
 	Magiccreate();
 	for (int i = 0; i < 4; i++) {
-		float ver = 25;
-		Vertex ef[4] = {
-			//左前
-			-ver, 0.0f, ver * 2,
-			0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f,
-			//右前
-			ver, 0.0f, ver * 2,
-			0.0f, 0.0f, 0.0f,
-			1.0f, 0.0f,
-			//左奥
-			-ver, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f,
-			//右奥
-			ver, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f
-		};
-		UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
-		effect[i].setVertex(ef, 4, ind, 6);
+		for (int j = 0; j < 4; j++) {
+			float ver = 25;
+			Vertex ef[4] = {
+				//左前
+				-ver, 0.0f, ver * 2,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f,
+				//右前
+				ver, 0.0f, ver * 2,
+				0.0f, 0.0f, 0.0f,
+				1.0f, 0.0f,
+				//左奥
+				-ver, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f,
+				//右奥
+				ver, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				1.0f, 1.0f
+			};
+			UINT ind[6] = { 0, 1, 2, 2, 1, 3 };
+			effect[i][j].setVertex(ef, 4, ind, 6);
+		}
 	}
 }
 
@@ -196,7 +201,8 @@ void Hero::SetCommandList(int com_no) {
 	meter.SetCommandList(comNo);
 	mag.SetCommandList(comNo);
 	for (int i = 0; i < 4; i++)
-		effect[i].SetCommandList(comNo);
+		for (int j = 0; j < 4; j++)
+			effect[i][j].SetCommandList(comNo);
 }
 
 void Hero::CreateHero() {
@@ -209,10 +215,12 @@ void Hero::CreateHero() {
 	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	mag.Create(FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
-	effect[0].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
-	effect[1].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
-	effect[2].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
-	effect[3].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+	for (int i = 0; i < 4; i++) {
+		effect[0][i].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
+		effect[1][i].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
+		effect[2][i].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
+		effect[3][i].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+	}
 }
 
 void Hero::Statecreate(bool command_run) {
@@ -308,13 +316,20 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 	if ((tt += tfloat.Add(0.8f)) > 10.0f) {//速度調整用
 		tt = 0;
 		if ((tx += px) + px > 1.0f) {
-			for (int i = 3; i < 7; i++)dx->PointLightPosSet(i, { 0, 0, 0 },
-				{ 0, 0, 0, 0 },
-				false, 0);
-			for (int i = 0; i < 4; i++)effect[i].DrawOff();
+			for (int k = 0; k < 4; k++) {
+				for (int j = 0; j < 4; j++) {
+					int emissiveNo = effect[k][j].emissiveNo;
+					dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
+						{ 0, 0, 0, 0 },
+						false, 0);
+					effect[k][j].DrawOff();
+					effectOn[k][j] = false;
+				}
+			}
 			tx = 0; return FALSE;
 		}
 	}
+
 	u_cnt = tx / px;
 	v_cnt = ty / py;
 
@@ -343,26 +358,28 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 		if (effect_no == 0) { r = 1.0f, g = 1.0f, b = 1.0f; }
 		if (effect_no == 1) { r = 0.7f, g = 0.3f, b = 0.2f; }
 		if (*select_obj != 4) {
-			effect[effect_no].Update({ e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z },
+			effect[effect_no][0].Update({ e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z },
 				{ 0, 0, 0, 0 },
 				{ 0,0,e_pos[*select_obj].theta },
 				{ 1,1,1 },
 				0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, { e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z },
+			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z },
 				{ r, g, b, 1.0f },
 				true, 500.0f);
+			effectOn[effect_no][0] = true;
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_DM(i) == FALSE)continue;
-				effect[effect_no].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
+				effect[effect_no][i].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ e_pos[i].theta, 0, 0 },
 					{ 1,1,1 });
-				dx->PointLightPosSet(i + 3, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
+				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
+				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effectOn[effect_no][i] = true;
 			}
-			effect[effect_no].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 
@@ -373,26 +390,28 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 		if (effect_no == 2) { r = 0.2f, g = 0.7f, b = 0.3f; }
 		if (effect_no == 3) { r = 0.2f, g = 0.3f, b = 0.7f; }
 		if (*select_obj != 4) {
-			effect[effect_no].Update({ b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
+			effect[effect_no][0].Update({ b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
 				{ 0, 0, 0, 0 },
 				{ 0,0,h_pos->theta },
 				{ 1,1,1 },
 				0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(3, { b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
+			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
 				{ r, g, b, 1.0f },
 				true, 500.0f);
+			effectOn[effect_no][0] = true;
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_RCV(i) == FALSE)continue;
-				effect[effect_no].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
+				effect[effect_no][i].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ h_pos->theta,0,0 },
 					{ 1,1,1 });
-				dx->PointLightPosSet(i + 3, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
+				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
+				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effectOn[effect_no][i] = true;
 			}
-			effect[effect_no].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
 		}
 	}
 	return TRUE;

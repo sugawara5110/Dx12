@@ -29,17 +29,20 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 		i = 3;
 	}
 	p_att->Update(i, m, { x, y, z }, { r, g, b, 0.0f }, { 0,0,theta }, { 2.0f,2.0f,2.0f }, DISP_SIZE);
-	if (torchOn) {
+	if (true/*torchOn*/) {
 		torchWood->Update(i, m, { x, y, z }, { r, g, b, 0.0f }, { 0,0,theta }, { 2.0f,2.0f,2.0f });
 		v3 = torchWood->GetVertexPosition(0, 4, 3.0f, -1.0f, 0.0f, theta, 0, 0, 2.0f);
-		dx->PointLightPosSet(0, { v3.x + x, v3.y + y, v3.z + z },
+		dx->PointLightPosSet(torchFlame->emissiveNo, { v3.x + x, v3.y + y, v3.z + z },
 			{ 1.0f, 0.4f, 0.4f, 1.0f },
-			true, 800.0f);
+			true, 1000.0f, { 0.001f,0.001f,0.01f });
 		torchFlame->Update({ v3.x + x, v3.y + y, v3.z + z }, { r, g, b, -0.2f }, { 0,0,theta }, { 1,1,1 }, 0.0f);
 	}
 	else {
 		torchWood->DrawOff();
 		torchFlame->DrawOff();
+		dx->PointLightPosSet(torchFlame->emissiveNo, { 0, 0, 0 },
+			{ 1.0f, 0.4f, 0.4f, 1.0f },
+			false, 1000.0f, { 0.001f,0.001f,0.01f });
 	}
 }
 
@@ -263,10 +266,26 @@ Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h
 	}
 	Metercreate(me);
 
+	for (int i = 0; i < 4; i++)for (int j = 0; j < 4; j++) {
+		if (!effectOn[i][j]) {
+			effect[i][j].DrawOff();
+			int emissiveNo = effect[i][j].emissiveNo;
+			dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
+				{ 0, 0, 0, 0 },
+				false, 0);
+		}
+	}
+
 	//LOSTó‘Ô
 	if (act_f == LOST && LA == 90)return LOST_FIN;
 	//LOSTˆÈŠO
 	return NOT_FIN;
+}
+
+void Hero::SetMovie(Encount enc) {
+	if (enc == NOENCOUNT && torchWood) {
+		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
+	}
 }
 
 void Hero::Draw(Encount enc, bool ending) {
@@ -283,14 +302,49 @@ void Hero::Draw(Encount enc, bool ending) {
 		}
 		if (torchWood) {//o_no==0ˆÈŠO‚ÍNULL‚É‚È‚Á‚Ä‚é
 			torchWood->Draw();
-			torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
 			torchFlame->Draw();
 		}
 	}
 	else {
 		p_att->Draw();
 		mag.Draw();
-		for (int i = 0; i < 4; i++)effect[i].Draw();
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				effect[i][j].Draw();
+		if (torchWood) {
+			torchWood->DrawOff();
+			torchFlame->DrawOff();
+		}
+	}
+}
+
+void Hero::StreamOutput(Encount enc, bool ending) {
+	if (ending) {
+		p_att->DrawOff();
+		return;
+	}
+	if (enc == NOENCOUNT) {
+		if (o_no == 0) {
+			p_att->StreamOutput();
+		}
+		else {
+			p_att->DrawOff();
+		}
+		if (torchWood) {//o_no==0ˆÈŠO‚ÍNULL‚É‚È‚Á‚Ä‚é
+			torchWood->StreamOutput();
+			torchFlame->StreamOutput();
+		}
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				effect[i][j].DrawOff();
+	}
+	else {
+		p_att->StreamOutput();
+		mag.StreamOutput();
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++) {
+				effect[i][j].StreamOutput();
+			}
 		if (torchWood) {
 			torchWood->DrawOff();
 			torchFlame->DrawOff();
@@ -318,4 +372,69 @@ void Hero::Act_f_init() {
 
 Action Hero::Normal_act_get() {
 	return NORMAL;
+}
+
+ParameterDXR** Hero::getParameterDXRMap(int* numPara) {
+	int num1 = p_att->getNumMesh();
+	int n = 0;
+	pdx = std::make_unique<ParameterDXR* []>(num1 + 2);
+
+	for (int i = 0; i < num1; i++)pdx[n++] = p_att->getParameter(i);
+	pdx[n++] = torchWood->getParameter(0);
+	pdx[n++] = torchFlame->getParameter();
+	*numPara = n;
+	return pdx.get();
+}
+
+void Hero::setPointLightNoMap() {
+	torchFlame->emissiveNo = EmissiveCount::getNo();
+}
+
+MaterialType* Hero::getMaterialTypeMap() {
+	int num1 = p_att->getNumMesh();
+	int n = 0;
+	materialType = std::make_unique<MaterialType[]>(num1 + 2);
+	for (int i = 0; i < num1; i++)materialType[n++] = NONREFLECTION;
+	materialType[n++] = NONREFLECTION;
+	materialType[n++] = EMISSIVE;
+	return materialType.get();
+}
+
+ParameterDXR** Hero::getParameterDXRBat(int* numPara) {
+	int num1 = p_att->getNumMesh();
+	int n = 0;
+	pdx = std::make_unique<ParameterDXR* []>(num1 + 17);
+
+	for (int i = 0; i < num1; i++)pdx[n++] = p_att->getParameter(i);
+	pdx[n++] = mag.getParameter();
+	for (int i = 0; i < 4; i++) {
+		pdx[n++] = effect[0][i].getParameter();
+		pdx[n++] = effect[1][i].getParameter();
+		pdx[n++] = effect[2][i].getParameter();
+		pdx[n++] = effect[3][i].getParameter();
+	}
+	*numPara = n;
+	return pdx.get();
+}
+
+void Hero::setPointLightNoBat() {
+	mag.emissiveNo = EmissiveCount::getNo();
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			effect[i][j].emissiveNo = EmissiveCount::getNo();
+}
+
+MaterialType* Hero::getMaterialTypeBat() {
+	int num1 = p_att->getNumMesh();
+	int n = 0;
+	materialType = std::make_unique<MaterialType[]>(num1 + 17);
+	for (int i = 0; i < num1; i++)materialType[n++] = NONREFLECTION;
+	materialType[n++] = EMISSIVE;
+	for (int i = 0; i < 4; i++) {
+		materialType[n++] = EMISSIVE;
+		materialType[n++] = EMISSIVE;
+		materialType[n++] = EMISSIVE;
+		materialType[n++] = EMISSIVE;
+	}
+	return materialType.get();
 }

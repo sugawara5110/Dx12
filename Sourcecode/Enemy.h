@@ -20,19 +20,23 @@ protected:
 	int o_no;//オブジェクトナンバー
 	int e_no;//敵ナンバー
 	float pos_offset;//ボス位置オフセット
-	Position::H_Pos *h_pos;
-	Position::E_Pos *e_pos;
-	PolygonData *en = NULL;//SideEnemy使用
-	PolygonData *mag = NULL;//SideEnemy使用
-	PolygonData effect[4];//エフェクト
+	Position::H_Pos* h_pos;
+	Position::E_Pos* e_pos;
+	PolygonData* en = NULL;//SideEnemy使用
+	PolygonData* mag = NULL;//SideEnemy使用
+	EmissiveObj_Po effect[4][4];//エフェクト
+	bool effectOn[4][4] = {};
 	MagicSelect magicSel;
 
+	MaterialType materialType[19];
+	ParameterDXR* pdx[19];
+
 	int effect_no = 0;
-	MeshData *en_boss_att0 = NULL;//boss2のみ使用
-	SkinMesh *en_boss_att = NULL;//ボスアニメーション
+	MeshData* en_boss_att0 = NULL;//boss2のみ使用
+	SkinMesh* en_boss_att = NULL;//ボスアニメーション
 	bool attOn, attFin;         //attアニメーション中
 	bool magicAttOn;            //magicアニメーションフラグ
-	ParticleData *mag_boss = NULL;//ボス用
+	ParticleData* mag_boss = NULL;//ボス用
 	float mag_size;           //ボス用
 	float disp_size;         //ボス用
 	bool dispOn;            //ボス用
@@ -63,14 +67,16 @@ protected:
 	virtual bool LostAction(float x, float y, float z);
 	virtual bool Magiccreate(float x, float y, float z);
 	virtual void ObjUpdate(float x, float y, float z, float r, float g, float b, float theta);
-	bool EffectUpdate(Battle *battle, int *E_select_obj);
+	bool EffectUpdate(Battle* battle, int* E_select_obj);
 	void PosOffset(int o_no);
 
 public:
 	Enemy() {}
 	Enemy(int t_no, int no);
-	Act_fin_flg EnemyUpdate(Battle *battle, int *E_select_obj, Action action, MagicSelect E_Magrun);
+	Act_fin_flg EnemyUpdate(Battle* battle, int* E_select_obj, Action action, MagicSelect E_Magrun);
 	void Draw(Encount enc);
+	void StreamOutput(Encount enc);
+	void StreamOutputAfterDraw(Encount enc);
 	Action Normal_act_get();
 	void EffectGetBuffer();
 	void EffectCreate();
@@ -78,10 +84,14 @@ public:
 	virtual void SetCommandList(int com_no);
 	virtual void CreateEnemy();
 	virtual bool M_run_flg();//マジック実行フラグ
-	virtual void M_select(int *r, int *r1);//マジック選択
+	virtual void M_select(int* r, int* r1);//マジック選択
 	bool s_esc();
-	bool GetBossEffectState(float *blur);
+	bool GetBossEffectState(float* blur);
 	virtual ~Enemy();
+
+	ParameterDXR** getParameterDXR(int* numPara);
+	MaterialType* getMaterialType(int* numPara);
+	void setPointLightNo();
 };
 
 #endif

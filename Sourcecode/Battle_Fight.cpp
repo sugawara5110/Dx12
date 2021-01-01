@@ -15,6 +15,46 @@
 #include "Battle.h"
 #include "Hero.h"
 
+ParameterDXR** Battle::getParameterDXR(int* numPara) {
+	static ParameterDXR** pdx[4] = {};
+	static ParameterDXR* Pdx[80] = {};
+	int num[4] = {};
+
+	for (int i = 0; i < e_num; i++)
+		pdx[i] = enemy[i].getParameterDXR(&num[i]);
+
+	int size = 0;
+	for (int i = 0; i < e_num; i++) {
+		memcpy(&Pdx[size], pdx[i], sizeof(ParameterDXR*) * num[i]);
+		size += num[i];
+	}
+
+	*numPara = size;
+	return Pdx;
+}
+
+void Battle::setPointLightNo() {
+	for (int i = 0; i < e_num; i++)
+		enemy[i].setPointLightNo();
+}
+
+MaterialType* Battle::getMaterialType() {
+	static MaterialType* type[4];
+	static MaterialType Type[80];
+	int num[4] = {};
+
+	for (int i = 0; i < e_num; i++)
+		type[i] = enemy[i].getMaterialType(&num[i]);
+
+	int size = 0;
+	for (int i = 0; i < e_num; i++) {
+		memcpy(&Type[size], type[i], sizeof(MaterialType) * num[i]);
+		size += num[i];
+	}
+
+	return Type;
+}
+
 Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 
 	Position::H_Pos h_posOut;//Ž‹“_•ÏŠ·Œã—p
@@ -290,6 +330,15 @@ Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 void Battle::FightDraw(Encount enc) {
 	E_select.Draw();
 	for (int i = 0; i < e_num; i++)enemy[i].Draw(enc);
+}
+
+void Battle::StreamOutput(Encount enc) {
+	for (int i = 0; i < e_num; i++)enemy[i].StreamOutput(enc);
+}
+
+void Battle::StreamOutputAfterDraw(Encount enc) {
+	for (int i = 0; i < e_num; i++)enemy[i].StreamOutputAfterDraw(enc);
+	E_select.Draw();
 }
 
 void Battle::Draw2D(Encount enc) {

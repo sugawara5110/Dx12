@@ -22,6 +22,7 @@
 #include <Process.h>
 #include "Ending.h"
 #include "TextureBinaryLoader.h"
+#include "Position.h"
 #pragma comment(lib,"winmm.lib")
 #define REFWIDTH 800
 #define REFHEIGHT 600
@@ -37,6 +38,9 @@ private:
 	Dx12Process* dx;
 	//文字入力
 	DxText* text;
+	DXR_Basic* dxr = nullptr;
+	MaterialType materialType[200];
+	ParameterDXR* pdx[200];
 	//ポストエフェクト
 	PostEffect* mosaic = NULL;
 	PostEffect* blur = NULL;
@@ -53,7 +57,7 @@ private:
 	T_float tfloat;
 
 	static Main* main;
-	
+
 	//その他Loop内で使用する変数
 	int map_no = 0;
 	MapState mapstate = NORMAL_MAP;
@@ -64,10 +68,13 @@ private:
 	volatile bool mpDel_f = FALSE;
 	volatile bool btDel_f = FALSE;
 	HANDLE* update_h;
-	int sync = 0;
+
 	void DrawNowLoading(int com_no);
 	void CreateThreadUpdate();
 	void DeleteThreadUpdate();
+	void changeMap();
+	bool changeBattleF = false;
+	void changeBattle();
 
 public:
 	//メッセージ
@@ -80,7 +87,10 @@ public:
 	bool Init(HINSTANCE hInstance, int nCmdShow);
 	void Loop();
 	void UpDate();
+	void SetMovie();
 	void Draw();
+	void StreamOutput();
+	void StreamOutputAfterDraw();
 	void ObjDel();
 	~Main();
 };

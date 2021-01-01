@@ -23,6 +23,7 @@
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx12ProcessCore_Initialize.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxFunction.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR_Basic.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Common.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData_GetVBarray.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData_CreateParticle.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.cpp" />
+    <ClCompile Include="..\Common\DirectInputWrapper\DxInput.cpp" />
     <ClCompile Include="..\Common\DirectShowWrapper\Camera.cpp" />
     <ClCompile Include="..\Common\DirectShowWrapper\DsProcess_DsProcess.cpp" />
     <ClCompile Include="..\Common\DirectShowWrapper\Movie_GetFrame.cpp" />
@@ -79,6 +81,7 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxEnum.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxFunction.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR_Basic.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxStruct.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.h" />
@@ -93,17 +96,22 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonTriangleGS.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderCommonTriangleHSDS.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderFunction.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderGsOutput.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderMesh.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderMesh_D.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderNormalTangent.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderParticle.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderPostEffect.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMesh.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMeshCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderSkinMesh_D.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderWaveCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderCG\ShaderWaveDraw.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderDXR\ShaderBasicDXR.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderDXR\ShaderCommonDXR.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\ShaderDXR\ShaderParametersDXR.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\MicroSoftLibrary\d3dx12.h" />
+    <ClInclude Include="..\Common\DirectInputWrapper\DxInput.h" />
     <ClInclude Include="..\Common\DirectShowWrapper\Camera.h" />
     <ClInclude Include="..\Common\DirectShowWrapper\DsProcess.h" />
     <ClInclude Include="..\Common\DirectShowWrapper\Movie.h" />

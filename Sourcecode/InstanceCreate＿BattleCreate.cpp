@@ -62,6 +62,7 @@ void InstanceCreate::DeleteThread_B() {
 	WaitForSingleObject(battle_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(battle_loading_h);                 //ハンドルを閉じる
 	battle_loading_h = NULL;
+	Dx12Process::GetInstance()->RunGpu();
 	Dx12Process::GetInstance()->WaitFence();
 	battle->SetCommandList(0);
 }
@@ -70,6 +71,7 @@ void InstanceCreate::DeleteThread_M() {
 	WaitForSingleObject(map_loading_h, INFINITE);//スレッドが終了するまで待つ
 	CloseHandle(map_loading_h);                 //ハンドルを閉じる
 	map_loading_h = NULL;
+	Dx12Process::GetInstance()->RunGpu();
 	Dx12Process::GetInstance()->WaitFence();
 	map[1 - mapInd]->SetCommandList(0);
 	mapInd = 1 - mapInd;
@@ -210,7 +212,7 @@ void InstanceCreate::InsDelete() {
 	S_DELETE(map[1 - mapInd]);//使用されなくなったobj
 }
 
-Map *InstanceCreate::GetInstance_M() {
+Map* InstanceCreate::GetInstance_M() {
 	return map[mapInd];//使用するobj
 }
 

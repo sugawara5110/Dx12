@@ -129,7 +129,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 	if (t_no == 2) {
 		en_boss_att0 = new MeshData();
 		en_boss_att0->SetState(TRUE, TRUE, FALSE, 0.0f, 0.0f, -0.8f);
-		en_boss_att0->GetBuffer("./dat/mesh/boss3.obj");
+		en_boss_att0->GetBuffer("./dat/mesh/boss3.obj",1);
 	}
 
 	if (t_no != 2) {
@@ -174,7 +174,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 		}
 	}
 	mag_boss = new ParticleData();
-	mag_boss->GetBufferParticle(dx->GetTexNumber("boss_magic.jpg"), mag_size, 5.0f);
+	mag_boss->GetBufferParticle(dx->GetTexNumber("boss_magic.jpg"), mag_size, 1.0f);
 }
 
 //@Override
@@ -206,7 +206,9 @@ void EnemyBoss::SetVertex() {
 //@Override
 void EnemyBoss::SetCommandList(int com_no) {
 	comNo = com_no;
-	for (int i = 0; i < 4; i++)effect[i].SetCommandList(comNo);
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			effect[i][j].SetCommandList(comNo);
 	if (e_no == 2) en_boss_att0->SetCommandList(comNo);
 	if (e_no != 2) en_boss_att->SetCommandList(comNo);
 	mag_boss->SetCommandList(comNo);
@@ -328,10 +330,10 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	MovieSoundManager::Magic_sound(TRUE);
 	if (count == 0.0f) {
 		magicAttOn = TRUE;
-		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, TRUE, mag_size * 2.0f);
+		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, TRUE, mag_size * 5.0f);
 	}
 	if (count != 0.0f) {
-		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, FALSE, mag_size * 2.0f);
+		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, FALSE, mag_size * 5.0f);
 	}
 	dx->PointLightPosSet(3, { x, y, z },
 		{ 0.7f, 0.2f, 0.2f, 1.0f },
@@ -340,9 +342,6 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	if ((count += m) > 900) {
 		count = 0.0f;
 		magicAttOn = FALSE;//最終フレームで止めたままにするので終わるタイミングまでOnのまま
-		dx->PointLightPosSet(3, { x, y, z },
-			{ 0.7f, 0.2f, 0.2f, 1.0f },
-			false, mag_size * 1000.0f, { 0.001f, 0.0001f, 0.0001f });
 		mag_boss->DrawOff();
 		return FALSE;
 	}

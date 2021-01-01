@@ -97,15 +97,19 @@ private:
 	};
 	OBJPosRandomValue* wood, * wall1;
 
-	Wave wav;
-	MeshData mWood, mountain;
-	PolygonData poWallA, poWallB, poWallC, poWallD, poWallE, poWall1[3], poF_Wall,
-		poGroundF, poCeilingF, poGroundM, poCeilingM, poGroundE, poCeilingE,
-		poBackground, poRain, poRecover, poRecoverLine[12], poBoss, poElevator, poEXIT;
-	ParticleData poMo;
+	Wave* wav;
+	MeshData* mWood, * mountain;
+	PolygonData* poWallA, * poWallB, * poWallC, * poWallD, * poWallE, * poWall1[3], * poF_Wall,
+		* poGroundF, * poCeilingF, * poGroundM, * poCeilingM, * poGroundE, * poCeilingE,
+		* poBackground, poRain, poRecover, poRecoverLine[12], poBoss, poElevator,
+		* poDirectionLight;
+	EmissiveObj_Pa* poMo;
+	EmissiveObj_Po* poEXIT;
 	Position::E_Pos e_pos[4];
 	Position::H_Pos h_pos;
 	Hero* he;//ˆÚ“®—p
+	std::unique_ptr<MaterialType[]> materialType;
+	std::unique_ptr<ParameterDXR* []> pdx;
 
 	void Debug();
 	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int* cnt);
@@ -177,13 +181,19 @@ public:
 	void SetCommandList(int com_no);
 	void CreateMap();
 	Encount MapUpdate(MapState* mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
+	void SetMovie();
 	void MapDraw();
+	void StreamOutput();
+	void StreamOutputAfterDraw();
 	Position::E_Pos* Getposition(int p);
 	Position::H_Pos* Getposition();
 	void Setposition(Position::H_Pos* pos);
 	Position::mapxy* Getmap();
 	bool GetMenuState(int* cnt);
 	~Map();
+	ParameterDXR** getParameterDXR(int* numPara);
+	MaterialType* getMaterialType(int* numType);
+	void setPointLightNo();
 };
 
 #endif
