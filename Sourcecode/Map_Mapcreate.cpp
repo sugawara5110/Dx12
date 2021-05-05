@@ -415,7 +415,7 @@ void Map::CreateMap() {
 	case 0:
 		//波
 		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
-			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 1.0f, 512.0f);
+			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 0.1f, 512.0f);
 		//出口
 		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
@@ -536,8 +536,8 @@ void Map::CreateMap() {
 
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
-		poMo->TextureInit(128, 128);
-		poMo->CreateBillboard();
+		poMo->TextureInit(256, 256);
+		poMo->CreateBillboard(true, true);
 	}
 
 	//動画テクスチャ炎壁
@@ -1164,23 +1164,19 @@ void Map::Mapcreate_Ds(int num) {
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 78 &&
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
 				poMo->SetVertex(ind,
-					{ (float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f },
-					{ 1.0f, 1.0f, 1.0f });
+					{ (float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f });
 				poMo->pos[ind++].as((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f - 65.0f);
 
 				poMo->SetVertex(ind,
-					{ (float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f },
-					{ 1.0f, 1.0f, 1.0f });
+					{ (float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f });
 				poMo->pos[ind++].as((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f - 65.0f);
 
 				poMo->SetVertex(ind,
-					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f },
-					{ 1.0f, 1.0f, 1.0f });
+					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f });
 				poMo->pos[ind++].as((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f - 65.0f);
 
 				poMo->SetVertex(ind,
-					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f },
-					{ 1.0f, 1.0f, 1.0f });
+					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f });
 				poMo->pos[ind++].as((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f - 665.0f);
 
 			}
@@ -1197,7 +1193,7 @@ void Map::Mapupdate_Ds() {
 		if (dist < 1000.0)on = true;
 		dx->PointLightPosSet(poMo->firstNo + i, { 0, 0, 0 },
 			{ 1.0f, 0.4f, 0.4f, 1.0f },
-			on, 300.0f, { 0.01f,0.01f,0.01f });
+			on, 500.0f, { 0.001f,0.00001f,0.001f });
 	}
 
 	poMo->Update(20.0f, { 0,0,0,0 });

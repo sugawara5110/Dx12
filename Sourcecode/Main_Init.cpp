@@ -55,7 +55,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 	srand((unsigned)time(NULL));
 
-	if (Createwindow(&hWnd, hInstance, nCmdShow, CURRWIDTH, CURRHEIGHT, L"3DRPG", 10) == -1)return FALSE;
+	if (Createwindow(&hWnd, hInstance, nCmdShow, CURRWIDTH, CURRHEIGHT, L"3DRPG") == -1)return FALSE;
 
 	//Dx12Processオブジェクト生成
 	Dx12Process::InstanceCreate();
@@ -163,6 +163,8 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	mosaic->ComCreateMosaic();
 	blur = new PostEffect();
 	blur->ComCreateBlur();
+	blur2 = new PostEffect();
+	blur2->ComCreateDepthOfField();
 
 	dx->End(0);
 	dx->RunGpu();
@@ -253,12 +255,19 @@ void Main::Loop() {
 
 	statemenu->SetCommandList(0);
 	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
+	
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg)) {
 			break;
 		}
 
 		T_float::GetTime(hWnd);
+
+		dx->Bigin(0);
+		SetMovie();
+		dx->End(0);
+		dx->RunGpu();
+		dx->WaitFence();
 
 		Sync::sync[0] = 1 - Sync::sync[0];
 		Sync::sync[1] = 1 - Sync::sync[1];
@@ -269,13 +278,8 @@ void Main::Loop() {
 		dx->setRaytraceSwapIndex(1 - Sync::sync[1]);
 		dxr->setASswapIndex(Sync::sync[2]);
 		dxr->setRaytraceSwapIndex(1 - Sync::sync[2]);
-
+		
 		SetEvent(event[0]);
-		dx->Bigin(0);
-		SetMovie();
-		dx->End(0);
-		dx->RunGpu();
-		dx->WaitFence();
 		//Draw();
 		StreamOutput();
 		StreamOutputAfterDraw();
@@ -497,7 +501,6 @@ void Main::StreamOutput() {
 	dxr->update_c(0, 3);
 	dx->EndCom(0);
 	dx->Bigin(0);
-	dxr->updateVertexBuffer(0);
 	dxr->raytrace_g(0);
 	dxr->copyBackBuffer(0);
 	dxr->copyDepthBuffer(0);
@@ -522,6 +525,7 @@ void Main::StreamOutputAfterDraw() {
 	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
 	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
 	bluRet = FALSE;
+	blur2->ComputeDepthOfField(true, 600, 0.98f, 0.005f);
 	blu = 0.0f;
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw2D(encount, ending);
@@ -570,6 +574,7 @@ Main::~Main() {
 	TextureBinaryLoader::DeleteTextureStruct();
 	S_DELETE(mosaic);
 	S_DELETE(blur);
+	S_DELETE(blur2);
 	S_DELETE(dxr);
 	DxText::DeleteInstance();
 	Dx12Process::DeleteInstance();

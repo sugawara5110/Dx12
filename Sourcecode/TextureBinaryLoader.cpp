@@ -22,7 +22,7 @@ void TextureBinaryLoader::TextureBinaryDecode(char *Bpass) {
 
 void TextureBinaryLoader::TextureBinaryDecode(char *Bpass, bool UpKeep) {
 	BinaryDecode(Bpass, &tex[texNum].binary_ch, &tex[texNum].binary_size);
-	tex[texNum].texName = Dx12Process::GetInstance()->GetNameFromPass(Bpass);
+	tex[texNum].texName = Dx_Util::GetNameFromPass(Bpass);
 	texNum++;
 }
 

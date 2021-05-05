@@ -44,6 +44,7 @@ private:
 	//ポストエフェクト
 	PostEffect* mosaic = NULL;
 	PostEffect* blur = NULL;
+	PostEffect* blur2 = NULL;
 	//プレイヤー
 	Hero* hero = NULL;
 	//入力

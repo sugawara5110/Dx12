@@ -91,7 +91,7 @@ Hero::Hero(int no) {
 		break;
 	}
 	p_att = new SkinMesh();
-	p_att->SetState(TRUE, TRUE);
+	p_att->SetState(false, false);
 	char p_att_pass[42];
 	char p_att_pass2[50];
 	char p_att_pass3[51];
@@ -116,7 +116,7 @@ Hero::Hero(int no) {
 		p_att->GetFbxSub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4);
 		p_att->GetBuffer_Sub(4, frameMaxWait);
 		torchWood = new SkinMesh();
-		torchWood->SetState(TRUE, TRUE);
+		torchWood->SetState(false, TRUE);
 		torchWood->Vertex_hold();
 		torchWood->GetFbx("./dat/mesh/player_walk/player1_FBX_torch.fbx");
 		torchWood->GetBuffer(frameMaxAtt);//0番にはアニメーション入っていない
@@ -209,8 +209,8 @@ void Hero::CreateHero() {
 	p_att->CreateFromFBX();
 	if (o_no == 0) {
 		torchWood->CreateFromFBX();
-		torchFlame->TextureInit(128, 128);
-		torchFlame->Create(FALSE, -1, TRUE, TRUE);
+		torchFlame->TextureInit(256, 256);
+		torchFlame->Create(FALSE, -1, TRUE, true);
 	}
 	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);

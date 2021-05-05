@@ -15,6 +15,8 @@
 #define POSX_U (h_posIn->pz * mxy->y * mxy->x + h_posIn->py * mxy->x + (h_posIn->px + 1))
 #define POSX_D (h_posIn->pz * mxy->y * mxy->x + h_posIn->py * mxy->x + (h_posIn->px - 1))
 
+using namespace CoordTf;
+
 struct MapHistoryData {
 	UINT maphis0[1 * 35 * 30] = { 0 };
 	UINT maphis1[1 * 40 * 40] = { 0 };

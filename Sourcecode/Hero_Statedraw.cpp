@@ -34,7 +34,7 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 		v3 = torchWood->GetVertexPosition(0, 4, 3.0f, -1.0f, 0.0f, theta, 0, 0, 2.0f);
 		dx->PointLightPosSet(torchFlame->emissiveNo, { v3.x + x, v3.y + y, v3.z + z },
 			{ 1.0f, 0.4f, 0.4f, 1.0f },
-			true, 1000.0f, { 0.001f,0.001f,0.01f });
+			true, 1000.0f, { 0.0001f,0.0001f,0.001f });
 		torchFlame->Update({ v3.x + x, v3.y + y, v3.z + z }, { r, g, b, -0.2f }, { 0,0,theta }, { 1,1,1 }, 0.0f);
 	}
 	else {
@@ -284,7 +284,7 @@ Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h
 
 void Hero::SetMovie(Encount enc) {
 	if (enc == NOENCOUNT && torchWood) {
-		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
+		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(256, 256));
 	}
 }
 

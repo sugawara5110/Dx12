@@ -223,7 +223,7 @@ void EnemyBoss::CreateEnemy() {
 	if (e_no != 2) {
 		en_boss_att->CreateFromFBX(dispOn);
 	}
-	mag_boss->CreateParticle(dx->GetTexNumber("particle.jpg"));
+	mag_boss->CreateParticle(dx->GetTexNumber("particle.jpg"), true, true);
 }
 
 //@Override

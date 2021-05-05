@@ -153,7 +153,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	switch (map_no) {
 	case 0:
 		dx->SetDirectionLight(true);
-		dx->DirectionLight(0.4f, 0.4f, -1.0f, 0.3f, 0.1f, 0.1f);
+		dx->DirectionLight(0.4f, 0.4f, -1.0f, 0.1f, 0.02f, 0.02f);
 		//oŒûŒõŒ¹
 		dx->PointLightPosSet(poEXIT->emissiveNo, { 450.0f, 0.0f, 50.0f },
 			{ 1.0f, 1.0f, 1.0f, 1.0f },
@@ -280,7 +280,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 
 void Map::SetMovie() {
 	if (mo_count >= 1) {
-		poMo->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(128, 128));
+		poMo->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(256, 256));
 	}
 
 	if (f_wall_count >= 1) {
