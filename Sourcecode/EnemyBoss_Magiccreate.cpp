@@ -13,7 +13,7 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 	e_pos = e_po;
 	mag_size = 0.1f;
 	en_boss_att0 = NULL;
-	dispOn = true;
+	dispOn = false;
 	//t_no=“G‡‚
 	switch (t_no) {
 	case 0:

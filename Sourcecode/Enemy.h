@@ -90,7 +90,6 @@ public:
 	virtual ~Enemy();
 
 	ParameterDXR** getParameterDXR(int* numPara);
-	MaterialType* getMaterialType(int* numPara);
 	void setPointLightNo();
 };
 

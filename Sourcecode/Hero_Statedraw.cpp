@@ -390,16 +390,6 @@ void Hero::setPointLightNoMap() {
 	torchFlame->emissiveNo = EmissiveCount::getNo();
 }
 
-MaterialType* Hero::getMaterialTypeMap() {
-	int num1 = p_att->getNumMesh();
-	int n = 0;
-	materialType = std::make_unique<MaterialType[]>(num1 + 2);
-	for (int i = 0; i < num1; i++)materialType[n++] = NONREFLECTION;
-	materialType[n++] = NONREFLECTION;
-	materialType[n++] = EMISSIVE;
-	return materialType.get();
-}
-
 ParameterDXR** Hero::getParameterDXRBat(int* numPara) {
 	int num1 = p_att->getNumMesh();
 	int n = 0;
@@ -422,19 +412,4 @@ void Hero::setPointLightNoBat() {
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			effect[i][j].emissiveNo = EmissiveCount::getNo();
-}
-
-MaterialType* Hero::getMaterialTypeBat() {
-	int num1 = p_att->getNumMesh();
-	int n = 0;
-	materialType = std::make_unique<MaterialType[]>(num1 + 17);
-	for (int i = 0; i < num1; i++)materialType[n++] = NONREFLECTION;
-	materialType[n++] = EMISSIVE;
-	for (int i = 0; i < 4; i++) {
-		materialType[n++] = EMISSIVE;
-		materialType[n++] = EMISSIVE;
-		materialType[n++] = EMISSIVE;
-		materialType[n++] = EMISSIVE;
-	}
-	return materialType.get();
 }

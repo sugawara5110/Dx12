@@ -180,24 +180,19 @@ void Main::changeMap() {
 	EmissiveCount::reset();
 	dxr = new DXR_Basic();
 	int mapN = 0;
-	int mapTN = 0;
-	MaterialType* mtype = InstanceCreate::GetInstance_M()->getMaterialType(&mapTN);
 	ParameterDXR** mDXR = InstanceCreate::GetInstance_M()->getParameterDXR(&mapN);
 	InstanceCreate::GetInstance_M()->setPointLightNo();
 	int heN = 0;
 	ParameterDXR** hDXR = hero[0].getParameterDXRMap(&heN);
-	MaterialType* htype = hero[0].getMaterialTypeMap();
 	hero[0].setPointLightNoMap();
 	memcpy(&pdx[0], mDXR, sizeof(ParameterDXR*) * mapN);
 	memcpy(&pdx[mapN], hDXR, sizeof(ParameterDXR*) * heN);
-	memcpy(&materialType[0], mtype, sizeof(MaterialType) * mapTN);
-	memcpy(&materialType[mapTN], htype, sizeof(MaterialType) * heN);
 
 	for (int i = 0; i < mapN + heN; i++) {
 		pdx[i]->resetCreateAS();
 	}
 
-	dxr->initDXR(mapN + heN, pdx, materialType, 4);
+	dxr->initDXR(mapN + heN, pdx, 4);
 }
 
 void Main::changeBattle() {
@@ -205,39 +200,29 @@ void Main::changeBattle() {
 	EmissiveCount::reset();
 	dxr = new DXR_Basic();
 	int mapN = 0;
-	int mapTN = 0;
-	MaterialType* typeM = InstanceCreate::GetInstance_M()->getMaterialType(&mapTN);
 	ParameterDXR** DxrM = InstanceCreate::GetInstance_M()->getParameterDXR(&mapN);
 	InstanceCreate::GetInstance_M()->setPointLightNo();
 
-	MaterialType* typeH[4];
 	ParameterDXR** DxrH[4];
 	int heroN[4] = {};
 
 	for (int i = 0; i < 4; i++) {
 		DxrH[i] = hero[i].getParameterDXRBat(&heroN[i]);
-		typeH[i] = hero[i].getMaterialTypeBat();
 		hero[i].setPointLightNoBat();
 	}
 
 	int batN = 0;
-	MaterialType* typeB = InstanceCreate::GetInstance_B()->getMaterialType();
 	ParameterDXR** DxrB = InstanceCreate::GetInstance_B()->getParameterDXR(&batN);
 	InstanceCreate::GetInstance_B()->setPointLightNo();
 
 	memcpy(&pdx[0], DxrM, sizeof(ParameterDXR*) * mapN);
-	memcpy(&materialType[0], typeM, sizeof(MaterialType) * mapTN);
 	int size = mapN;
-	int size2 = mapTN;
 	for (int i = 0; i < 4; i++) {
 		memcpy(&pdx[size], DxrH[i], sizeof(ParameterDXR*) * heroN[i]);
-		memcpy(&materialType[size2], typeH[i], sizeof(MaterialType) * heroN[i]);
 		size += heroN[i];
-		size2 += heroN[i];
 	}
 
 	memcpy(&pdx[size], DxrB, sizeof(ParameterDXR*) * batN);
-	memcpy(&materialType[size2], typeB, sizeof(MaterialType) * batN);
 	size += batN;
 
 	for (int i = 0; i < size; i++) {
@@ -245,7 +230,7 @@ void Main::changeBattle() {
 		pdx[i]->updateDXR[1].createAS = false;
 	}
 
-	dxr->initDXR(size, pdx, materialType, 4);
+	dxr->initDXR(size, pdx, 4);
 }
 
 void Main::Loop() {
@@ -332,7 +317,10 @@ void Main::UpDate() {
 	if (InstanceCreate::GetInstance_M())
 		encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
 
-	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER)menu = TRUE;
+	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER) {
+		menu = TRUE;
+		return;
+	}
 	T_float tfloat;
 
 	switch (mapstate) {

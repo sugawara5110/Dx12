@@ -257,23 +257,6 @@ void Enemy::setPointLightNo() {
 			effect[i][j].emissiveNo = EmissiveCount::getNo();
 }
 
-MaterialType* Enemy::getMaterialType(int* numPara) {
-	//エフェクト
-	int numP = 16;
-	//SideEnemy
-	if (en)numP++;
-	//Boss2
-	if (en_boss_att0)numP++;
-	//Boss 0,1,3,4
-	if (en_boss_att)numP++;
-
-	for (int i = 0; i < 16; i++)materialType[i] = EMISSIVE;
-	for (int i = 16; i < numP; i++)materialType[i] = NONREFLECTION;
-
-	*numPara = numP;
-	return materialType;
-}
-
 Action Enemy::Normal_act_get(){
 	return normal_action;
 }

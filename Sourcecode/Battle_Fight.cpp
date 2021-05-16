@@ -38,23 +38,6 @@ void Battle::setPointLightNo() {
 		enemy[i].setPointLightNo();
 }
 
-MaterialType* Battle::getMaterialType() {
-	static MaterialType* type[4];
-	static MaterialType Type[80];
-	int num[4] = {};
-
-	for (int i = 0; i < e_num; i++)
-		type[i] = enemy[i].getMaterialType(&num[i]);
-
-	int size = 0;
-	for (int i = 0; i < e_num; i++) {
-		memcpy(&Type[size], type[i], sizeof(MaterialType) * num[i]);
-		size += num[i];
-	}
-
-	return Type;
-}
-
 Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 
 	Position::H_Pos h_posOut;//Ž‹“_•ÏŠ·Œã—p

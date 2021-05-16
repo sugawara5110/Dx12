@@ -282,7 +282,6 @@ public:
 	~Battle();
 
 	ParameterDXR** getParameterDXR(int* numPara);
-	MaterialType* getMaterialType();
 	void setPointLightNo();
 };
 

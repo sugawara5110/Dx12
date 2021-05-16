@@ -414,14 +414,17 @@ void Map::CreateMap() {
 	switch (map_no) {
 	case 0:
 		//波
+		wav->setMaterialType(METALLIC);
 		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
 			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 0.1f, 512.0f);
 		//出口
+		poEXIT->setMaterialType(EMISSIVE);
 		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
 		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
 		//空メイン
+		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), -1, TRUE, FALSE);
 		break;
@@ -432,6 +435,7 @@ void Map::CreateMap() {
 		poGroundF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
 		//空入り口
+		poCeilingF->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), -1, TRUE, FALSE);
 		//地面メイン
@@ -439,6 +443,7 @@ void Map::CreateMap() {
 			dx->GetTexNumber("./dat/texture/map/ground2Nor.da"), -1, TRUE, FALSE);
 		//空メイン
 		poBackground->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), TRUE, FALSE);
+		poDirectionLight->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poDirectionLight->Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);
 		//雨
 		poRain.Create(FALSE, -1, FALSE, FALSE);
@@ -446,25 +451,30 @@ void Map::CreateMap() {
 		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空出口
+		poCeilingE->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 2:
 		//波
+		wav->setMaterialType(METALLIC);
 		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
 			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 1.0f, 64.0f);
 		//入口
+		poEXIT->setMaterialType(EMISSIVE);
 		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
 		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空メイン
+		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		//地面出口
 		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		//空出口
+		poCeilingE->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		break;
@@ -473,12 +483,14 @@ void Map::CreateMap() {
 		poGroundF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空入り口
+		poCeilingF->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		//地面メイン
 		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		//空メイン
+		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		break;
@@ -487,6 +499,7 @@ void Map::CreateMap() {
 		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"),
 			dx->GetTexNumber("./dat/texture/map/ground5Nor.da"), -1, TRUE, FALSE);
 		//空メイン
+		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling5Nor.da"), -1, TRUE, FALSE);
 		break;
@@ -507,22 +520,27 @@ void Map::CreateMap() {
 	//壁(ブロック)
 	if (blockcountA >= 1) {
 		poWallA->SetCol(0.6f, 0.6f, 0.6f, 0.1f, 0.1f, 0.1f, 0, 0, 0);
+		poWallA->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poWallA->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall1Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountB >= 1) {
+		poWallB->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poWallB->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2-1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall2Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountC >= 1) {
+		poWallC->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poWallC->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountD >= 1) {
+		poWallD->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poWallD->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountE >= 1) {
+		poWallE->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poWallE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"),
 			dx->GetTexNumber("./dat/texture/map/wall5Nor.da"), -1, TRUE, FALSE);
 	}
@@ -537,12 +555,14 @@ void Map::CreateMap() {
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
 		poMo->TextureInit(256, 256);
+		poMo->setMaterialType(EMISSIVE);
 		poMo->CreateBillboard(true, true);
 	}
 
 	//動画テクスチャ炎壁
 	if (f_wall_count >= 1) {
 		poF_Wall->TextureInit(256, 256);
+		poF_Wall->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
 		poF_Wall->Create(FALSE, -1, TRUE, TRUE);
 	}
 

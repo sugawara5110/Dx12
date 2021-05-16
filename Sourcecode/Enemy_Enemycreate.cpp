@@ -61,6 +61,11 @@ void Enemy::EffectGetBuffer() {
 
 void Enemy::EffectCreate() {
 	for (int i = 0; i < 4; i++) {
+		effect[0][i].setMaterialType(EMISSIVE);
+		effect[1][i].setMaterialType(EMISSIVE);
+		effect[2][i].setMaterialType(EMISSIVE);
+		effect[3][i].setMaterialType(EMISSIVE);
+
 		effect[0][i].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
 		effect[1][i].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
 		effect[2][i].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);

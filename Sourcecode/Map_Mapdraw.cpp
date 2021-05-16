@@ -27,35 +27,38 @@ void Map::MapdrawObj() {
 	if (poWallE)poWallE->Draw();
 }
 
-bool Map::GetMenuState(int *cnt) {
-	static int count = 10;
+bool Map::GetMenuState(int* cnt) {
+	static int count = 0;
+	static bool menuOn = false;
+	if (!menuSt)//menuOFF
+		menuOn = false;
+	else
+		menuOn = true;
 
-	if (!menuSt) {//menuOFF
-		if (count > 10) {
-			count--;
-			*cnt = count * 0.1f;
-			return TRUE;
-		}
-		else {
-			count = 10;
-			*cnt = 1;
-			return FALSE;
-		}
-	}
-	else {//menuŠJ‚¢‚Ä‚¢‚éON
-		if (count < 50) {
+	if (menuOn) {//menuON
+		if (count < 10) {
 			count++;
-			*cnt = count * 0.1f;
-			return TRUE;
+			*cnt = count * 0.5f;
+			return true;
 		}
 		else {
-			count = 100;
-			*cnt = 10;
-			return TRUE;
+			*cnt = count * 0.5f;
+			return true;
+		}
+	}
+	else {//menuOFF
+		if (count > 1) {
+			count--;
+			*cnt = count * 0.5f;
+			return true;
+		}
+		else {
+			*cnt = 1;
+			return false;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending) {
@@ -404,45 +407,6 @@ void Map::setPointLightNo() {
 	if (poEXIT) {
 		poEXIT->emissiveNo = EmissiveCount::getNo();
 	}
-}
-
-MaterialType* Map::getMaterialType(int* numType) {
-
-	int n = 0;
-	materialType = std::make_unique<MaterialType[]>(23);
-
-	if (poWallA)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (poWallB)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (poWallC)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (poWallD)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (poWallE)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-
-	if (poWall1[0])materialType[n++] = NONREFLECTION;
-	if (poWall1[1])materialType[n++] = NONREFLECTION;
-	if (poWall1[2])materialType[n++] = NONREFLECTION;
-
-	if (poGroundF)materialType[n++] = NONREFLECTION;
-	if (poCeilingF)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (poGroundM)materialType[n++] = NONREFLECTION;
-	if (poCeilingM)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (poGroundE)materialType[n++] = NONREFLECTION;
-	if (poCeilingE)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-	if (wav)materialType[n++] = METALLIC;
-	if (poDirectionLight)materialType[n++] = DIRECTIONLIGHT_NONREFLECTION;
-
-	if (mWood) {
-		materialType[n++] = NONREFLECTION;
-		materialType[n++] = NONREFLECTION;
-	}
-	if (mountain) {
-		materialType[n++] = NONREFLECTION;
-		materialType[n++] = NONREFLECTION;
-	}
-	if (poMo)materialType[n++] = EMISSIVE;
-	if (poEXIT)materialType[n++] = EMISSIVE;
-
-	*numType = n;
-	return materialType.get();
 }
 
 void Map::HeroUpdate(bool mf) {

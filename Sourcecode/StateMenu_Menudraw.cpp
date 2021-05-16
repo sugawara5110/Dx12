@@ -342,9 +342,10 @@ int StateMenu::Set_boss_kil(int i){
 	return savedata.boss_kil[i];
 }
 
-bool StateMenu::MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction) {
+bool StateMenu::MenuUpdate(Position::H_Pos* h_p, int map_no, int* boss_killed, MapHistoryData* maphis, Hero* hero, Directionkey direction) {
 
 	bool m_ref = FALSE;
+	Menucreate();
 	switch (menu_select) {
 	case MAIN:
 		m_ref = Main_Menu(h_p, map_no, boss_killed, maphis, hero, direction);
@@ -373,7 +374,6 @@ bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, Ma
 
 	float fsize = 25.0f;
 
-	Menucreate();
 	for (int i = 0; i < 4; i++) {
 		text->UpDateText(L"Žúl‚m‚", 160.0f, 10.0f + 110.0f * i, fsize, { 1.0f, 1.0f, 1.0f, 1.0f });
 		text->UpDateValue(i, 270.0f, 10.0f + 110.0f * i, fsize, 1, { 1.0f, 1.0f, 1.0f, 1.0f });

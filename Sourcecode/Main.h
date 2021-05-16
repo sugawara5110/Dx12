@@ -39,7 +39,6 @@ private:
 	//文字入力
 	DxText* text;
 	DXR_Basic* dxr = nullptr;
-	MaterialType materialType[200];
 	ParameterDXR* pdx[200];
 	//ポストエフェクト
 	PostEffect* mosaic = NULL;

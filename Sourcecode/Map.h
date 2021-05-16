@@ -192,7 +192,6 @@ public:
 	bool GetMenuState(int* cnt);
 	~Map();
 	ParameterDXR** getParameterDXR(int* numPara);
-	MaterialType* getMaterialType(int* numType);
 	void setPointLightNo();
 };
 

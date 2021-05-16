@@ -75,8 +75,6 @@ public:
 	void setPointLightNoMap();
 	ParameterDXR** getParameterDXRBat(int* numPara);
 	void setPointLightNoBat();
-	MaterialType* getMaterialTypeMap();
-	MaterialType* getMaterialTypeBat();
 };
 
 #endif
