@@ -182,7 +182,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 	if (blockcountA >= 1) {
 		poWallA = new PolygonData();
 		poWallA->setDivideArr(divArr, numDiv);
-		poWallA->GetVBarray(CONTROL_POINT,1);//CONTROL_POINT
+		poWallA->GetVBarray(SQUARE,1);//CONTROL_POINT
 	}
 	if (blockcountB >= 1) {
 		poWallB = new PolygonData();
@@ -664,6 +664,73 @@ void Map::Mapdraw_Wall1() {
 	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->Draw();
 }
 
+static Vertex verBase[] =
+{
+	{ {-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} ,{0.0f,0.0f}},
+	{ {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} ,{1.0f,0.0f}},
+	{ {-1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f} ,{0.0f,1.0f}},
+	{ {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f},{1.0f,1.0f} },
+
+	{ {1.0f, -1.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{0.0f,0.0f} },
+	{ {-1.0f, -1.0f, 1.0f}, {0.0f, -1.0f, 0.0f} ,{1.0f,0.0f}},
+	{ {1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f} ,{0.0f,1.0f}},
+	{ {-1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f} ,{1.0f,1.0f}},
+
+	{ {-1.0f, -1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} ,{0.0f,0.0f}},
+	{ {-1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} ,{1.0f,0.0f}},
+	{ {-1.0f, -1.0f, -1.0f}, {-1.0f, 0.0f, 0.0f} ,{0.0f,1.0f}},
+	{ {-1.0f, 1.0f, -1.0f}, {-1.0f, 0.0f, 0.0f} ,{1.0f,1.0f}},
+
+	{ {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f} ,{0.0f,0.0f}},
+	{ {1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f} ,{1.0f,0.0f}},
+	{ {1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f} ,{0.0f,1.0f}},
+	{ {1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 0.0f} ,{1.0f,1.0f}},
+
+	{ {1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{0.0f,0.0f}},
+	{ {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{1.0f,0.0f}},
+	{ {1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{0.0f,1.0f}},
+	{ {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{1.0f,1.0f}},
+
+	{ {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{0.0f,0.0f}},
+	{ {1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{1.0f,0.0f}},
+	{ {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{0.0f,1.0f}},
+	{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{1.0f,1.0f}},
+};
+
+static UINT indexBase[] =
+{
+	0,1,2,
+	2,1,3,
+
+	4,5,6,
+	6,5,7,
+
+	8,9,10,
+	10,9,11,
+
+	12,13,14,
+	14,13,15,
+
+	16,17,18,
+	18,17,19,
+
+	20,21,22,
+	22,21,23
+};
+
+void setVertex(Vertex* bl, Vertex base, float x, float y, float z, float height) {
+	float baseX = 0.0f;
+	float baseY = 0.0f;
+	float baseZ = 0.0f;
+	if (base.Pos.x > 0.0f)baseX = 100.0f;
+	if (base.Pos.y > 0.0f)baseY = 100.0f;
+	if (base.Pos.z > 0.0f)baseZ = height;
+
+	bl->Pos.as(x + baseX, y + baseY, z + baseZ);
+	bl->normal.as(base.normal.x, base.normal.y, base.normal.z);
+	bl->tex.as(base.tex.x, base.tex.y);
+}
+
 void Map::Mapcreate_Wall(int numB, PolygonData* pd, int no1, int no2, float height, float adjust, float adjust2) {
 	Vertex* bl = new Vertex[numB * 6 * 4];
 	UINT* ind = new UINT[numB * 6 * 6];
@@ -674,156 +741,15 @@ void Map::Mapcreate_Wall(int numB, PolygonData* pd, int no1, int no2, float heig
 			for (int i = 0; i < mxy.x; i++) {
 
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no2)continue;
-				//壁ブロック頂点設定
-					//正面左上
-				bl[k].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust);
-				bl[k].normal.as(0.0f, 0.0f, 1.0f);
-				bl[k].tex.as(0.0f, 0.0f);
-				ind[kI] = k;
-				//正面右上
-				bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust);
-				bl[k + 1].normal.as(0.0f, 0.0f, 1.0f);
-				bl[k + 1].tex.as(1.0f, 0.0f);
-				ind[kI + 1] = k + 1;
-				ind[kI + 4] = k + 1;
-				//正面左下
-				bl[k + 2].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust);
-				bl[k + 2].normal.as(0.0f, 0.0f, 1.0f);
-				bl[k + 2].tex.as(0.0f, 1.0f);
-				ind[kI + 2] = k + 2;
-				ind[kI + 3] = k + 2;
-				//正面右下
-				bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust);
-				bl[k + 3].normal.as(0.0f, 0.0f, 1.0f);
-				bl[k + 3].tex.as(1.0f, 1.0f);
-				ind[kI + 5] = k + 3;
-				k += 4;
-				kI += 6;
 
-				//左面上前
-				bl[k].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2);
-				bl[k].normal.as(-1.0f, 0.0f, 0.0f);
-				bl[k].tex.as(0.0f, 0.0f);
-				ind[kI] = k;
-				//左面下前
-				bl[k + 1].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2);
-				bl[k + 1].normal.as(-1.0f, 0.0f, 0.0f);
-				bl[k + 1].tex.as(1.0f, 0.0f);
-				ind[kI + 1] = k + 1;
-				ind[kI + 4] = k + 1;
-				//左面上後
-				bl[k + 2].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2);
-				bl[k + 2].normal.as(-1.0f, 0.0f, 0.0f);
-				bl[k + 2].tex.as(0.0f, 1.0f);
-				ind[kI + 2] = k + 2;
-				ind[kI + 3] = k + 2;
-				//左面下後
-				bl[k + 3].Pos.as((float)i * 100.0f - adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2);
-				bl[k + 3].normal.as(-1.0f, 0.0f, 0.0f);
-				bl[k + 3].tex.as(1.0f, 1.0f);
-				ind[kI + 5] = k + 3;
-				k += 4;
-				kI += 6;
-
-				//右面下前
-				bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f + height + adjust2);
-				bl[k].normal.as(1.0f, 0.0f, 0.0f);
-				bl[k].tex.as(0.0f, 0.0f);
-				ind[kI] = k;
-				//右面上前
-				bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f + height + adjust2);
-				bl[k + 1].normal.as(1.0f, 0.0f, 0.0f);
-				bl[k + 1].tex.as(1.0f, 0.0f);
-				ind[kI + 1] = k + 1;
-				ind[kI + 4] = k + 1;
-				//右面下後
-				bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust2);
-				bl[k + 2].normal.as(1.0f, 0.0f, 0.0f);
-				bl[k + 2].tex.as(0.0f, 1.0f);
-				ind[kI + 2] = k + 2;
-				ind[kI + 3] = k + 2;
-				//右面上後
-				bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust2);
-				bl[k + 3].normal.as(1.0f, 0.0f, 0.0f);
-				bl[k + 3].tex.as(1.0f, 1.0f);
-				ind[kI + 5] = k + 3;
-				k += 4;
-				kI += 6;
-
-				//上面右前
-				bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2);
-				bl[k].normal.as(0.0f, -1.0f, 0.0f);
-				bl[k].tex.as(0.0f, 0.0f);
-				ind[kI] = k;
-				//上面左前
-				bl[k + 1].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f + height + adjust2);
-				bl[k + 1].normal.as(0.0f, -1.0f, 0.0f);
-				bl[k + 1].tex.as(1.0f, 0.0f);
-				ind[kI + 1] = k + 1;
-				ind[kI + 4] = k + 1;
-				//上面右後
-				bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2);
-				bl[k + 2].normal.as(0.0f, -1.0f, 0.0f);
-				bl[k + 2].tex.as(0.0f, 1.0f);
-				ind[kI + 2] = k + 2;
-				ind[kI + 3] = k + 2;
-				//上面左後
-				bl[k + 3].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust, (float)k3 * 100.0f - adjust2);
-				bl[k + 3].normal.as(0.0f, -1.0f, 0.0f);
-				bl[k + 3].tex.as(1.0f, 1.0f);
-				ind[kI + 5] = k + 3;
-				k += 4;
-				kI += 6;
-
-				//裏面右上
-				bl[k].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust);
-				bl[k].normal.as(0.0f, 0.0f, -1.0f);
-				bl[k].tex.as(0.0f, 0.0f);
-				ind[kI] = k;
-				//裏面左上
-				bl[k + 1].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f - adjust2, (float)k3 * 100.0f - adjust);
-				bl[k + 1].normal.as(0.0f, 0.0f, -1.0f);
-				bl[k + 1].tex.as(1.0f, 0.0f);
-				ind[kI + 1] = k + 1;
-				ind[kI + 4] = k + 1;
-				//裏面右下
-				bl[k + 2].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust);
-				bl[k + 2].normal.as(0.0f, 0.0f, -1.0f);
-				bl[k + 2].tex.as(0.0f, 1.0f);
-				ind[kI + 2] = k + 2;
-				ind[kI + 3] = k + 2;
-				//裏面左下
-				bl[k + 3].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust2, (float)k3 * 100.0f - adjust);
-				bl[k + 3].normal.as(0.0f, 0.0f, -1.0f);
-				bl[k + 3].tex.as(1.0f, 1.0f);
-				ind[kI + 5] = k + 3;
-				k += 4;
-				kI += 6;
-
-				//底面左前
-				bl[k].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2);
-				bl[k].normal.as(0.0f, 1.0f, 0.0f);
-				bl[k].tex.as(0.0f, 0.0f);
-				ind[kI] = k;
-				//底面右前
-				bl[k + 1].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f + height + adjust2);
-				bl[k + 1].normal.as(0.0f, 1.0f, 0.0f);
-				bl[k + 1].tex.as(1.0f, 0.0f);
-				ind[kI + 1] = k + 1;
-				ind[kI + 4] = k + 1;
-				//底面左後
-				bl[k + 2].Pos.as((float)i * 100.0f - adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2);
-				bl[k + 2].normal.as(0.0f, 1.0f, 0.0f);
-				bl[k + 2].tex.as(0.0f, 1.0f);
-				ind[kI + 2] = k + 2;
-				ind[kI + 3] = k + 2;
-				//底面右後
-				bl[k + 3].Pos.as((float)i * 100.0f + 100.0f + adjust2, (float)j * 100.0f + 100.0f + adjust, (float)k3 * 100.0f - adjust2);
-				bl[k + 3].normal.as(0.0f, 1.0f, 0.0f);
-				bl[k + 3].tex.as(1.0f, 1.0f);
-				ind[kI + 5] = k + 3;
-				k += 4;
-				kI += 6;
+				for (int s = 0; s < 24; s++) {
+					setVertex(&bl[s + k], verBase[s], (float)i * 100.0f, (float)j * 100.0f, (float)k3 * 100.0f, height);
+				}
+				for (int in = 0; in < 36; in++) {
+					ind[in + kI] = indexBase[in] + k;
+				}
+				k += 24;
+				kI += 36;
 			}
 		}
 	}

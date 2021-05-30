@@ -153,9 +153,6 @@
     <ClInclude Include="Sourcecode\StateMenu.h" />
     <ClInclude Include="Sourcecode\TextureBinaryLoader.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7A886188-2BB3-438E-BC71-07E943B52FAC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

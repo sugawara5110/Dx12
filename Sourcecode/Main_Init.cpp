@@ -480,7 +480,7 @@ void Main::StreamOutput() {
 	if (InstanceCreate::GetInstance_M()) {
 		InstanceCreate::GetInstance_M()->StreamOutput();
 	}
-	
+
 	dx->End(0);
 	dx->RunGpu();
 	dx->WaitFence();
@@ -513,7 +513,10 @@ void Main::StreamOutputAfterDraw() {
 	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
 	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
 	bluRet = FALSE;
-	blur2->ComputeDepthOfField(true, 600, 0.98f, 0.005f);
+	if (battleSwitch == 2)
+		blur2->ComputeDepthOfField(true, 600, 0.98f, 0.6f);
+	else
+		blur2->ComputeDepthOfField(true, 600, 0.98f, 0.005f);
 	blu = 0.0f;
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw2D(encount, ending);

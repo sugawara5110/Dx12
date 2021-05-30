@@ -1,81 +1,80 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Sourcecode\3DRPG_Main.cpp" />
     <ClCompile Include="Sourcecode\Battle_E_AT_select.cpp">
-      <Filter>Battle</Filter>
+      <Filter>Game\Battle</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Battle_Fight.cpp">
-      <Filter>Battle</Filter>
+      <Filter>Game\Battle</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Battle_H_AT_select.cpp">
-      <Filter>Battle</Filter>
+      <Filter>Game\Battle</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Battle_Menu_main.cpp">
-      <Filter>Battle</Filter>
+      <Filter>Game\Battle</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Battle_Menucreate.cpp">
-      <Filter>Battle</Filter>
+      <Filter>Game\Battle</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Enemy_Enemycreate.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Enemy_Enemydraw.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\EnemyBoss_Magiccreate.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\EnemySide_Magiccreate.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Ending_StaffRoll.cpp">
-      <Filter>Ending</Filter>
+      <Filter>Game\Ending</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Hero_Statecreate.cpp">
-      <Filter>Hero</Filter>
+      <Filter>Game\Hero</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Hero_Statedraw.cpp">
-      <Filter>Hero</Filter>
+      <Filter>Game\Hero</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\InstanceCreate＿BattleCreate.cpp">
-      <Filter>InstanceCreate</Filter>
+      <Filter>Game\InstanceCreate</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Map_Mapcreate.cpp">
-      <Filter>Map</Filter>
+      <Filter>Game\Map</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Map_Mapdraw.cpp">
-      <Filter>Map</Filter>
+      <Filter>Game\Map</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Map_Mapfilter.cpp">
-      <Filter>Map</Filter>
+      <Filter>Game\Map</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Map_Move.cpp">
-      <Filter>Map</Filter>
+      <Filter>Game\Map</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\MovieSoundManager_ObjCreate.cpp">
-      <Filter>MovieSoundManager</Filter>
+      <Filter>Game\MovieSoundManager</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Parameter_ GetAttack.cpp">
-      <Filter>Parameter</Filter>
+      <Filter>Game\Parameter</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Position_CamAdvance.cpp">
-      <Filter>Position</Filter>
+      <Filter>Game\Position</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\StateMenu_Menucreate.cpp">
-      <Filter>StateMenu</Filter>
+      <Filter>Game\StateMenu</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\StateMenu_Menudraw.cpp">
-      <Filter>StateMenu</Filter>
+      <Filter>Game\StateMenu</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\TextureBinaryLoader.cpp">
-      <Filter>TextureBinaryLoad</Filter>
+      <Filter>Game\TextureBinaryLoad</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Main_Init.cpp">
-      <Filter>Main</Filter>
+      <Filter>Game\Main</Filter>
     </ClCompile>
     <ClCompile Include="Sourcecode\Decode.cpp">
-      <Filter>Decode</Filter>
+      <Filter>Game\Decode</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\DirectShowWrapper\Camera.cpp">
       <Filter>Common\DirectShowWrapper</Filter>
@@ -176,55 +175,58 @@
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
     </ClCompile>
+    <ClCompile Include="Sourcecode\3DRPG_Main.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sourcecode\Battle.h">
-      <Filter>Battle</Filter>
+      <Filter>Game\Battle</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Enemy.h">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\EnemyBoss.h">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\EnemySide.h">
-      <Filter>Enemy</Filter>
+      <Filter>Game\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Ending.h">
-      <Filter>Ending</Filter>
+      <Filter>Game\Ending</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Hero.h">
-      <Filter>Hero</Filter>
+      <Filter>Game\Hero</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\InstanceCreate.h">
-      <Filter>InstanceCreate</Filter>
+      <Filter>Game\InstanceCreate</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Map.h">
-      <Filter>Map</Filter>
+      <Filter>Game\Map</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\MovieSoundManager.h">
-      <Filter>MovieSoundManager</Filter>
+      <Filter>Game\MovieSoundManager</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Parameter.h">
-      <Filter>Parameter</Filter>
+      <Filter>Game\Parameter</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Position.h">
-      <Filter>Position</Filter>
+      <Filter>Game\Position</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\StateMenu.h">
-      <Filter>StateMenu</Filter>
+      <Filter>Game\StateMenu</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\TextureBinaryLoader.h">
-      <Filter>TextureBinaryLoad</Filter>
+      <Filter>Game\TextureBinaryLoad</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Main.h">
-      <Filter>Main</Filter>
+      <Filter>Game\Main</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Enum.h">
-      <Filter>Enum</Filter>
+      <Filter>Game\Enum</Filter>
     </ClInclude>
     <ClInclude Include="Sourcecode\Decode.h">
-      <Filter>Decode</Filter>
+      <Filter>Game\Decode</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Direct3DWrapper\Dx12Process.h">
       <Filter>Common\Direct3DWrapper</Filter>
@@ -396,48 +398,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Battle">
-      <UniqueIdentifier>{0e0ec8a7-f676-4e74-a970-faac0ce16dc2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Enemy">
-      <UniqueIdentifier>{0b502898-96a6-4824-b483-e229a37349bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Ending">
-      <UniqueIdentifier>{a6d5cbbb-a382-42c7-8d9e-87921509085a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hero">
-      <UniqueIdentifier>{f33e303b-e6bc-43c8-a94e-6efc09f6b123}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="InstanceCreate">
-      <UniqueIdentifier>{fc492dc0-fbe0-4884-a0b3-79228dfc0ec3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Map">
-      <UniqueIdentifier>{5b7c8c85-faa1-43f0-8e9c-e3e47464462f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Parameter">
-      <UniqueIdentifier>{b0372088-c541-46d7-82b9-dd5b61bceade}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Position">
-      <UniqueIdentifier>{553d1500-1771-4411-9340-4a8ffdcc52fa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="StateMenu">
-      <UniqueIdentifier>{928c4720-3d18-4358-b405-4a357cc4ce3f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MovieSoundManager">
-      <UniqueIdentifier>{f1b0d920-cfbc-41f8-8d75-be71e97f900f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TextureBinaryLoad">
-      <UniqueIdentifier>{bcd795c6-7de7-4d23-b932-cb4a5d2d9935}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Main">
-      <UniqueIdentifier>{93f2e9d2-43b9-4fd6-9d96-e9e2eae48205}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Enum">
-      <UniqueIdentifier>{f11947bb-abc1-49a9-b7f0-dee7da029a7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Decode">
-      <UniqueIdentifier>{6eca04b0-2b0b-4991-a436-101e7911b667}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{467ae2e4-1447-4c53-b79f-ffaf28a6e79c}</UniqueIdentifier>
     </Filter>
@@ -495,8 +455,50 @@
     <Filter Include="Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR">
       <UniqueIdentifier>{1a26fc44-2be9-48b4-8797-360f2f00321c}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <Filter Include="Game">
+      <UniqueIdentifier>{0aa04d7c-54c2-457b-b395-025250da20d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Battle">
+      <UniqueIdentifier>{0e0ec8a7-f676-4e74-a970-faac0ce16dc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Decode">
+      <UniqueIdentifier>{6eca04b0-2b0b-4991-a436-101e7911b667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Ending">
+      <UniqueIdentifier>{a6d5cbbb-a382-42c7-8d9e-87921509085a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Enemy">
+      <UniqueIdentifier>{0b502898-96a6-4824-b483-e229a37349bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Enum">
+      <UniqueIdentifier>{f11947bb-abc1-49a9-b7f0-dee7da029a7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Hero">
+      <UniqueIdentifier>{f33e303b-e6bc-43c8-a94e-6efc09f6b123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Main">
+      <UniqueIdentifier>{93f2e9d2-43b9-4fd6-9d96-e9e2eae48205}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Map">
+      <UniqueIdentifier>{5b7c8c85-faa1-43f0-8e9c-e3e47464462f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\MovieSoundManager">
+      <UniqueIdentifier>{f1b0d920-cfbc-41f8-8d75-be71e97f900f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Parameter">
+      <UniqueIdentifier>{b0372088-c541-46d7-82b9-dd5b61bceade}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Position">
+      <UniqueIdentifier>{553d1500-1771-4411-9340-4a8ffdcc52fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\StateMenu">
+      <UniqueIdentifier>{928c4720-3d18-4358-b405-4a357cc4ce3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\TextureBinaryLoad">
+      <UniqueIdentifier>{bcd795c6-7de7-4d23-b932-cb4a5d2d9935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\InstanceCreate">
+      <UniqueIdentifier>{fc492dc0-fbe0-4884-a0b3-79228dfc0ec3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
