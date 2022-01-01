@@ -9,6 +9,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "../../CreateGeometry/CreateGeometry.h"
 
 int Map::map_no_s;
 MapStPos Map::MPos = POS_ST;
@@ -206,7 +207,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 	if (r_point_count >= 1) {
 		poRecover.GetVBarray(SQUARE,1);
 		for (int i = 0; i < 12; i++) {
-			poRecoverLine[i].GetVBarray(LINE_L,1);
+			poRecoverLine[i].GetVBarray(LINE_L,120);
 		}
 	}
 
@@ -442,11 +443,12 @@ void Map::CreateMap() {
 		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"),
 			dx->GetTexNumber("./dat/texture/map/ground2Nor.da"), -1, TRUE, FALSE);
 		//空メイン
-		poBackground->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), TRUE, FALSE);
+		poBackground->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
+		poBackground->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), TRUE, FALSE);//エラー候補
 		poDirectionLight->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poDirectionLight->Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);
+		poDirectionLight->Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);//エラー候補
 		//雨
-		poRain.Create(FALSE, -1, FALSE, FALSE);
+		poRain.Create(FALSE, -1, FALSE, FALSE);//エラー候補
 		//地面出口
 		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
@@ -513,7 +515,7 @@ void Map::CreateMap() {
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i]->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);
+			poWall1[i]->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);//エラー候補
 		}
 	}
 
@@ -547,9 +549,9 @@ void Map::CreateMap() {
 
 	//リカバーポイント
 	if (r_point_count >= 1) {
-		poRecover.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);
+		poRecover.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);//エラー候補
 		for (int i = 0; i < 12; i++)
-			poRecoverLine[i].Create(FALSE, -1, FALSE, FALSE);
+			poRecoverLine[i].Create(FALSE, -1, FALSE, FALSE);//エラー候補
 	}
 
 	//動画テクスチャ松明
@@ -563,12 +565,12 @@ void Map::CreateMap() {
 	if (f_wall_count >= 1) {
 		poF_Wall->TextureInit(256, 256);
 		poF_Wall->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poF_Wall->Create(FALSE, -1, TRUE, TRUE);
+		poF_Wall->Create(FALSE, -1, TRUE, TRUE);//エラー候補
 	}
 
 	//ボス出現ポイント
 	if (boss_count >= 1) {
-		poBoss.Create(FALSE, dx->GetTexNumber("boss_magic.jpg"), TRUE, TRUE);
+		poBoss.Create(FALSE, dx->GetTexNumber("boss_magic.jpg"), TRUE, TRUE);//エラー候補
 	}
 
 	//エレベーター
@@ -595,27 +597,27 @@ void Map::Mapupdate_Wood() {
 				float yy = cay1 - y;
 				float zz = (float)posz * 100.0f - z;
 				if (sqrt(xx * xx + yy * yy + zz * zz) > 600.0f)continue;
-				mWood->Instancing({ x, y, z }, { 0, 0, 0 }, { 10.0f,10.0f,10.0f });
+				mWood->Instancing({ x, y, z }, { 0, 0, 0 }, { 10.0f,10.0f,10.0f }, { 0, 0, 0, 0 });
 			}
 		}
 	}
-	mWood->InstancingUpdate({ 0, 0, 0, 0 }, 0.2f);
+	mWood->InstancingUpdate(0.2f);
 }
 
-void Map::Mapdraw_Wood() {
-	if (mWood)mWood->Draw();
+void Map::Mapdraw_Wood(int comNo) {
+	if (mWood)mWood->Draw(comNo);
 }
 
 void Map::Mapupdate_Mountain() {
-	mountain->Instancing({ -1500.0f, 2000.0f, 0 }, { 0, 0, 0 }, { 500.0f,500.0f,500.0f });
+	//mountain->Instancing({ -1500.0f, 2000.0f, 0 }, { 0, 0, 0 }, { 500.0f,500.0f,500.0f });
 	mountain->Update({ 5500.0f, 2000.0f, 0 },
 		{ 0, 0, 0, 0 },
 		{ 0, 0, 0 },
 		{ 500.0f,500.0f,500.0f }, 0);
 }
 
-void Map::Mapdraw_Mountain() {
-	if (mountain)mountain->Draw();
+void Map::Mapdraw_Mountain(int comNo) {
+	if (mountain)mountain->Draw(comNo);
 }
 
 void Map::Mapcreate_Wall1(int i) {
@@ -653,108 +655,39 @@ void Map::Mapupdate_Wall1() {
 				float z = (float)k3 * 100.0f;
 				poWall1[i % 3]->Instancing({ x, y, z },
 					{ 0, 0,src_theta },
-					{ 1,1,1 });
+					{ 1,1,1 }, { 0, 0, 0, 0 });
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i]->InstancingUpdate({ 0, 0, 0, 0 }, 0);
+	for (int i = 0; i < 3; i++)poWall1[i]->InstancingUpdate(0);
 }
 
-void Map::Mapdraw_Wall1() {
-	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->Draw();
-}
-
-static Vertex verBase[] =
-{
-	{ {-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} ,{0.0f,0.0f}},
-	{ {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} ,{1.0f,0.0f}},
-	{ {-1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f} ,{0.0f,1.0f}},
-	{ {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f},{1.0f,1.0f} },
-
-	{ {1.0f, -1.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{0.0f,0.0f} },
-	{ {-1.0f, -1.0f, 1.0f}, {0.0f, -1.0f, 0.0f} ,{1.0f,0.0f}},
-	{ {1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f} ,{0.0f,1.0f}},
-	{ {-1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f} ,{1.0f,1.0f}},
-
-	{ {-1.0f, -1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} ,{0.0f,0.0f}},
-	{ {-1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} ,{1.0f,0.0f}},
-	{ {-1.0f, -1.0f, -1.0f}, {-1.0f, 0.0f, 0.0f} ,{0.0f,1.0f}},
-	{ {-1.0f, 1.0f, -1.0f}, {-1.0f, 0.0f, 0.0f} ,{1.0f,1.0f}},
-
-	{ {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f} ,{0.0f,0.0f}},
-	{ {1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f} ,{1.0f,0.0f}},
-	{ {1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f} ,{0.0f,1.0f}},
-	{ {1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 0.0f} ,{1.0f,1.0f}},
-
-	{ {1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{0.0f,0.0f}},
-	{ {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{1.0f,0.0f}},
-	{ {1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{0.0f,1.0f}},
-	{ {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, -1.0f} ,{1.0f,1.0f}},
-
-	{ {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{0.0f,0.0f}},
-	{ {1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{1.0f,0.0f}},
-	{ {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{0.0f,1.0f}},
-	{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} ,{1.0f,1.0f}},
-};
-
-static UINT indexBase[] =
-{
-	0,1,2,
-	2,1,3,
-
-	4,5,6,
-	6,5,7,
-
-	8,9,10,
-	10,9,11,
-
-	12,13,14,
-	14,13,15,
-
-	16,17,18,
-	18,17,19,
-
-	20,21,22,
-	22,21,23
-};
-
-void setVertex(Vertex* bl, Vertex base, float x, float y, float z, float height) {
-	float baseX = 0.0f;
-	float baseY = 0.0f;
-	float baseZ = 0.0f;
-	if (base.Pos.x > 0.0f)baseX = 100.0f;
-	if (base.Pos.y > 0.0f)baseY = 100.0f;
-	if (base.Pos.z > 0.0f)baseZ = height;
-
-	bl->Pos.as(x + baseX, y + baseY, z + baseZ);
-	bl->normal.as(base.normal.x, base.normal.y, base.normal.z);
-	bl->tex.as(base.tex.x, base.tex.y);
+void Map::Mapdraw_Wall1(int comNo) {
+	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->Draw(comNo);
 }
 
 void Map::Mapcreate_Wall(int numB, PolygonData* pd, int no1, int no2, float height, float adjust, float adjust2) {
-	Vertex* bl = new Vertex[numB * 6 * 4];
-	UINT* ind = new UINT[numB * 6 * 6];
-	int k = 0;
-	int kI = 0;
+	using namespace CoordTf;
+	VECTOR3* pos = new VECTOR3[numB];
+	VECTOR3* size = new VECTOR3[numB];
+	UINT cnt = 0;
 	for (int k3 = 0; k3 < mxy.z; k3++) {
 		for (int j = 0; j < mxy.y; j++) {
 			for (int i = 0; i < mxy.x; i++) {
 
 				if (mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no1 && mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != no2)continue;
 
-				for (int s = 0; s < 24; s++) {
-					setVertex(&bl[s + k], verBase[s], (float)i * 100.0f, (float)j * 100.0f, (float)k3 * 100.0f, height);
-				}
-				for (int in = 0; in < 36; in++) {
-					ind[in + kI] = indexBase[in] + k;
-				}
-				k += 24;
-				kI += 36;
+				pos[cnt].as((float)i * 100.0f + 50.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 50.0f);
+				size[cnt++].as(50.0f, 50.0f, 50.0f);
 			}
 		}
 	}
-	pd->setVertex(bl, numB * 6 * 4, ind, numB * 6 * 6);
-	ARR_DELETE(bl);
+	Vertex* v = (Vertex*)CreateGeometry::createCube(numB, pos, size, false);
+	unsigned int* ind = CreateGeometry::createCubeIndex(numB);
+	pd->setVertex(v, numB * 6 * 4, ind, numB * 6 * 6);
+	ARR_DELETE(pos);
+	ARR_DELETE(size);
+	ARR_DELETE(v);
 	ARR_DELETE(ind);
 }
 
@@ -990,13 +923,13 @@ void Map::Mapupdate_Rain() {
 		float size = (float)(rand() % 300);
 		poRain.Instancing({ cax1 - 250.0f + x, cay1 - 250.0f + y, 0.0f },
 			{ 0.0f, 0.0f, 0.0f },
-			{ size,size,size });
+			{ size,size,size }, { 0.0f, 0.0f, 0.0f, 0.0f });
 	}
-	poRain.InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f);
+	poRain.InstancingUpdate(0.0f);
 }
 
-void Map::Mapdraw_Rain() {
-	poRain.Draw();
+void Map::Mapdraw_Rain(int comNo) {
+	poRain.Draw(comNo);
 }
 
 void Map::Mapcreate_Recover(int num) {
@@ -1076,9 +1009,9 @@ void Map::Mapupdate_Recover() {
 			int rnd = rand() % 20;
 			poRecoverLine[(int)j].Instancing({ line_x, line_y, 0.0f },
 				{ 0.0f, 0.0f, 0.0f },
-				{ 1.0f, 1.0f, (float)rnd });
+				{ 1.0f, 1.0f, (float)rnd }, { 0.0f, 0.0f, 0.0f, 0.0f });
 		}
-		poRecoverLine[(int)j].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f);
+		poRecoverLine[(int)j].InstancingUpdate(0.0f);
 	}
 	/*dx->PointLightPosSet(7, { recovPosX, recovPosY, 2.0f },
 		{ 0.2f, 0.8f, 0.2f, 1.0f },
@@ -1090,11 +1023,11 @@ void Map::Mapupdate_Recover() {
 		0);
 }
 
-void Map::Mapdraw_Recover() {
+void Map::Mapdraw_Recover(int comNo) {
 	for (float j = 0.0f; j < 12.0f; j++) {
-		poRecoverLine[(int)j].Draw();
+		poRecoverLine[(int)j].Draw(comNo);
 	}
-	poRecover.Draw();
+	poRecover.Draw(comNo);
 }
 
 void Map::Mapcreate_Ds(int num) {
@@ -1138,15 +1071,15 @@ void Map::Mapupdate_Ds() {
 		bool on = false;
 		if (dist < 1000.0)on = true;
 		dx->PointLightPosSet(poMo->firstNo + i, { 0, 0, 0 },
-			{ 1.0f, 0.4f, 0.4f, 1.0f },
-			on, 500.0f, { 0.001f,0.00001f,0.001f });
+			{ 0.8f, 0.4f, 0.4f, 1.0f },
+			on, 1000.0f, { 0.001f,0.0000001f,0.0001f });
 	}
 
 	poMo->Update(20.0f, { 0,0,0,0 });
 }
 
-void Map::Mapdraw_Ds() {
-	if (poMo)poMo->DrawBillboard();
+void Map::Mapdraw_Ds(int comNo) {
+	if (poMo)poMo->DrawBillboard(comNo);
 }
 
 void Map::Mapcreate_BossPoint(int num) {
@@ -1354,6 +1287,6 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
 void Map::MapupdateWave() {
 	wav->Instancing(0.05f, { cax1, cay1, 5.0f },
 		{ 0,0,0 },
-		{ 1.3f,1.3f,1.3f });
-	wav->InstancingUpdate({ 0, 0, 0, -0.2f }, 0.0f);
+		{ 1.3f,1.3f,1.3f }, { 0, 0, 0, -0.2f });
+	wav->InstancingUpdate(0.0f);
 }

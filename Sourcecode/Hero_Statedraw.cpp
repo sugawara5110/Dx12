@@ -282,35 +282,35 @@ Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h
 	return NOT_FIN;
 }
 
-void Hero::SetMovie(Encount enc) {
+void Hero::SetMovie(int com_no, Encount enc) {
 	if (enc == NOENCOUNT && torchWood) {
-		torchFlame->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(256, 256));
+		torchFlame->SetTextureMPixel(com_no, MovieSoundManager::Torch_GetFrame(256, 256));
 	}
 }
 
-void Hero::Draw(Encount enc, bool ending) {
+void Hero::Draw(int comNo, int battleSwitch, bool ending) {
 	if (ending) {
 		p_att->DrawOff();
 		return;
 	}
-	if (enc == NOENCOUNT) {
+	if (battleSwitch < 2) {
 		if (o_no == 0) {
-			p_att->Draw();
+			p_att->Draw(comNo);
 		}
 		else {
 			p_att->DrawOff();
 		}
 		if (torchWood) {//o_no==0ˆÈŠO‚ÍNULL‚É‚È‚Á‚Ä‚é
-			torchWood->Draw();
-			torchFlame->Draw();
+			torchWood->Draw(comNo);
+			torchFlame->Draw(comNo);
 		}
 	}
 	else {
-		p_att->Draw();
-		mag.Draw();
+		p_att->Draw(comNo);
+		mag.Draw(comNo);
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
-				effect[i][j].Draw();
+				effect[i][j].Draw(comNo);
 		if (torchWood) {
 			torchWood->DrawOff();
 			torchFlame->DrawOff();
@@ -318,32 +318,32 @@ void Hero::Draw(Encount enc, bool ending) {
 	}
 }
 
-void Hero::StreamOutput(Encount enc, bool ending) {
+void Hero::StreamOutput(int comNo, int battleSwitch, bool ending) {
 	if (ending) {
 		p_att->DrawOff();
 		return;
 	}
-	if (enc == NOENCOUNT) {
+	if (battleSwitch < 2) {
 		if (o_no == 0) {
-			p_att->StreamOutput();
+			p_att->StreamOutput(comNo);
 		}
 		else {
 			p_att->DrawOff();
 		}
 		if (torchWood) {//o_no==0ˆÈŠO‚ÍNULL‚É‚È‚Á‚Ä‚é
-			torchWood->StreamOutput();
-			torchFlame->StreamOutput();
+			torchWood->StreamOutput(comNo);
+			torchFlame->StreamOutput(comNo);
 		}
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
 				effect[i][j].DrawOff();
 	}
 	else {
-		p_att->StreamOutput();
-		mag.StreamOutput();
+		p_att->StreamOutput(comNo);
+		mag.StreamOutput(comNo);
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++) {
-				effect[i][j].StreamOutput();
+				effect[i][j].StreamOutput(comNo);
 			}
 		if (torchWood) {
 			torchWood->DrawOff();

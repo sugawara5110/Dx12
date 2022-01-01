@@ -13,7 +13,9 @@
 #include <time.h>
 #include "../../Common/Window/Win.h"
 #include "../../Common/Direct3DWrapper/Dx12Process.h"
-#include "../../Common/Direct3DWrapper//DxText.h"
+#include "../../Common/Direct3DWrapperOption/DxText.h"
+#include "../../Common/Direct3DWrapperOption/Dx_PostEffect.h"
+#include "../../CreateGeometry/CreateGeometry.h"
 #include "Map.h"
 #include "Control.h"
 #include "InstanceCreate.h"
@@ -23,7 +25,6 @@
 #include "Ending.h"
 #include "TextureBinaryLoader.h"
 #include "Position.h"
-#pragma comment(lib,"winmm.lib")
 #define REFWIDTH 800
 #define REFHEIGHT 600
 #define CURRWIDTH 1024
@@ -67,7 +68,11 @@ private:
 	int battleSwitch = 0;
 	volatile bool mpDel_f = FALSE;
 	volatile bool btDel_f = FALSE;
-	HANDLE* update_h;
+
+	PolygonData* pd = nullptr;
+	SkinMesh* sk[5] = {};
+
+	MultiThread th;
 
 	void DrawNowLoading(int com_no);
 	void CreateThreadUpdate();
@@ -79,7 +84,6 @@ private:
 public:
 	//メッセージ
 	MSG msg;
-	volatile bool UpDateThreadLoop = TRUE;
 
 	static Main* GetInstance();
 	static void DeleteInstance();
@@ -87,14 +91,14 @@ public:
 	bool Init(HINSTANCE hInstance, int nCmdShow);
 	void Loop();
 	void UpDate();
-	void SetMovie();
+	void SetMovie(int com_no);
 	void Draw();
 	void StreamOutput();
+	void AS();
+	void Raytrace();
 	void StreamOutputAfterDraw();
 	void ObjDel();
 	~Main();
 };
-
-unsigned __stdcall UpDateThread(void *);
 
 #endif

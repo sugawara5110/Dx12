@@ -9,43 +9,66 @@
 #include "../../Common/TextureLoader/TextureLoader.h"
 
 int InstanceCreate::progress = 0;
-HANDLE *InstanceCreate::resource_loading_h = NULL;
-HANDLE *InstanceCreate::hero_loading_h = NULL;
 
-HANDLE *InstanceCreate::battle_loading_h = NULL;
 Battle *InstanceCreate::battle = NULL;
 
-HANDLE *InstanceCreate::map_loading_h = NULL;
 Position::H_Pos *InstanceCreate::h_p = NULL;
 Map *InstanceCreate::map[2] = { 0 };
 int InstanceCreate::mapInd = 0;
 
 Hero *InstanceCreate::he = NULL;
 
+MultiThread_NotSync InstanceCreate::th;
+
+void ResourceLoading() {
+	InstanceCreate::ResourceLoad();
+}
+
+void InstanceLoadingHero() {
+	InstanceCreate::HeroGetBuffer();
+	InstanceCreate::HeroSetVertex();
+	InstanceCreate::HeroCreate();
+}
+
+void InstanceLoadingMap() {
+	InstanceCreate::MapGetBuffer();
+	InstanceCreate::MapSetVertex();
+	InstanceCreate::MapCreate();
+}
+
+void InstanceLoadingBattle() {
+	InstanceCreate::BattleGetBuffer();
+	InstanceCreate::BattleSetVertex();
+	InstanceCreate::BattleCreate();
+}
+
 int InstanceCreate::GetProgress() {
 	return progress;
 }
 
 void InstanceCreate::CreateThread_R() {
-	resource_loading_h = (HANDLE*)_beginthreadex(NULL, 0, ResourceLoading, NULL, 0, NULL);
+	th.setFunc(ResourceLoading);
+	th.start();
 }
 
 void InstanceCreate::CreateThread_H() {
-	hero_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingHero, NULL, 0, NULL);
+	th.setFunc(InstanceLoadingHero);
+	th.start();
 }
 
 void InstanceCreate::CreateThread_B() {
-	battle_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingBattle, NULL, 0, NULL);
+	th.setFunc(InstanceLoadingBattle);
+	th.start();
 }
 
 void InstanceCreate::CreateThread_M() {
-	map_loading_h = (HANDLE*)_beginthreadex(NULL, 0, InstanceLoadingMap, NULL, 0, NULL);
+	th.setFunc(InstanceLoadingMap);
+	th.start();
 }
 
 void InstanceCreate::DeleteThread_R() {
-	WaitForSingleObject(resource_loading_h, INFINITE);//スレッドが終了するまで待つ
-	CloseHandle(resource_loading_h);                 //ハンドルを閉じる
-	resource_loading_h = NULL;
+	th.end();
+
 	MovieSoundManager::ObjInit();
 	TextureLoader::GetTexture2(TextureBinaryLoader::getTexNum(), TextureBinaryLoader::getTexture(),
 		Dx12Process::GetInstance());
@@ -53,24 +76,20 @@ void InstanceCreate::DeleteThread_R() {
 }
 
 void InstanceCreate::DeleteThread_H() {
-	WaitForSingleObject(hero_loading_h, INFINITE);//スレッドが終了するまで待つ
-	CloseHandle(hero_loading_h);                 //ハンドルを閉じる
-	hero_loading_h = NULL;
+	th.end();
 }
 
 void InstanceCreate::DeleteThread_B() {
-	WaitForSingleObject(battle_loading_h, INFINITE);//スレッドが終了するまで待つ
-	CloseHandle(battle_loading_h);                 //ハンドルを閉じる
-	battle_loading_h = NULL;
+	th.end();
+
 	Dx12Process::GetInstance()->RunGpu();
 	Dx12Process::GetInstance()->WaitFence();
 	battle->SetCommandList(0);
 }
 
 void InstanceCreate::DeleteThread_M() {
-	WaitForSingleObject(map_loading_h, INFINITE);//スレッドが終了するまで待つ
-	CloseHandle(map_loading_h);                 //ハンドルを閉じる
-	map_loading_h = NULL;
+	th.end();
+
 	Dx12Process::GetInstance()->RunGpu();
 	Dx12Process::GetInstance()->WaitFence();
 	map[1 - mapInd]->SetCommandList(0);
@@ -102,11 +121,9 @@ void InstanceCreate::HeroCreate() {
 	Dx12Process::GetInstance()->End(1);
 }
 
-Hero *InstanceCreate::HeroCreate_f() {
-	DWORD th_end;
-	GetExitCodeThread(hero_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return NULL;
-	return he;
+Hero* InstanceCreate::HeroCreate_f() {
+	if (th.Status())return he;
+	return nullptr;
 }
 
 void InstanceCreate::ResourceLoad() {
@@ -116,14 +133,7 @@ void InstanceCreate::ResourceLoad() {
 }
 
 bool InstanceCreate::Resource_load_f() {
-	DWORD th_end;
-	GetExitCodeThread(resource_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return FALSE;
-	return TRUE;
-}
-
-HANDLE *InstanceCreate::GetHANDLE_B() {
-	return battle_loading_h;
+	return th.Status();
 }
 
 void InstanceCreate::SetInstanceParameter_B(Hero *h, Position::E_Pos *e_pos, Position::H_Pos *h_pos, Encount encount, int no, int e_nu) {
@@ -147,10 +157,7 @@ void InstanceCreate::BattleCreate() {
 }
 
 bool InstanceCreate::BattleCreate_f() {
-	DWORD th_end;
-	GetExitCodeThread(battle_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return FALSE;
-	return TRUE;
+	return th.Status();
 }
 
 void InstanceCreate::BattleDelete() {
@@ -159,10 +166,6 @@ void InstanceCreate::BattleDelete() {
 
 Battle *InstanceCreate::GetInstance_B() {
 	return battle;
-}
-
-HANDLE *InstanceCreate::GetHANDLE_M() {
-	return map_loading_h;
 }
 
 void InstanceCreate::SetInstanceParameter_M(Position::H_Pos *h_pos, Hero *h) {
@@ -191,10 +194,7 @@ void InstanceCreate::MapCreate() {
 }
 
 bool InstanceCreate::MapCreate_f() {
-	DWORD th_end;
-	GetExitCodeThread(map_loading_h, &th_end);
-	if (th_end == STILL_ACTIVE)return FALSE;
-	return TRUE;
+	return th.Status();
 }
 
 void InstanceCreate::MapObjSet() {
@@ -216,7 +216,7 @@ Map* InstanceCreate::GetInstance_M() {
 	return map[mapInd];//使用するobj
 }
 
-bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu) {
+bool InstanceCreate::CreateBattleIns(Hero* h, Encount encount, int no, int e_nu) {
 	//ロード中は常に入ってくる
 	static int th = 0;
 
@@ -229,7 +229,7 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 		break;
 
 	case 1:
-		if (GetHANDLE_B() != NULL && BattleCreate_f()) {
+		if (BattleCreate_f()) {
 			DeleteThread_B();
 			th = 0;
 			return TRUE;
@@ -239,41 +239,28 @@ bool InstanceCreate::CreateBattleIns(Hero *h, Encount encount, int no, int e_nu)
 	return FALSE;
 }
 
-bool InstanceCreate::CreateMapIns(Position::H_Pos *h_pos, Hero *h, int *map_no) {
-	if (GetHANDLE_M() == NULL) {
+bool InstanceCreate::CreateMapIns(Position::H_Pos* h_pos, Hero* h, int* map_no) {
+
+	static int th = 0;
+
+	switch (th) {
+	case 0:
 		SetInstanceParameter_M(h_pos, h);
 		CreateThread_M();
 		*map_no = Map::GetMapNo();
-	}
-	if (GetHANDLE_M() != NULL && MapCreate_f()) {
-		DeleteThread_M();
-		return FALSE;
+		th = 1;
+		break;
+
+	case 1:
+		if (MapCreate_f()) {
+			DeleteThread_M();
+			th = 0;
+			return FALSE;
+		}
+		break;
 	}
 	return TRUE;
 }
 
-unsigned __stdcall ResourceLoading(void *) {
-	InstanceCreate::ResourceLoad();
-	return 0;
-}
 
-unsigned __stdcall InstanceLoadingHero(void*) {
-	InstanceCreate::HeroGetBuffer();
-	InstanceCreate::HeroSetVertex();
-	InstanceCreate::HeroCreate();
-	return 0;
-}
 
-unsigned __stdcall InstanceLoadingBattle(void *) {
-	InstanceCreate::BattleGetBuffer();
-	InstanceCreate::BattleSetVertex();
-	InstanceCreate::BattleCreate();
-	return 0;
-}
-
-unsigned __stdcall InstanceLoadingMap(void *) {
-	InstanceCreate::MapGetBuffer();
-	InstanceCreate::MapSetVertex();
-	InstanceCreate::MapCreate();
-	return 0;
-}

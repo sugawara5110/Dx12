@@ -10,7 +10,8 @@
 #include "MovieSoundManager.h"
 #include "Position.h"
 #include "../../Common/Window/Control.h"
-#include "../../Common/Direct3DWrapper/DxText.h"
+#include "../../Common/Direct3DWrapperOption/DxText.h"
+#include "../../Common/Direct3DWrapperOption/Dx_Wave.h"
 #include "Hero.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,33 +113,32 @@ private:
 	std::unique_ptr<ParameterDXR* []> pdx;
 
 	void Debug();
-	void Mapfilter_p(int k, int j, int i, int idx1, int idx2, int* cnt);
 	void Mapfilter(Position::H_Pos* h_p);
 	void MapupdateWave();
 	void Mapupdate_Wood();
-	void Mapdraw_Wood();
+	void Mapdraw_Wood(int comNo);
 	void Mapupdate_Mountain();
-	void Mapdraw_Mountain();
+	void Mapdraw_Mountain(int comNo);
 	void Mapcreate_Wall1(int i);
 	void Mapupdate_Wall1();
-	void Mapdraw_Wall1();
+	void Mapdraw_Wall1(int comNo);
 	void Mapcreate_Wall(int numB, PolygonData* pd, int no1, int no2, float height, float adjust, float adjust2);
 	void Mapcreate_Ground(PolygonData* pd, int pcsx, int pcsy, float height, float adjust);
 	void Mapcreate_Ceiling(PolygonData* pd, int pcsx, int pcsy, float height, float adjust);
 	void Mapcreate_Background(float st, float end);
 	void Mapupdate_Rain();
-	void Mapdraw_Rain();
+	void Mapdraw_Rain(int comNo);
 	void Mapcreate_Recover(int num);
 	void Mapupdate_Recover();
-	void Mapdraw_Recover();
+	void Mapdraw_Recover(int comNo);
 	void Mapcreate_Ds(int num);
 	void Mapupdate_Ds();
-	void Mapdraw_Ds();
+	void Mapdraw_Ds(int comNo);
 	void Mapcreate_BossPoint(int num);
 	void Mapcreate_Elevator(int num);
 	void Mapcreate_EXIT(float x, float y, float z, float xsize);
 	void MapUpdateObj();
-	void MapdrawObj();
+	void MapdrawObj(int comNo);
 	bool MoveUpCond(int Ind);
 	bool MoveDownCond(int Ind);
 	bool MoveCamCond(int Ind);
@@ -180,10 +180,13 @@ public:
 	void SetVertex();
 	void SetCommandList(int com_no);
 	void CreateMap();
-	Encount MapUpdate(MapState* mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending);
-	void SetMovie();
-	void MapDraw();
-	void StreamOutput();
+
+	Encount MapUpdate(MapState* mapstate, Directionkey direction, Encount encount,
+		int battleSwitch, bool menu, bool title, bool ending);
+
+	void SetMovie(int com_no);
+	void MapDraw(int comNo);
+	void StreamOutput(int comNo);
 	void StreamOutputAfterDraw();
 	Position::E_Pos* Getposition(int p);
 	Position::H_Pos* Getposition();

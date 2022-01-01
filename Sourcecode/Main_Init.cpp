@@ -7,7 +7,6 @@
 #include "Main.h"
 
 Main *Main::main = NULL;
-HANDLE event[2] = {};
 
 Main *Main::GetInstance() {
 
@@ -39,16 +38,32 @@ void Main::DrawNowLoading(int com_no) {
 	if (i < 280.0)down = TRUE;
 }
 
+void UpDateThread() {
+	Main::GetInstance()->UpDate();
+}
+
+void streamOutput() {
+	Main::GetInstance()->StreamOutput();
+}
+
+void as() {
+	Main::GetInstance()->AS();
+}
+
+void raytrace() {
+	Main::GetInstance()->Raytrace();
+}
+
 void Main::CreateThreadUpdate() {
-	update_h = (HANDLE*)_beginthreadex(NULL, 0, UpDateThread, NULL, 0, NULL);
+	th.setFunc(UpDateThread);
+	th.setFunc(streamOutput);
+	th.setFunc(as);
+	th.setFunc(raytrace);
+	th.start();
 }
 
 void Main::DeleteThreadUpdate() {
-	UpDateThreadLoop = FALSE;
-	SetEvent(event[0]);
-	WaitForSingleObject(event[1], INFINITE);
-	CloseHandle(update_h);                 
-	update_h = NULL;
+	th.end();
 }
 
 bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
@@ -72,7 +87,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 		PolygonData2D::SetMagnification(cuw / rew, cuh / reh);
 	}
 	catch (char* E_mes) {
-		ErrorMessage(E_mes);
+		Dx_Util::ErrorMessage(E_mes);
 		DxText::DeleteInstance();
 		Dx12Process::DeleteInstance();
 		return FALSE;
@@ -141,7 +156,7 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 		}
 	}
 	catch (char* E_mes) {
-		ErrorMessage(E_mes);
+		Dx_Util::ErrorMessage(E_mes);
 		DxText::DeleteInstance();
 		Dx12Process::DeleteInstance();
 		return FALSE;
@@ -165,6 +180,40 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	blur->ComCreateBlur();
 	blur2 = new PostEffect();
 	blur2->ComCreateDepthOfField();
+	pd = new PolygonData();
+	pd->GetVBarray(SQUARE, 1);
+	char* passArr[5] = {};
+	char* pass1 = "../sphere-bot-with-hydraulics FBX 7.4 binary/sphere-bot-with-hydraulics.fbx";
+	char* pass2 = "../Black Dragon NEW/Dragon_Baked_Actions_fbx_7.4_binary.fbx";
+	char* pass3 = "../19496_open3dmodel/open3dmodel.com/Models_E0504A019/Crocodile.fbx";
+	char* pass4 = "../106934_open3dmodel.com/Low-Poly Spider/Spider.fbx";
+	char* pass5 = "../Alien/Test_Alien-Animal-Blender_2.81.fbx";
+	passArr[0] = pass4;
+	passArr[1] = pass2;
+	passArr[2] = pass3;
+	passArr[3] = pass1;
+	passArr[4] = pass5;
+	for (int i = 0; i < 5; i++) {
+		sk[i] = new SkinMesh();
+		sk[i]->SetState(false, false);
+		sk[i]->GetFbx(passArr[i]);
+		sk[i]->GetBuffer(1, 3200.0f, false);
+		if (i == 0)sk[0]->noUseMeshIndex(0);
+		if (i == 4)sk[4]->noUseMeshIndex(2);
+		sk[i]->SetVertex(true, true);
+		sk[i]->CreateFromFBX();
+		sk[i]->setInternalAnimationIndex(0);
+	}
+
+	VECTOR3 v3[] = { {1020, 3110, 40},{1020,3160, 40} };
+	VECTOR3 v3s[] = { {15,15,15},{15,15,15} };
+	Vertex* sv = (Vertex*)CreateGeometry::createSphere(10, 10, 2, v3, v3s, false);
+	unsigned int* svI = CreateGeometry::createSphereIndex(10, 10, 2);
+	pd->setVertex(sv, 11 * 11 * 2, svI, 10 * 10 * 6 * 2);
+	ARR_DELETE(sv);
+	ARR_DELETE(svI);
+	pd->setMaterialType(METALLIC);
+	pd->Create(true, dx->GetTexNumber("ceiling5.jpg"), -1/*dx->GetTexNumber("ceiling5Nor.png")*/, -1, false, false);
 
 	dx->End(0);
 	dx->RunGpu();
@@ -187,12 +236,21 @@ void Main::changeMap() {
 	hero[0].setPointLightNoMap();
 	memcpy(&pdx[0], mDXR, sizeof(ParameterDXR*) * mapN);
 	memcpy(&pdx[mapN], hDXR, sizeof(ParameterDXR*) * heN);
+	pdx[mapN + heN] = pd->getParameter();
 
-	for (int i = 0; i < mapN + heN; i++) {
+	int skCnt = 0;
+	for (int i = 0; i < 5; i++) {
+		for (int i1 = 0; i1 < sk[i]->getNumMesh(); i1++) {
+			pdx[mapN + heN + 1 + skCnt] = sk[i]->getParameter(i1);
+			skCnt++;
+		}
+	}
+
+	for (int i = 0; i < mapN + heN + 1 + skCnt; i++) {
 		pdx[i]->resetCreateAS();
 	}
 
-	dxr->initDXR(mapN + heN, pdx, 4);
+	dxr->initDXR(mapN + heN + 1 + skCnt, pdx, 4);
 }
 
 void Main::changeBattle() {
@@ -235,12 +293,9 @@ void Main::changeBattle() {
 
 void Main::Loop() {
 
-	for (int i = 0; i < 2; i++)
-		event[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
-
 	statemenu->SetCommandList(0);
 	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
-	
+
 	while (1) {//ƒAƒvƒŠŽÀs’†ƒ‹[ƒv
 		if (!DispatchMSG(&msg)) {
 			break;
@@ -249,26 +304,28 @@ void Main::Loop() {
 		T_float::GetTime(hWnd);
 
 		dx->Bigin(0);
-		SetMovie();
+		SetMovie(0);
 		dx->End(0);
 		dx->RunGpu();
 		dx->WaitFence();
 
-		Sync::sync[0] = 1 - Sync::sync[0];
-		Sync::sync[1] = 1 - Sync::sync[1];
-		Sync::sync[2] = 1 - Sync::sync[2];
-		dx->setUpSwapIndex(Sync::sync[0]);
-		dx->setDrawSwapIndex(1 - Sync::sync[0]);
-		dx->setStreamOutputSwapIndex(Sync::sync[1]);
-		dx->setRaytraceSwapIndex(1 - Sync::sync[1]);
-		dxr->setASswapIndex(Sync::sync[2]);
-		dxr->setRaytraceSwapIndex(1 - Sync::sync[2]);
-		
-		SetEvent(event[0]);
-		//Draw();
-		StreamOutput();
+		dxr->allSwapIndex();
+
+		th.wait();
+
+		dx->RunGpuCom();
+		dx->RunGpu();
+		dx->WaitFenceCom();
+		dx->WaitFence();
+
+		dx->Bigin(0);
+		dxr->copyBackBuffer(0);
+		dxr->copyDepthBuffer(0);
+		dx->End(0);
+		dx->RunGpu();
+		dx->WaitFence();
+
 		StreamOutputAfterDraw();
-		WaitForSingleObject(event[1], INFINITE);
 		if (changeBattleF) {
 			changeBattle();
 			changeBattleF = false;
@@ -277,8 +334,6 @@ void Main::Loop() {
 	}
 
 	DeleteThreadUpdate();
-	for (int i = 0; i < 2; i++)
-		CloseHandle(event[i]);
 }
 
 void Main::UpDate() {
@@ -304,9 +359,7 @@ void Main::UpDate() {
 		titleOn = InstanceCreate::CreateMapIns(statemenu->SetH_Pos(), &hero[0], &map_no);
 		if (!titleOn) {
 			mapstate = NORMAL_MAP; titleSwitch = 3; mpDel_f = TRUE;
-			SetEvent(event[1]);
-			WaitForSingleObject(event[0], INFINITE);
-			while (mpDel_f);
+			return;
 		}
 		break;
 	}
@@ -315,7 +368,7 @@ void Main::UpDate() {
 	if (Drawtitle)Drawtitle = statemenu->TitleMenu(control->Direction());
 
 	if (InstanceCreate::GetInstance_M())
-		encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, menu, titleOn, endingflg);
+		encount = InstanceCreate::GetInstance_M()->MapUpdate(&mapstate, control->Direction(TRUE), encount, battleSwitch, menu, titleOn, endingflg);
 
 	if (!endingflg && !titleOn && encount == NOENCOUNT && !menu && control->Direction() == ENTER) {
 		menu = TRUE;
@@ -327,9 +380,7 @@ void Main::UpDate() {
 	case CHANGE_MAP:
 		if (!InstanceCreate::CreateMapIns(NULL, &hero[0], &map_no)) {
 			mapstate = NORMAL_MAP; mpDel_f = TRUE;
-			SetEvent(event[1]);
-			WaitForSingleObject(event[0], INFINITE);
-			while (mpDel_f);
+			return;
 		}
 		break;
 	case RECOV_MAP:
@@ -380,8 +431,6 @@ void Main::UpDate() {
 			//Ž‹“_Ø‚è‘Ö‚¦
 			dx->Cameraset({ h_posOut.cx, h_posOut.cy, h_posOut.cz },
 				{ h_posOut.cx2, h_posOut.cy2, h_posOut.cz });
-			//Ž‹“_Ø‚è‘Ö‚¦’†obj
-			hero[0].OBJWalkUpdate(h_posIn->cx1, h_posIn->cy1, h_posIn->cz - 35.0f, 0, 0, 0, h_posIn->theta, FALSE);
 			//battleInstance¶¬, Š®—¹ŽžTRUE
 			if (!btLoad[1])btLoad[1] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
 			//Ž‹“_Ø‚è‘Ö‚¦,battleInstance¶¬I—¹
@@ -405,9 +454,7 @@ void Main::UpDate() {
 				result = IN_BATTLE;
 				battleSwitch = 0;
 				btDel_f = TRUE;
-				SetEvent(event[1]);
-				WaitForSingleObject(event[0], INFINITE);
-				while (btDel_f);
+				return;
 				break;
 			case DIE:
 				DxText::GetInstance()->UpDateText(L"‚f‚`‚l‚d‚n‚u‚d‚q", 280.0f, 300.0f, 35.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -429,74 +476,92 @@ void Main::UpDate() {
 		break;
 	}
 
+	pd->Instancing({ 0, 0, 0 },
+		{ 0, 0, 0 },
+		{ 1, 1, 1 }, { 0, 0, 0, 0 });
+	pd->InstancingUpdate(
+		1,
+		4.0f);
+
+	float m = tfloat.Add(1.0f);
+	sk[0]->Update(0, m,
+		{ 1200, 3050, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0 },
+		{ 0.3f,0.3f,0.3f });
+	sk[1]->Update(0, m,
+		{ 1150, 3150, 0 },
+		{ 0, 0, 0, 0 },
+		{ 90, 0, 0 },
+		{ 0.01f,0.01f,0.01f });
+	sk[2]->Update(0, m,
+		{ 1070, 3100, 0 },
+		{ 0, 0, 0, 0 },
+		{ 90, 0, 0 },
+		{ 0.3f,0.3f,0.3f });
+	sk[3]->Update(0, m,
+		{ 1250, 3100, 30 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0 },
+		{ 0.3f,0.3f,0.3f });
+	sk[3]->setInternalAnimationIndex(1);
+	sk[4]->Update(0, m,
+		{ 1100, 3150, 5 },
+		{ 0, 0, 0, 0 },
+		{ 90, 0, 0 },
+		{ 0.02f,0.02f,0.02f });
+	sk[4]->setInternalAnimationIndex(2);
+
 	DxText::GetInstance()->UpDate();
 }
 
-void Main::SetMovie() {
-	if(InstanceCreate::GetInstance_M())InstanceCreate::GetInstance_M()->SetMovie();
-	hero[0].SetMovie(encount);
+void Main::SetMovie(int com_no) {
+	if (InstanceCreate::GetInstance_M())InstanceCreate::GetInstance_M()->SetMovie(com_no);
+	hero[0].SetMovie(com_no, encount);
 }
 
 void Main::Draw() {
-	dx->Bigin(0);
-	dx->BiginDraw(0);
-	float blu = 0.0f;
-	bool bluRet = FALSE;
+	dx->Bigin(3);
+	dx->BiginDraw(3);
 	if (battleSwitch == 2) {
-		InstanceCreate::GetInstance_B()->FightDraw(encount);
-		bluRet = InstanceCreate::GetInstance_B()->GetBossEffectState(&blu);
+		InstanceCreate::GetInstance_B()->FightDraw(3, encount);
 	}
 	for (int i = 0; i < 4; i++) {
-		hero[i].Draw(encount, ending);
+		hero[i].Draw(3, battleSwitch, ending);
 	}
-	
-	InstanceCreate::GetInstance_M()->MapDraw();
-	int cnt = 0;
-	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
-	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
-	bluRet = FALSE;
-	blu = 0.0f;
-	for (int i = 0; i < 4; i++) {
-		hero[i].Draw2D(encount, ending);
-	}
-	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
-	statemenu->Draw();
-	DxText::GetInstance()->Draw(0);
-	dx->EndDraw(0);
-	dx->End(0);
-	dx->RunGpu();
-	dx->WaitFence();
-	dx->DrawScreen();
+
+	InstanceCreate::GetInstance_M()->MapDraw(3);
+
+	dx->EndDraw(3);
+	dx->End(3);
 }
 
 void Main::StreamOutput() {
-	dx->Bigin(0);
+	dx->Bigin(3);
 	if (battleSwitch == 2) {
-		InstanceCreate::GetInstance_B()->StreamOutput(encount);
+		InstanceCreate::GetInstance_B()->StreamOutput(3, encount);
 	}
 	for (int i = 0; i < 4; i++) {
-		hero[i].StreamOutput(encount, ending);
+		hero[i].StreamOutput(3, battleSwitch, ending);
 	}
 	if (InstanceCreate::GetInstance_M()) {
-		InstanceCreate::GetInstance_M()->StreamOutput();
+		InstanceCreate::GetInstance_M()->StreamOutput(3);
 	}
+	pd->StreamOutput(3);
+	for (int i = 0; i < 5; i++)sk[i]->StreamOutput(3);
+	dx->End(3);
+}
 
-	dx->End(0);
-	dx->RunGpu();
-	dx->WaitFence();
+void Main::AS() {
+	dx->Bigin(4);
+	dxr->update_g(4, 3);
+	dx->End(4);
+}
 
-	dx->BiginCom(0);
-	dxr->update_c(0, 3);
-	dx->EndCom(0);
-	dx->Bigin(0);
-	dxr->raytrace_g(0);
-	dxr->copyBackBuffer(0);
-	dxr->copyDepthBuffer(0);
-	dx->End(0);
-	dx->RunGpuCom();
-	dx->RunGpu();
-	dx->WaitFenceCom();
-	dx->WaitFence();
+void Main::Raytrace() {
+	dx->BiginCom(2);
+	dxr->raytrace_c(2);
+	dx->EndCom(2);
 }
 
 void Main::StreamOutputAfterDraw() {
@@ -509,6 +574,8 @@ void Main::StreamOutputAfterDraw() {
 		bluRet = InstanceCreate::GetInstance_B()->GetBossEffectState(&blu);
 		InstanceCreate::GetInstance_B()->StreamOutputAfterDraw(encount);
 	}
+	if (InstanceCreate::GetInstance_M())
+		InstanceCreate::GetInstance_M()->StreamOutputAfterDraw();
 	int cnt = 0;
 	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
 	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
@@ -521,8 +588,7 @@ void Main::StreamOutputAfterDraw() {
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw2D(encount, ending);
 	}
-	if (InstanceCreate::GetInstance_M())
-		InstanceCreate::GetInstance_M()->StreamOutputAfterDraw();
+
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
@@ -536,16 +602,12 @@ void Main::StreamOutputAfterDraw() {
 void Main::ObjDel() {
 	//battleíœ(ƒRƒ}ƒ“ƒhƒŠƒXƒgCloseŒã‚Éíœ)
 	if (btDel_f) {
-		dx->RunGpu();
-		dx->WaitFence();
 		InstanceCreate::BattleDelete();
 		changeMap();
 		btDel_f = FALSE;
 	}
 	//mapíœ
 	if (mpDel_f) {
-		dx->RunGpu();
-		dx->WaitFence();
 		InstanceCreate::InsDelete();
 		changeMap();
 		mpDel_f = FALSE;
@@ -555,6 +617,8 @@ void Main::ObjDel() {
 Main::~Main() {
 	dx->WaitFenceCom();
 	dx->WaitFence();
+	for (int i = 0; i < 5; i++)S_DELETE(sk[i]);
+	S_DELETE(pd);
 	Control::DeleteInstance();
 	S_DELETE(statemenu);
 	MovieSoundManager::ObjDelete();
@@ -571,11 +635,3 @@ Main::~Main() {
 	Dx12Process::DeleteInstance();
 }
 
-unsigned __stdcall UpDateThread(void*) {
-	while (Main::GetInstance()->UpDateThreadLoop) {
-		WaitForSingleObject(event[0], INFINITE);
-		Main::GetInstance()->UpDate();
-		SetEvent(event[1]);
-	}
-	return 0;
-}

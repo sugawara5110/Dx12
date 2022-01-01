@@ -19,23 +19,24 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common\Direct3DWrapper\DxText.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapperOption\DxText.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_ParticleData.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_PostEffect.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_Wave.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx12ProcessCore.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxCommandQueue.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_BasicPolygon.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_CommandListObj.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Common.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Device.cpp" />
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_PolygonData.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_PolygonData2D.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_ShaderHolder.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Util.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.cpp" />
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.cpp" />
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.cpp" />
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.cpp" />
     <ClCompile Include="..\Common\DirectInputWrapper\DxInput.cpp" />
     <ClCompile Include="..\Common\DirectShowWrapper\Camera.cpp" />
     <ClCompile Include="..\Common\DirectShowWrapper\DsProcess_DsProcess.cpp" />
@@ -47,10 +48,12 @@
     <ClCompile Include="..\Common\Window\Control_Direction.cpp" />
     <ClCompile Include="..\Common\Window\Win.cpp" />
     <ClCompile Include="..\CoordTf\CoordTf.cpp" />
+    <ClCompile Include="..\CreateGeometry\CreateGeometry.cpp" />
     <ClCompile Include="..\DecompressDeflate\DecompressDeflate.cpp" />
     <ClCompile Include="..\FbxLoader\FbxLoader.cpp" />
     <ClCompile Include="..\FbxLoader\FbxMeshNode.cpp" />
     <ClCompile Include="..\JPGLoader\JPGLoader.cpp" />
+    <ClCompile Include="..\MultiThread\MultiThread.cpp" />
     <ClCompile Include="..\PNGLoader\PNGLoader.cpp" />
     <ClCompile Include="Sourcecode\3DRPG_Main.cpp" />
     <ClCompile Include="Sourcecode\Battle_E_AT_select.cpp" />
@@ -80,8 +83,15 @@
     <ClCompile Include="Sourcecode\TextureBinaryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\DxText.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Dx_ParticleData.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Dx_PostEffect.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Dx_Wave.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderParticle.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderPostEffect.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderWaveCom.h" />
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderWaveDraw.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\Dx12Process.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DxText.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx12ProcessCore.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxCommandQueue.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxEnum.h" />
@@ -101,23 +111,17 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderMesh.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderMesh_D.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderNormalTangent.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderParticle.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderPostEffect.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMesh.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMeshCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMesh_D.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderWaveCom.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderWaveDraw.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicDXR.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderCommonDXR.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderParametersDXR.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\MicroSoftLibrary\d3dx12.h" />
     <ClInclude Include="..\Common\DirectInputWrapper\DxInput.h" />
     <ClInclude Include="..\Common\DirectShowWrapper\Camera.h" />
@@ -131,10 +135,12 @@
     <ClInclude Include="..\Common\Window\Control.h" />
     <ClInclude Include="..\Common\Window\Win.h" />
     <ClInclude Include="..\CoordTf\CoordTf.h" />
+    <ClInclude Include="..\CreateGeometry\CreateGeometry.h" />
     <ClInclude Include="..\DecompressDeflate\DecompressDeflate.h" />
     <ClInclude Include="..\FbxLoader\FbxLoader.h" />
     <ClInclude Include="..\FbxLoader\FbxMeshNode.h" />
     <ClInclude Include="..\JPGLoader\JPGLoader.h" />
+    <ClInclude Include="..\MultiThread\MultiThread.h" />
     <ClInclude Include="..\PNGLoader\PNGLoader.h" />
     <ClInclude Include="Sourcecode\Battle.h" />
     <ClInclude Include="Sourcecode\Decode.h" />

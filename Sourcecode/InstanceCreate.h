@@ -10,28 +10,26 @@
 #include "Battle.h"
 #include "Map.h"
 #include <Process.h>
+#include "../../MultiThread/MultiThread.h"
 
 class InstanceCreate {
 
 private:
 	//進行状況
 	static int progress;
-	//初期リソース読み込み
-	static HANDLE* resource_loading_h;
-	static HANDLE* hero_loading_h;
 
 	//Battle生成用パラメータ
-	static HANDLE* battle_loading_h;
 	static Battle* battle;
 
 	//Map生成用パラメータ
-	static HANDLE* map_loading_h;
 	static Position::H_Pos* h_p;
 	static Map* map[2];
 	static int mapInd;//セットするindex
 
 	//Heroオブジェクト保持用
 	static Hero* he;
+
+	static MultiThread_NotSync th;
 
 	InstanceCreate() {}//インスタンス生成無
 
@@ -55,7 +53,6 @@ public:
 	static void ResourceLoad();
 	static bool Resource_load_f();
 
-	static HANDLE* GetHANDLE_B();
 	static void SetInstanceParameter_B(Hero* h, Position::E_Pos* e_pos, Position::H_Pos* h_pos, Encount encount, int no, int e_nu);
 	static void BattleGetBuffer();
 	static void BattleSetVertex();
@@ -64,7 +61,6 @@ public:
 	static void BattleDelete();
 	static Battle* GetInstance_B();//マルチスレッドで生成する為NULLチェックでは無く終了フラグBattleCreate_f()で生成確認する
 
-	static HANDLE* GetHANDLE_M();
 	static void SetInstanceParameter_M(Position::H_Pos* h_pos, Hero* h);
 	static void MapGetBuffer();
 	static void MapSetVertex();
@@ -78,10 +74,5 @@ public:
 	static bool CreateBattleIns(Hero* h, Encount encount, int no, int e_nu);
 	static bool CreateMapIns(Position::H_Pos* h_pos, Hero* h, int* map_no);
 };
-
-unsigned __stdcall ResourceLoading(void *);
-unsigned __stdcall InstanceLoadingHero(void *);
-unsigned __stdcall InstanceLoadingBattle(void *);
-unsigned __stdcall InstanceLoadingMap(void *);
 
 #endif

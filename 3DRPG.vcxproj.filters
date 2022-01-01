@@ -133,9 +133,6 @@
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Device.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_PolygonData.cpp">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_PolygonData2D.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
     </ClCompile>
@@ -151,25 +148,13 @@
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG\DXR</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Direct3DWrapper\DxText.cpp">
-      <Filter>Common\Direct3DWrapper</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Util.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.cpp">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.cpp">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.cpp">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.cpp">
       <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.cpp">
@@ -177,6 +162,30 @@
     </ClCompile>
     <ClCompile Include="Sourcecode\3DRPG_Main.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_BasicPolygon.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData.cpp">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CreateGeometry\CreateGeometry.cpp">
+      <Filter>CreateGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MultiThread\MultiThread.cpp">
+      <Filter>MultiThread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_ParticleData.cpp">
+      <Filter>Common\Direct3DWrapperOption</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_PostEffect.cpp">
+      <Filter>Common\Direct3DWrapperOption</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_Wave.cpp">
+      <Filter>Common\Direct3DWrapperOption</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Direct3DWrapperOption\DxText.cpp">
+      <Filter>Common\Direct3DWrapperOption</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -229,9 +238,6 @@
       <Filter>Game\Decode</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Direct3DWrapper\Dx12Process.h">
-      <Filter>Common\Direct3DWrapper</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DxText.h">
       <Filter>Common\Direct3DWrapper</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Direct3DWrapper\MicroSoftLibrary\d3dx12.h">
@@ -309,6 +315,39 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxStruct.h">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicDXR.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderCommonDXR.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderParametersDXR.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Util.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData.h">
+      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CreateGeometry\CreateGeometry.h">
+      <Filter>CreateGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MultiThread\MultiThread.h">
+      <Filter>MultiThread</Filter>
+    </ClInclude>
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\Shader2D.h">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
     </ClInclude>
@@ -342,12 +381,6 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderNormalTangent.h">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderParticle.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderPostEffect.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMesh.h">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
     </ClInclude>
@@ -357,44 +390,29 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMeshCom.h">
       <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderWaveCom.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderParticle.h">
+      <Filter>Common\Direct3DWrapperOption\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderWaveDraw.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderPostEffect.h">
+      <Filter>Common\Direct3DWrapperOption\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderWaveCom.h">
+      <Filter>Common\Direct3DWrapperOption\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicDXR.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderWaveDraw.h">
+      <Filter>Common\Direct3DWrapperOption\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderCommonDXR.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Dx_ParticleData.h">
+      <Filter>Common\Direct3DWrapperOption</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderParametersDXR.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Dx_PostEffect.h">
+      <Filter>Common\Direct3DWrapperOption</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Util.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG\Core</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\Dx_Wave.h">
+      <Filter>Common\Direct3DWrapperOption</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_ParticleData.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PostEffect.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_SkinMesh.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_Wave.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.h">
-      <Filter>Common\Direct3DWrapper\DX_3DCG</Filter>
+    <ClInclude Include="..\Common\Direct3DWrapperOption\DxText.h">
+      <Filter>Common\Direct3DWrapperOption</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -449,9 +467,6 @@
     <Filter Include="Common\Direct3DWrapper\DX_3DCG\DXR">
       <UniqueIdentifier>{5bb25a7b-1958-4172-9798-a78dd69e66a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG">
-      <UniqueIdentifier>{25647de0-5592-42e0-afeb-0b7e58c77ccd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR">
       <UniqueIdentifier>{1a26fc44-2be9-48b4-8797-360f2f00321c}</UniqueIdentifier>
     </Filter>
@@ -499,6 +514,21 @@
     </Filter>
     <Filter Include="Game\InstanceCreate">
       <UniqueIdentifier>{fc492dc0-fbe0-4884-a0b3-79228dfc0ec3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CreateGeometry">
+      <UniqueIdentifier>{e92a4f41-1b23-4414-a636-0dfa7e7c9e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MultiThread">
+      <UniqueIdentifier>{ce5edb9e-e864-460d-acd9-52168300e0cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG">
+      <UniqueIdentifier>{25647de0-5592-42e0-afeb-0b7e58c77ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapperOption">
+      <UniqueIdentifier>{54767f1a-a407-4744-9f9f-cecb55482713}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Direct3DWrapperOption\Shader">
+      <UniqueIdentifier>{ed96afe6-e574-43b4-bfc8-fc47009df0c4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 //**                                                                                     **//
 //*****************************************************************************************//
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "TextureBinaryLoader.h"
 #include "Decode.h"
 
@@ -37,9 +38,11 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 
 	texNum = 0;
 
-	sf = new SearchFile(8);
-	char** str = new char* [1];
+	sf = new SearchFile(13);
+	char** str = new char* [3];
 	str[0] = "da";
+	str[1] = "jpg";
+	str[2] = "png";
 	sf->Search(L"./dat/texture/map/*", 0, str, 1);
 	sf->Search(L"./dat/texture/enemy/*", 1, str, 1);
 	sf->Search(L"./dat/texture/magic/*", 2, str, 1);
@@ -48,6 +51,11 @@ void TextureBinaryLoader::TextureGetBufferAll() {
 	sf->Search(L"./dat/texture/player/p2/*", 5, str, 1);
 	sf->Search(L"./dat/texture/player/p3/*", 6, str, 1);
 	sf->Search(L"./dat/texture/player/p4/*", 7, str, 1);
+	sf->Search(L"../Alien/textures/*", 8, &str[1], 2);
+	sf->Search(L"../Black Dragon NEW/textures/*", 9, &str[1], 2);
+	sf->Search(L"../19496_open3dmodel/open3dmodel.com/Models_E0504A019/*", 10, &str[1], 2);
+	sf->Search(L"../106934_open3dmodel.com/Low-Poly Spider/textures/*", 11, &str[1], 2);
+	sf->Search(L"../sphere-bot-with-hydraulics FBX 7.4 binary/Texture/*", 12, &str[1], 2);
 	delete[]str;
 	str = nullptr;
 
@@ -64,6 +72,11 @@ void TextureBinaryLoader::TextureBinaryDecodeAll() {
 	for (UINT k = 0; k < 8; k++) {
 		for (UINT j = 0; j < sf->GetFileNum(k); j++) {
 			TextureBinaryDecode(sf->GetFileName(k, j));
+		}
+	}
+	for (UINT k = 8; k < 13; k++) {
+		for (UINT j = 0; j < sf->GetFileNum(k); j++) {
+			InputTextureFileName(sf->GetFileName(k, j));
 		}
 	}
 }

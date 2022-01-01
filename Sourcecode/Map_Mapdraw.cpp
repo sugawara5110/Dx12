@@ -17,14 +17,14 @@ void Map::MapUpdateObj() {
 	if (blockcountE >= 1)poWallE->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
 }
 
-void Map::MapdrawObj() {
-	Mapdraw_Wood();
-	Mapdraw_Wall1();
-	if (poWallA)poWallA->Draw();
-	if (poWallB)poWallB->Draw();
-	if (poWallC)poWallC->Draw();
-	if (poWallD)poWallD->Draw();
-	if (poWallE)poWallE->Draw();
+void Map::MapdrawObj(int comNo) {
+	Mapdraw_Wood(comNo);
+	Mapdraw_Wall1(comNo);
+	if (poWallA)poWallA->Draw(comNo);
+	if (poWallB)poWallB->Draw(comNo);
+	if (poWallC)poWallC->Draw(comNo);
+	if (poWallD)poWallD->Draw(comNo);
+	if (poWallE)poWallE->Draw(comNo);
 }
 
 bool Map::GetMenuState(int* cnt) {
@@ -38,18 +38,18 @@ bool Map::GetMenuState(int* cnt) {
 	if (menuOn) {//menuON
 		if (count < 10) {
 			count++;
-			*cnt = count * 0.5f;
+			*cnt = (int)((float)count * 0.5f);
 			return true;
 		}
 		else {
-			*cnt = count * 0.5f;
+			*cnt = (int)((float)count * 0.5f);
 			return true;
 		}
 	}
 	else {//menuOFF
 		if (count > 1) {
 			count--;
-			*cnt = count * 0.5f;
+			*cnt = (int)((float)count * 0.5f);
 			return true;
 		}
 		else {
@@ -61,7 +61,8 @@ bool Map::GetMenuState(int* cnt) {
 	return false;
 }
 
-Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encount, bool menu, bool title, bool ending) {
+Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encount,
+	int battleSwitch, bool menu, bool title, bool ending) {
 
 	//Debug();
 
@@ -151,8 +152,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		{ 0.4f, 0.4f, 0.8f, 1.0f },
 		true, 2000.0f);*/
 
-	dx->setGlobalAmbientLight(0.01f, 0.01f, 0.01f);
-
+	dx->setGlobalAmbientLight(0.10f, 0.10f, 0.10f);
 	switch (map_no) {
 	case 0:
 		dx->SetDirectionLight(true);
@@ -173,6 +173,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
 		break;
 	case 1:
+		//dx->setGlobalAmbientLight(1.0f, 1.0f, 1.0f);
 		dx->SetDirectionLight(TRUE);
 		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f);
 		//dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, false);
@@ -268,7 +269,7 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	}
 
 	he->TorchSwitch(true/*mainlight*/);
-	if (encount == NOENCOUNT && !ending) {
+	if (!ending && battleSwitch < 2) {
 		HeroUpdate(Move_f);//Mov関数からフラグもらうようにする
 		MapHistory.Update(0, 0, 0, 0, 0, 0, 0, 1.0f, 1.0f);//地図
 	}
@@ -281,78 +282,69 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	return encount;
 }
 
-void Map::SetMovie() {
+void Map::SetMovie(int com_no) {
 	if (mo_count >= 1) {
-		poMo->SetTextureMPixel(MovieSoundManager::Torch_GetFrame(256, 256));
+		poMo->SetTextureMPixel(com_no, MovieSoundManager::Torch_GetFrame(256, 256));
 	}
 
 	if (f_wall_count >= 1) {
-		poF_Wall->SetTextureMPixel(MovieSoundManager::FireWall_GetFrame(256, 256));
+		poF_Wall->SetTextureMPixel(com_no, MovieSoundManager::FireWall_GetFrame(256, 256));
 	}
 }
 
-void Map::MapDraw() {
+void Map::MapDraw(int comNo) {
 
-	if (poGroundM)poGroundM->Draw();
-	if (poCeilingM)poCeilingM->Draw();
-	if (poEXIT)poEXIT->Draw();
-	if (poGroundF)poGroundF->Draw();
-	if (poCeilingF)poCeilingF->Draw();
-	if (poGroundE)poGroundE->Draw();
-	if (poCeilingE)poCeilingE->Draw();
-	if (poBackground)poBackground->Draw();
-	poBoss.Draw();
-	poElevator.Draw();
-	MapdrawObj();
-	Mapdraw_Recover();
-	Mapdraw_Mountain();
-	Mapdraw_Rain();
-	if (0)wav->Draw();//ブレンドするので最後の方に
+	if (poGroundM)poGroundM->Draw(comNo);
+	if (poCeilingM)poCeilingM->Draw(comNo);
+	if (poEXIT)poEXIT->Draw(comNo);
+	if (poGroundF)poGroundF->Draw(comNo);
+	if (poCeilingF)poCeilingF->Draw(comNo);
+	if (poGroundE)poGroundE->Draw(comNo);
+	if (poCeilingE)poCeilingE->Draw(comNo);
+	MapdrawObj(comNo);
+	Mapdraw_Mountain(comNo);
+	if (0)wav->Draw(comNo);//ブレンドするので最後の方に
 
 	//地図
 	//MapHistory.SetTextureMPixel(mapdata1);
 	//MapHistory.Draw();
 
 	if (mo_count >= 1) {
-		Mapdraw_Ds();
-	}
-
-	if (f_wall_count >= 1) {
-		if (poF_Wall)poF_Wall->Draw();
+		Mapdraw_Ds(comNo);
 	}
 }
 
-void Map::StreamOutput() {
-	if (poGroundM)poGroundM->StreamOutput();
-	if (poCeilingM)poCeilingM->StreamOutput();
-	if (poGroundF)poGroundF->StreamOutput();
-	if (poCeilingF)poCeilingF->StreamOutput();
-	if (poGroundE)poGroundE->StreamOutput();
-	if (poCeilingE)poCeilingE->StreamOutput();
-	if (mWood)mWood->StreamOutput();
-	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->StreamOutput();
-	if (poWallA)poWallA->StreamOutput();
-	if (poWallB)poWallB->StreamOutput();
-	if (poWallC)poWallC->StreamOutput();
-	if (poWallD)poWallD->StreamOutput();
-	if (poWallE)poWallE->StreamOutput();
-	if (mountain)mountain->StreamOutput();
-	if (poEXIT)poEXIT->StreamOutput();
-	if (wav)wav->StreamOutput();
-	if (poDirectionLight)poDirectionLight->StreamOutput();
+void Map::StreamOutput(int comNo) {
+	if (poGroundM)poGroundM->StreamOutput(comNo);
+	if (poCeilingM)poCeilingM->StreamOutput(comNo);
+	if (poGroundF)poGroundF->StreamOutput(comNo);
+	if (poCeilingF)poCeilingF->StreamOutput(comNo);
+	if (poGroundE)poGroundE->StreamOutput(comNo);
+	if (poCeilingE)poCeilingE->StreamOutput(comNo);
+	if (mWood)mWood->StreamOutput(comNo);
+	for (int i = 0; i < 3; i++)if (poWall1[i])poWall1[i]->StreamOutput(comNo);
+	if (poWallA)poWallA->StreamOutput(comNo);
+	if (poWallB)poWallB->StreamOutput(comNo);
+	if (poWallC)poWallC->StreamOutput(comNo);
+	if (poWallD)poWallD->StreamOutput(comNo);
+	if (poWallE)poWallE->StreamOutput(comNo);
+	if (mountain)mountain->StreamOutput(comNo);
+	if (poEXIT)poEXIT->StreamOutput(comNo);
+	if (wav)wav->StreamOutput(comNo);
+	if (poDirectionLight)poDirectionLight->StreamOutput(comNo);
 
 	//地図
 	//MapHistory.SetTextureMPixel(mapdata1);
 	//MapHistory.Draw();
 
 	if (mo_count >= 1) {
-		if (poMo)poMo->StreamOutputBillboard();
+		if (poMo)poMo->StreamOutputBillboard(comNo);
 	}
 }
 
 void Map::StreamOutputAfterDraw() {
-	Mapdraw_Recover();
-	Mapdraw_Rain();
+	Mapdraw_Recover(0);
+	Mapdraw_Rain(0);
 	if (poBackground)poBackground->Draw();
 	poBoss.Draw();
 	poElevator.Draw();

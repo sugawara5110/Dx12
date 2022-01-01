@@ -126,7 +126,7 @@ CommandSelect Battle::Menu_AT(int i, Directionkey direction) {
 
 	float r, b;
 	Cursor_e(h_draw[i].A_select, &r, &b);
-	E_select.InstancingUpdate({ r, b, 0.0f, 0.0f }, 0.0f);
+	E_select.InstancingUpdate(0.0f);
 
 	switch (direction) {
 	case LEFT:
@@ -175,7 +175,7 @@ CommandSelect Battle::Menu_MAG_AT(int i, Directionkey direction) {
 			Cursor_e(i1, &r, &b);//‘S‘Ì‘I‘ð(h_draw[i].A_select == 4)
 		}
 	}
-	E_select.InstancingUpdate({ r, b, 0.0f, 0.0f }, 0.0f);
+	E_select.InstancingUpdate(0.0f);
 
 	switch (direction) {
 	case LEFT:

@@ -100,7 +100,7 @@ Hero::Hero(int no) {
 	sprintf_s(p_att_pass3, sizeof(char) * 51, "./dat/mesh/player%datt/player%d_FBX_magic_deform.fbx", o_no + 1, o_no + 1);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 0);
 	p_att->GetFbx(p_att_pass);
-	p_att->GetBuffer(frameMaxAtt);
+	p_att->GetBuffer(1, frameMaxAtt);
 	p_att->ObjOffset(0.0f, 0.0f, 10.0f, ofsetthetaZ, 0.0f, 0.0f, 1);
 	p_att->GetFbxSub(p_att_pass2, 1);
 	p_att->GetBuffer_Sub(1, frameMaxAtt0);
@@ -119,7 +119,7 @@ Hero::Hero(int no) {
 		torchWood->SetState(false, TRUE);
 		torchWood->Vertex_hold();
 		torchWood->GetFbx("./dat/mesh/player_walk/player1_FBX_torch.fbx");
-		torchWood->GetBuffer(frameMaxAtt);//0番にはアニメーション入っていない
+		torchWood->GetBuffer(1, frameMaxAtt);//0番にはアニメーション入っていない
 		torchWood->ObjCentering(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 3);
 		torchWood->GetFbxSub("./dat/mesh/player_walk/player1_FBX_walk_deform.fbx", 3);
 		torchWood->GetBuffer_Sub(3, frameMaxWalk);
@@ -379,11 +379,11 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 				if (battle->GetE_DM(i) == FALSE)continue;
 				effect[effect_no][i].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ e_pos[i].theta, 0, 0 },
-					{ 1,1,1 });
+					{ 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
 				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
-				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}
 		}
@@ -411,11 +411,11 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 				if (battle->GetH_RCV(i) == FALSE)continue;
 				effect[effect_no][i].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ h_pos->theta,0,0 },
-					{ 1,1,1 });
+					{ 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
 				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
-				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}
 		}

@@ -156,7 +156,7 @@ bool Enemy::GetBossEffectState(float *blur) {
 	return eff;
 }
 
-void Enemy::Draw(Encount enc) {
+void Enemy::Draw(int comNo, Encount enc) {
 	if (enc == NOENCOUNT) {
 		//SideEnemy
 		if (en) {
@@ -177,23 +177,20 @@ void Enemy::Draw(Encount enc) {
 	else {
 		//SideEnemy
 		if (en) {
-			en->Draw();
-			mag->Draw();
+			en->Draw(comNo);
 		}
 		//Boss2
-		if (en_boss_att0)en_boss_att0->Draw();
+		if (en_boss_att0)en_boss_att0->Draw(comNo);
 		//Boss 0,1,3,4
-		if (en_boss_att)en_boss_att->Draw();
-		//BossMag
-		if (mag_boss)mag_boss->Draw();
+		if (en_boss_att)en_boss_att->Draw(comNo);
 		//エフェクト
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
-				effect[i][j].Draw();
+				effect[i][j].Draw(comNo);
 	}
 }
 
-void Enemy::StreamOutput(Encount enc) {
+void Enemy::StreamOutput(int comNo, Encount enc) {
 	if (enc == NOENCOUNT) {
 		//SideEnemy
 		if (en)en->DrawOff();
@@ -204,15 +201,15 @@ void Enemy::StreamOutput(Encount enc) {
 	}
 	else {
 		//SideEnemy
-		if (en)en->StreamOutput();
+		if (en)en->StreamOutput(comNo);
 		//Boss2
-		if (en_boss_att0)en_boss_att0->StreamOutput();
+		if (en_boss_att0)en_boss_att0->StreamOutput(comNo);
 		//Boss 0,1,3,4
-		if (en_boss_att)en_boss_att->StreamOutput();
+		if (en_boss_att)en_boss_att->StreamOutput(comNo);
 		//エフェクト
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++) {
-				effect[i][j].StreamOutput();
+				effect[i][j].StreamOutput(comNo);
 			}
 	}
 }

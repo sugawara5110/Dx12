@@ -9,7 +9,7 @@
 
 #include "MovieSoundManager.h"
 #include "Position.h"
-#include "../../Common/Direct3DWrapper/DxText.h"
+#include "../../Common/Direct3DWrapperOption/DxText.h"
 #include "../../Common/Window/Control.h"
 #include "Enum.h"
 
@@ -269,8 +269,8 @@ public:
 	void CreateBattle();
 	bool CreateB_Fin();
 	Result FightUpdate(Hero* he, Directionkey direction, Result result);
-	void FightDraw(Encount enc);
-	void StreamOutput(Encount enc);
+	void FightDraw(int comNo, Encount enc);
+	void StreamOutput(int comNo, Encount enc);
 	void StreamOutputAfterDraw(Encount enc);
 	void Draw2D(Encount enc);
 	Position::Bt_H_Pos* GetBtPos(Position::H_Pos* h_p);

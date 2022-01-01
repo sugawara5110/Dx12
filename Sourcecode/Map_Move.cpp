@@ -406,7 +406,7 @@ Encount Map::Move(MapState *mapstate, Directionkey direction) {
 	int rnd = 0;
 	if (direction == UP)rnd = rand() % 1000;
 	if (direction == DOWN)rnd = rand() % 30;
-	if (rnd == 3) {
+	if (rnd == -3) {
 		if (mxy.m[POS_CE] != 50 && mxy.m[POS_CE] != 51 && mxy.m[POS_CE] != 65 && mxy.m[POS_CE] != 66) {
 			return SIDE;
 		}

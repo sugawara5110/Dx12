@@ -8,6 +8,7 @@
 #define Class_Position_Header
 
 #include "../../Common/Direct3DWrapper/Dx12Process.h"
+#include "../../Common/Direct3DWrapperOption/Dx_ParticleData.h"
 #include "Enum.h"
 
 #define POSY_U (h_posIn->pz * mxy->y * mxy->x + (h_posIn->py + 1) * mxy->x + h_posIn->px)
@@ -23,10 +24,6 @@ struct MapHistoryData {
 	UINT maphis2[1 * 40 * 30] = { 0 };
 	UINT maphis3[1 * 35 * 30] = { 0 };
 	UINT maphis4[3 * 30 * 30] = { 0 };
-};
-class Sync {
-public:
-	static int sync[3];
 };
 
 class EmissiveCount {

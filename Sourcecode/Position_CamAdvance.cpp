@@ -9,7 +9,6 @@
 #include <math.h>
 
 int EmissiveCount::count = 0;
-int Sync::sync[3] = {};
 
 void Position::P_Copy(H_Pos *h_posIn, H_Pos *h_posOut, float view_rev){
 	float view_x = 0.0f;

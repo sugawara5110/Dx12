@@ -7,27 +7,6 @@
 #include <string.h>
 #include "Map.h"
 
-void Map::Mapfilter_p(int k, int j, int i, int idx1, int idx2, int *cnt){
-	//手前方向検査
-	if (k < mxy.z - 1 && mxy.m[(k + 1) * mxy.y * mxy.x + j * mxy.x + i] != idx1 &&
-		mxy.m[(k + 1) * mxy.y * mxy.x + j * mxy.x + i] != idx2)(*cnt)++;
-	//奥方向検査
-	if (k > 0 && mxy.m[(k - 1) * mxy.y * mxy.x + j * mxy.x + i] != idx1 &&
-		mxy.m[(k - 1) * mxy.y * mxy.x + j * mxy.x + i] != idx2)(*cnt)++;
-	//上方向検査
-	if (j > 0 && mxy.m[k * mxy.y * mxy.x + (j - 1) * mxy.x + i] != idx1 &&
-		mxy.m[k * mxy.y * mxy.x + (j - 1) * mxy.x + i] != idx2)(*cnt)++;
-	//下方向検査
-	if (j < mxy.y - 1 && mxy.m[k * mxy.y * mxy.x + (j + 1) * mxy.x + i] != idx1 &&
-		mxy.m[k * mxy.y * mxy.x + (j + 1) * mxy.x + i] != idx2)(*cnt)++;
-	//左方向検査
-	if (i > 0 && mxy.m[k * mxy.y * mxy.x + j * mxy.x + (i - 1)] != idx1 &&
-		mxy.m[k * mxy.y * mxy.x + j * mxy.x + (i - 1)] != idx2)(*cnt)++;
-	//右方向検査
-	if (i < mxy.x - 1 && mxy.m[k * mxy.y * mxy.x + j * mxy.x + (i + 1)] != idx1 &&
-		mxy.m[k * mxy.y * mxy.x + j * mxy.x + (i + 1)] != idx2)(*cnt)++;
-}
-
 void Map::Mapfilter(Position::H_Pos *h_p){
 
 	char *mapfilter;
@@ -117,9 +96,9 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 			"000000001000000000000000100000",
 			"000000001110011111111111100000",
 			"000000000100021000000000000000",
-			"000000000400014000000000000000",
+			"000000000400040000000000000000",
 			"000000000100010000000000000000",
-			"000000000100011000000000000000",
+			"000000000100010000000000000000",
 			"000000000011110000000000000000"
 		};
 
@@ -766,24 +745,18 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 		for (int j = 0; j < mxy.y; j++){
 			for (int i = 0; i < mxy.x; i++){
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 49 || mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 52){
-					//各方向にブロックが無いか検査, 有る場合はその面は描画しないのでバッファ確保しない
-					//Mapfilter_p(k, j, i, 49, 52, &blockcountA);
 					blockcountA++;
 				}
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 74){
-					//Mapfilter_p(k, j, i, 74, 74, &blockcountB);
 					blockcountB++;
 				}
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 75 || mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 79){
-					//Mapfilter_p(k, j, i, 75, 79, &blockcountC);
 					blockcountC++;
 				}
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 76){
-					//Mapfilter_p(k, j, i, 76, 76, &blockcountD);
 					blockcountD++;
 				}
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 77 || mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 78){
-					//Mapfilter_p(k, j, i, 77, 78, &blockcountE);
 					blockcountE++;
 				}
 
@@ -802,10 +775,10 @@ void Map::Mapfilter(Position::H_Pos *h_p){
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 65 ||
 					mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 66)Elevator_count++;
 				if (mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] == 73){
-					if (map_no == 1 && boss_killed[3] == 1){
+					if (map_no == 1 && boss_killed[3] == 1) {
 						mxy.m[k * mxy.y * mxy.x + j * mxy.x + i] = 48;
 					}
-					else Mapfilter_p(k, j, i, 73, 73, &f_wall_count);
+					else f_wall_count++;
 				}
 			}
 		}

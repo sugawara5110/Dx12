@@ -310,13 +310,12 @@ Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 	return IN_BATTLE;
 }
 
-void Battle::FightDraw(Encount enc) {
-	E_select.Draw();
-	for (int i = 0; i < e_num; i++)enemy[i].Draw(enc);
+void Battle::FightDraw(int comNo, Encount enc) {
+	for (int i = 0; i < e_num; i++)enemy[i].Draw(comNo, enc);
 }
 
-void Battle::StreamOutput(Encount enc) {
-	for (int i = 0; i < e_num; i++)enemy[i].StreamOutput(enc);
+void Battle::StreamOutput(int comNo, Encount enc) {
+	for (int i = 0; i < e_num; i++)enemy[i].StreamOutput(comNo, enc);
 }
 
 void Battle::StreamOutputAfterDraw(Encount enc) {

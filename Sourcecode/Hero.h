@@ -64,9 +64,9 @@ public:
 	void OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta);
 	void OBJWalkUpdate(float x, float y, float z, float r, float g, float b, float theta, bool walkOn);//walkOnÇÕMapÉNÉâÉXÇ©ÇÁëÄçÏ
 	Act_fin_flg HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos, Position::E_Pos* e_pos, float me, bool command_run, Action action, MagicSelect H_Magrun);
-	void SetMovie(Encount enc);
-	void Draw(Encount enc, bool ending);
-	void StreamOutput(Encount enc, bool ending);
+	void SetMovie(int com_no, Encount enc);
+	void Draw(int comNo, int battleSwitch, bool ending);
+	void StreamOutput(int comNo, int battleSwitch, bool ending);
 	Action Normal_act_get();
 	void Act_f_init();
 	void Draw2D(Encount enc, bool ending);

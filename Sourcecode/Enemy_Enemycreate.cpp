@@ -199,11 +199,11 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetE_RCV(i) == FALSE)continue;
 				effect[effect_no][i].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
-					{ 0,0, e_pos[i].theta }, { 1,1,1 });
+					{ 0,0, e_pos[i].theta }, { 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
 				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
-				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}
 
@@ -232,11 +232,11 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 			for (int i = 0; i < 4; i++) {
 				if (battle->GetH_DM(i) == FALSE)continue;
 				effect[effect_no][i].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
-					{ 0, 0,h_pos->theta }, { 1,1,1 });
+					{ 0, 0,h_pos->theta }, { 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
 				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ r, g, b, 1.0f },
 					true, 500.0f);
-				effect[effect_no][i].InstancingUpdate({ 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
+				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}
 		}
