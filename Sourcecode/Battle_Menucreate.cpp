@@ -24,7 +24,6 @@ void Battle::SetParameter(Hero *he, Position::E_Pos *e_po, Position::H_Pos *h_po
 
 void Battle::Init() {
 
-	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	comNo = 0;
 	e_num = e_nu_para;//ìGèoåªêî
@@ -36,7 +35,7 @@ void Battle::Init() {
 	h_select.GetVBarray2D(1);
 	Escape_f = 0;
 	Escape_s = FALSE;
-	E_select.GetVBarray(SQUARE,1);
+	E_select.GetVBarray(SQUARE, 1);
 	CreateFin = FALSE;
 	battlefirst = FALSE;
 	CamActOn = FALSE;
@@ -153,9 +152,6 @@ void Battle::SetVertex() {
 
 void Battle::SetCommandList(int com_no) {
 	comNo = com_no;
-	command.SetCommandList(comNo);
-	h_select.SetCommandList(comNo);
-	E_select.SetCommandList(comNo);
 	for (int i = 0; i < e_num; i++) {
 		enemy[i].SetCommandList(comNo);
 	}
@@ -163,8 +159,8 @@ void Battle::SetCommandList(int com_no) {
 
 void Battle::CreateBattle() {
 	Menucreate();
-	h_select.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
-	E_select.Create(FALSE, -1, FALSE, FALSE);
+	h_select.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	E_select.Create(comNo, FALSE, -1, FALSE, FALSE);
 	for (int i = 0; i < e_num; i++) {
 		enemy[i].CreateEnemy();
 	}
@@ -176,7 +172,7 @@ bool Battle::CreateB_Fin() {
 }
 
 void Battle::Menucreate() {
-	command.CreateBox(5.0f, 0.0f, 0.9f, 135.0f, 200.0f, 0.6f, 0.6f, 0.6f, 0.7f, TRUE, TRUE);
+	command.CreateBox(comNo, 5.0f, 0.0f, 0.9f, 135.0f, 200.0f, 0.6f, 0.6f, 0.6f, 0.7f, TRUE, TRUE);
 }
 
 void Battle::Cursor_h(int no) {
@@ -275,7 +271,8 @@ void Battle::SelectPermissionMove(Hero *hero) {
 }
 
 Battle::~Battle() {
-	dx->WaitFence();
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	cMa->WaitFence();
 	MovieSoundManager::ObjDelete_battle();
 	ARR_DELETE(enemy);
 	ARR_DELETE(e_draw);

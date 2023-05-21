@@ -50,9 +50,9 @@ void Hero::CreateTorchFlame() {
 
 void Hero::TorchSwitch(bool f) {
 	torchOn = f;
-	if (!torchOn)dx->PointLightPosSet(torchFlame->emissiveNo, { 0, 0, 0 },
-		{ 1.0f, 0.4f, 0.4f, 1.0f },
-		false, 80.0f);
+	if (!torchOn) {
+		torchFlame->setPointLightAll(false, 80.0f);
+	}
 }
 
 Hero::Hero(int no) {
@@ -71,23 +71,23 @@ Hero::Hero(int no) {
 
 	switch (o_no) {
 	case 0:
-		frameMaxWalk = 800.0f;
-		frameMaxWait = 6500.0f;
-		frameMaxAtt0 = 500.0f;
-		frameMaxAtt = 2900.0f;
+		frameMaxWalk = 80.0f;
+		frameMaxWait = 650.0f;
+		frameMaxAtt0 = 50.0f;
+		frameMaxAtt = 290.0f;
 		break;
 	case 1:
-		frameMaxAtt0 = 1300.0f;
-		frameMaxAtt = 2500.0f;
+		frameMaxAtt0 = 130.0f;
+		frameMaxAtt = 250.0f;
 		break;
 	case 2:
-		frameMaxAtt0 = 1000.0f;
-		frameMaxAtt = 1500.0f;
+		frameMaxAtt0 = 100.0f;
+		frameMaxAtt = 150.0f;
 		break;
 	case 3:
 		ofsetthetaZ = 90.0f;
-		frameMaxAtt0 = 1000.0f;
-		frameMaxAtt = 2000.0f;
+		frameMaxAtt0 = 100.0f;
+		frameMaxAtt = 200.0f;
 		break;
 	}
 	p_att = new SkinMesh();
@@ -126,7 +126,7 @@ Hero::Hero(int no) {
 		torchWood->ObjOffset(0.0f, 0.0f, 8.0f, 90.0f, 0.0f, 0.0f, 4);
 		torchWood->GetFbxSub("./dat/mesh/player_walk/player1_FBX_wait_deform.fbx", 4);
 		torchWood->GetBuffer_Sub(4, frameMaxWait);
-		torchFlame = new EmissiveObj_Po();
+		torchFlame = new PolygonData();
 		torchFlame->GetVBarray(SQUARE, 1);
 	}
 
@@ -192,40 +192,34 @@ void Hero::SetVertex() {
 
 void Hero::SetCommandList(int com_no) {
 	comNo = com_no;
-	p_att->SetCommandList(comNo);
-	if (o_no == 0) {
-		torchWood->SetCommandList(comNo);
-		torchFlame->SetCommandList(comNo);
-	}
-	state.SetCommandList(comNo);
-	meter.SetCommandList(comNo);
-	mag.SetCommandList(comNo);
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			effect[i][j].SetCommandList(comNo);
 }
 
 void Hero::CreateHero() {
-	p_att->CreateFromFBX();
+	p_att->CreateFromFBX(comNo);
 	if (o_no == 0) {
-		torchWood->CreateFromFBX();
+		torchWood->CreateFromFBX(comNo);
 		torchFlame->TextureInit(256, 256);
 		torchFlame->setMaterialType(EMISSIVE);
-		torchFlame->Create(FALSE, -1, TRUE, true);
+		torchFlame->Create(comNo, FALSE, -1, TRUE, true);
 	}
-	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
-	meter.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
-	mag.Create(FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
+	Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
+	state.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	meter.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	mag.Create(comNo, FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
 	for (int i = 0; i < 4; i++) {
 		effect[0][i].setMaterialType(EMISSIVE);
 		effect[1][i].setMaterialType(EMISSIVE);
 		effect[2][i].setMaterialType(EMISSIVE);
 		effect[3][i].setMaterialType(EMISSIVE);
 
-		effect[0][i].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
-		effect[1][i].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
-		effect[2][i].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
-		effect[3][i].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+		effect[0][i].Create(comNo, FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
+		effect[0][i].getParameter()->updateF = true;
+		effect[1][i].Create(comNo, FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
+		effect[1][i].getParameter()->updateF = true;
+		effect[2][i].Create(comNo, FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
+		effect[2][i].getParameter()->updateF = true;
+		effect[3][i].Create(comNo, FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+		effect[3][i].getParameter()->updateF = true;
 	}
 }
 
@@ -324,12 +318,9 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 		if ((tx += px) + px > 1.0f) {
 			for (int k = 0; k < 4; k++) {
 				for (int j = 0; j < 4; j++) {
-					int emissiveNo = effect[k][j].emissiveNo;
-					dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
-						{ 0, 0, 0, 0 },
-						false, 0);
-					effect[k][j].DrawOff();
-					effectOn[k][j] = false;
+					effect[k][j].setPointLightAll(false, 0);
+					//effect[k][j].DrawOff();
+					//effectOn[k][j] = false;
 				}
 			}
 			tx = 0; return FALSE;
@@ -338,6 +329,8 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 
 	u_cnt = tx / px;
 	v_cnt = ty / py;
+	u_cnt = 0;
+	v_cnt = 0;
 
 	float ex = 0.0f;
 	float ey = 0.0f;
@@ -369,9 +362,7 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 				{ 0,0,e_pos[*select_obj].theta },
 				{ 1,1,1 },
 				0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { e_pos[*select_obj].x + ex, e_pos[*select_obj].y + ey, e_pos[*select_obj].z },
-				{ r, g, b, 1.0f },
-				true, 500.0f);
+			effect[effect_no][0].setPointLightAll(true, 500.0f);
 			effectOn[effect_no][0] = true;
 		}
 		else {
@@ -380,9 +371,7 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 				effect[effect_no][i].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ e_pos[i].theta, 0, 0 },
 					{ 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
-				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
-					{ r, g, b, 1.0f },
-					true, 500.0f);
+				effect[effect_no][i].setPointLightAll(true, 500.0f);
 				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}
@@ -401,9 +390,7 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 				{ 0,0,h_pos->theta },
 				{ 1,1,1 },
 				0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { b_pos[*select_obj].BtPos_x1, b_pos[*select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
-				{ r, g, b, 1.0f },
-				true, 500.0f);
+			effect[effect_no][0].setPointLightAll(true, 500.0f);
 			effectOn[effect_no][0] = true;
 		}
 		else {
@@ -412,9 +399,7 @@ bool Hero::EffectUpdate(Battle* battle, int* select_obj, Position::H_Pos* h_pos,
 				effect[effect_no][i].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ h_pos->theta,0,0 },
 					{ 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
-				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
-					{ r, g, b, 1.0f },
-					true, 500.0f);
+				effect[effect_no][i].setPointLightAll(true, 500.0f);
 				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}

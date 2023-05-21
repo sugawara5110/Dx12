@@ -151,7 +151,7 @@ void Map::GetCamDelayPos(Directionkey dir, float inX, float inY, float *outX, fl
 	switch (dir) {
 	case UP:
 	case DOWN:
-		if (abs(inX - tmp_outx) > 20.0f || abs(inY - tmp_outy) > 20.0f) {
+		if (abs(inX - tmp_outx) > 30.0f || abs(inY - tmp_outy) > 30.0f) {
 			if (add > 0.4f)add -= 0.01f;
 			if (add < 0.4f)add += 0.01f;
 		}
@@ -406,7 +406,7 @@ Encount Map::Move(MapState *mapstate, Directionkey direction) {
 	int rnd = 0;
 	if (direction == UP)rnd = rand() % 1000;
 	if (direction == DOWN)rnd = rand() % 30;
-	if (rnd == -3) {
+	if (rnd == 3) {
 		if (mxy.m[POS_CE] != 50 && mxy.m[POS_CE] != 51 && mxy.m[POS_CE] != 65 && mxy.m[POS_CE] != 66) {
 			return SIDE;
 		}

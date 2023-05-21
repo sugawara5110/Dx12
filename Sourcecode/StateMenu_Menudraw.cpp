@@ -11,10 +11,6 @@
 
 void StateMenu::SetCommandList(int com_no) {
 	comNo = com_no;
-	state.SetCommandList(comNo);
-	s_state.SetCommandList(comNo);
-	r_state.SetCommandList(comNo);
-	r_state1.SetCommandList(comNo);
 }
 
 bool StateMenu::TitleMenu(Directionkey direction) {
@@ -364,10 +360,10 @@ bool StateMenu::MenuUpdate(Position::H_Pos* h_p, int map_no, int* boss_killed, M
 }
 
 void StateMenu::Draw() {
-	state.Draw();
-	s_state.Draw();
-	r_state.Draw();
-	r_state1.Draw();
+	state.Draw(comNo);
+	s_state.Draw(comNo);
+	r_state.Draw(comNo);
+	r_state1.Draw(comNo);
 }
 
 bool StateMenu::Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction) {

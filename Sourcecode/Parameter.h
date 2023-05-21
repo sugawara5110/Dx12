@@ -10,13 +10,14 @@
 #include "../../Common/Direct3DWrapperOption/DxText.h"
 #include "MovieSoundManager.h"
 #include "Enum.h"
+#include "../../T_float/T_float.h"
 #define MAX_HP (p_data.Vitality * p_data.LV * 2 + 30)
 #define MAX_MP (p_data.Magic * p_data.LV + 10)
 
-class Parameter{
+class Parameter {
 
 public:
-	typedef struct{
+	typedef struct {
 		//基本パラメーター
 		int Attack;
 		int Magic;//× LV + 10がMaxMP
@@ -35,13 +36,12 @@ public:
 	}P_Data;
 
 protected:
-	Dx12Process *dx;
 	P_Data p_data;
-	DxText *text;
+	DxText* text;
 	T_float tfloat;
 
 	Parameter();
-	
+
 public:
 	int GetAttack();
 	int GetMagic(MagicSelect mag, int p);

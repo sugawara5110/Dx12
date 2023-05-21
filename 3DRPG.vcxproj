@@ -23,16 +23,21 @@
     <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_ParticleData.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_PostEffect.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapperOption\Dx_Wave.cpp" />
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx12ProcessCore.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxCommandQueue.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_BasicPolygon.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_CommandListObj.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_CommandManager.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Common.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Device.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Light.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_PolygonData2D.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Resource.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_ShaderHolder.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_SwapChain.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_TextureHolder.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Util.cpp" />
-    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ParameterDXR.cpp" />
+    <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DxrRenderer.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.cpp" />
     <ClCompile Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData.cpp" />
@@ -55,6 +60,7 @@
     <ClCompile Include="..\JPGLoader\JPGLoader.cpp" />
     <ClCompile Include="..\MultiThread\MultiThread.cpp" />
     <ClCompile Include="..\PNGLoader\PNGLoader.cpp" />
+    <ClCompile Include="..\T_float\T_float.cpp" />
     <ClCompile Include="Sourcecode\3DRPG_Main.cpp" />
     <ClCompile Include="Sourcecode\Battle_E_AT_select.cpp" />
     <ClCompile Include="Sourcecode\Battle_Fight.cpp" />
@@ -92,14 +98,22 @@
     <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderWaveCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapperOption\Shader\ShaderWaveDraw.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\Dx12Process.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx12ProcessCore.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxCommandQueue.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxEnum.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\DxStruct.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_BasicPolygon.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_CommandListObj.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_CommandManager.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Common.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Device.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Light.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_PolygonData2D.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Resource.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_ShaderHolder.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_SwapChain.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_TextureHolder.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\Dx_Util.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ParameterDXR.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\Shader2D.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\Shader3D.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderCalculateLighting.h" />
@@ -114,10 +128,17 @@
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMesh.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMeshCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Core\ShaderCG\ShaderSkinMesh_D.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DXR_Basic.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicDXR.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderCommonDXR.h" />
-    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderParametersDXR.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\DxrRenderer.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicAnyHit.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicHit.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderBasicMiss.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderCommon.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderEmissiveHit.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderEmissiveMiss.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderGlobalParameters.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderLocalParameters.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderRayGen.h" />
+    <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DXR\ShaderDXR\ShaderTraceRay.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\DxSkinnedCom.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_MeshData.h" />
     <ClInclude Include="..\Common\Direct3DWrapper\DX_3DCG\Dx_PolygonData.h" />
@@ -142,6 +163,7 @@
     <ClInclude Include="..\JPGLoader\JPGLoader.h" />
     <ClInclude Include="..\MultiThread\MultiThread.h" />
     <ClInclude Include="..\PNGLoader\PNGLoader.h" />
+    <ClInclude Include="..\T_float\T_float.h" />
     <ClInclude Include="Sourcecode\Battle.h" />
     <ClInclude Include="Sourcecode\Decode.h" />
     <ClInclude Include="Sourcecode\Ending.h" />
@@ -169,26 +191,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

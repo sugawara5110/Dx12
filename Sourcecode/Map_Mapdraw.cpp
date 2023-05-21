@@ -10,11 +10,11 @@
 void Map::MapUpdateObj() {
 	if (woodcount > 0)Mapupdate_Wood();
 	if (squarecount >= 1)Mapupdate_Wall1();
-	if (blockcountA >= 1)poWallA->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 1.0f);
-	if (blockcountB >= 1)poWallB->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-	if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-	if (blockcountD >= 1)poWallD->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-	if (blockcountE >= 1)poWallE->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+	if (blockcountA >= 1)poWallA->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 1.0f, 0.1f);
+	if (blockcountB >= 1)poWallB->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+	if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+	if (blockcountD >= 1)poWallD->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
+	if (blockcountE >= 1)poWallE->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
 }
 
 void Map::MapdrawObj(int comNo) {
@@ -100,7 +100,8 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	out_y = 3320;
 	cax2 = 1150;
 	cay2 = 3180;*/
-	if (encount == NOENCOUNT)dx->Cameraset({ out_x, out_y, cz }, { cax2, cay2, cz });
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+	if (encount == NOENCOUNT)sw->Cameraset({ out_x, out_y, cz - 20.0f }, { cax2, cay2, cz });
 
 	//外の明るさ変化
 	bool mainlight = TRUE;
@@ -147,124 +148,120 @@ Encount Map::MapUpdate(MapState* mapstate, Directionkey direction, Encount encou
 	if (map_no == 3 || encount != NOENCOUNT)mainlight = FALSE;
 
 	//フォグoff
-	dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
+	Dx_Light::Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 	/*if (map_no == 4)dx->PointLightPosSet(1, { 1450.0f, 900.0f, 650.0f },
 		{ 0.4f, 0.4f, 0.8f, 1.0f },
 		true, 2000.0f);*/
 
-	dx->setGlobalAmbientLight(0.10f, 0.10f, 0.10f);
+	Dx_Light::setGlobalAmbientLight(0.001f, 0.001f, 0.001f);
 	switch (map_no) {
 	case 0:
-		dx->SetDirectionLight(true);
-		dx->DirectionLight(0.0f, 0.0f, -1.0f, 0.1f, 0.02f, 0.02f);
+		Dx_Light::SetDirectionLight(true);
+		Dx_Light::DirectionLight(0.0f, 0.0f, -1.0f, 0.1f, 0.1f, 0.1f);
 		//出口光源
-		dx->PointLightPosSet(poEXIT->emissiveNo, { 450.0f, 0.0f, 50.0f },
-			{ 1.0f, 1.0f, 1.0f, 1.0f },
-			true, 600.0f, { 0.01f,0.001f,0.01f });
 		MapupdateWave();
-		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poEXIT->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poEXIT->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poEXIT->setPointLight(0, true, 600.0f, { 0.01f,0.001f,0.01f });
+
 		MapUpdateObj();
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		break;
 	case 1:
 		//dx->setGlobalAmbientLight(1.0f, 1.0f, 1.0f);
-		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f);
+		Dx_Light::SetDirectionLight(TRUE);
+		Dx_Light::DirectionLight(0.3f, 0.3f, -1.0f, 0.1f, 0.1f, 0.1f);
 		//dx->Fog(1.0f, 1.0f, 1.0f, 1.0f, 0.7f, false);
-		poGroundF->Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingF->Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poGroundE->Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingE->Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (blockcountA >= 1)poWallA->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poGroundF->Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poCeilingF->Update({ 1100, 3500, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poGroundE->Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poCeilingE->Update({ 900, 200, 0 }, { 0, 0, 0, 0 }, { 0, 0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		if (blockcountA >= 1)poWallA->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		//dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
 		if (f_wall_count >= 1) {
-			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 6.0f);
+			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 6.0f, 0.1f);
 		}
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		//dx->Fog(1.0f, 1.0f, 1.0f, 2.0f, 0.7f, FALSE);
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob);
-		dx->DirectionLight(0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 1.0f);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		Dx_Light::DirectionLight(0.3f, 0.3f, -1.0f, 1.0f + or , 1.0f + og, 1.0f + ob);
+		Dx_Light::DirectionLight(0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 1.0f);
 		//dx->Fog(1.0f, 1.0f, 1.0f, 800.0f, 0.17f, TRUE);
-		poBackground->Update({ 0, 0, -3000 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poDirectionLight->Update({ 0, 0, -3200 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poBackground->Update({ 0, 0, -3000 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poDirectionLight->Update({ 0, 0, -3200 }, { or , og, ob, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		//dx->Fog(1.0f, 1.0f, 1.0f, 100.0f, 0.4f, TRUE);
 		Mapupdate_Mountain();
 		//dx->Fog(1.0f, 1.0f, 1.0f, 3.0f, 0.4f, TRUE);
-		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		if (woodcount > 0)Mapupdate_Wood();
 		if (squarecount >= 1)Mapupdate_Wall1();
-		if (blockcountB >= 1)poWallB->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (blockcountB >= 1)poWallB->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		Mapupdate_Rain();
 		break;
 	case 2:
-		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
-		poEXIT->Update({ 150.0f, 3930.0f, 0 }, { 0, 0, 0, 0 }, { 0,0,180.0f }, { 1,1,1 }, 0);
+		Dx_Light::SetDirectionLight(TRUE);
+		Dx_Light::DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
+		poEXIT->Update({ 150.0f, 3930.0f, 0 }, { 0, 0, 0, 0 }, { 0,0,180.0f }, { 1,1,1 }, 0, 0.1f);
 		//入口光源
-		dx->PointLightPosSet(poEXIT->emissiveNo, { 150.0f, 3980.0f, 50.0f },
-			{ 1.0f, 1.0f, 1.0f, 1.0f },
-			true, 650.0f, { 0.01f,0.001f,0.01f });
 		MapupdateWave();
-		poGroundM->Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0);
-		poCeilingM->Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0);
-		poGroundE->Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f);
-		poCeilingE->Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f);
+		poGroundM->Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0, 0.1f);
+		poCeilingM->Update({ 0, 500, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 0, 0.1f);
+		poGroundE->Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f, 0.1f);
+		poCeilingE->Update({ 100, 100, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1,1,1 }, 4.0f, 0.1f);
 		MapUpdateObj();
 		if (f_wall_count >= 1) {
-			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f);
+			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f, 0.1f);
 		}
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		break;
 	case 3:
 		//とりあえずOK後で光源設定する
-		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
-		poGroundF->Update({ 200, 3000, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		poCeilingF->Update({ 200, 2990, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		Dx_Light::SetDirectionLight(TRUE);
+		Dx_Light::DirectionLight(0.3f, 0.3f, -1.0f, 0.15f, 0.15f, 0.15f);
+		poGroundF->Update({ 200, 3000, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		poCeilingF->Update({ 200, 2990, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		if (blockcountC >= 1)poWallC->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 1.0f, 1.0f, 1.0f);
-		dx->Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
-		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-		if (blockcountD >= 1)poWallD->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		Dx_Light::DirectionLight(0.3f, 0.3f, -1.0f, 1.0f, 1.0f, 1.0f);
+		Dx_Light::Fog(1.0f, 0.2f, 0.1f, 2.5f, 0.8f, TRUE);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
+		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
+		if (blockcountD >= 1)poWallD->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
 		if (f_wall_count >= 1) {
-			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f);
+			poF_Wall->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 20.0f, 0.1f);
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		break;
 	case 4:
 		//入り口に何か細工する予定
-		dx->SetDirectionLight(TRUE);
-		dx->DirectionLight(0.3f, 0.3f, -1.0f, 0.25f, 0.25f, 0.25f);
-		dx->Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
-		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
-		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f);
+		Dx_Light::SetDirectionLight(TRUE);
+		Dx_Light::DirectionLight(0.3f, 0.3f, -1.0f, 0.25f, 0.25f, 0.25f);
+		Dx_Light::Fog(0.1f, 0.2f, 0.4f, 1.5f, 0.8f, TRUE);
+		poGroundM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
+		poCeilingM->Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 8.0f, 0.1f);
 		MapUpdateObj();
 		if (mo_count >= 1) {
 			Mapupdate_Ds();
 		}
 		if (r_point_count >= 1)Mapupdate_Recover();
-		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
-		if (Elevator_count >= 1)poElevator.Update({ 0, 0, 4.0f }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0);
+		if (boss_count >= 1 && encount != BOSS)poBoss.Update({ 0, 0, 0 }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
+		if (Elevator_count >= 1)poElevator.Update({ 0, 0, 4.0f }, { 0, 0, 0, 0 }, { 0,0,0 }, { 1.0f,1.0f,1.0f }, 0, 0.1f);
 		break;
 	}
 
@@ -345,13 +342,13 @@ void Map::StreamOutput(int comNo) {
 void Map::StreamOutputAfterDraw() {
 	Mapdraw_Recover(0);
 	Mapdraw_Rain(0);
-	if (poBackground)poBackground->Draw();
-	poBoss.Draw();
-	poElevator.Draw();
+	if (poBackground)poBackground->Draw(0);
+	poBoss.Draw(0);
+	poElevator.Draw(0);
 	if (wav)wav->UpdateDxrDivideBuffer();
 	if (poWallA)poWallA->UpdateDxrDivideBuffer();
 	if (poWallD)poWallD->UpdateDxrDivideBuffer();
-	if (f_wall_count >= 1) if (poF_Wall)poF_Wall->Draw();
+	if (f_wall_count >= 1) if (poF_Wall)poF_Wall->Draw(0);
 }
 
 ParameterDXR** Map::getParameterDXR(int* numPara) {
@@ -388,17 +385,6 @@ ParameterDXR** Map::getParameterDXR(int* numPara) {
 	}
 	*numPara = n;
 	return pdx.get();
-}
-
-void Map::setPointLightNo() {
-	if (poMo) {
-		poMo->firstNo = EmissiveCount::getNo();
-		for (int i = 0; i < lightcount - 1; i++)
-			EmissiveCount::getNo();
-	}
-	if (poEXIT) {
-		poEXIT->emissiveNo = EmissiveCount::getNo();
-	}
 }
 
 void Map::HeroUpdate(bool mf) {

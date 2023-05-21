@@ -10,11 +10,10 @@
 #include "MovieSoundManager.h"
 #include "../../Common/Direct3DWrapperOption/DxText.h"
 
-class Ending{
+class Ending {
 
 private:
-	Dx12Process *dx;
-	DxText *text;
+	DxText* text;
 	float str_y;
 
 public:

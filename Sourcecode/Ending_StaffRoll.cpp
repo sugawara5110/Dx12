@@ -6,9 +6,8 @@
 
 #include "Ending.h"
 
-Ending::Ending(){
+Ending::Ending() {
 
-	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	str_y = 600;
 	MovieSoundManager::ObjCreate_ending();

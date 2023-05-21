@@ -65,11 +65,15 @@ void Enemy::EffectCreate() {
 		effect[1][i].setMaterialType(EMISSIVE);
 		effect[2][i].setMaterialType(EMISSIVE);
 		effect[3][i].setMaterialType(EMISSIVE);
-
-		effect[0][i].Create(FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
-		effect[1][i].Create(FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
-		effect[2][i].Create(FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
-		effect[3][i].Create(FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+		Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
+		effect[0][i].Create(comNo, FALSE, dx->GetTexNumber("h_att.jpg"), TRUE, TRUE);
+		effect[0][i].getParameter()->updateF = true;
+		effect[1][i].Create(comNo, FALSE, dx->GetTexNumber("flame.jpg"), TRUE, TRUE);
+		effect[1][i].getParameter()->updateF = true;
+		effect[2][i].Create(comNo, FALSE, dx->GetTexNumber("healing.jpg"), TRUE, TRUE);
+		effect[2][i].getParameter()->updateF = true;
+		effect[3][i].Create(comNo, FALSE, dx->GetTexNumber("recov.jpg"), TRUE, TRUE);
+		effect[3][i].getParameter()->updateF = true;
 	}
 }
 
@@ -149,10 +153,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 		if ((tx += px) + px > 1.0f) {
 			for (int k = 0; k < 4; k++) {
 				for (int j = 0; j < 4; j++) {
-					int emissiveNo = effect[k][j].emissiveNo;
-					dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
-						{ 0, 0, 0, 0 },
-						false, 0);
+					effect[k][j].setPointLightAll(false, 0);
 					effectOn[k][j] = false;
 				}
 			}
@@ -162,6 +163,8 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 
 	u_cnt = tx / px;
 	v_cnt = ty / py;
+	u_cnt = 0;
+	v_cnt = 0;
 
 	float ex = 0.0f;
 	float ey = 0.0f;
@@ -190,9 +193,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 			effect[effect_no][0].Update({ e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z },
 				{ 0, 0, 0, 0 },
 				{ 0,0,e_pos[*E_select_obj].theta }, { 1,1,1 }, 0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { e_pos[*E_select_obj].x + ex, e_pos[*E_select_obj].y + ey, e_pos[*E_select_obj].z },
-				{ r, g, b , 1.0f },
-				true, 500.0f);
+			effect[effect_no][0].setPointLightAll(true, 500.0f);
 			effectOn[effect_no][0] = true;
 		}
 		else {
@@ -200,9 +201,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 				if (battle->GetE_RCV(i) == FALSE)continue;
 				effect[effect_no][i].Instancing({ e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
 					{ 0,0, e_pos[i].theta }, { 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
-				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { e_pos[i].x + ex, e_pos[i].y + ey, e_pos[i].z },
-					{ r, g, b, 1.0f },
-					true, 500.0f);
+				effect[effect_no][i].setPointLightAll(true, 500.0f);
 				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}
@@ -223,9 +222,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 				{ 0,0,h_pos->theta },
 				{ 1,1,1 },
 				0.0f, 4.0f, px, py, u_cnt, v_cnt);
-			dx->PointLightPosSet(effect[effect_no][0].emissiveNo, { b_pos[*E_select_obj].BtPos_x1, b_pos[*E_select_obj].BtPos_y1, (float)h_pos->pz * 100.0f },
-				{ r, g, b, 1.0f },
-				true, 500.0f);
+			effect[effect_no][0].setPointLightAll(true, 500.0f);
 			effectOn[effect_no][0] = true;
 		}
 		else {
@@ -233,9 +230,7 @@ bool Enemy::EffectUpdate(Battle* battle, int* E_select_obj) {
 				if (battle->GetH_DM(i) == FALSE)continue;
 				effect[effect_no][i].Instancing({ b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
 					{ 0, 0,h_pos->theta }, { 1,1,1 }, { 0.0f, 0.0f, 0.0f, 0.0f });
-				dx->PointLightPosSet(i + effect[effect_no][i].emissiveNo, { b_pos[i].BtPos_x1, b_pos[i].BtPos_y1, (float)h_pos->pz * 100.0f },
-					{ r, g, b, 1.0f },
-					true, 500.0f);
+				effect[effect_no][i].setPointLightAll(true, 500.0f);
 				effect[effect_no][i].InstancingUpdate(0.0f, 4.0f, px, py, u_cnt, v_cnt);
 				effectOn[effect_no][i] = true;
 			}

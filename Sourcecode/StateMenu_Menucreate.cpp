@@ -11,19 +11,18 @@
 
 StateMenu::StateMenu() {
 
-	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	MovieSoundManager::ObjCreate_title();
 	MovieSoundManager::Title_sound(FALSE);
 	comNo = 0;
 	state.GetVBarray2D(1);
-	state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	state.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	s_state.GetVBarray2D(1);
-	s_state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	s_state.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	r_state.GetVBarray2D(1);
-	r_state.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	r_state.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	r_state1.GetVBarray2D(1);
-	r_state1.CreateBox(0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
+	r_state1.CreateBox(comNo, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, TRUE, TRUE);
 	menu_select = MAIN;
 	main_select = 0;
 	st_select = 0;

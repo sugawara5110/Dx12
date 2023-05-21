@@ -24,7 +24,7 @@ protected:
 	Position::E_Pos* e_pos;
 	PolygonData* en = NULL;//SideEnemy使用
 	PolygonData* mag = NULL;//SideEnemy使用
-	EmissiveObj_Po effect[4][4];//エフェクト
+	PolygonData effect[4][4];//エフェクト
 	bool effectOn[4][4] = {};
 	MagicSelect magicSel;
 
@@ -90,7 +90,6 @@ public:
 	virtual ~Enemy();
 
 	ParameterDXR** getParameterDXR(int* numPara);
-	void setPointLightNo();
 };
 
 #endif

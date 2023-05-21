@@ -6,9 +6,7 @@
 
 #include "Parameter.h"
 
-Parameter::Parameter(){
-
-	dx = Dx12Process::GetInstance();
+Parameter::Parameter() {
 	text = DxText::GetInstance();
 }
 

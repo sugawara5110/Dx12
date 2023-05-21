@@ -12,6 +12,7 @@
 #include "../../Common/Direct3DWrapperOption/DxText.h"
 #include "../../Common/Window/Control.h"
 #include "Enum.h"
+#include "../../T_float/T_float.h"
 
 #define METER_MAX 25000
 #define DrawYMAX -160
@@ -36,7 +37,6 @@ private:
 	Encount encount_para;
 	int no_para, e_nu_para;
 
-	Dx12Process* dx;
 	DxText* text;
 	T_float tfloat;
 	int comNo;
@@ -282,7 +282,6 @@ public:
 	~Battle();
 
 	ParameterDXR** getParameterDXR(int* numPara);
-	void setPointLightNo();
 };
 
 #endif

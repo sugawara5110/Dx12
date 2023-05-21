@@ -24,14 +24,14 @@ protected:
 	bool magicAttOn;      //マジックアニメーション中
 	float LA, LA_x, LA_y; //LostAction用thetaZによって変わる
 	SkinMesh* torchWood = NULL;    //o_no==0用
-	EmissiveObj_Po* torchFlame = NULL;//o_no==0用
+	PolygonData* torchFlame = NULL;//o_no==0用
 	bool torchOn;
 	int comNo;
 	std::unique_ptr<MaterialType[]> materialType;
 	std::unique_ptr<ParameterDXR* []> pdx;
 
 	PolygonData2D state, meter;
-	EmissiveObj_Po mag, effect[4][4];
+	PolygonData mag, effect[4][4];
 	bool effectOn[4][4] = {};
 	int effect_no = 0;
 	float mov_y;
@@ -72,9 +72,7 @@ public:
 	void Draw2D(Encount enc, bool ending);
 	virtual ~Hero();
 	ParameterDXR** getParameterDXRMap(int* numPara);
-	void setPointLightNoMap();
 	ParameterDXR** getParameterDXRBat(int* numPara);
-	void setPointLightNoBat();
 };
 
 #endif

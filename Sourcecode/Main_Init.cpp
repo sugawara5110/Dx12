@@ -72,14 +72,30 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 	if (Createwindow(&hWnd, hInstance, nCmdShow, CURRWIDTH, CURRHEIGHT, L"3DRPG") == -1)return FALSE;
 
-	//Dx12Processオブジェクト生成
-	Dx12Process::InstanceCreate();
-	//Dx11Processオブジェクト取得
-	dx = Dx12Process::GetInstance();
 	try {
 		//DirectX初期化
-		dx->dxrCreateResource();
-		dx->Initialize(hWnd, CURRWIDTH, CURRHEIGHT);
+		Dx_Device::InstanceCreate();
+		Dx_Device::GetInstance()->createDevice();
+		Dx_Device::GetInstance()->reportLiveDeviceObjectsOn();
+		Dx_CommandManager::InstanceCreate();
+		Dx_SwapChain::InstanceCreate();
+
+		Dx_TextureHolder::InstanceCreate();
+		Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
+
+		Dx_Device* dev = Dx_Device::GetInstance();
+		dev->dxrCreateResource();
+		Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+
+		Dx_CommandManager::setNumResourceBarrier(1024);
+
+		sw->Initialize(hWnd, CURRWIDTH, CURRHEIGHT);
+
+		sw->setPerspectiveFov(55, 1, 10000);
+		Dx_Light::Initialize();
+		Dx_ShaderHolder::CreateShaderByteCode();
+		Dx_Light::setGlobalAmbientLight(0.2f, 0.2f, 0.2f);
+
 		float cuw = CURRWIDTH;
 		float cuh = CURRHEIGHT;
 		float rew = REFWIDTH;
@@ -88,14 +104,20 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	}
 	catch (char* E_mes) {
 		Dx_Util::ErrorMessage(E_mes);
-		DxText::DeleteInstance();
-		Dx12Process::DeleteInstance();
+		Dx_SwapChain::DeleteInstance();
+		Dx_TextureHolder::DeleteInstance();
+		Dx_CommandManager::DeleteInstance();
+		Dx_Device::DeleteInstance();
 		return FALSE;
 	}
 
 	//DxTextオブジェクト生成
 	DxText::InstanceCreate();
 	text = DxText::GetInstance();
+
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getGraphicsComListObj(0);
 
 	//実行中スレッドナンバー
 	int thNo = 0;
@@ -104,12 +126,15 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 		while (1) {
 			if (!DispatchMSG(&msg)) {
 				DxText::DeleteInstance();
-				Dx12Process::DeleteInstance();
+				Dx_SwapChain::DeleteInstance();
+				Dx_TextureHolder::DeleteInstance();
+				Dx_CommandManager::DeleteInstance();
+				Dx_Device::DeleteInstance();
 				return TRUE;	//アプリ終了
 			}
 
 			bool fin = FALSE;
-			dx->Bigin(0);
+			cObj->Bigin();
 			switch (thNo) {
 			case 5:
 				if (InstanceCreate::MapCreate_f()) {
@@ -144,13 +169,13 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 				break;
 			}
 
-			dx->BiginDraw(0);
+			sw->BiginDraw(0);
 			DrawNowLoading(0);
-			dx->EndDraw(0);
-			dx->End(0);
-			dx->RunGpu();
-			dx->WaitFence();
-			dx->DrawScreen();
+			sw->EndDraw(0);
+			cObj->End();
+			cMa->RunGpu();
+			cMa->WaitFence();
+			sw->DrawScreen();
 
 			if (fin) break;
 		}
@@ -158,7 +183,10 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	catch (char* E_mes) {
 		Dx_Util::ErrorMessage(E_mes);
 		DxText::DeleteInstance();
-		Dx12Process::DeleteInstance();
+		Dx_SwapChain::DeleteInstance();
+		Dx_TextureHolder::DeleteInstance();
+		Dx_CommandManager::DeleteInstance();
+		Dx_Device::DeleteInstance();
 		return FALSE;
 	}
 
@@ -172,52 +200,17 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 	divArr[0].divide = 12;
 	UINT numDiv = 1;
 
-	dx->Bigin(0);
+	cObj->Bigin();
 	statemenu = new StateMenu();
 	mosaic = new PostEffect();
-	mosaic->ComCreateMosaic();
+	mosaic->ComCreateMosaic(0);
 	blur = new PostEffect();
-	blur->ComCreateBlur();
+	blur->ComCreateBlur(0);
 	blur2 = new PostEffect();
-	blur2->ComCreateDepthOfField();
-	pd = new PolygonData();
-	pd->GetVBarray(SQUARE, 1);
-	char* passArr[5] = {};
-	char* pass1 = "../sphere-bot-with-hydraulics FBX 7.4 binary/sphere-bot-with-hydraulics.fbx";
-	char* pass2 = "../Black Dragon NEW/Dragon_Baked_Actions_fbx_7.4_binary.fbx";
-	char* pass3 = "../19496_open3dmodel/open3dmodel.com/Models_E0504A019/Crocodile.fbx";
-	char* pass4 = "../106934_open3dmodel.com/Low-Poly Spider/Spider.fbx";
-	char* pass5 = "../Alien/Test_Alien-Animal-Blender_2.81.fbx";
-	passArr[0] = pass4;
-	passArr[1] = pass2;
-	passArr[2] = pass3;
-	passArr[3] = pass1;
-	passArr[4] = pass5;
-	for (int i = 0; i < 5; i++) {
-		sk[i] = new SkinMesh();
-		sk[i]->SetState(false, false);
-		sk[i]->GetFbx(passArr[i]);
-		sk[i]->GetBuffer(1, 3200.0f, false);
-		if (i == 0)sk[0]->noUseMeshIndex(0);
-		if (i == 4)sk[4]->noUseMeshIndex(2);
-		sk[i]->SetVertex(true, true);
-		sk[i]->CreateFromFBX();
-		sk[i]->setInternalAnimationIndex(0);
-	}
-
-	VECTOR3 v3[] = { {1020, 3110, 40},{1020,3160, 40} };
-	VECTOR3 v3s[] = { {15,15,15},{15,15,15} };
-	Vertex* sv = (Vertex*)CreateGeometry::createSphere(10, 10, 2, v3, v3s, false);
-	unsigned int* svI = CreateGeometry::createSphereIndex(10, 10, 2);
-	pd->setVertex(sv, 11 * 11 * 2, svI, 10 * 10 * 6 * 2);
-	ARR_DELETE(sv);
-	ARR_DELETE(svI);
-	pd->setMaterialType(METALLIC);
-	pd->Create(true, dx->GetTexNumber("ceiling5.jpg"), -1/*dx->GetTexNumber("ceiling5Nor.png")*/, -1, false, false);
-
-	dx->End(0);
-	dx->RunGpu();
-	dx->WaitFence();
+	blur2->ComCreateDepthOfField(0);
+	cObj->End();
+	cMa->RunGpu();
+	cMa->WaitFence();
 	changeMap();
 	CreateThreadUpdate();
 
@@ -226,75 +219,66 @@ bool Main::Init(HINSTANCE hInstance, int nCmdShow) {
 
 void Main::changeMap() {
 	if (dxr)S_DELETE(dxr);
-	EmissiveCount::reset();
-	dxr = new DXR_Basic();
+	dxr = new DxrRenderer();
+	std::vector<ParameterDXR*> p;
 	int mapN = 0;
 	ParameterDXR** mDXR = InstanceCreate::GetInstance_M()->getParameterDXR(&mapN);
-	InstanceCreate::GetInstance_M()->setPointLightNo();
 	int heN = 0;
 	ParameterDXR** hDXR = hero[0].getParameterDXRMap(&heN);
-	hero[0].setPointLightNoMap();
-	memcpy(&pdx[0], mDXR, sizeof(ParameterDXR*) * mapN);
-	memcpy(&pdx[mapN], hDXR, sizeof(ParameterDXR*) * heN);
-	pdx[mapN + heN] = pd->getParameter();
+	for (int i = 0; i < mapN; i++)p.push_back(mDXR[i]);
+	for (int i = 0; i < heN; i++)p.push_back(hDXR[i]);
 
-	int skCnt = 0;
-	for (int i = 0; i < 5; i++) {
-		for (int i1 = 0; i1 < sk[i]->getNumMesh(); i1++) {
-			pdx[mapN + heN + 1 + skCnt] = sk[i]->getParameter(i1);
-			skCnt++;
-		}
+	for (int i = 0; i < mapN + heN; i++) {
+		p[i]->resetCreateAS();
 	}
 
-	for (int i = 0; i < mapN + heN + 1 + skCnt; i++) {
-		pdx[i]->resetCreateAS();
-	}
-
-	dxr->initDXR(mapN + heN + 1 + skCnt, pdx, 4);
+	dxr->initDXR(p, 4);
 }
 
 void Main::changeBattle() {
 	if (dxr)S_DELETE(dxr);
-	EmissiveCount::reset();
-	dxr = new DXR_Basic();
+	dxr = new DxrRenderer();
+	std::vector<ParameterDXR*> p;
 	int mapN = 0;
 	ParameterDXR** DxrM = InstanceCreate::GetInstance_M()->getParameterDXR(&mapN);
-	InstanceCreate::GetInstance_M()->setPointLightNo();
 
 	ParameterDXR** DxrH[4];
 	int heroN[4] = {};
 
 	for (int i = 0; i < 4; i++) {
 		DxrH[i] = hero[i].getParameterDXRBat(&heroN[i]);
-		hero[i].setPointLightNoBat();
 	}
 
 	int batN = 0;
 	ParameterDXR** DxrB = InstanceCreate::GetInstance_B()->getParameterDXR(&batN);
-	InstanceCreate::GetInstance_B()->setPointLightNo();
 
-	memcpy(&pdx[0], DxrM, sizeof(ParameterDXR*) * mapN);
+	for (int i = 0; i < mapN; i++)p.push_back(DxrM[i]);
+
+
 	int size = mapN;
 	for (int i = 0; i < 4; i++) {
-		memcpy(&pdx[size], DxrH[i], sizeof(ParameterDXR*) * heroN[i]);
+		for (int j = 0; j < heroN[i]; j++)p.push_back(DxrH[i][j]);
 		size += heroN[i];
 	}
 
-	memcpy(&pdx[size], DxrB, sizeof(ParameterDXR*) * batN);
+	for (int i = 0; i < batN; i++)p.push_back(DxrB[i]);
 	size += batN;
 
 	for (int i = 0; i < size; i++) {
-		pdx[i]->updateDXR[0].createAS = false;
-		pdx[i]->updateDXR[1].createAS = false;
+		p[i]->updateDXR[0].createAS = false;
+		p[i]->updateDXR[1].createAS = false;
 	}
 
-	dxr->initDXR(size, pdx, 4);
+	dxr->initDXR(p, 4);
 }
 
 void Main::Loop() {
 
 	statemenu->SetCommandList(0);
 	for (int i = 0; i < 4; i++)hero[i].SetCommandList(0);
+
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getGraphicsComListObj(0);
 
 	while (1) {//アプリ実行中ループ
 		if (!DispatchMSG(&msg)) {
@@ -303,27 +287,27 @@ void Main::Loop() {
 
 		T_float::GetTime(hWnd);
 
-		dx->Bigin(0);
+		cObj->Bigin();
 		SetMovie(0);
-		dx->End(0);
-		dx->RunGpu();
-		dx->WaitFence();
+		cObj->End();
+		cMa->RunGpu();
+		cMa->WaitFence();
 
 		dxr->allSwapIndex();
 
 		th.wait();
 
-		dx->RunGpuCom();
-		dx->RunGpu();
-		dx->WaitFenceCom();
-		dx->WaitFence();
+		cMa->RunGpuCom();
+		cMa->RunGpu();
+		cMa->WaitFenceCom();
+		cMa->WaitFence();
 
-		dx->Bigin(0);
+		cObj->Bigin();
 		dxr->copyBackBuffer(0);
 		dxr->copyDepthBuffer(0);
-		dx->End(0);
-		dx->RunGpu();
-		dx->WaitFence();
+		cObj->End();
+		cMa->RunGpu();
+		cMa->WaitFence();
 
 		StreamOutputAfterDraw();
 		if (changeBattleF) {
@@ -397,6 +381,8 @@ void Main::UpDate() {
 		break;
 	}
 
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+
 	static bool posget = FALSE;
 	static bool btLoad[2] = { FALSE };
 	static Position::H_Pos* h_posIn = NULL;
@@ -429,7 +415,7 @@ void Main::UpDate() {
 				posget = TRUE;
 			}
 			//視点切り替え
-			dx->Cameraset({ h_posOut.cx, h_posOut.cy, h_posOut.cz },
+			sw->Cameraset({ h_posOut.cx, h_posOut.cy, h_posOut.cz },
 				{ h_posOut.cx2, h_posOut.cy2, h_posOut.cz });
 			//battleInstance生成, 完了時TRUE
 			if (!btLoad[1])btLoad[1] = InstanceCreate::CreateBattleIns(hero, encount, map_no, rnd);
@@ -476,42 +462,6 @@ void Main::UpDate() {
 		break;
 	}
 
-	pd->Instancing({ 0, 0, 0 },
-		{ 0, 0, 0 },
-		{ 1, 1, 1 }, { 0, 0, 0, 0 });
-	pd->InstancingUpdate(
-		1,
-		4.0f);
-
-	float m = tfloat.Add(1.0f);
-	sk[0]->Update(0, m,
-		{ 1200, 3050, 0 },
-		{ 0, 0, 0, 0 },
-		{ 0, 0, 0 },
-		{ 0.3f,0.3f,0.3f });
-	sk[1]->Update(0, m,
-		{ 1150, 3150, 0 },
-		{ 0, 0, 0, 0 },
-		{ 90, 0, 0 },
-		{ 0.01f,0.01f,0.01f });
-	sk[2]->Update(0, m,
-		{ 1070, 3100, 0 },
-		{ 0, 0, 0, 0 },
-		{ 90, 0, 0 },
-		{ 0.3f,0.3f,0.3f });
-	sk[3]->Update(0, m,
-		{ 1250, 3100, 30 },
-		{ 0, 0, 0, 0 },
-		{ 0, 0, 0 },
-		{ 0.3f,0.3f,0.3f });
-	sk[3]->setInternalAnimationIndex(1);
-	sk[4]->Update(0, m,
-		{ 1100, 3150, 5 },
-		{ 0, 0, 0, 0 },
-		{ 90, 0, 0 },
-		{ 0.02f,0.02f,0.02f });
-	sk[4]->setInternalAnimationIndex(2);
-
 	DxText::GetInstance()->UpDate();
 }
 
@@ -521,8 +471,13 @@ void Main::SetMovie(int com_no) {
 }
 
 void Main::Draw() {
-	dx->Bigin(3);
-	dx->BiginDraw(3);
+
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getGraphicsComListObj(3);
+
+	cObj->Bigin();
+	sw->BiginDraw(3);
 	if (battleSwitch == 2) {
 		InstanceCreate::GetInstance_B()->FightDraw(3, encount);
 	}
@@ -532,12 +487,16 @@ void Main::Draw() {
 
 	InstanceCreate::GetInstance_M()->MapDraw(3);
 
-	dx->EndDraw(3);
-	dx->End(3);
+	sw->EndDraw(3);
+	cObj->End();
 }
 
 void Main::StreamOutput() {
-	dx->Bigin(3);
+
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getGraphicsComListObj(3);
+
+	cObj->Bigin();
 	if (battleSwitch == 2) {
 		InstanceCreate::GetInstance_B()->StreamOutput(3, encount);
 	}
@@ -547,26 +506,37 @@ void Main::StreamOutput() {
 	if (InstanceCreate::GetInstance_M()) {
 		InstanceCreate::GetInstance_M()->StreamOutput(3);
 	}
-	pd->StreamOutput(3);
-	for (int i = 0; i < 5; i++)sk[i]->StreamOutput(3);
-	dx->End(3);
+	cObj->End();
 }
 
 void Main::AS() {
-	dx->Bigin(4);
+
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getGraphicsComListObj(4);
+
+	cObj->Bigin();
 	dxr->update_g(4, 3);
-	dx->End(4);
+	cObj->End();
 }
 
 void Main::Raytrace() {
-	dx->BiginCom(2);
+
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getComputeComListObj(2);
+
+	cObj->Bigin();
 	dxr->raytrace_c(2);
-	dx->EndCom(2);
+	cObj->End();
 }
 
 void Main::StreamOutputAfterDraw() {
-	dx->Bigin(0);
-	dx->BiginDraw(0, false);
+
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj = cMa->getGraphicsComListObj(0);
+
+	cObj->Bigin();
+	sw->BiginDraw(0, false);
 
 	float blu = 0.0f;
 	bool bluRet = FALSE;
@@ -577,13 +547,13 @@ void Main::StreamOutputAfterDraw() {
 	if (InstanceCreate::GetInstance_M())
 		InstanceCreate::GetInstance_M()->StreamOutputAfterDraw();
 	int cnt = 0;
-	mosaic->ComputeMosaic(InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
-	blur->ComputeBlur(bluRet, 400.0f, 300.0f, blu);
+	mosaic->ComputeMosaic(0, InstanceCreate::GetInstance_M()->GetMenuState(&cnt), cnt);
+	blur->ComputeBlur(0, bluRet, 400.0f, 300.0f, blu);
 	bluRet = FALSE;
 	if (battleSwitch == 2)
-		blur2->ComputeDepthOfField(true, 600, 0.98f, 0.6f);
+		blur2->ComputeDepthOfField(0, true, 600, 0.98f, 0.6f);
 	else
-		blur2->ComputeDepthOfField(true, 600, 0.98f, 0.005f);
+		blur2->ComputeDepthOfField(0, true, 600, 0.98f, 0.05f);
 	blu = 0.0f;
 	for (int i = 0; i < 4; i++) {
 		hero[i].Draw2D(encount, ending);
@@ -592,11 +562,11 @@ void Main::StreamOutputAfterDraw() {
 	if (battleSwitch == 2)InstanceCreate::GetInstance_B()->Draw2D(encount);
 	statemenu->Draw();
 	DxText::GetInstance()->Draw(0);
-	dx->EndDraw(0);
-	dx->End(0);
-	dx->RunGpu();
-	dx->WaitFence();
-	dx->DrawScreen();
+	sw->EndDraw(0);
+	cObj->End();
+	cMa->RunGpu();
+	cMa->WaitFence();
+	sw->DrawScreen();
 }
 
 void Main::ObjDel() {
@@ -615,10 +585,11 @@ void Main::ObjDel() {
 }
 
 Main::~Main() {
-	dx->WaitFenceCom();
-	dx->WaitFence();
-	for (int i = 0; i < 5; i++)S_DELETE(sk[i]);
-	S_DELETE(pd);
+
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+
+	cMa->WaitFenceCom();
+	cMa->WaitFence();
 	Control::DeleteInstance();
 	S_DELETE(statemenu);
 	MovieSoundManager::ObjDelete();
@@ -632,6 +603,9 @@ Main::~Main() {
 	S_DELETE(blur2);
 	S_DELETE(dxr);
 	DxText::DeleteInstance();
-	Dx12Process::DeleteInstance();
+	Dx_SwapChain::DeleteInstance();
+	Dx_TextureHolder::DeleteInstance();
+	Dx_CommandManager::DeleteInstance();
+	Dx_Device::DeleteInstance();
 }
 

@@ -19,7 +19,7 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 
 	VECTOR3 v3;
 	int i;
-	float m = tfloat.Add(2.0f);
+	float m = tfloat.Add(0.2f);
 	if (!walkOn) {
 		//ÃŽ~
 		i = 4;
@@ -32,17 +32,13 @@ void Hero::OBJWalkUpdate(float x, float y, float z, float r, float g, float b, f
 	if (true/*torchOn*/) {
 		torchWood->Update(i, m, { x, y, z }, { r, g, b, 0.0f }, { 0,0,theta }, { 2.0f,2.0f,2.0f });
 		v3 = torchWood->GetVertexPosition(0, 4, 3.0f, -1.0f, 0.0f, theta, 0, 0, 2.0f);
-		dx->PointLightPosSet(torchFlame->emissiveNo, { v3.x + x, v3.y + y, v3.z + z },
-			{ 1.0f, 0.4f, 0.4f, 1.0f },
-			true, 1000.0f, { 0.0001f,0.0001f,0.001f });
-		torchFlame->Update({ v3.x + x, v3.y + y, v3.z + z }, { r, g, b, -0.2f }, { 0,0,theta }, { 1,1,1 }, 0.0f);
+		torchFlame->setPointLightAll(true, 1000.0f, { 0.0001f,0.001f,0.0001f });
+		torchFlame->Update({ v3.x + x, v3.y + y, v3.z + z }, { r, g, b, -0.2f }, { 0,0,theta }, { 1,1,1 }, 0.0f, 0.1f);
 	}
 	else {
 		torchWood->DrawOff();
 		torchFlame->DrawOff();
-		dx->PointLightPosSet(torchFlame->emissiveNo, { 0, 0, 0 },
-			{ 1.0f, 0.4f, 0.4f, 1.0f },
-			false, 1000.0f, { 0.001f,0.001f,0.01f });
+		torchFlame->setPointLightAll(false, 1000.0f, { 0.0001f,0.001f,0.0001f });
 	}
 }
 
@@ -114,7 +110,7 @@ Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h
 		mag.Update({ b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 5.0f },
 			{ 0, 0, 0, 0 },
 			{ 0,0,count += m },
-			{ 1,1,1 }, 0);
+			{ 1,1,1 }, 0, 0.1f);
 		VECTOR3 p3;
 		p3.as(b_pos[o_no].BtPos_x1, b_pos[o_no].BtPos_y1, (float)h_pos->pz * 100.0f + 20.0f);
 		PolygonData2D::Pos2DCompute(&p3);
@@ -213,7 +209,7 @@ Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h
 		break;
 	}
 
-	m = tfloat.Add(2.0f);
+	m = tfloat.Add(0.2f);
 	if (Dieflg() == TRUE)m = 0.0f;
 	if (attOn) {
 		attFin = p_att->Update(0, m,
@@ -269,10 +265,6 @@ Act_fin_flg Hero::HeroUpdate(Battle* battle, int* select_obj, Position::H_Pos* h
 	for (int i = 0; i < 4; i++)for (int j = 0; j < 4; j++) {
 		if (!effectOn[i][j]) {
 			effect[i][j].DrawOff();
-			int emissiveNo = effect[i][j].emissiveNo;
-			dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
-				{ 0, 0, 0, 0 },
-				false, 0);
 		}
 	}
 
@@ -361,8 +353,8 @@ void Hero::Draw2D(Encount enc, bool ending) {
 		meter.DrawOff();
 	}
 	else {
-		state.Draw();
-		meter.Draw();
+		state.Draw(comNo);
+		meter.Draw(comNo);
 	}
 }
 
@@ -386,10 +378,6 @@ ParameterDXR** Hero::getParameterDXRMap(int* numPara) {
 	return pdx.get();
 }
 
-void Hero::setPointLightNoMap() {
-	torchFlame->emissiveNo = EmissiveCount::getNo();
-}
-
 ParameterDXR** Hero::getParameterDXRBat(int* numPara) {
 	int num1 = p_att->getNumMesh();
 	int n = 0;
@@ -407,9 +395,4 @@ ParameterDXR** Hero::getParameterDXRBat(int* numPara) {
 	return pdx.get();
 }
 
-void Hero::setPointLightNoBat() {
-	mag.emissiveNo = EmissiveCount::getNo();
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			effect[i][j].emissiveNo = EmissiveCount::getNo();
-}
+

@@ -53,7 +53,6 @@ MapHistoryData *Map::GetMapHistory() {
 Map::Map(Position::H_Pos* h_p, Hero* hero) {
 
 	map_no = map_no_s;
-	dx = Dx12Process::GetInstance();
 	text = DxText::GetInstance();
 	he = hero;
 	map_text_f = 0;
@@ -77,7 +76,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 		wav = new Wave();
 		wav->GetVBarray(1);
 		//出口
-		poEXIT = new EmissiveObj_Po();
+		poEXIT = new PolygonData();
 		poEXIT->GetVBarray(SQUARE,1);
 		//地面メイン
 		poGroundM = new PolygonData();
@@ -119,7 +118,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 		wav = new Wave();
 		wav->GetVBarray(1);
 		//入口
-		poEXIT = new EmissiveObj_Po();
+		poEXIT = new PolygonData();
 		poEXIT->GetVBarray(SQUARE,1);
 		//地面メイン
 		poGroundM = new PolygonData();
@@ -213,7 +212,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
-		poMo = new EmissiveObj_Pa();
+		poMo = new ParticleData();
 		poMo->GetBufferBill(lightcount);
 	}
 
@@ -240,7 +239,7 @@ Map::Map(Position::H_Pos* h_p, Hero* hero) {
 	//ライトポジション構造体確保
 	light = (LightPos*)malloc(sizeof(LightPos) * lightcount);
 	//ポイントライトリセット
-	dx->ResetPointLight();
+	Dx_Light::ResetPointLight();
 }
 
 void Map::SetVertex() {
@@ -252,20 +251,45 @@ void Map::SetVertex() {
 		1.0f, 1.0f, 1.0f, 1.0f };
 	UINT ri[2] = { 0,1 };
 	Vertex w[] = {
+		//左上
 		{{-200.0f, -200.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f }},
+		{{0.0f, -200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 0.0f }},
+		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 0.5f }},
+		{{-200.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
+		//右上
+		{{0.0f, -200.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.5f, 0.0f }},
 		{{200.0f, -200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f }},
+		{{200.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.5f }},
+		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 0.5f}},
+		//左下
+		{{-200.0f, 0.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f }},
+		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 0.5f }},
+		{{0.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f }},
+		{{-200.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		//右下
+		{{0.0f, 0.0f, 0.0f},{0.0f, 0.0f, 1.0f}, {0.5f, 0.5f }},
+		{{200.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.5f }},
 		{{200.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f }},
-		{{-200.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
+		{{0.0f, 200.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f}}
 	};
-	static UINT index[] =
+	static UINT index24[] =
 	{
 		2,0,1,
-		3,0,2
+		3,0,2,
+
+		6,4,5,
+		7,4,6,
+
+		10,8,9,
+		11,8,10,
+
+		14,12,13,
+		15,12,14
 	};
 	switch (map_no) {
 	case 0:
 		//波
-		wav->SetVertex(w, 4, index, 6);
+		wav->SetVertex(w, 16, index24, 24);
 		//出口
 		Mapcreate_EXIT(400.0f, 0.5f, 100.0f, 100.0f);
 		//地面メイン
@@ -293,7 +317,7 @@ void Map::SetVertex() {
 		break;
 	case 2:
 		//波
-		wav->SetVertex(w, 4, index, 6);
+		wav->SetVertex(w, 16, index24, 24);
 		//入口
 		Mapcreate_EXIT(-50.0f, -50.0f, 100.0f, 100.0f);
 		//地面メイン
@@ -380,142 +404,116 @@ void Map::SetVertex() {
 
 void Map::SetCommandList(int com_no) {
 	comNo = com_no;
-	if (wav)wav->SetCommandList(comNo);
-	if (mWood)mWood->SetCommandList(comNo);
-	if (mountain)mountain->SetCommandList(comNo);
-	if (poWallA)poWallA->SetCommandList(comNo);
-	if (poWallB)poWallB->SetCommandList(comNo);
-	if (poWallC)poWallC->SetCommandList(comNo);
-	if (poWallD)poWallD->SetCommandList(comNo);
-	if (poWallE)poWallE->SetCommandList(comNo);
-	for (int i = 0; i < 3; i++)
-		if (poWall1[i])poWall1[i]->SetCommandList(comNo);
-	if (poF_Wall)poF_Wall->SetCommandList(comNo);
-	if (poGroundF)poGroundF->SetCommandList(comNo);
-	if (poCeilingF)poCeilingF->SetCommandList(comNo);
-	if (poGroundM)poGroundM->SetCommandList(comNo);
-	if (poCeilingM)poCeilingM->SetCommandList(comNo);
-	if (poGroundE)poGroundE->SetCommandList(comNo);
-	if (poCeilingE)poCeilingE->SetCommandList(comNo);
-	if (poBackground)poBackground->SetCommandList(comNo);
-	if (poDirectionLight)poDirectionLight->SetCommandList(comNo);
-	poRain.SetCommandList(comNo);
-	poRecover.SetCommandList(comNo);
-	for (int i = 0; i < 12; i++)
-		poRecoverLine[i].SetCommandList(comNo);
-	poBoss.SetCommandList(comNo);
-	poElevator.SetCommandList(comNo);
-	if (poEXIT)poEXIT->SetCommandList(comNo);
-	if (poMo)poMo->SetCommandList(comNo);
-	MapHistory.SetCommandList(comNo);
 }
 
 void Map::CreateMap() {
 
+	Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
+	MaterialType DIRECTIONLIGHT_NONREFLECTION = (MaterialType)(DIRECTIONLIGHT | NONREFLECTION);
 	switch (map_no) {
 	case 0:
 		//波
 		wav->setMaterialType(METALLIC);
-		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
-			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 0.1f, 512.0f);
-		//出口
+		wav->Create(comNo, -1/*dx->GetTexNumber("./dat/texture/map/wave.da") * / ,
+			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 0.1f, 256.0f);
+			//出口
 		poEXIT->setMaterialType(EMISSIVE);
-		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
+		poEXIT->Create(comNo, FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
-		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
+		poGroundM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
 		//空メイン
 		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
+		poCeilingM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 1:
 		//山
-		mountain->CreateMesh();
+		mountain->CreateMesh(comNo);
 		//地面入り口
-		poGroundF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
+		poGroundF->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground1.da"),
 			dx->GetTexNumber("./dat/texture/map/ground1Nor.da"), -1, TRUE, FALSE);
 		//空入り口
 		poCeilingF->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
+		poCeilingF->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling1.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling1Nor.da"), -1, TRUE, FALSE);
 		//地面メイン
-		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"),
+		poGroundM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground2.da"),
 			dx->GetTexNumber("./dat/texture/map/ground2Nor.da"), -1, TRUE, FALSE);
 		//空メイン
 		poBackground->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poBackground->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), TRUE, FALSE);//エラー候補
+		poBackground->Create(comNo, FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), TRUE, FALSE);//エラー候補
 		poDirectionLight->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poDirectionLight->Create(FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);//エラー候補
+		poDirectionLight->Create(comNo, FALSE, dx->GetTexNumber("./dat/texture/map/ceiling2.da"), TRUE, FALSE);//エラー候補
 		//雨
-		poRain.Create(FALSE, -1, FALSE, FALSE);//エラー候補
+		poRain.Create(comNo, FALSE, -1, FALSE, FALSE);//エラー候補
 		//地面出口
-		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+		poGroundE->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空出口
 		poCeilingE->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poCeilingE->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 2:
 		//波
 		wav->setMaterialType(METALLIC);
-		wav->Create(dx->GetTexNumber("./dat/texture/map/wave.da"),
+		wav->Create(comNo, dx->GetTexNumber("./dat/texture/map/wave.da"),
 			-1/*dx->GetTexNumber("./dat/texture/map/waveNor.da")*/, TRUE, TRUE, 1.0f, 64.0f);
 		//入口
 		poEXIT->setMaterialType(EMISSIVE);
-		poEXIT->Create(FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
+		poEXIT->Create(comNo, FALSE, dx->GetTexNumber("./dat/texture/map/EXIT.da"), FALSE, FALSE);
 		//地面メイン
-		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+		poGroundM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空メイン
 		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poCeilingM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		//地面出口
-		poGroundE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poGroundE->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		//空出口
 		poCeilingE->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poCeilingE->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 3:
 		//地面入り口
-		poGroundF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
+		poGroundF->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground3.da"),
 			dx->GetTexNumber("./dat/texture/map/ground3Nor.da"), -1, TRUE, FALSE);
 		//空入り口
 		poCeilingF->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingF->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poCeilingF->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 		//地面メイン
-		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poGroundM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		//空メイン
 		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poCeilingM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 		break;
 	case 4:
 		//地面メイン
-		poGroundM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"),
+		poGroundM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ground5.da"),
 			dx->GetTexNumber("./dat/texture/map/ground5Nor.da"), -1, TRUE, FALSE);
 		//空メイン
 		poCeilingM->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poCeilingM->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"),
+		poCeilingM->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling5.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling5Nor.da"), -1, TRUE, FALSE);
 		break;
 	}
 
 	//木
 	if (woodcount > 0) {
-		mWood->CreateMesh();
+		mWood->CreateMesh(comNo);
 	}
 
 	//壁(板)
 	if (squarecount >= 1) {
 		for (int i = 0; i < 3; i++) {
-			poWall1[i]->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);//エラー候補
+			poWall1[i]->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/wall2.da"), TRUE, TRUE);//エラー候補
 		}
 	}
 
@@ -523,64 +521,64 @@ void Map::CreateMap() {
 	if (blockcountA >= 1) {
 		poWallA->SetCol(0.6f, 0.6f, 0.6f, 0.1f, 0.1f, 0.1f, 0, 0, 0);
 		poWallA->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poWallA->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
+		poWallA->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/wall1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall1Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountB >= 1) {
 		poWallB->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poWallB->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall2-1.da"),
+		poWallB->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/wall2-1.da"),
 			dx->GetTexNumber("./dat/texture/map/wall2Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountC >= 1) {
 		poWallC->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poWallC->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
+		poWallC->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling3_wall3.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling3_wall3Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountD >= 1) {
 		poWallD->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poWallD->Create(TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
+		poWallD->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/ceiling4_ground4.da"),
 			dx->GetTexNumber("./dat/texture/map/ceiling4_ground4Nor.da"), -1, TRUE, FALSE);
 	}
 	if (blockcountE >= 1) {
 		poWallE->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poWallE->Create(TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"),
+		poWallE->Create(comNo, TRUE, dx->GetTexNumber("./dat/texture/map/wall5.da"),
 			dx->GetTexNumber("./dat/texture/map/wall5Nor.da"), -1, TRUE, FALSE);
 	}
 
 	//リカバーポイント
 	if (r_point_count >= 1) {
-		poRecover.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);//エラー候補
+		poRecover.Create(comNo, FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);//エラー候補
 		for (int i = 0; i < 12; i++)
-			poRecoverLine[i].Create(FALSE, -1, FALSE, FALSE);//エラー候補
+			poRecoverLine[i].Create(comNo, FALSE, -1, FALSE, FALSE);//エラー候補
 	}
 
 	//動画テクスチャ松明
 	if (mo_count >= 1) {
 		poMo->TextureInit(256, 256);
 		poMo->setMaterialType(EMISSIVE);
-		poMo->CreateBillboard(true, true);
+		poMo->CreateBillboard(comNo, true, true);
 	}
 
 	//動画テクスチャ炎壁
 	if (f_wall_count >= 1) {
 		poF_Wall->TextureInit(256, 256);
 		poF_Wall->setMaterialType(DIRECTIONLIGHT_NONREFLECTION);
-		poF_Wall->Create(FALSE, -1, TRUE, TRUE);//エラー候補
+		poF_Wall->Create(comNo, FALSE, -1, TRUE, TRUE);//エラー候補
 	}
 
 	//ボス出現ポイント
 	if (boss_count >= 1) {
-		poBoss.Create(FALSE, dx->GetTexNumber("boss_magic.jpg"), TRUE, TRUE);//エラー候補
+		poBoss.Create(comNo, FALSE, dx->GetTexNumber("boss_magic.jpg"), TRUE, TRUE);//エラー候補
 	}
 
 	//エレベーター
 	if (Elevator_count >= 1) {
-		poElevator.Create(FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);
+		poElevator.Create(comNo, FALSE, dx->GetTexNumber("recover.jpg"), TRUE, TRUE);
 	}
 
 	MapHistory.TexOn();
 	MapHistory.TextureInit(128, 128);
-	MapHistory.CreateBox(600.0f, 100.0f, 0.1f, 100.0f, 100.0f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
+	MapHistory.CreateBox(comNo, 600.0f, 100.0f, 0.1f, 100.0f, 100.0f, 1.0f, 1.0f, 1.0f, 1.0f, TRUE, TRUE);
 }
 
 void Map::Mapupdate_Wood() {
@@ -659,7 +657,7 @@ void Map::Mapupdate_Wall1() {
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)poWall1[i]->InstancingUpdate(0);
+	for (int i = 0; i < 3; i++)poWall1[i]->InstancingUpdate(0, 0.1f);
 }
 
 void Map::Mapdraw_Wall1(int comNo) {
@@ -925,7 +923,7 @@ void Map::Mapupdate_Rain() {
 			{ 0.0f, 0.0f, 0.0f },
 			{ size,size,size }, { 0.0f, 0.0f, 0.0f, 0.0f });
 	}
-	poRain.InstancingUpdate(0.0f);
+	poRain.InstancingUpdate(0.0f, 0.1f);
 }
 
 void Map::Mapdraw_Rain(int comNo) {
@@ -1011,16 +1009,13 @@ void Map::Mapupdate_Recover() {
 				{ 0.0f, 0.0f, 0.0f },
 				{ 1.0f, 1.0f, (float)rnd }, { 0.0f, 0.0f, 0.0f, 0.0f });
 		}
-		poRecoverLine[(int)j].InstancingUpdate(0.0f);
+		poRecoverLine[(int)j].InstancingUpdate(0.0f, 0.1f);
 	}
-	/*dx->PointLightPosSet(7, { recovPosX, recovPosY, 2.0f },
-		{ 0.2f, 0.8f, 0.2f, 1.0f },
-		true, 500.0f);*/
 	poRecover.Update({ 0, 0, 4.0f },
 		{ 0, 0, 0, 0 },
 		{ 0,0,0 },
 		{ 1,1,1 },
-		0);
+		0, 0.1f);
 }
 
 void Map::Mapdraw_Recover(int comNo) {
@@ -1032,8 +1027,6 @@ void Map::Mapdraw_Recover(int comNo) {
 
 void Map::Mapcreate_Ds(int num) {
 	int ind = 0;
-	poMo->numEmissive = lightcount;
-	poMo->pos = std::make_unique<VECTOR3[]>(lightcount);
 	for (int k3 = 0; k3 < mxy.z; k3++) {
 		for (int j = 0; j < mxy.y; j++) {
 			for (int i = 0; i < mxy.x; i++) {
@@ -1044,19 +1037,15 @@ void Map::Mapcreate_Ds(int num) {
 					mxy.m[k3 * mxy.y * mxy.x + j * mxy.x + i] != 79)continue;
 				poMo->SetVertex(ind,
 					{ (float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f });
-				poMo->pos[ind++].as((float)i * 100.0f - 10.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f - 65.0f);
 
 				poMo->SetVertex(ind,
 					{ (float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f + 65.0f });
-				poMo->pos[ind++].as((float)i * 100.0f + 110.0f, (float)j * 100.0f + 50.0f, (float)k3 * 100.0f - 65.0f);
 
 				poMo->SetVertex(ind,
 					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f + 65.0f });
-				poMo->pos[ind++].as((float)i * 100.0f + 50.0f, (float)j * 100.0f - 10.0f, (float)k3 * 100.0f - 65.0f);
 
 				poMo->SetVertex(ind,
 					{ (float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f + 65.0f });
-				poMo->pos[ind++].as((float)i * 100.0f + 50.0f, (float)j * 100.0f + 110.0f, (float)k3 * 100.0f - 665.0f);
 
 			}
 		}
@@ -1066,13 +1055,11 @@ void Map::Mapcreate_Ds(int num) {
 void Map::Mapupdate_Ds() {
 	//各ライト設定
 	for (int i = 0; i < lightcount; i++) {
-		double dist = sqrt((cax1 - poMo->pos[i].x) * (cax1 - poMo->pos[i].x) +
-			(cay1 - poMo->pos[i].y) * (cay1 - poMo->pos[i].y));
+		double dist = sqrt((cax1 - poMo->getParameter()->updateDXR[0].v[i].x) * (cax1 - poMo->getParameter()->updateDXR[0].v[i].x) +
+			(cay1 - poMo->getParameter()->updateDXR[0].v[i].y) * (cay1 - poMo->getParameter()->updateDXR[0].v[i].y));
 		bool on = false;
 		if (dist < 1000.0)on = true;
-		dx->PointLightPosSet(poMo->firstNo + i, { 0, 0, 0 },
-			{ 0.8f, 0.4f, 0.4f, 1.0f },
-			on, 1000.0f, { 0.001f,0.0000001f,0.0001f });
+		poMo->setPointLight(i, on, 1000.0f, { 0.1f,0.01f,0.001f });
 	}
 
 	poMo->Update(20.0f, { 0,0,0,0 });
@@ -1189,8 +1176,10 @@ void Map::Mapcreate_EXIT(float x, float y, float z, float xsize) {
 }
 
 Map::~Map() {
-	dx->WaitFence();
-	dx->ResetPointLight();
+
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	cMa->WaitFence();
+	Dx_Light::ResetPointLight();
 	ARR_DELETE(wood);
 	ARR_DELETE(wall1);
 	free(light);
@@ -1258,9 +1247,10 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
 		}
 	}
 
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
 	//XY視野内判定
-	int viewleft = (int)(src_theta - dx->GetViewY_theta() / 2.5f);
-	int viewright = (int)(src_theta + dx->GetViewY_theta() / 2.5f);
+	int viewleft = (int)(src_theta - sw->GetViewY_theta() / 2.5f);
+	int viewright = (int)(src_theta + sw->GetViewY_theta() / 2.5f);
 	viewleft = (viewleft + 360) % 360;
 	viewright = viewright % 360;
 	bool ret = FALSE;
@@ -1278,15 +1268,16 @@ bool Map::ViewCulling(float obj_x, float obj_y, float obj_z) {
 		float dist_xy = sqrt(dist_x * dist_x + dist_y * dist_y);
 		radian = atan(dist_z / dist_xy);
 		theta = (int)(180.0 * radian / 3.14159265359);
-		if (theta < dx->GetViewY_theta() / 1.5)return TRUE;
+		if (theta < sw->GetViewY_theta() / 1.5)return TRUE;
 	}
 
 	return FALSE;
 }
 
 void Map::MapupdateWave() {
-	wav->Instancing(0.05f, { cax1, cay1, 5.0f },
+	//cax1, cay1
+	wav->Instancing({ 1100, 3100, 5.0f },
 		{ 0,0,0 },
-		{ 1.3f,1.3f,1.3f }, { 0, 0, 0, -0.2f });
-	wav->InstancingUpdate(0.0f);
+		{ 1.0f,1.0f,1.0f }, { 0, 0, 0, -0.1f });
+	wav->InstancingUpdate(0,0.2f,0.5f, 0.8f,152,152,20);
 }

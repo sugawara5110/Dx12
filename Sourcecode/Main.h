@@ -35,12 +35,9 @@ class Main {
 private:
 	//ウィンドウハンドル
 	HWND hWnd;
-	//DirectX12ラッパー
-	Dx12Process* dx;
 	//文字入力
 	DxText* text;
-	DXR_Basic* dxr = nullptr;
-	ParameterDXR* pdx[200];
+	DxrRenderer* dxr = nullptr;
 	//ポストエフェクト
 	PostEffect* mosaic = NULL;
 	PostEffect* blur = NULL;
@@ -68,10 +65,6 @@ private:
 	int battleSwitch = 0;
 	volatile bool mpDel_f = FALSE;
 	volatile bool btDel_f = FALSE;
-
-	PolygonData* pd = nullptr;
-	SkinMesh* sk[5] = {};
-
 	MultiThread th;
 
 	void DrawNowLoading(int com_no);

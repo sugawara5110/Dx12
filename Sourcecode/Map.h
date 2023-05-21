@@ -38,7 +38,6 @@ private:
 	int comNo;
 	static MapStPos MPos;     //マップスタート位置
 	static int boss_killed[5];//各ボス撃破履歴
-	Dx12Process* dx;
 	DxText* text;
 	T_float tfloat;
 	Position::mapxy mxy;
@@ -104,8 +103,8 @@ private:
 		* poGroundF, * poCeilingF, * poGroundM, * poCeilingM, * poGroundE, * poCeilingE,
 		* poBackground, poRain, poRecover, poRecoverLine[12], poBoss, poElevator,
 		* poDirectionLight;
-	EmissiveObj_Pa* poMo;
-	EmissiveObj_Po* poEXIT;
+	ParticleData* poMo;
+	PolygonData* poEXIT;
 	Position::E_Pos e_pos[4];
 	Position::H_Pos h_pos;
 	Hero* he;//移動用
@@ -195,7 +194,6 @@ public:
 	bool GetMenuState(int* cnt);
 	~Map();
 	ParameterDXR** getParameterDXR(int* numPara);
-	void setPointLightNo();
 };
 
 #endif

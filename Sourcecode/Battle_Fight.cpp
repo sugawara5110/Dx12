@@ -33,11 +33,6 @@ ParameterDXR** Battle::getParameterDXR(int* numPara) {
 	return Pdx;
 }
 
-void Battle::setPointLightNo() {
-	for (int i = 0; i < e_num; i++)
-		enemy[i].setPointLightNo();
-}
-
 Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 
 	Position::H_Pos h_posOut;//視点変換後用
@@ -70,7 +65,8 @@ Result Battle::FightUpdate(Hero* hero, Directionkey direction, Result result) {
 	float cy2 = h_posOut.cy2;//注視点
 	float cz = h_posOut.cz;
 
-	dx->Cameraset({ cx, cy, cz }, { cx2, cy2, cz });
+	Dx_SwapChain* sw = Dx_SwapChain::GetInstance();
+	sw->Cameraset({ cx, cy, cz }, { cx2, cy2, cz });
 	Act_fin_flg act;
 	//敵戦闘不能アクションフラグ
 	//LOSTは発生したらずっとなので注意
@@ -320,12 +316,12 @@ void Battle::StreamOutput(int comNo, Encount enc) {
 
 void Battle::StreamOutputAfterDraw(Encount enc) {
 	for (int i = 0; i < e_num; i++)enemy[i].StreamOutputAfterDraw(enc);
-	E_select.Draw();
+	E_select.Draw(comNo);
 }
 
 void Battle::Draw2D(Encount enc) {
-	command.Draw();
-	h_select.Draw();
+	command.Draw(comNo);
+	h_select.Draw(comNo);
 }
 
 bool Battle::GetBossEffectState(float *blur) {

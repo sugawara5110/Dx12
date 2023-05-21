@@ -131,10 +131,7 @@ Act_fin_flg Enemy::EnemyUpdate(Battle* battle, int* E_select_obj, Action action,
 	for (int i = 0; i < 4; i++)for (int j = 0; j < 4; j++) {
 		if (!effectOn[i][j]) {
 			effect[i][j].DrawOff();
-			int emissiveNo = effect[i][j].emissiveNo;
-			dx->PointLightPosSet(emissiveNo, { 0, 0, 0 },
-				{ 0, 0, 0, 0 },
-				false, 0);
+			effect[i][j].setPointLightAll(false, 0);
 		}
 	}
 
@@ -223,9 +220,9 @@ void Enemy::StreamOutputAfterDraw(Encount enc) {
 	}
 	else {
 		//SideEnemy
-		if (en)mag->Draw();
+		if (en)mag->Draw(comNo);
 		//BossMag
-		if (mag_boss)mag_boss->Draw();
+		if (mag_boss)mag_boss->Draw(comNo);
 	}
 
 	//SideEnemy
@@ -246,12 +243,6 @@ ParameterDXR** Enemy::getParameterDXR(int* numPara) {
 
 	*numPara = numP;
 	return pdx;
-}
-
-void Enemy::setPointLightNo() {
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			effect[i][j].emissiveNo = EmissiveCount::getNo();
 }
 
 Action Enemy::Normal_act_get(){

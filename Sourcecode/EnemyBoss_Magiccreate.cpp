@@ -141,39 +141,40 @@ EnemyBoss::EnemyBoss(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e
 		switch (t_no) {
 		case 0:
 			en_boss_att->GetFbx("./dat/mesh/boss1att/boss1bone.fbx");
-			en_boss_att->GetBuffer(1, 600.0f);
+			en_boss_att->GetBuffer(1, 60.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss1att/boss1bone_wait.fbx", 1);
-			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetBuffer_Sub(1, 20.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss1att/boss1bone_magic.fbx", 2);
-			en_boss_att->GetBuffer_Sub(2, 200.0f);
+			en_boss_att->GetBuffer_Sub(2, 20.0f);
 			break;
 		case 1:
 			en_boss_att->GetFbx("./dat/mesh/boss2att/boss2bone.fbx");
-			en_boss_att->GetBuffer(1, 600.0f);
+			en_boss_att->GetBuffer(1, 60.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss2att/boss2bone_wait.fbx", 1);
-			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetBuffer_Sub(1, 20.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss2att/boss2bone_magic.fbx", 2);
-			en_boss_att->GetBuffer_Sub(2, 200.0f);
+			en_boss_att->GetBuffer_Sub(2, 20.0f);
 			break;
 		case 3:
 			en_boss_att->GetFbx("./dat/mesh/boss4att/boss4bone.fbx");
-			en_boss_att->GetBuffer(1, 500.0f);
+			en_boss_att->GetBuffer(1, 50.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss4att/boss4bone_wait.fbx", 1);
-			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetBuffer_Sub(1, 20.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/boss4att/boss4bone_magic.fbx", 2);
-			en_boss_att->GetBuffer_Sub(2, 200.0f);
+			en_boss_att->GetBuffer_Sub(2, 20.0f);
 			break;
 		case 4:
 			en_boss_att->GetFbx("./dat/mesh/lastbossatt/lastbossbone.fbx");
-			en_boss_att->GetBuffer(1, 500.0f);
+			en_boss_att->GetBuffer(1, 50.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/lastbossatt/lastbossbone_wait.fbx", 1);
-			en_boss_att->GetBuffer_Sub(1, 200.0f);
+			en_boss_att->GetBuffer_Sub(1, 20.0f);
 			en_boss_att->GetFbxSub("./dat/mesh/lastbossatt/lastbossbone_magic.fbx", 2);
-			en_boss_att->GetBuffer_Sub(2, 200.0f);
+			en_boss_att->GetBuffer_Sub(2, 20.0f);
 			break;
 		}
 	}
 	mag_boss = new ParticleData();
+	Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
 	mag_boss->GetBufferParticle(dx->GetTexNumber("boss_magic.jpg"), mag_size, 1.0f);
 }
 
@@ -206,24 +207,20 @@ void EnemyBoss::SetVertex() {
 //@Override
 void EnemyBoss::SetCommandList(int com_no) {
 	comNo = com_no;
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			effect[i][j].SetCommandList(comNo);
-	if (e_no == 2) en_boss_att0->SetCommandList(comNo);
-	if (e_no != 2) en_boss_att->SetCommandList(comNo);
-	mag_boss->SetCommandList(comNo);
 }
 
 //@Override
 void EnemyBoss::CreateEnemy() {
 	EffectCreate();
 	if (e_no == 2) {
-		en_boss_att0->CreateMesh();
+		en_boss_att0->CreateMesh(comNo);
 	}
 	if (e_no != 2) {
 		en_boss_att->CreateFromFBX(dispOn);
 	}
-	mag_boss->CreateParticle(dx->GetTexNumber("particle.jpg"), true, true);
+	Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
+	mag_boss->setMaterialType(EMISSIVE);
+	mag_boss->CreateParticle(comNo, dx->GetTexNumber("particle.jpg"), true, true);
 }
 
 //@Override
@@ -335,9 +332,7 @@ bool EnemyBoss::Magiccreate(float x, float y, float z) {
 	if (count != 0.0f) {
 		mag_boss->Update({ x + mov_x, y + mov_y, z + 5.0f + mov_z }, { 0,0,0,0 }, (float)((int)count % 360), 0.3f, FALSE, mag_size * 5.0f);
 	}
-	dx->PointLightPosSet(3, { x, y, z },
-		{ 0.7f, 0.2f, 0.2f, 1.0f },
-		true, mag_size * 1000.0f, { 0.001f, 0.0001f, 0.0001f });
+	mag_boss->setPointLightAll(true, mag_size * 1000.0f, { 0.001f, 0.0001f, 0.0001f });
 
 	if ((count += m) > 900) {
 		count = 0.0f;
@@ -356,14 +351,14 @@ void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, 
 		return;
 	}
 	if (attOn) {
-		attFin = en_boss_att->Update(0, tfloat.Add(1.0f),
+		attFin = en_boss_att->Update(0, tfloat.Add(0.1f),
 			{ x, y, z + size_y * 0.5f },
 			{ cr, cg, cb , 0.0f }, { 0, 0,theta },
 			{ size_x * 0.5f,size_x * 0.5f,size_x * 0.5f },
 			disp_size);
 	}
 	if (magicAttOn) {
-		en_boss_att->Update(2, tfloat.Add(0.5f),
+		en_boss_att->Update(2, tfloat.Add(0.05f),
 			{ x, y, z + size_y * 0.5f },
 			{ cr, cg, cb, 0.0f },
 			{ 0, 0,theta },
@@ -371,7 +366,7 @@ void EnemyBoss::ObjUpdate(float x, float y, float z, float r, float g, float b, 
 			disp_size);
 	}
 	if (!attOn && !magicAttOn) {
-		en_boss_att->Update(1, tfloat.Add(0.2f),
+		en_boss_att->Update(1, tfloat.Add(0.02f),
 			{ x, y, z + size_y * 0.5f },
 			{ cr, cg, cb, 0.0f },
 			{ 0, 0,theta },

@@ -18,9 +18,8 @@
 class StateMenu {
 
 private:
-	Dx12Process *dx;
 	PolygonData2D state, s_state, r_state, r_state1;
-	DxText *text;
+	DxText* text;
 	MapMenuSelect menu_select;
 	int comNo;
 	int main_select;
@@ -47,21 +46,21 @@ private:
 	void St_create();
 	void Re_create();
 	void Re_create1();
-	bool Main_Menu(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction);
-	void St_Menu(Hero *hero, Directionkey direction);
-	void Re_Menu(Hero *hero, Directionkey direction);
-	void Pp_Menu(Hero *hero, Directionkey direction);
+	bool Main_Menu(Position::H_Pos* h_p, int map_no, int* boss_killed, MapHistoryData* maphis, Hero* hero, Directionkey direction);
+	void St_Menu(Hero* hero, Directionkey direction);
+	void Re_Menu(Hero* hero, Directionkey direction);
+	void Pp_Menu(Hero* hero, Directionkey direction);
 
 public:
 	StateMenu();
 	bool TitleMenu(Directionkey direction);
-	Parameter::P_Data *SetP_Data(int i);
-	Position::H_Pos *SetH_Pos();
+	Parameter::P_Data* SetP_Data(int i);
+	Position::H_Pos* SetH_Pos();
 	int Set_boss_kil(int i);
-	MapHistoryData *GetMapHistory();
+	MapHistoryData* GetMapHistory();
 	int SetMap_No();
 	void SetCommandList(int com_no);
-	bool MenuUpdate(Position::H_Pos *h_p, int map_no, int *boss_killed, MapHistoryData *maphis, Hero *hero, Directionkey direction);
+	bool MenuUpdate(Position::H_Pos* h_p, int map_no, int* boss_killed, MapHistoryData* maphis, Hero* hero, Directionkey direction);
 	void Draw();
 	~StateMenu();
 };

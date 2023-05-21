@@ -71,7 +71,7 @@ void InstanceCreate::DeleteThread_R() {
 
 	MovieSoundManager::ObjInit();
 	TextureLoader::GetTexture2(TextureBinaryLoader::getTexNum(), TextureBinaryLoader::getTexture(),
-		Dx12Process::GetInstance());
+		Dx_TextureHolder::GetInstance());
 	progress = 30;
 }
 
@@ -82,16 +82,18 @@ void InstanceCreate::DeleteThread_H() {
 void InstanceCreate::DeleteThread_B() {
 	th.end();
 
-	Dx12Process::GetInstance()->RunGpu();
-	Dx12Process::GetInstance()->WaitFence();
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	cMa->RunGpu();
+	cMa->WaitFence();
 	battle->SetCommandList(0);
 }
 
 void InstanceCreate::DeleteThread_M() {
 	th.end();
 
-	Dx12Process::GetInstance()->RunGpu();
-	Dx12Process::GetInstance()->WaitFence();
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	cMa->RunGpu();
+	cMa->WaitFence();
 	map[1 - mapInd]->SetCommandList(0);
 	mapInd = 1 - mapInd;
 	MapObjSet();//マップのセット
@@ -113,12 +115,14 @@ void InstanceCreate::HeroSetVertex() {
 }
 
 void InstanceCreate::HeroCreate() {
-	Dx12Process::GetInstance()->Bigin(1);
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj1 = cMa->getGraphicsComListObj(1);
+	cObj1->Bigin();
 	for (int i = 0; i < 4; i++) {
 		he[i].SetCommandList(1);
 		he[i].CreateHero();
 	}
-	Dx12Process::GetInstance()->End(1);
+	cObj1->End();
 }
 
 Hero* InstanceCreate::HeroCreate_f() {
@@ -150,10 +154,12 @@ void InstanceCreate::BattleSetVertex() {
 }
 
 void InstanceCreate::BattleCreate() {
-	Dx12Process::GetInstance()->Bigin(1);
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj1 = cMa->getGraphicsComListObj(1);
+	cObj1->Bigin();
 	battle->SetCommandList(1);
 	battle->CreateBattle();
-	Dx12Process::GetInstance()->End(1);
+	cObj1->End();
 }
 
 bool InstanceCreate::BattleCreate_f() {
@@ -186,10 +192,12 @@ void InstanceCreate::MapSetVertex() {
 }
 
 void InstanceCreate::MapCreate() {
-	Dx12Process::GetInstance()->Bigin(1);
+	Dx_CommandManager* cMa = Dx_CommandManager::GetInstance();
+	Dx_CommandListObj* cObj1 = cMa->getGraphicsComListObj(1);
+	cObj1->Bigin();
 	map[1 - mapInd]->SetCommandList(1);
 	map[1 - mapInd]->CreateMap();
-	Dx12Process::GetInstance()->End(1);
+	cObj1->End();
 	progress = 95;
 }
 

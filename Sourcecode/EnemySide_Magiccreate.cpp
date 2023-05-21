@@ -6,7 +6,7 @@
 
 #include "EnemySide.h"
 
-EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e_po) :Enemy(t_no, no) {
+EnemySide::EnemySide(int t_no, int no, Position::H_Pos* h_po, Position::E_Pos* e_po) :Enemy(t_no, no) {
 
 	h_pos = h_po;
 	e_pos = e_po;
@@ -367,10 +367,10 @@ EnemySide::EnemySide(int t_no, int no, Position::H_Pos *h_po, Position::E_Pos *e
 	EffectGetBuffer();
 
 	en = new PolygonData();
-	en->GetVBarray(CONTROL_POINT,1);
+	en->GetVBarray(CONTROL_POINT, 1);
 
-	mag = new EmissiveObj_Po();
-	mag->GetVBarray(SQUARE,1);
+	mag = new PolygonData();
+	mag->GetVBarray(SQUARE, 1);
 }
 
 //@Override
@@ -401,11 +401,6 @@ void EnemySide::SetVertex() {
 //@Override
 void EnemySide::SetCommandList(int com_no) {
 	comNo = com_no;
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			effect[i][j].SetCommandList(comNo);
-	en->SetCommandList(comNo);
-	mag->SetCommandList(comNo);
 }
 
 //@Override
@@ -413,8 +408,9 @@ void EnemySide::CreateEnemy() {
 	EffectCreate();
 	char str[20];
 	sprintf_s(str, sizeof(char) * 20, "enemy%d.jpg", e_no + 1);
-	en->Create(TRUE, dx->GetTexNumber(str), TRUE, TRUE);
-	mag->Create(FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
+	Dx_TextureHolder* dx = Dx_TextureHolder::GetInstance();
+	en->Create(comNo, TRUE, dx->GetTexNumber(str), TRUE, TRUE);
+	mag->Create(comNo, FALSE, dx->GetTexNumber("side_magic.jpg"), TRUE, TRUE);
 }
 
 //@Override
@@ -513,7 +509,7 @@ bool EnemySide::Magiccreate(float x, float y, float z) {
 		{ 0, 0, 0, 0 },
 		{ 0,0,count },
 		{ 1,1,1 },
-		0);
+		0,0);
 	float m = tfloat.Add(0.15f);
 	if ((count += m) > 100) {
 		count = 0.0f;
@@ -529,7 +525,7 @@ void EnemySide::ObjUpdate(float x, float y, float z, float r, float g, float b, 
 		{ r, g, b, 0.0f },
 		{ 0,0,theta },
 		{ 1,1,1 },
-		0);
+		0,0.1f);
 }
 
 //@Override

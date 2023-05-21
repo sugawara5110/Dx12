@@ -26,31 +26,6 @@ struct MapHistoryData {
 	UINT maphis4[3 * 30 * 30] = { 0 };
 };
 
-class EmissiveCount {
-private:
-	static int count;
-public:
-	static int getNo() {
-		count++;
-		return count - 1;
-	}
-	static void reset() {
-		count = 0;
-	}
-};
-
-class EmissiveObj_Po :public PolygonData {
-public:
-	int emissiveNo = 0;
-};
-
-class EmissiveObj_Pa :public ParticleData {
-public:
-	int numEmissive = 1;
-	int firstNo = 0;
-	std::unique_ptr<VECTOR3[]> pos;
-};
-
 class Position{
 
 public:
